@@ -4,15 +4,16 @@ import { Gi3dGlasses } from "react-icons/gi";
 import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
 import Footer from '@/components/Footer';
+import Link from 'next/link'
 const page = () => {
   return (
     <div>
       <NavBar />
       <div className='text-center font-bold mt-20 flex justify-center items-center flex-col'>
-        <div className='flex items-center text-[2.8rem] text-[#00C7A3]'>
+        <div className='flex -z-50 items-center text-[2.8rem] text-[#00C7A3]'>
           <p>Empowering Creators </p> <Gi3dGlasses className='mx-3' /> <p>Rewarding Fans</p>
         </div>
-        <p className='text-[1.2rem] font-bold text-gray-500'>Access exclusive posts, videos, and more from your favorite creators.</p>
+        <p className='text-[1.2rem] -z-50 font-bold text-gray-500'>Access exclusive posts, videos, and more from your favorite creators.</p>
       </div>
 
       <div className='flex justify-center items-center my-10 mt-24'>
@@ -38,7 +39,9 @@ const page = () => {
 
       <div className='flex justify-center items-center gap-x-8 mb-14 mt-20'>
         <button className='h-[50px] w-[250px] text-[1.2rem] p-3 rounded-[45px] bg-[#8A2BE2] hover:bg-[#562781] text-white'>Continue as viewer</button>
-        <button className='h-[50px] w-[250px] text-[1.2rem] p-3 rounded-[45px] bg-[#28b834] hover:bg-[#1f6625] text-white'>Create your pass</button>
+        <Link href='/mypass'>
+          <button className='h-[50px] w-[250px] text-[1.2rem] p-3 rounded-[45px] bg-[#28b834] hover:bg-[#1f6625] text-white'>Create your pass</button>
+        </Link>
       </div>
       <Footer />
     </div>

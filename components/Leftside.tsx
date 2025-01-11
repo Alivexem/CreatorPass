@@ -2,10 +2,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 const SideNav = () => {
     return (
-    <div className='md:h-[97vh] h-[100vh] w-[100%] bg-[#682E9E] px-10 pb-5 relative md:rounded-lg text-white box-border p-10 flex flex-col md:items-start'>
+    <div style={{
+        background: 'linear-gradient(93.1deg, #893ecf 0%, #682E9E 98.22%)'
+    }} className='md:h-[97vh] h-[100vh] w-[100%] px-10 pb-5 relative md:rounded-lg text-white box-border p-10 flex flex-col md:items-start'>
             <div className='flex items-center justify-between w-full space-x-4'>
                 <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
-                <Link href='/'><button className='text-[#cbd5e1] lg:h-[45px] h-[35px] text-[0.8rem] lg:text-[0.9rem] w-[100px] lg:w-[150px] hover:bg-[#cbd5e1] hover:text-black border-[1px] rounded-[40px] border-[#cbd5e1] hover:border-none bg-transparent'>
+                <Link href='/'><button className='bg-[#cbd5e1] lg:h-[45px] h-[35px] text-[0.8rem] lg:text-[0.9rem] w-[100px] lg:w-[150px] text-black hover:bg-transparent hover:text-white border-[1px] rounded-[40px] border-[#cbd5e1]'>
                    <span className='hidden lg:inline'>Visit Github</span>
                    <span className='lg:hidden'>Github</span>
                 </button></Link>

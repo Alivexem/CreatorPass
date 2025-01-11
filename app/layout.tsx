@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Kanit } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const kanit = Kanit({
+  variable: "--font-kanit",
   subsets: ["latin"],
+  weight: ["400", "700"], // Specify the weights you want to use
 });
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${nunito.variable} antialiased`}>
+      <body className={`${kanit.variable} antialiased`}>
         {children}
       </body>
     </html>
