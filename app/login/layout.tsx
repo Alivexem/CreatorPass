@@ -3,7 +3,7 @@ import App from './main'
 import SideNav from '@/components/Leftside'
 const Layout = () => {
   return (
-    <div className='flex p-3'>
+    <div className='flex p-3 bg-[#1A1D1F]'>
     
     <div className='hidden md:flex md:w-[50%] lg:w-[45%] w-[100%]'>
         <SideNav />

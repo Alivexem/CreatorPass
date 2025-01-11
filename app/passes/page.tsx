@@ -10,14 +10,14 @@ import { FaArrowAltCircleRight } from "react-icons/fa";
 
 const page = () => {
   return (
-    <div>
+    <div className='bg-[#1A1D1F]'>
       <NavBar />
       <div className='flex justify-center items-center mt-10'>
         <Image src='/mintex.png' height={50} width={500} alt='mint' />
       </div>
 
       <div className='flex items-center justify-center gap-x-10'>
-      <FaArrowAltCircleLeft className='text-[2.5rem] mb-4' />
+      <FaArrowAltCircleLeft className='text-[2.5rem] mb-4 text-white' />
         <div className='flex flex-col justify-center items-center my-10'>
           
           <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
@@ -95,7 +95,7 @@ const page = () => {
           <button className='bg-blue-500 text-[0.8rem] font-bold border-black border-[1px] text-white px-4 py-2 mt-4'>Mint NFT</button>
         </div>
 
-        <FaArrowAltCircleRight className='text-[2.5rem] mt-4' />
+        <FaArrowAltCircleRight className='text-[2.5rem] mt-4 text-white' />
       </div>
       <Footer />
     </div>

@@ -27,8 +27,8 @@ const App = () => {
     };
 
     return (
-        <div className='lg:ml-10 mt-24 lg:mt-10 bg-white md:w-[90%] w-[95vw] text-[#000000] px-[40px] flex flex-col justify-center items-center lg:items-start'>
-            <div className='md:text-[30px] text-[26px] text-black font-bold w-full text-center lg:text-left'>
+        <div className='lg:ml-10 mt-24 lg:mt-10 bg-[#1A1D1F] md:w-[90%] w-[95vw] text-white px-[40px] flex flex-col justify-center items-center lg:items-start'>
+            <div className='md:text-[30px] text-[26px] text-white font-bold w-full text-center lg:text-left'>
                 <p className='leading-none'> Welcome back!</p>
             </div>
             <p className='text-[14px] mt-[15px] text-[#94a3b8] w-full text-center lg:text-left'>
@@ -59,7 +59,7 @@ const App = () => {
                         'Login'
                     )}
                 </button>
-                <p className='text-[#333333] text-[0.9rem]'>Forgot password?</p>
+                <p className='text-white text-[0.9rem]'>Forgot password?</p>
 
             </form>
             <div className='mt-[10px] w-full flex items-center justify-center gap-x-2'>

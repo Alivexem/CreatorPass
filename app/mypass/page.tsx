@@ -10,7 +10,7 @@ import { FaArrowAltCircleRight } from "react-icons/fa";
 
 const page = () => {
   return (
-    <div>
+    <div className='bg-[#1A1D1F]'>
       <NavBar />
       <div className='flex justify-center items-center mt-10'>
         <Image src='/privex.png' height={50} width={500} alt='mint' />

@@ -34,13 +34,13 @@ const App = () => {
     };
 
     return (
-        <div className='relative lg:ml-10 mt-24 lg:mt-5 bg-white text-[#000000] px-[40px] flex flex-col justify-center items-center lg:items-start'>
+        <div className='relative lg:ml-10 mt-24 lg:mt-5 bg-[#1A1D1F] text-white px-[40px] flex flex-col justify-center items-center lg:items-start'>
             {showToaster && (
                 <div className='absolute top-5 right-5 bg-blue-500 text-white px-4 py-2 rounded'>
                     Account created successfully
                 </div>
             )}
-            <div className='md:text-[30px] text-[26px] text-black font-bold w-full text-center lg:text-left'>
+            <div className='md:text-[30px] text-[26px] text-white font-bold w-full text-center lg:text-left'>
                 <p className='leading-none'> Create an account</p>
             </div>
             <p className='text-[14px] mt-[15px] text-[#94a3b8] w-full text-center lg:text-left'>

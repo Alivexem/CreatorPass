@@ -3,7 +3,7 @@ import Image from 'next/image'
 const SideNav = () => {
     return (
     <div style={{
-        background: 'linear-gradient(93.1deg, #893ecf 0%, #682E9E 98.22%)'
+        background: 'linear-gradient(93.1deg, #6d2baa 0%, #682E9E 98.22%)'
     }} className='md:h-[97vh] h-[100vh] w-[100%] px-10 pb-5 relative md:rounded-lg text-white box-border p-10 flex flex-col md:items-start'>
             <div className='flex items-center justify-between w-full space-x-4'>
                 <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />

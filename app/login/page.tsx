@@ -5,7 +5,7 @@ import Layout from './layout'
 const page = () => {
   return (
 
-    <div className='p-5 bg-white box-border'>
+    <div className='p-5 bg-[#1A1D1F] box-border'>
          {/* <div className='absolute lg:hidden top-[5%] left-[5%]'> */}
         {/* <Whitelogo /> */}
       {/* </div> */}
