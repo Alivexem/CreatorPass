@@ -8,6 +8,10 @@ import Link from 'next/link'
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { FaFire } from "react-icons/fa6";
+import { FaUnlockKeyhole } from "react-icons/fa6";
+import { FaBridgeCircleCheck } from "react-icons/fa6";
+import { SiFueler } from "react-icons/si";
+import { RiVipCrown2Fill } from "react-icons/ri";
 const page = () => {
   return (
     <div className='bg-[#1A1D1F]'>
@@ -37,6 +41,34 @@ const page = () => {
         </div>
         <FaArrowAltCircleRight className='text-[2.5rem] mt-4 text-white' />
       </div>
+
+      <div className='flex justify-evenly items-center text-white text-[1.4rem]'>
+      
+              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+                <FaUnlockKeyhole />
+                <p className='text-center'>Access Fun Creators
+                </p>
+              </div>
+              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+                <FaBridgeCircleCheck />
+                <p className='text-center'>
+                  View Exclusive Contents
+                </p>
+              </div>
+              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+                 <SiFueler />
+                <p className='text-center'>
+                  Mint NFT Passes
+                </p>
+              </div>
+              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+                <RiVipCrown2Fill />
+                <p className='text-center'>
+                  Engage and have fun     
+                </p>
+              </div>
+            </div>
+            
 
       <Footer />
     </div>

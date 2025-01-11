@@ -22,11 +22,11 @@ const Leftbar = () => {
     setActiveItem(item); // Set the clicked item as active
   };
 
-  const isActive = (item: string) => activeItem === item ? 'text-blue-500' : 'text-gray-400';
+  const isActive = (item: string) => activeItem === item ? 'text-blue-300' : 'text-gray-200';
 
   return (
-    <div className='bg-white fixed border-2 w-[23%] top-0 h-[100vh] p-0 flex justify-start flex-col items-start pl-20'>
-      <Image src='/purpleLogo.png' height={40} width={200} alt='Iwang Logo' className='-ml-7 mt-5' />
+    <div className='bg-[#1A1D1F] border-gray-600 fixed border-2 w-[23%] top-0 h-[100vh] p-0 flex justify-start flex-col items-start pl-20'>
+      <Image src='/whiteLogo.png' height={40} width={200} alt='Iwang Logo' className='-ml-7 mt-5' />
       <div className='flex flex-col gap-y-[30px] text-md font-[700] justify-start mt-[48px]'>
         
       <Link href='/welcome'>
@@ -57,40 +57,8 @@ const Leftbar = () => {
           <div onClick={handleToggle} className='flex items-center gap-x-1'>
             <BiCandles />
             <p>Contents</p>
-            <RiArrowDropDownLine style={{ display: isOpen ? 'none' : 'block' }} className='text-[2rem]' />
           </div>
-          <RiArrowDropUpLine style={{ display: isOpen ? 'block' : 'none' }} className='text-[2rem]' />
         </div>
-
-        <ul style={{ display: isOpen ? 'block' : 'none'}} className='text-sm ml-3 -my-4 cursor-pointer'>
-          <Link href='/product'>
-            <li
-              onClick={() => handleClick('products')}
-              className={`hover:text-blue-500 mb-3 ${isActive('products')}`}
-            >
-              Upload new contents
-            </li>
-          </Link>
-          <Link href='/allcategories'>
-            <li
-              onClick={() => handleClick('categories')}
-              className={`hover:text-blue-500 mb-3 ${isActive('categories')}`}
-            >
-              Manage existing content
-            </li>
-          </Link>
-  
-        </ul>
-
-        <Link href='/mypass'>
-          <div
-            onClick={() => handleClick('orders')}
-            className={`flex items-center gap-x-1 cursor-pointer ${isActive('orders')} hover:text-blue-500`}
-          >
-            <IoBagOutline />
-            <p>Manage my pass</p>
-          </div>
-        </Link>
       </div>
 
       <button className='flex items-center hover:bg-blue-700 justify-center bg-purple-800 text-[0.8rem] w-[180px] h-[40px] px-4 py-2 gap-x-3 mt-10 text-white rounded-md'>

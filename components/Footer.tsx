@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { FaFire } from "react-icons/fa6";
 const Footer = () => {
     return (
-        <div className='mt-[100px] bg-[#1A1D1F] flex-col w-[100%] h-[200px] text-white flex justify-center items-center p-3'>
+        <div className='mt-[100px] bg-[#15171a] flex-col w-[100%] h-[200px] text-white flex justify-center items-center p-3'>
             <div className='flex justify-center items-center flex-col space-y-5'>
                 <div className='flex items-center gap-x-2'>
                     <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
