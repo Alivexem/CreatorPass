@@ -23,7 +23,7 @@ const SideNav = () => {
 
                 </div>
                 <div className='w-[150px] flex items-center justify-evenly mt-5'>
-                    <div className='w-[40px] h-[6px] border-none bg-[#25feaa] rounded-sm'></div>
+                    <div className='w-[40px] h-[6px] border-none bg-[#1A1D1F] rounded-sm'></div>
                     <div className='w-[40px] h-[6px] border-none bg-white rounded-sm'></div>
                     <div className='w-[40px] h-[6px] border-none bg-white rounded-sm'></div>
                 </div>

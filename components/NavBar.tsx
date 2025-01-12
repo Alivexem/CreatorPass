@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation'; // Import usePathname
 import { FiSearch } from "react-icons/fi";
 import { GoHome } from "react-icons/go";
 import Link from 'next/link';
@@ -10,6 +11,7 @@ const NavBar = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const pathname = usePathname(); // Initialize usePathname
 
   const toggleMenu = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -55,13 +57,25 @@ const NavBar = () => {
         <input className='ml-3 bg-transparent pr-5 h-full w-full outline-none border-none' placeholder='Search CreatorPass' type='text' />
       </div>
       <div className='flex items-center gap-x-6 text-white text-[1rem] mr-3'>
-        <Link href='/welcome'><p className='cursor-pointer hover:text-[#00C7A3]'>Home</p></Link>
-        <Link href='/creators'><p className='cursor-pointer hover:text-[#00C7A3]'>Creators</p></Link>
-        <Link href='/dashboard'><p className='hover:text-[#00C7A3] cursor-pointer'>Dashboard</p></Link>
-        <Link href='/passes'><p className='cursor-pointer hover:text-[#00C7A3]'>Passes</p></Link>
-        <Link href='/'><div className='bg-gray-800 h-8 w-auto rounded-lg p-2 flex justify-center items-center'><p className='cursor-pointer hover:text-[#00C7A3] text-white'>Sign out</p></div></Link>
-        <div className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer' onClick={handleConnectWallet}>
-          <p className='hover:text-[#00C7A3] text-[#682E9E]'>Connect wallet</p>
+        <Link href='/welcome'>
+          <p className={`cursor-pointer ${pathname === '/welcome' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Home</p>
+        </Link>
+        <Link href='/creators'>
+          <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Creators</p>
+        </Link>
+        <Link href='/dashboard'>
+          <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Dashboard</p>
+        </Link>
+        <Link href='/passes'>
+          <p className={`cursor-pointer ${pathname === '/passes' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Passes</p>
+        </Link>
+        <Link href='/'>
+          <div className='bg-gray-800 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'>
+            <p className='text-white'>Sign out</p>
+          </div>
+        </Link>
+        <div className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]' onClick={handleConnectWallet}>
+          <p className='text-[#682E9E]'>Connect wallet</p>
         </div>
       </div>
 
