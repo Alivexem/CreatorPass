@@ -4,11 +4,19 @@ import { solana, solanaTestnet, solanaDevnet } from '@reown/appkit/networks';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 
 const solanaWeb3JsAdapter = new SolanaAdapter({
-  wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()]
+  wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
+  onError: (error) => {
+    console.error('Solana adapter error:', error);
+    // Handle error appropriately
+  },
+  onDisconnect: () => {
+    // Optional: Add any cleanup logic here
+    alert('Wallet disconnected');
+  },
+  defaultProvider: 'phantom', 
 });
 
 // 1. Get projectId from https://cloud.reown.com
-const projectId = process.env.NEXT_PUBLIC_REOWN_API_KEY;
 
 // 2. Create a metadata object - optional
 const metadata = {
@@ -21,22 +29,20 @@ const metadata = {
 // 3. Create modal
 const modal = createAppKit({
   adapters: [solanaWeb3JsAdapter],
-  projectId,
+  projectId: process.env.NEXT_PUBLIC_REOWN_API_KEY,
   networks: [solanaTestnet, solana],
   metadata,
   features: {
-    email: true, // default to true
+    email: true,
     socials: ['google'],
-    emailShowWallets: true, // default to true    
+    emailShowWallets: true,
   },
-  allWallets: 'SHOW', // default to SHOW
+  allWallets: 'SHOW',
+  onError: (error) => {
+    console.error('AppKit error:', error);
+    // Handle error appropriately
+  }
 });
 
-const openModal = (open, isConnected, router) => {
-  open();
-  // if (isConnected) {
-  //   router.push('/welcome');
-  // }
-};
 
-export { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect, openModal };
+export { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect };

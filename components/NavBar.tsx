@@ -1,31 +1,50 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation'; // Import usePathname
+import { usePathname } from 'next/navigation';
 import { FiSearch } from "react-icons/fi";
-// import { GoHome } from "react-icons/go";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppKit, useAppKitAccount, useDisconnect } from '../utils/reown';
-// import type { Provider } from '@reown/appkit-adapter-solana'
 
 const NavBar = () => {
-  const pathname = usePathname(); // Initialize usePathname
-  const { isConnected } = useAppKitAccount()
+  const pathname = usePathname();
+  const { isConnected, address } = useAppKitAccount();
   const router = useRouter();
-  // const { walletProvider } = useAppKitProvider<Provider>('solana');
+  const { disconnect } = useDisconnect();
   const [connectValue, setConnectValue] = useState('Connect Wallet');
-  // alert(isConnected)
-  if (isConnected) {
-    setConnectValue('Connected');
-  }
-  // const { disconnect } = useDisconnect();
   const { open } = useAppKit();
 
+  useEffect(() => {
+    if (isConnected && address) {
+      setConnectValue('Connected');
+    } else {
+      setConnectValue('Connect Wallet');
+    }
+  }, [isConnected, address]);
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+      setConnectValue('Connect Wallet');
+      router.push('/');
+    } catch (error) {
+      console.error('Disconnect error:', error);
+      // Optionally show an error message to the user
+    }
+  };
+
+  const handleConnect = async () => {
+    try {
+      await open();
+    } catch (error) {
+      console.error('Connect error:', error);
+      // Optionally show an error message to the user
+    }
+  };
+
   return (
-    <div style={{
-      background: 'linear-gradient(93.1deg, #6d2baa 0%, #682E9E 98.22%)'
-    }} className='p-3 z-50 flex justify-between items-center'>
+    <div style={{ background: 'linear-gradient(93.1deg, #6d2baa 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between items-center'>
       <Image src='/whiteLogo.png' alt='logo' height={40} width={200} />
 
       <div className='h-14 lg:w-[450px] md:w-[300px] p-2 bg-gray-200 rounded-[40px] flex items-center'>
@@ -47,15 +66,18 @@ const NavBar = () => {
         <Link href='/passes'>
           <p className={`cursor-pointer ${pathname === '/passes' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Passes</p>
         </Link>
-      
-        <div onClick={async() => {
-          //  await disconnect();
-            router.push('/');
-           }} className='bg-gray-800 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'>
+
+        <div
+          onClick={handleDisconnect}
+          className='bg-gray-800 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
+        >
           <p className='text-white'>Sign out</p>
         </div>
-       
-        <div className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]' onClick={() => open()}>
+
+        <div
+          className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
+          onClick={handleConnect}
+        >
           <p className='text-[#682E9E]'>{connectValue}</p>
         </div>
       </div>
