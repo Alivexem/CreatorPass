@@ -8,8 +8,8 @@ const SideNav = () => {
             <div className='flex items-center justify-between w-full space-x-4'>
                 <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
                 <Link href='/'><button className='bg-[#cbd5e1] lg:h-[45px] h-[35px] text-[0.8rem] lg:text-[0.9rem] w-[100px] lg:w-[150px] text-black hover:bg-transparent hover:text-white border-[1px] rounded-[40px] border-[#cbd5e1]'>
-                   <span className='hidden lg:inline'>Visit Github</span>
-                   <span className='lg:hidden'>Github</span>
+                   <span className='hidden lg:inline'>Vibe</span>
+                   <span className='lg:hidden'>Vibe</span>
                 </button></Link>
             </div> 
             <div className='flex justify-center flex-col items-center absolute bottom-20 md:bottom-10 left-1/2 transform -translate-x-1/2'>

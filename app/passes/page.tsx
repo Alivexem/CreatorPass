@@ -1,10 +1,10 @@
 import React from 'react'
 import NavBar from '@/components/NavBar'
-import { Gi3dGlasses } from "react-icons/gi";
+// import { Gi3dGlasses } from "react-icons/gi";
 import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
 import Footer from '@/components/Footer';
-import Link from 'next/link'
+// import Link from 'next/link'
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { RiNftFill } from "react-icons/ri";
