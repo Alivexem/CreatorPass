@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { RxDashboard } from "react-icons/rx";
 import { BiCandles } from "react-icons/bi";
@@ -10,10 +10,20 @@ import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
 import { MdLogout } from "react-icons/md";
 import Link from 'next/link';
 import { RiProfileFill } from "react-icons/ri";
+import { useRouter } from 'next/navigation';
+import { useAppKitAccount } from '../../utils/reown';
 
 const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowContent: () => void, onShowDashboard: () => void, onShowProfile: () => void }) => {
+  const router = useRouter();
+  const { isConnected } = useAppKitAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null); // Track the active item
+
+  useEffect(() => {
+    if (!isConnected) {
+      router.push('/');
+    }
+  }, [isConnected, router]);
 
   const handleToggle = () => {
     setIsOpen(prev => !prev);

@@ -1,12 +1,22 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAppKitAccount } from '../../utils/reown'
 import Leftbar from './Leftside'
 import Mainbar from './main'
 import NavBar from '@/components/NavBar'
 
-const layout = () => {
+const Dashboard = () => {
+  const router = useRouter();
+  const { isConnected } = useAppKitAccount();
   const [showContent, setShowContent] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+
+  useEffect(() => {
+    if (!isConnected) {
+      router.push('/');
+    }
+  }, [isConnected, router]);
 
   const handleShowContent = () => {
     setShowContent(true);
@@ -36,4 +46,4 @@ const layout = () => {
   )
 }
 
-export default layout
+export default Dashboard

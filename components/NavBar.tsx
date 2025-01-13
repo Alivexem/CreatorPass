@@ -18,12 +18,16 @@ const NavBar = () => {
   const { open } = useAppKit();
 
   useEffect(() => {
+    if (!isConnected) {
+      router.push('/');
+    }
+    
     if (isConnected && address) {
       setConnectValue('Connected');
     } else {
       setConnectValue('Connect Wallet');
     }
-  }, [isConnected, address]);
+  }, [isConnected, address, router]);
 
   const handleDisconnect = async () => {
     try {
