@@ -10,10 +10,12 @@ import { useAppKit, useAppKitAccount } from '../utils/reown';
 
 const App = () => {
     const [showToaster, setShowToaster] = useState(false);
+    const [buttonText, setButtonText] = useState('Get started')
     const router = useRouter();
     const { address, isConnected, caipAddress, status, embeddedWalletInfo } = useAppKitAccount();
     const { open } = useAppKit();
     // alert(isConnected)
+    
     const openModal = async() => {
         try {
             if (isConnected) {
@@ -21,6 +23,7 @@ const App = () => {
                 return
             }
             await open();
+
             
           } catch (error) {
             console.error('Modal error:', error);
@@ -49,7 +52,7 @@ const App = () => {
             </div>
             <p className='mb-5'> Get exclusive access to the content you love and connect deeper with creators. </p>
             <div className='my-[24px] mt-[10px] flex flex-col lg:flex-row justify-center lg:justify-center space-y-4 lg:space-y-0 lg:space-x-4 items-center w-full p-2'>
-                <button onClick={() => openModal()} className='w-[70%] lg:w-[300px] rounded-lg flex items-center justify-center gap-x-2 hover:bg-purple-700 h-[50px] bg-purple-600 text-white'><Image src='/sol.png' alt='google' height={20} width={20} /> Proceed to CreatorPass</button>
+                <button onClick={() => openModal()} className='w-[70%] lg:w-[300px] rounded-lg flex items-center justify-center gap-x-2 hover:bg-purple-700 h-[50px] bg-purple-600 text-white'><Image src='/sol.png' alt='google' height={20} width={20} /> {isConnected ? 'Proceed to creatorPass' : 'Get started'}</button>
             </div>
         </div>
     )
