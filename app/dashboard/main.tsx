@@ -53,8 +53,8 @@ const Mainbar = ({ showContent, showProfile }: { showContent: boolean, showProfi
                 <SiThefinals size={22} className='text-green-800' />
               </div>
               <div>
-                <p className='text-[0.8rem] font-thin'>Total Followers</p>
-                <p className='font-bold'>73</p>
+                <p className='text-[0.8rem] font-thin text-black'>Total Followers</p>
+                <p className='font-bold text-black'>73</p>
               </div>
             </div>
             <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
@@ -62,8 +62,8 @@ const Mainbar = ({ showContent, showProfile }: { showContent: boolean, showProfi
                 <FaClock size={22} className='text-yellow-600' />
               </div>
               <div>
-                <p className='text-[0.8rem] font-thin'>Last posted</p>
-                <p className='font-bold'>4 days ago</p>
+                <p className='text-[0.8rem] font-thin text-black'>Last posted</p>
+                <p className='font-bold text-black'>4 days ago</p>
               </div>
             </div>
             <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
@@ -71,8 +71,8 @@ const Mainbar = ({ showContent, showProfile }: { showContent: boolean, showProfi
                 <FaRegCheckCircle size={22} className='text-green-600' />
               </div>
               <div>
-                <p className='text-[0.8rem] font-thin'>Passes owned</p>
-                <p className='font-bold'>49</p>
+                <p className='text-[0.8rem] font-thin text-black'>Passes owned</p>
+                <p className='font-bold text-black'>49</p>
               </div>
             </div>
           </div>
