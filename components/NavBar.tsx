@@ -6,8 +6,10 @@ import { FiSearch } from "react-icons/fi";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppKit, useAppKitAccount, useDisconnect } from '../utils/reown';
-
+import { useAppKitProvider } from '@reown/appkit/react'
+import type { Provider } from '@reown/appkit-adapter-solana'
 const NavBar = () => {
+  const { walletProvider } = useAppKitProvider<Provider>('solana')
   const pathname = usePathname();
   const { isConnected, address } = useAppKitAccount();
   const router = useRouter();
@@ -67,12 +69,12 @@ const NavBar = () => {
           <p className={`cursor-pointer ${pathname === '/passes' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Passes</p>
         </Link>
 
-        <div
+        {/* <div
           onClick={handleDisconnect}
           className='bg-gray-800 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
         >
           <p className='text-white'>Sign out</p>
-        </div>
+        </div> */}
 
         <div
           className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
