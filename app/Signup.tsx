@@ -52,10 +52,14 @@ const App = () => {
                     left: 0,
                     right: 0,
                     width: '100%'
-                }} className='pt-32 pb-20 mb-14 flex justify-center items-center md:hidden'>
-                    <div className='absolute top-5 left-5 md:hidden'>
-                        <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
+                }} className='pt-32 pb-14 mb-14 flex justify-center items-center md:hidden'>
+                    <div className='absolute top-5 left-3 md:hidden'>
+                        <Image src='/whiteLogo.png' alt='logo' height={30} width={120} />
                     </div>
+                    <div className='absolute top-5 right-3 md:hidden'>
+                    <Image src='/sol.png' height={30} width={30} alt='profile' className='rounded-lg' />
+                    </div>
+                   
                     <Image
                         src='/aiwoman.jpeg'
                         className='rounded-lg lg:hidden'
