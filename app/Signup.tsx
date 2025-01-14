@@ -56,8 +56,8 @@ const App = () => {
                     <div className='absolute top-5 left-3 md:hidden'>
                         <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
                     </div>
-                    <div className='absolute top-7 right-3 md:hidden'>
-                    <Image src='/sol.png' height={50} width={50} alt='profile' className='rounded-lg' />
+                    <div className='absolute top-6 right-4 md:hidden'>
+                    <Image src='/sol.png' height={45} width={45} alt='profile' className='rounded-lg' />
                     </div>
                    
                     <Image
