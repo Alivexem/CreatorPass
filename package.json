@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build", 
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,7 +12,9 @@
     "@reown/appkit": "^1.6.4",
     "@reown/appkit-adapter-solana": "^1.6.4",
     "@solana/wallet-adapter-wallets": "^0.19.32",
+    "cloudinary": "^2.5.1",
     "echarts-for-react": "^3.0.2",
+    "mongoose": "^8.9.4",
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

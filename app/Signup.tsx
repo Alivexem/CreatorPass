@@ -18,11 +18,14 @@ const App = () => {
     
     const openModal = async() => {
         try {
+            
             if (isConnected) {
+                localStorage.setItem('address', address as string);
                 router.push('/welcome');
                 return
             }
             await open();
+            
 
             
           } catch (error) {

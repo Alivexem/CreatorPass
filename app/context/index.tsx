@@ -11,11 +11,16 @@ const solanaWeb3JsAdapter = new SolanaAdapter({
   wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
 });
 
+// Determine the appropriate URL based on the environment
+const appUrl = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:3000' // Adjust the port if necessary
+  : 'https://creatorpass.vercel.app';
+
 // Set up metadata
 const metadata = {
   name: 'AppKit',
   description: 'AppKit Solana Example',
-  url: 'https://creatorpass.vercel.app', // origin must match your domain & subdomain
+  url: appUrl, // Ensure this matches your app's URL
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
@@ -23,7 +28,7 @@ const metadata = {
 export const modal = createAppKit({
   adapters: [solanaWeb3JsAdapter],
   projectId: process.env.NEXT_PUBLIC_REOWN_API_KEY || "2927c2ac9dcae72c2006b80e814ac6e4",
-  networks: [solanaTestnet, solana ],
+  networks: [solanaTestnet, solana],
   metadata,
   features: {
     email: true,
