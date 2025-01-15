@@ -13,7 +13,7 @@ export async function GET() {
     } catch (error) {
         console.error('Get profiles error:', error);
         return NextResponse.json({ 
-            message: error.message 
+            message: 'Error' 
         }, { status: 500 });
     }
 } 
