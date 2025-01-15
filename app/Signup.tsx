@@ -75,19 +75,45 @@ const App = () => {
                         }
                     `}</style>
                 </div>
-                <div className='text-[2.5rem] mt-[500px] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
-                    <p>CreatorPass</p>
+                <div className='hidden md:block'>
+                    <div className='text-[2.5rem] mt-[500px] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
+                        <p>CreatorPass</p>
+                    </div>
+                    <p className='text-left lg:text-left mb-5 pl-4'>
+                        CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes.</p>
+                    <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                        <p className='leading-none'>For creators</p>
+                    </div>
+                    <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences.</p>
+                    <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                        <p className='leading-none'>For fans</p>
+                    </div>
+                    <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators.</p>
+
                 </div>
-                <p className='text-left lg:text-left mb-5 pl-4'>
-                    CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes.</p>
-                <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                    <p className='leading-none'>For creators</p>
+
+                <div className='md:hidden mt-[500px]'>
+                    <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4'>
+                        <div className='text-[2.5rem] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
+                            <p>CreatorPass</p>
+                        </div>
+                        <p className='text-left lg:text-left mb-5 pl-4'>
+                            CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes.</p>
+                    </div>
+
+                    <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
+                        <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                            <p className='leading-none'>For creators</p>
+                        </div>
+                        <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences.</p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
+                        <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                            <p className='leading-none'>For fans</p>
+                        </div>
+                        <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators.</p>
+                    </div>
                 </div>
-                <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences.</p>
-                <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                    <p className='leading-none'>For fans</p>
-                </div>
-                <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators.</p>
                 <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg md:rounded-none flex justify-center mb-14 md:mb-0 mt-6'>
                     <button className='w-full max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
                         <Image src='/sol.png' alt='sol' height={20} width={20} /> {isConnected ? 'Go in' : 'Get started'}
