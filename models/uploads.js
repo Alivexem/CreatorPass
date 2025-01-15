@@ -5,11 +5,11 @@ const uploadSchema = new Schema({
   note: String,
   image: String,
 }, {
-  timestamps: true, // This will add `createdAt` and `updatedAt` fields automatically
+  timestamps: true
 });
 
 uploadSchema.index({ createdAt: 1 });
 
-const Creates = mongoose.models.upload || mongoose.model('Creates', uploadSchema);
+const Creates = mongoose.models.Creates || mongoose.model('Creates', uploadSchema);
 
 export default Creates;

@@ -90,26 +90,34 @@ const Content = () => {
       }
 
       setPostText('Loading...');
-      const myAddress = localStorage.getItem('address');
+      const myAddress = localStorage.getItem('address') || 'Anonymous';
+      
       try {
         const fullData = {
           username: myAddress,
-          note,
-          image: image || '',  // Handle case when no image is uploaded
+          note: note.trim(),
+          image: image || ''
         };
         
         console.log('Sending data:', fullData);
         
         const res = await fetch('/api', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fullData),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(fullData)
         });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
 
         const data = await res.json();
         console.log('Response:', data);
 
-        if (res.ok) {
+        if (data.message === 'Post uploaded') {
           alert('Posted successfully!');
           setNote('');
           setimage('');
@@ -117,9 +125,7 @@ const Content = () => {
           setShowUploader(false);
           
           // Refresh posts
-          const response = await fetch('/api');
-          const newData = await response.json();
-          setPosts(newData.creator);
+          fetchPosts();
         } else {
           throw new Error(data.message || 'Failed to upload post');
         }
