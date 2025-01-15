@@ -42,9 +42,9 @@ const page = () => {
       </div>
 
       <div className='flex justify-center items-center gap-x-8 mb-14 mt-20'>
-        <Link href='/creators'><button className='h-[55px] w-[200px] text-[1.2rem] p-3 rounded-[15px] bg-[#8A2BE2] hover:bg-[#562781] text-white'>Continue as viewer</button></Link>
-        <Link href='/mypass'>
-          <button className='h-[55px] w-[200px] text-[1.2rem] p-3 rounded-[15px] bg-[#28b834] hover:bg-[#1f6625] text-white'>Create your pass</button>
+      
+        <Link href='/creators'>
+          <button className='h-[55px] w-[250px] text-[1.2rem] p-3 rounded-[15px] bg-[#28b834] hover:bg-[#1f6625] text-white'>Explore Creators</button>
         </Link>
       </div>
 

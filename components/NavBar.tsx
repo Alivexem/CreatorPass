@@ -50,7 +50,7 @@ const NavBar = () => {
   };
 
   return (
-    <div style={{ background: 'linear-gradient(93.1deg, #6d2baa 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between items-center'>
+    <div style={{ background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between items-center'>
       <Image src='/whiteLogo.png' alt='logo' height={40} width={200} />
 
       <div className='h-14 lg:w-[450px] md:w-[300px] p-2 bg-gray-200 rounded-[40px] flex items-center'>
@@ -62,9 +62,6 @@ const NavBar = () => {
       <div className='flex items-center gap-x-6 text-white text-[1rem] mr-3'>
         <Link href='/welcome'>
           <p className={`cursor-pointer ${pathname === '/welcome' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Home</p>
-        </Link>
-        <Link href='/creators'>
-          <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Creators</p>
         </Link>
         <Link href='/dashboard'>
           <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Dashboard</p>

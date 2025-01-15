@@ -1,34 +1,36 @@
-'use client'
+'use client';
 
-import { createAppKit } from '@reown/appkit/react'
-import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
-import { solana, solanaTestnet } from '@reown/appkit/networks'
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
-import React, { type ReactNode } from 'react'
+import { createAppKit } from '@reown/appkit/react';
+import { SolanaAdapter } from '@reown/appkit-adapter-solana/react';
+import { solana, solanaTestnet, solanaDevnet } from '@reown/appkit/networks';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import React, { ReactNode } from 'react';
 
-// Set up Solana adapter
-const solanaWeb3JsAdapter = new SolanaAdapter({
+// Retrieve the project ID from environment variables
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID || '2927c2ac9dcae72c2006b80e814ac6e4';
+
+if (!projectId) {
+  throw new Error('Project ID is not defined.');
+}
+
+// Set up Solana adapter with wallet adapters
+const solanaAdapter = new SolanaAdapter({
   wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
 });
 
-// Determine the appropriate URL based on the environment
-const appUrl = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:3000' // Adjust the port if necessary
-  : 'https://creatorpass.vercel.app';
-
-// Set up metadata
+// Define metadata for your application
 const metadata = {
   name: 'AppKit',
   description: 'AppKit Solana Example',
-  url: appUrl, // Ensure this matches your app's URL
-  icons: ['https://avatars.githubusercontent.com/u/179229932']
-}
+  url: 'https://creatorpass.vercel.app', // Ensure this matches your app's URL
+  icons: ['https://avatars.githubusercontent.com/u/179229932'],
+};
 
-// Create the modal
+// Initialize AppKit with the Solana adapter and network configurations
 export const modal = createAppKit({
-  adapters: [solanaWeb3JsAdapter],
-  projectId: process.env.NEXT_PUBLIC_REOWN_API_KEY || "2927c2ac9dcae72c2006b80e814ac6e4",
-  networks: [solanaTestnet, solana],
+  adapters: [solanaAdapter],
+  projectId,
+  networks: [solana, solanaTestnet, solanaDevnet],
   metadata,
   features: {
     email: true,
@@ -38,10 +40,9 @@ export const modal = createAppKit({
   allWallets: 'SHOW',
 });
 
-function ContextProvider({ children }: { children: ReactNode }) {
-  return (
-    <>{children}</>
-  )
-}
+// Context provider component
+const ContextProvider = ({ children }: { children: ReactNode }) => {
+  return children;
+};
 
-export default ContextProvider
+export default ContextProvider;

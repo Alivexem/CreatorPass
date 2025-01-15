@@ -46,30 +46,21 @@ const App = () => {
             )}
             <div className='flex flex-col items-center lg:items-start max-w-[600px] w-full'>
                 <div style={{
-                    background: 'linear-gradient(93.1deg, #6d2baa 0%, #682E9E 98.22%)',
+                    backgroundImage: 'url(/aiwoman.jpeg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                     position: 'absolute',
                     top: 0,
                     left: 0,
                     right: 0,
                     width: '100%'
-                }} className='pt-32 pb-14 mb-14 flex justify-center items-center md:hidden'>
+                }} className='mb-14 h-[480px] flex justify-center items-center md:hidden'>
                     <div className='absolute top-5 left-3 md:hidden'>
                         <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
                     </div>
                     <div className='absolute top-6 right-4 md:hidden'>
-                    <Image src='/sol.png' height={45} width={45} alt='profile' className='rounded-lg' />
+                        <Image src='/sol.png' height={45} width={45} alt='profile' className='rounded-lg' />
                     </div>
-                   
-                    <Image
-                        src='/aiwoman.jpeg'
-                        className='rounded-lg lg:hidden'
-                        alt='aiwoman'
-                        height={250}
-                        width={250}
-                        style={{
-                            animation: 'lightPulse 3s infinite'
-                        }}
-                    />
                     <style jsx global>{`
                         @keyframes lightPulse {
                             0% {
@@ -97,8 +88,8 @@ const App = () => {
                     <p className='leading-none'>For fans</p>
                 </div>
                 <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators.</p>
-                <div style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full flex justify-center mb-14 md:mb-0 mt-6'>
-                    <button onClick={() => openModal()} className='w-full max-w-[300px] rounded-lg flex items-center justify-center gap-x-2 h-[50px] text-white'>
+                <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg md:rounded-none flex justify-center mb-14 md:mb-0 mt-6'>
+                    <button className='w-full max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
                         <Image src='/sol.png' alt='sol' height={20} width={20} /> {isConnected ? 'Go in' : 'Get started'}
                     </button>
                 </div>
