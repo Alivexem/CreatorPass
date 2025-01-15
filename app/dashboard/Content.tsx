@@ -7,7 +7,11 @@ import { MdAddCircle } from "react-icons/md";
 import { FaImages } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 
-const Content = () => {
+interface ContentProps {
+  setToast: (toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
+}
+
+const Content = ({ setToast }: ContentProps) => {
     const [showUploader, setShowUploader] = useState(false);
     const [note, setNote] = useState('');
     const [image, setimage] = useState('');
@@ -18,8 +22,10 @@ const Content = () => {
     const [userProfile, setUserProfile] = useState<any>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [postToDelete, setPostToDelete] = useState<string | null>(null);
+    const [isLoadingPosts, setIsLoadingPosts] = useState(true);
   
     const fetchPosts = async () => {
+      setIsLoadingPosts(true);
       try {
         const myAddress = localStorage.getItem('address') || '';
         
@@ -44,6 +50,8 @@ const Content = () => {
         });
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setIsLoadingPosts(false);
       }
     };
 
@@ -209,7 +217,7 @@ const Content = () => {
     };
     
     return (
-        <div className='flex flex-col justify-center items-center mb-20'>
+        <div className='flex flex-col justify-center items-center mb-20 min-h-[100vh] bg-[#1A1D1F]'>
             <div className='flex flex-col justify-center items-center mb-20 gap-y-7'>
                 <div
                     className='flex hover:bg-blue-700 cursor-pointer items-center gap-x-3 h-[50px] w-[200px] rounded-lg justify-center text-white bg-blue-500 text-[1.3rem]'
@@ -218,52 +226,59 @@ const Content = () => {
                     <MdAddCircle />
                     <p>Add content</p>
                 </div>
-                <div className='flex flex-col gap-y-8 w-full items-center'>
-                    {posts && posts.map((post: any, index: number) => (
-                        <div key={index} className='w-[65vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
-                            <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
-                                <div className='flex items-center gap-x-3'>
-                                    <Image 
-                                        src={userProfile?.profilePic} 
-                                        height={50} 
-                                        width={50} 
-                                        alt='profile' 
-                                        className='rounded-lg' 
-                                    />
-                                    <p className='text-[1.1rem]'>{userProfile?.username}</p>
+
+                {isLoadingPosts ? (
+                    <div className='text-white text-xl animate-pulse'>
+                        Loading posts...
+                    </div>
+                ) : (
+                    <div className='flex flex-col gap-y-8 w-full items-center'>
+                        {posts && posts.map((post: any, index: number) => (
+                            <div key={index} className='w-[65vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
+                                <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
+                                    <div className='flex items-center gap-x-3'>
+                                        <Image 
+                                            src={userProfile?.profilePic} 
+                                            height={60} 
+                                            width={60} 
+                                            alt='profile' 
+                                            className='rounded-lg' 
+                                        />
+                                        <p className='text-[1.1rem]'>{userProfile?.username}</p>
+                                    </div>
+                                    <div className='flex items-center gap-x-2'>
+                                        <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
+                                        <p>{censorAddress(post.username)}</p>
+                                    </div>
                                 </div>
-                                <div className='flex items-center gap-x-2'>
-                                    <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                                    <p>{censorAddress(post.username)}</p>
+                                <div className='flex-start px-10 mt-5 text-white'>
+                                    <p className='text-left'>{post.note}</p>
+                                </div>
+                                {post.image && (
+                                    <div className='flex justify-center w-[100%] items-center'>
+                                        <Image src={post.image} height={1000} width={1000} className='h-[350px] mt-7 w-[60%] rounded-lg border-[1px] border-gray-200 px-5' alt='post image' />
+                                    </div>
+                                )}
+                                <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
+                                    <div className='flex items-center gap-x-3 text-white'>
+                                        <IoHeartHalf className='text-white text-[1.7rem]' />
+                                        <p>0 likes</p>
+                                    </div>
+                                    <div className='flex items-center gap-x-3 text-white'>
+                                        <FaCommentMedical className='text-white text-[1.7rem]' />
+                                        <p>0 comments</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleDelete(post._id)}
+                                        className='bg-red-700 text-[1rem] h-[40px] w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
+                                    >
+                                        <MdDeleteForever className='text-[1.7rem]' />Delete
+                                    </button>
                                 </div>
                             </div>
-                            <div className='flex-start px-10 mt-5 text-white'>
-                                <p className='text-left'>{post.note}</p>
-                            </div>
-                            {post.image && (
-                                <div className='flex justify-center w-[100%] items-center'>
-                                    <Image src={post.image} height={1000} width={1000} className='h-[350px] mt-7 w-[60%] rounded-lg border-[1px] border-gray-200 px-5' alt='post image' />
-                                </div>
-                            )}
-                            <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
-                                <div className='flex items-center gap-x-3 text-white'>
-                                    <IoHeartHalf className='text-white text-[1.7rem]' />
-                                    <p>0 likes</p>
-                                </div>
-                                <div className='flex items-center gap-x-3 text-white'>
-                                    <FaCommentMedical className='text-white text-[1.7rem]' />
-                                    <p>0 comments</p>
-                                </div>
-                                <button 
-                                    onClick={() => handleDelete(post._id)}
-                                    className='bg-red-700 text-[1rem] h-[40px] w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
-                                >
-                                    <MdDeleteForever className='text-[1.7rem]' />Delete
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {showDeleteModal && (
                     <div className='fixed inset-0 bg-gray-700 bg-opacity-85 flex justify-center items-center'>

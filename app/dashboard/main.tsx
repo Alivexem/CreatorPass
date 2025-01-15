@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaRegCheckCircle } from "react-icons/fa";
 import { SiThefinals } from "react-icons/si";
@@ -13,7 +13,44 @@ import Content from './Content';
 import { TiRefresh } from "react-icons/ti";
 import ProfileUpdate from './ProfileUpdate'; // Import ProfileUpdate
 
-const Mainbar = ({ showContent, showProfile }: { showContent: boolean, showProfile: boolean }) => {
+interface MainbarProps {
+  showContent: boolean;
+  showProfile: boolean;
+  setToast: (toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
+}
+
+interface Profile {
+  username: string;
+  profileImage: string;
+  address: string;
+}
+
+const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const address = localStorage.getItem('address');
+        if (!address) return;
+
+        const res = await fetch(`/api/profile?address=${address}`);
+        const data = await res.json();
+        
+        if (data.profile) {
+          setProfile(data.profile);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   return (
     <div className='bg-[#1A1D1F] w-[100%] h-auto overflow-hidden flex justify-start items-center flex-col'>
       <div className='text-center font-bold pt-[30px] mb-[45px] flex justify-center items-center flex-col'>
@@ -81,57 +118,29 @@ const Mainbar = ({ showContent, showProfile }: { showContent: boolean, showProfi
               <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
                 <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
                   <Image height={30} width={30} src='/sol.png' alt='sol' />
-                  <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Bronze Access</p>
+                  <p className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Access Card</p>
                 </div>
                 <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
                   <Image src='/whiteLogo.png' alt='logo' height={10} width={70} />
-                  <Image src='/smile.jpg' className='rounded-md' height={80} width={180} alt='profile' />
+                  <Image 
+                    src={profile?.profileImage || '/smile.jpg'} 
+                    className='rounded-md' 
+                    height={80} 
+                    width={180} 
+                    alt='profile' 
+                  />
                   <div className='flex items-center gap-x-4'>
                     <RiHeart2Line className='text-white' />
-                    <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>Justina Kate</p>
+                    <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>
+                      {profile?.username || 'Anonymous'}
+                    </p>
                     <RiHeart2Line className='text-white' />
                   </div>
                 </div>
               </div>
-              <div>
-                <button className='bg-red-500 text-[0.8rem] flex items-center gap-x-3 font-bold border-black border-[1px] text-white px-4 py-2 mt-4'><MdDeleteForever size={25} />Delete NFT</button>
-              </div>
-            </div>
-            <div className='flex flex-col justify-center items-center my-10'>
-              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#e3e649] via-[#ebee2d] to-[#e3e649] w-[250px] h-[350px]'>
-                <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-                  <Image height={30} width={30} src='/sol.png' alt='sol' />
-                  <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Gold Access</p>
-                </div>
-                <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-                  <Image src='/whiteLogo.png' alt='logo' height={10} width={70} />
-                  <Image src='/smile.jpg' className='rounded-md' height={80} width={180} alt='profile' />
-                  <div className='flex items-center gap-x-4'>
-                    <RiHeart2Line className='text-white' />
-                    <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>Justina Kate</p>
-                    <RiHeart2Line className='text-white' />
-                  </div>
-                </div>
-              </div>
-              <button className='bg-red-500 text-[0.8rem] flex items-center gap-x-3 font-bold border-black border-[1px] text-white px-4 py-2 mt-4'><MdDeleteForever size={25} />Delete NFT</button>
-            </div>
-            <div className='flex flex-col justify-center items-center my-10'>
-              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#f1f3e0] via-[#e8ebcd] to-[#f1f3e0] w-[250px] h-[350px]'>
-                <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-                  <Image height={30} width={30} src='/sol.png' alt='sol' />
-                  <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Silver Access</p>
-                </div>
-                <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-                  <Image src='/whiteLogo.png' alt='logo' height={10} width={70} />
-                  <Image src='/smile.jpg' className='rounded-md' height={80} width={180} alt='profile' />
-                  <div className='flex items-center gap-x-4'>
-                    <RiHeart2Line className='text-white' />
-                    <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>Justina Kate</p>
-                    <RiHeart2Line className='text-white' />
-                  </div>
-                </div>
-              </div>
-              <button className='bg-red-500 text-[0.8rem] flex items-center gap-x-3 font-bold border-black border-[1px] text-white px-4 py-2 mt-4'><MdDeleteForever size={25} />Delete NFT</button>
+              <button className='bg-red-500 text-[0.8rem] flex items-center gap-x-3 font-bold border-black border-[1px] text-white px-4 py-2 mt-4'>
+                <MdDeleteForever size={25} />Delete Pass
+              </button>
             </div>
           </div>
           <div className='flex justify-center items-center my-7 mb-[40px]'>
@@ -140,8 +149,8 @@ const Mainbar = ({ showContent, showProfile }: { showContent: boolean, showProfi
         </>
       )}
 
-      {showContent && <Content />}
-      {showProfile && <ProfileUpdate />}
+      {showContent && <Content setToast={setToast} />}
+      {showProfile && <ProfileUpdate setToast={setToast} />}
     </div>
   );
 };
