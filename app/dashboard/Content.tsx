@@ -15,14 +15,35 @@ const Content = () => {
     const [postText, setPostText] = useState('post');
     const [selectedImage, setSelectedImage] = useState<string>('');
     const [posts, setPosts] = useState([]);
+    const [userProfile, setUserProfile] = useState<any>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [postToDelete, setPostToDelete] = useState<string | null>(null);
   
     const fetchPosts = async () => {
       try {
-        const response = await fetch('/api');
-        const data = await response.json();
-        setPosts(data.creator);
+        const myAddress = localStorage.getItem('address') || '';
+        
+        // First get the user's profile
+        const profileResponse = await fetch(`/api/profile?address=${myAddress}`);
+        const profileData = await profileResponse.json();
+        
+        // Then fetch posts
+        const postsResponse = await fetch('/api');
+        const postsData = await postsResponse.json();
+        
+        // Filter posts to match the profile's address
+        const userPosts = postsData.creator.filter((post: any) => {
+          return post.username === profileData.profile?.address;
+        });
+        
+        setPosts(userPosts);
+        setUserProfile({
+          username: profileData.profile?.username || 'Anonymous',
+          address: profileData.profile?.address,
+          profilePic: profileData.profile?.profileImage || '/smile.jpg'
+        });
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
@@ -34,11 +55,35 @@ const Content = () => {
       setNote(e.target.value);
     };
 
+    const handleDelete = async (postId: string) => {
+      setPostToDelete(postId);
+      setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+      try {
+        const res = await fetch(`/api/${postToDelete}`, {
+          method: 'DELETE',
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to delete post');
+        }
+
+        // Refresh posts after deletion
+        await fetchPosts();
+        setShowDeleteModal(false);
+        setPostToDelete(null);
+        alert('Post deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Failed to delete post. Please try again.');
+      }
+    };
   
     const handleImageChange = async (e:any) => {
-      const file = e.target.files[0];
-      
-      setSelectedImage(URL.createObjectURL(file));
+      const file = e.target.files?.[0];
+      if (!file) return;
       
       const reader = new FileReader();
       reader.readAsDataURL(file); 
@@ -48,7 +93,7 @@ const Content = () => {
         const base64data = reader.result; 
     
         try {
-          const res = await fetch("/imageApi", {
+          const res = await fetch("/api/imageApi", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -57,15 +102,16 @@ const Content = () => {
           });
 
           if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
+            throw new Error(`Upload failed: ${res.status}`);
           }
 
           const data = await res.json();
           setimage(data.url);
-          setLoading(false);
+          setSelectedImage(URL.createObjectURL(file));
         } catch (error) {
           console.error('Error uploading image:', error);
           alert('Failed to upload image. Please try again.');
+        } finally {
           setLoading(false);
         }
       };
@@ -90,11 +136,19 @@ const Content = () => {
       }
 
       setPostText('Loading...');
-      const myAddress = localStorage.getItem('address') || 'Anonymous';
+      const myAddress = localStorage.getItem('address');
       
       try {
+        // Get profile data first
+        const profileRes = await fetch(`/api/profile?address=${myAddress}`);
+        const profileData = await profileRes.json();
+        
+        if (!profileData.profile) {
+          throw new Error('Profile not found');
+        }
+
         const fullData = {
-          username: myAddress,
+          username: profileData.profile.address,
           note: note.trim(),
           image: image || ''
         };
@@ -146,6 +200,13 @@ const Content = () => {
         }
       };
     }, [selectedImage]);
+
+    const censorAddress = (address: string) => {
+      if (!address) return '';
+      const start = address.slice(0, 4);
+      const end = address.slice(-4);
+      return `${start}xxxxxxxx${end}`;
+    };
     
     return (
         <div className='flex flex-col justify-center items-center mb-20'>
@@ -162,12 +223,18 @@ const Content = () => {
                         <div key={index} className='w-[65vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
                             <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
                                 <div className='flex items-center gap-x-3'>
-                                    <Image src='/smile.jpg' height={50} width={50} alt='profile' className='rounded-lg' />
-                                    <p className='text-[1.1rem]'>{post.username || 'Anonymous'}</p>
+                                    <Image 
+                                        src={userProfile?.profilePic} 
+                                        height={50} 
+                                        width={50} 
+                                        alt='profile' 
+                                        className='rounded-lg' 
+                                    />
+                                    <p className='text-[1.1rem]'>{userProfile?.username}</p>
                                 </div>
                                 <div className='flex items-center gap-x-2'>
                                     <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                                    <p>3v7rE4xxxxxxX6Ev</p>
+                                    <p>{censorAddress(post.username)}</p>
                                 </div>
                             </div>
                             <div className='flex-start px-10 mt-5 text-white'>
@@ -187,7 +254,10 @@ const Content = () => {
                                     <FaCommentMedical className='text-white text-[1.7rem]' />
                                     <p>0 comments</p>
                                 </div>
-                                <button className='bg-red-700 text-[1rem] h-[40px] w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'>
+                                <button 
+                                    onClick={() => handleDelete(post._id)}
+                                    className='bg-red-700 text-[1rem] h-[40px] w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
+                                >
                                     <MdDeleteForever className='text-[1.7rem]' />Delete
                                 </button>
                             </div>
@@ -195,7 +265,30 @@ const Content = () => {
                     ))}
                 </div>
 
-               
+                {showDeleteModal && (
+                    <div className='fixed inset-0 bg-gray-700 bg-opacity-85 flex justify-center items-center'>
+                        <div className='bg-white p-6 rounded-lg flex flex-col items-center gap-y-4'>
+                            <p className='text-lg font-semibold'>Are you sure you want to delete this post?</p>
+                            <div className='flex gap-x-4'>
+                                <button
+                                    onClick={confirmDelete}
+                                    className='bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700'
+                                >
+                                    Yes, delete
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setPostToDelete(null);
+                                    }}
+                                    className='bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600'
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                  {showUploader && (
                     <div className='fixed inset-0 bg-gray-700 bg-opacity-85 flex justify-center items-center'>
@@ -230,9 +323,9 @@ const Content = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => {
+                                                    setSelectedImage('');
                                                     const input = document.getElementById('image-upload') as HTMLInputElement;
                                                     if (input) {
-                                                        setSelectedImage('');
                                                         input.value = '';
                                                         input.click();
                                                     }

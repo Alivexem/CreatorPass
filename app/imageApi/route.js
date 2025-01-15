@@ -14,7 +14,7 @@ export const POST = async (req) => {
     
     
     const uploadResponse = await cloudinary.uploader.upload(data, {
-      upload_preset: 'creatorpass', 
+      upload_preset: 'ifndk7tr', 
     });
 
     return new Response(JSON.stringify({ url: uploadResponse.secure_url }), {

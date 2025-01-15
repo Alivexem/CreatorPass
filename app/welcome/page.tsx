@@ -44,7 +44,7 @@ const page = () => {
       <div className='flex justify-center items-center gap-x-8 mb-14 mt-20'>
       
         <Link href='/creators'>
-          <button className='h-[55px] w-[250px] text-[1.2rem] p-3 rounded-[15px] bg-[#28b834] hover:bg-[#1f6625] text-white'>Explore Creators</button>
+          <button className='h-[55px] w-[300px] text-[1.2rem] p-3 bg-[#28b834] hover:bg-[#1f6625] text-white'>Explore Creators</button>
         </Link>
       </div>
 

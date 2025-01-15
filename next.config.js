@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { isServer }) => {
+  images: {
+    domains: ['res.cloudinary.com'],
+  },
+  webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       "punycode": false,
@@ -10,9 +13,6 @@ const nextConfig = {
       "fs": false,
     };
     return config;
-  },
-  images: {
-    domains: ['res.cloudinary.com'],
   },
 };
 
