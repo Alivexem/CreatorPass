@@ -2,20 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../../../libs/mongodb';
 import Creates from '../../../../../models/uploads';
 
-interface RouteContext {
-    params: {
-        id: string;
-    };
-}
-
-export async function PUT(
-    request: NextRequest,
-    context: RouteContext
-) {
+export async function PUT(request, context) {
     try {
         await connectDB();
         const { id } = context.params;
-        const { address, comment }: { address: string; comment: string } = await request.json();
+        const { address, comment } = await request.json();
 
         // Find the post by ID
         const post = await Creates.findById(id);
