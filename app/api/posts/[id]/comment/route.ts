@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../../../libs/mongodb';
 import Creates from '../../../../../models/uploads';
 
-type Params = { id: string };
-
-export async function PUT(request: Request, context: { params: Params }) {
+export async function PUT(
+    request: Request,
+    { params }: { params: { id: string } }
+) {
     try {
         await connectDB();
-
-        const { id } = await context.params; // Await params to ensure proper access
+        const { id } = params;
         const { address, comment }: { address: string; comment: string } = await request.json();
 
         // Find the post by ID

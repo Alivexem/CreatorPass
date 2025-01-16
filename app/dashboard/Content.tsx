@@ -22,6 +22,7 @@ interface Post {
         timestamp?: Date;
     }>;
     likes?: string[];
+    likeCount?: number;
 }
 
 const Content = ({ setToast }: ContentProps) => {
@@ -64,7 +65,7 @@ const Content = ({ setToast }: ContentProps) => {
         const initialHasLiked: { [key: string]: boolean } = {};
         
         userPosts.forEach((post: Post) => {
-          initialLikes[post._id] = post.likes?.length || 0;
+          initialLikes[post._id] = post.likeCount || 0;
           initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
         });
 
@@ -111,10 +112,18 @@ const Content = ({ setToast }: ContentProps) => {
         await fetchPosts();
         setShowDeleteModal(false);
         setPostToDelete(null);
-        alert('Post deleted successfully!');
+        setToast({
+          show: true,
+          message: 'Post deleted successfully!',
+          type: 'success'
+        });
       } catch (error) {
         console.error('Error deleting post:', error);
-        alert('Failed to delete post. Please try again.');
+        setToast({
+          show: true,
+          message: 'Failed to delete post. Please try again.',
+          type: 'error'
+        });
       }
     };
   
@@ -147,7 +156,11 @@ const Content = ({ setToast }: ContentProps) => {
           setSelectedImage(URL.createObjectURL(file));
         } catch (error) {
           console.error('Error uploading image:', error);
-          alert('Failed to upload image. Please try again.');
+          setToast({
+            show: true,
+            message: 'Failed to upload image. Please try again.',
+            type: 'error'
+          });
         } finally {
           setLoading(false);
         }
@@ -155,7 +168,11 @@ const Content = ({ setToast }: ContentProps) => {
     
       reader.onerror = (error) => {
         console.error("Error reading file:", error);
-        alert('Error reading file. Please try again.');
+        setToast({
+          show: true,
+          message: 'Error reading file. Please try again.',
+          type: 'error'
+        });
         setLoading(false);
       };
     };
@@ -163,12 +180,20 @@ const Content = ({ setToast }: ContentProps) => {
     const handleSubmit = async (e:any) => {
       e.preventDefault();
       if (!note) {
-        alert('Type a post before submitting!');
+        setToast({
+          show: true,
+          message: 'Type a post before submitting!',
+          type: 'warning'
+        });
         return;
       }
       
       if (note.length > 300) {
-        alert('Thread too long, make it concise! (300 letters maximum)');
+        setToast({
+          show: true,
+          message: 'Thread too long, make it concise! (300 letters maximum)',
+          type: 'warning'
+        });
         return;
       }
 
@@ -209,7 +234,11 @@ const Content = ({ setToast }: ContentProps) => {
         console.log('Response:', data);
 
         if (data.message === 'Post uploaded') {
-          alert('Posted successfully!');
+          setToast({
+            show: true,
+            message: 'Posted successfully!',
+            type: 'success'
+          });
           setNote('');
           setimage('');
           setSelectedImage('');
@@ -222,7 +251,11 @@ const Content = ({ setToast }: ContentProps) => {
         }
       } catch (error: any) {
         console.error('Submission error:', error);
-        alert(error.message || 'Failed to upload post, please try again');
+        setToast({
+          show: true,
+          message: error.message || 'Failed to upload post, please try again',
+          type: 'error'
+        });
       } finally {
         setPostText('post');
       }
@@ -365,7 +398,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 hasLiked[post._id] ? 'text-purple-500' : 'text-white'
                                             }`} 
                                         />
-                                        <p>{post.likes?.length || 0} likes</p>
+                                        <p>{likes[post._id] || post.likeCount || 0} likes</p>
                                     </button>
                                     <button 
                                         onClick={() => setShowComments(prev => ({ 
@@ -407,19 +440,23 @@ const Content = ({ setToast }: ContentProps) => {
                                         </form>
 
                                         <div className='max-h-[200px] overflow-y-auto space-y-3'>
-                                            {post.comments?.map((comment: any, idx: number) => (
-                                                <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
-                                                    <p className='text-gray-400 text-sm font-mono mb-1'>
-                                                        {censorAddress(comment.address)}
-                                                    </p>
-                                                    <p className='text-white text-sm'>{comment.comment}</p>
-                        </div>
-                                            ))}
+                                            {post.comments?.slice()
+                                                .sort((a: { timestamp: Date }, b: { timestamp: Date }) => 
+                                                    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+                                                )
+                                                .map((comment: any, idx: number) => (
+                                                    <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
+                                                        <p className='text-gray-400 text-sm font-mono mb-1'>
+                                                            {censorAddress(comment.address)}
+                                                        </p>
+                                                        <p className='text-white text-sm'>{comment.comment}</p>
+                                                    </div>
+                                                ))}
                                             {(!post.comments || post.comments.length === 0) && (
                                                 <p className='text-gray-500 text-center py-2'>No comments yet</p>
                                             )}
-                        </div>
-                    </div>
+                                        </div>
+                                    </div>
                                 )}
                     </div>
                         ))}
