@@ -1,19 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from "../../libs/mongodb";
 import Creates from "../../models/uploads";
 
-export async function POST(request) {
+export async function POST(request: NextRequest) {
     try {
         await connectDB();
         const data = await request.json();
         
-        // Create new post with initialized arrays
         const newPost = await Creates.create({
             username: data.username,
             note: data.note,
             image: data.image || '',
-            likes: [],      // Initialize empty likes array
-            comments: [],   // Initialize empty comments array
+            likes: [],
+            comments: []
         });
 
         console.log('Created new post:', newPost);
@@ -22,18 +21,19 @@ export async function POST(request) {
             message: 'Post uploaded',
             post: newPost 
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Post creation error:', error);
-        return NextResponse.json({ message: error.message });
+        return NextResponse.json({ 
+            message: error.message || 'An error occurred'
+        });
     }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
         await connectDB();
         const posts = await Creates.find().sort({ createdAt: -1 });
         
-        // Log each post with its like count
         posts.forEach(post => {
             console.log('Post:', {
                 ...post.toObject(),
@@ -42,8 +42,10 @@ export async function GET() {
         });
 
         return NextResponse.json({ creator: posts });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Get posts error:', error);
-        return NextResponse.json({ message: error.message });
+        return NextResponse.json({ 
+            message: error.message || 'An error occurred'
+        });
     }
 }

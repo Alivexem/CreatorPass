@@ -1,14 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../../../libs/mongodb';
 import Creates from '../../../../../models/uploads';
 
 type Params = { id: string };
 
-export async function PUT(request: Request, context: { params: Params }) {
+export async function PUT(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
     try {
         await connectDB();
 
-        const { id } = await context.params;
+        const { id } = params;
         const { address }: { address: string } = await request.json();
 
         // Find post and log initial state
