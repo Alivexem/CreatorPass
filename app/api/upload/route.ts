@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData();
         const file = formData.get('file');
 
-        if (!file) {
+        if (!file || !(file instanceof File)) {
             return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
         }
 
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         const base64String = `data:${file.type};base64,${buffer.toString('base64')}`;
 
         // Upload to Cloudinary
-        const uploadResponse = await new Promise((resolve, reject) => {
+        const uploadResponse = await new Promise<any>((resolve, reject) => {
             cloudinary.uploader.upload(base64String, {
                 folder: 'creator-pass-profiles'
             }, (error, result) => {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
             message: 'Image uploaded successfully',
             imageUrl: uploadResponse.secure_url 
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Upload error:', error);
         return NextResponse.json({ 
             message: `Upload failed: ${error.message}` 
