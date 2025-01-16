@@ -15,6 +15,8 @@ const connectDB = async () => {
             socketTimeoutMS: 45000,
             family: 4
         });
+
+        console.log('Connected to MongoDB');
     } catch (error) {
         console.error('MongoDB connection error:', error);
         throw error;

@@ -5,51 +5,45 @@ import Creates from "../../models/uploads";
 export async function POST(request) {
     try {
         await connectDB();
+        const data = await request.json();
         
-        // Log the raw request body for debugging
-        const rawBody = await request.text();
-        console.log('Raw request body:', rawBody);
-        
-        let body;
-        try {
-            body = JSON.parse(rawBody);
-        } catch (parseError) {
-            console.error('JSON parse error:', parseError);
-            return NextResponse.json({ 
-                message: 'Invalid JSON in request body' 
-            }, { status: 400 });
-        }
-        
-        const { username, note, image } = body;
-        
-        if (!note) {
-            return NextResponse.json({ message: 'Note is required' }, { status: 400 });
-        }
-
-        const newPost = await Creates.create({ username, note, image });
-        return NextResponse.json({ 
-            message: 'Post uploaded', 
-            post: newPost 
-        }, { status: 201 });
-    } catch (error) {
-        console.error('Detailed post creation error:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
+        // Create new post with initialized arrays
+        const newPost = await Creates.create({
+            username: data.username,
+            note: data.note,
+            image: data.image || '',
+            likes: [],      // Initialize empty likes array
+            comments: [],   // Initialize empty comments array
         });
+
+        console.log('Created new post:', newPost);
+
         return NextResponse.json({ 
-            message: `Connection error: ${error.message}` 
-        }, { status: 500 });
+            message: 'Post uploaded',
+            post: newPost 
+        });
+    } catch (error) {
+        console.error('Post creation error:', error);
+        return NextResponse.json({ message: error.message });
     }
 }
 
 export async function GET() {
     try {
         await connectDB();
-        const creator = await Creates.find().sort({ createdAt: -1 });
-        return NextResponse.json({ creator });
+        const posts = await Creates.find().sort({ createdAt: -1 });
+        
+        // Log each post with its like count
+        posts.forEach(post => {
+            console.log('Post:', {
+                ...post.toObject(),
+                likeCount: post.likes?.length || 0
+            });
+        });
+
+        return NextResponse.json({ creator: posts });
     } catch (error) {
         console.error('Get posts error:', error);
-        return NextResponse.json({ message: error.message }, { status: 500 });
+        return NextResponse.json({ message: error.message });
     }
 }
