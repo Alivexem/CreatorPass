@@ -17,8 +17,9 @@ interface Profile {
 
 const PassesPage = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const cardsPerPage = 4;
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -39,11 +40,18 @@ const PassesPage = () => {
   }, []);
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % profiles.length);
+    const totalPages = Math.ceil(profiles.length / cardsPerPage);
+    setCurrentPage((prev) => (prev + 1) % totalPages);
   };
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + profiles.length) % profiles.length);
+    const totalPages = Math.ceil(profiles.length / cardsPerPage);
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const getCurrentPageProfiles = () => {
+    const startIndex = currentPage * cardsPerPage;
+    return profiles.slice(startIndex, startIndex + cardsPerPage);
   };
 
   return (
@@ -70,13 +78,13 @@ const PassesPage = () => {
             <button
               onClick={handlePrevious}
               className='hover:scale-110 transition-transform'
-              disabled={profiles.length <= 1}
+              disabled={profiles.length <= cardsPerPage}
             >
               <FaArrowAltCircleLeft className='text-[2.5rem] mb-4 text-white' />
             </button>
 
             <div className='flex gap-x-8'>
-              {profiles.map((profile, index) => (
+              {getCurrentPageProfiles().map((profile, index) => (
                 <div key={index} className='flex flex-col justify-center items-center my-10'>
                   <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
                     <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
@@ -109,7 +117,7 @@ const PassesPage = () => {
             <button
               onClick={handleNext}
               className='hover:scale-110 transition-transform'
-              disabled={profiles.length <= 1}
+              disabled={profiles.length <= cardsPerPage}
             >
               <FaArrowAltCircleRight className='text-[2.5rem] mt-4 text-white' />
             </button>
