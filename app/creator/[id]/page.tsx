@@ -50,6 +50,7 @@ const CreatorPage = ({ params }: PageProps) => {
     const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
     const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
+    const [isCommenting, setIsCommenting] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         const fetchCreatorData = async () => {
@@ -132,6 +133,8 @@ const CreatorPage = ({ params }: PageProps) => {
         e.preventDefault();
         if (!newComment[postId]?.trim()) return;
 
+        setIsCommenting(prev => ({ ...prev, [postId]: true }));
+
         try {
             const address = localStorage.getItem('address');
             if (!address) return;
@@ -157,6 +160,8 @@ const CreatorPage = ({ params }: PageProps) => {
             setNewComment(prev => ({ ...prev, [postId]: '' }));
         } catch (error) {
             console.error('Error adding comment:', error);
+        } finally {
+            setIsCommenting(prev => ({ ...prev, [postId]: false }));
         }
     };
 
@@ -193,15 +198,13 @@ const CreatorPage = ({ params }: PageProps) => {
         );
     }
 
-   
-
     return (
         <div className='bg-[#1A1D1F]'>
             <NavBar />
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
                 {posts.map((post) => (
-                    <div key={post._id} className='w-[50vw] min-h-[200px] max-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
+                    <div key={post._id} className='w-[50vw] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
@@ -242,9 +245,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                 className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                             >
                                 <IoHeartHalf 
-                                    className={`text-[1.7rem] transition-colors ${
-                                        hasLiked[post._id] ? 'text-purple-500' : 'text-white'
-                                    }`} 
+                                    className={`text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : 'text-white'}`} 
                                 />
                                 <p>{likes[post._id] || post.likeCount || 0} likes</p>
                             </button>
@@ -265,7 +266,6 @@ const CreatorPage = ({ params }: PageProps) => {
                                 <FaGift className='text-[1.7rem]' />Gift
                             </button>
                         </div>
-
                         {showComments[post._id] && (
                             <div className='px-10 py-5 border-t border-gray-700 transition-all duration-300'>
                                 <form onSubmit={(e) => handleComment(e, post._id)} className='mb-4'>
@@ -282,11 +282,12 @@ const CreatorPage = ({ params }: PageProps) => {
                                     <button 
                                         type="submit"
                                         className='w-full mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors'
+                                        disabled={isCommenting[post._id]}
                                     >
-                                        Comment
+                                        {isCommenting[post._id] ? 'Posting comment...' : 'Comment'}
                                     </button>
                                 </form>
-
+                    
                                 <div className='max-h-[200px] overflow-y-auto space-y-3'>
                                     {post.comments?.slice()
                                         .sort((a, b) => 
@@ -295,76 +296,57 @@ const CreatorPage = ({ params }: PageProps) => {
                                         .map((comment, idx) => (
                                             <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
                                                 <p className='text-gray-400'>{censorAddress(comment.address)}</p>
-                                                <p>{comment.comment}</p>
+                                                <p className='text-white'>{comment.comment}</p>
                                             </div>
                                         ))}
                                 </div>
                             </div>
                         )}
+                        
+                        {showGiftModal && (
+                            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+                                <div className='bg-[#272B30] rounded-lg p-6 w-[400px] relative'>
+                                    <button 
+                                        onClick={() => setShowGiftModal(false)}
+                                        className='absolute top-4 right-4 text-white hover:text-gray-300'
+                                    >
+                                        <IoMdClose size={24} />
+                                    </button>
+
+                                    <h2 className='text-white text-xl font-bold mb-6'>Gift {profile?.username}</h2>
+                                    
+                                    <div className='space-y-4'>
+                                        <div className='flex flex-col gap-y-2'>
+                                            <p className='text-gray-300 text-sm'>This creator address can receive SOL:</p>
+                                            <div className='flex items-center gap-x-2'>
+                                                <p className='text-white font-mono bg-[#1A1D1F] p-2 rounded flex-1 overflow-x-auto'>
+                                                    {id}
+                                                </p>
+                                                <button 
+                                                    onClick={handleCopyAddress}
+                                                    className='bg-blue-600 p-2 rounded hover:bg-blue-700 transition-colors'
+                                                >
+                                                    <FaCopy className='text-white' />
+                                                </button>
+                                            </div>
+                                            {copySuccess && (
+                                                <p className='text-green-500 text-sm'>Address copied!</p>
+                                            )}
+                                        </div>
+
+                                        <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
+                                        <button 
+                                            onClick={handleGift} 
+                                            className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full'
+                                        >
+                                            BUY SOL
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
-
-                {/* {showGiftModal && (
-                    <div className='fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center'>
-                        <div className='bg-[#272B30] p-5 rounded-lg w-[80vw] max-w-[600px]'>
-                            <div className='flex justify-between items-center'>
-                                <h2 className='text-white text-xl'>Send Sol</h2>
-                                <button onClick={() => setShowGiftModal(false)}>
-                                    <IoMdClose className='text-white text-[1.5rem]' />
-                                </button>
-                            </div>
-                            <p className='text-white my-5'>Gift items to this creator!</p>
-                            <button 
-                                onClick={handleGift} 
-                                className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full'
-                            >
-                                Send Gift
-                            </button>
-                        </div>
-                    </div>
-                )} */}
-                {showGiftModal && (
-                <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-                    <div className='bg-[#272B30] rounded-lg p-6 w-[400px] relative'>
-                        <button 
-                            onClick={() => setShowGiftModal(false)}
-                            className='absolute top-4 right-4 text-white hover:text-gray-300'
-                        >
-                            <IoMdClose size={24} />
-                        </button>
-
-                        <h2 className='text-white text-xl font-bold mb-6'>Gift {profile?.username}</h2>
-                        
-                        <div className='space-y-4'>
-                            <div className='flex flex-col gap-y-2'>
-                                <p className='text-gray-300 text-sm'>This creator address can receive SOL:</p>
-                                <div className='flex items-center gap-x-2'>
-                                    <p className='text-white font-mono bg-[#1A1D1F] p-2 rounded flex-1 overflow-x-auto'>
-                                        {id}
-                                    </p>
-                                    <button 
-                                        onClick={handleCopyAddress}
-                                        className='bg-blue-600 p-2 rounded hover:bg-blue-700 transition-colors'
-                                    >
-                                        <FaCopy className='text-white' />
-                                    </button>
-                                </div>
-                                {copySuccess && (
-                                    <p className='text-green-500 text-sm'>Address copied!</p>
-                                )}
-                            </div>
-
-                            <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
-                            <button 
-                                onClick={handleGift} 
-                                className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full'
-                            >
-                                BUY SOL
-                            </button>
-                        </div>
-                        </div>
-                        </div>
-                )}
             </div>
             <Footer />
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical } from "react-icons/fa6";
@@ -41,6 +41,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
     const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
+    const [isCommentLoading, setIsCommentLoading] = useState<{ [key: string]: boolean }>({});
   
     const fetchPosts = async () => {
       setIsLoadingPosts(true);
@@ -321,6 +322,9 @@ const Content = ({ setToast }: ContentProps) => {
             const address = localStorage.getItem('address');
             if (!address) return;
 
+            // Set loading state for this specific comment
+            setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
+
             const res = await fetch(`/api/posts/${postId}/comment`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -342,7 +346,10 @@ const Content = ({ setToast }: ContentProps) => {
             setNewComment(prev => ({ ...prev, [postId]: '' }));
         } catch (error) {
             console.error('Error adding comment:', error);
-      }
+        } finally {
+            // Clear loading state
+            setIsCommentLoading(prev => ({ ...prev, [postId]: false }));
+        }
     };
     
     return (
@@ -363,7 +370,7 @@ const Content = ({ setToast }: ContentProps) => {
                 ) : (
                     <div className='flex flex-col gap-y-8 w-full items-center'>
                         {posts && posts.map((post: any, index: number) => (
-                            <div key={index} className='w-[50vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
+                            <div key={index} className='w-[50vw] min-h-[200px] max-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
                     <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
                         <div className='flex items-center gap-x-3'>
                                         <div className='h-[60px] w-[60px] relative'>
@@ -432,12 +439,14 @@ const Content = ({ setToast }: ContentProps) => {
                                                 }))}
                                                 placeholder="Add a comment..."
                                                 className='w-full bg-[#272B30] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
+                                                disabled={isCommentLoading[post._id]}
                                             />
                                             <button 
                                                 type="submit"
-                                                className='w-full mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors'
+                                                className='w-full mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50'
+                                                disabled={isCommentLoading[post._id]}
                                             >
-                                                Comment
+                                                {isCommentLoading[post._id] ? 'Adding comment...' : 'Comment'}
                                             </button>
                                         </form>
 
@@ -468,7 +477,7 @@ const Content = ({ setToast }: ContentProps) => {
                 {showDeleteModal && (
                     <div className='fixed inset-0 bg-gray-700 bg-opacity-85 flex justify-center items-center'>
                         <div className='bg-white p-6 rounded-lg flex flex-col items-center gap-y-4'>
-                            <p className='text-lg font-semibold'>Are you sure you want to delete this post?</p>
+                            <p className='text-lg text-black font-semibold'>Are you sure you want to delete this post?</p>
                             <div className='flex gap-x-4'>
                                 <button
                                     onClick={confirmDelete}
@@ -530,7 +539,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                         input.click();
                                                     }
                                                 }}
-                                                className='absolute text-black mt-[160px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600'
+                                                className='absolute mt-[160px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600'
                                             >
                                                 Change Image
                                             </button>

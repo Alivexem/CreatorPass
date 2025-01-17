@@ -57,7 +57,7 @@ const NavBar = () => {
         <div className='h-[100%] w-[15%] rounded-tl-[40px] rounded-bl-[40px] bg-gray-800 text-white flex justify-center items-center'>
           <FiSearch />
         </div>
-        <input className='ml-3 bg-transparent pr-5 h-full w-full outline-none border-none' placeholder='Search CreatorPass' type='text' />
+        <input className='ml-3 bg-transparent text-black pr-5 h-full w-full outline-none border-none' placeholder='Search CreatorPass' type='text' />
       </div>
       <div className='flex items-center gap-x-6 text-white text-[1rem] mr-3'>
         <Link href='/welcome'>
