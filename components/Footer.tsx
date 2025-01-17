@@ -11,7 +11,7 @@ const Footer = () => {
                 </div>
                 <div className='flex items-center gap-x-2'>
                     <FaFire />
-                    <p className='font-mono text-[1rem]'>20 days Bounty Task Built using ReOwn AppKit</p>
+                    <p className='font-mono text-[1rem]'>20 days Bounty Task Built using Reown AppKit</p>
                     <FaFire />
                 </div>
             </div>

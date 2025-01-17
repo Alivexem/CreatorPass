@@ -199,7 +199,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
             type="text" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className={`h-[50px] p-5 rounded-lg w-full ${errors.username ? 'border-red-500' : ''}`}
+            className={`h-[50px] p-5 text-black rounded-lg w-full ${errors.username ? 'border-red-500' : ''}`}
             placeholder='Username *' 
           />
           {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
@@ -210,7 +210,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
             type="text" 
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            className={`h-[50px] p-5 rounded-lg w-full ${errors.country ? 'border-red-500' : ''}`}
+            className={`h-[50px] text-black p-5 rounded-lg w-full ${errors.country ? 'border-red-500' : ''}`}
             placeholder='Country of origin *' 
           />
           {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
@@ -220,7 +220,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
           <textarea 
             value={about}
             onChange={(e) => setAbout(e.target.value)}
-            className={`p-5 rounded-lg w-full ${errors.about ? 'border-red-500' : ''}`}
+            className={`p-5 text-black rounded-lg w-full ${errors.about ? 'border-red-500' : ''}`}
             placeholder='Tell other Creators about you *' 
             rows={8}
           />

@@ -206,7 +206,7 @@ const Content = ({ setToast }: ContentProps) => {
         const profileData = await profileRes.json();
         
         if (!profileData.profile) {
-          throw new Error('Profile not found');
+          throw new Error('Profile not found, setup your profile');
         }
 
         const fullData = {
@@ -363,7 +363,7 @@ const Content = ({ setToast }: ContentProps) => {
                 ) : (
                     <div className='flex flex-col gap-y-8 w-full items-center'>
                         {posts && posts.map((post: any, index: number) => (
-                            <div key={index} className='w-[65vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
+                            <div key={index} className='w-[50vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
                     <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
                         <div className='flex items-center gap-x-3'>
                                         <div className='h-[60px] w-[60px] relative'>
@@ -387,7 +387,7 @@ const Content = ({ setToast }: ContentProps) => {
                     </div>
                                 {post.image && (
                     <div className='flex justify-center w-[100%] items-center'>
-                                        <Image src={post.image} height={1000} width={1000} className='h-[350px] mt-7 w-[60%] rounded-lg border-[1px] border-gray-200 px-5' alt='post image' />
+                                        <Image src={post.image} height={1000} width={1000} className='h-[350px] mt-7 w-[80%] rounded-lg border-[1px] border-gray-400 px-5' alt='post image' />
                     </div>
                                 )}
                     <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
@@ -497,7 +497,7 @@ const Content = ({ setToast }: ContentProps) => {
                             <p className='text-black text-[1.3rem] font-bold'>What do you have for your viewers?</p>
                             <div className='flex items-center gap-x-4'>
                                 <div 
-                                    className='h-[150px] w-[200px] bg-gray-600 rounded-lg flex justify-center items-center'
+                                    className='h-[150px] w-[200px] text-black bg-gray-600 rounded-lg flex justify-center items-center'
                                     onDragOver={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -518,7 +518,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 alt="Preview"
                                                 width={200}
                                                 height={150}
-                                                className='h-full w-full object-cover rounded-lg'
+                                                className='h-full w-full text-black object-cover rounded-lg'
                                             />
                                             <button
                                                 type="button"
@@ -530,16 +530,16 @@ const Content = ({ setToast }: ContentProps) => {
                                                         input.click();
                                                     }
                                                 }}
-                                                className='absolute mt-[160px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600'
+                                                className='absolute text-black mt-[160px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600'
                                             >
                                                 Change Image
                                             </button>
                                         </>
                                     ) : (
-                                        <label htmlFor="image-upload" className='cursor-pointer w-full h-full'>
+                                        <label htmlFor="image-upload" className='cursor-pointer text-black w-full h-full'>
                                             <div className='border-dashed h-full w-full border-[1px] border-gray-200 rounded-lg flex flex-col text-white justify-center items-center gap-2'>
                                         <FaImages size={30} />
-                                                <p className='text-sm text-center'>Click or drag image to upload</p>
+                                                <p className='text-sm text-black text-center'>Click or drag image to upload</p>
                                     </div>
                                             <input 
                                                 type="file"
@@ -559,7 +559,7 @@ const Content = ({ setToast }: ContentProps) => {
                                 onChange={typing} 
                                 name="about" 
                                 placeholder='Express yourself' 
-                                className='p-5 rounded-lg border-[1px] border-black' 
+                                className='p-5 rounded-lg text-black border-[1px] border-black' 
                                 cols={30} 
                                 rows={2}
                             />

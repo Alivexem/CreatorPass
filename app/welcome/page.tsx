@@ -22,7 +22,7 @@ const page = () => {
 
       <div className='flex justify-center items-center my-10 mt-24'>
 
-        <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] rotate-[7deg] h-[500px]'>
+        <div className='flex border-[1px] border-[blue] relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] rotate-[7deg] h-[500px]'>
           <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
             <Image height={40} width={40} src='/sol.png' alt='sol' />
             <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
@@ -44,11 +44,11 @@ const page = () => {
       <div className='flex justify-center items-center gap-x-8 mb-14 mt-20'>
       
         <Link href='/creators'>
-          <button className='h-[55px] w-[300px] text-[1.2rem] p-3 bg-[#28b834] hover:bg-[#1f6625] text-white'>Explore Creators</button>
+          <button className='h-[55px] w-[300px] text-[1.2rem] p-3 bg-purple-600 hover:bg-purple-700 text-white'>Explore Creators</button>
         </Link>
       </div>
 
-      <div className='flex justify-evenly items-center text-white text-[1.4rem]'>
+      <div className='flex justify-evenly mt-[70px] items-center text-white text-[1.4rem]'>
 
         <div className='bg-[#272B30] border-[2px] border-blue-500 h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
           <FaUnlockKeyhole />

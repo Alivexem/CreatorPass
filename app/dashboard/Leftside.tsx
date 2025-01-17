@@ -86,9 +86,9 @@ const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowCont
         </div>
       </div>
 
-      <button className='flex items-center hover:bg-blue-700 justify-center bg-purple-800 text-[0.8rem] w-[180px] h-[40px] px-4 py-2 gap-x-3 mt-10 text-white rounded-md'>
+      {/* <button className='flex items-center hover:bg-blue-700 justify-center bg-purple-800 text-[0.8rem] w-[180px] h-[40px] px-4 py-2 gap-x-3 mt-10 text-white rounded-md'>
         <MdLogout />Logout
-      </button>
+      </button> */}
     </div>
   );
 };

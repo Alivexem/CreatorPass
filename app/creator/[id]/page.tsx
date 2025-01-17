@@ -23,7 +23,7 @@ interface Post {
         address: string;
         comment: string;
         timestamp?: Date;
-    }>;
+    }> ;
     likes?: string[];
     likeCount?: number;
 }
@@ -193,14 +193,16 @@ const CreatorPage = ({ params }: PageProps) => {
         );
     }
 
+   
+
     return (
         <div className='bg-[#1A1D1F]'>
             <NavBar />
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
                 {posts.map((post) => (
-                    <div key={post._id} className='w-[65vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
-                        <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
+                    <div key={post._id} className='w-[50vw] min-h-[200px] max-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
+                        <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
                                     <Image 
@@ -223,12 +225,12 @@ const CreatorPage = ({ params }: PageProps) => {
                         </div>
                         {post.image && (
                             <div className='flex justify-center w-[100%] items-center'>
-                                <div className='relative h-[350px] w-[60%] mt-7'>
+                                <div className='relative h-[350px] w-[80%] mt-7'>
                                     <Image 
                                         src={post.image} 
                                         fill
                                         style={{objectFit: 'contain'}}
-                                        className='rounded-lg border-[1px] border-gray-200 px-5' 
+                                        className='rounded-lg border-[1px] border-gray-400 px-5' 
                                         alt='post image' 
                                     />
                                 </div>
@@ -250,7 +252,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                 onClick={() => setShowComments(prev => ({ 
                                     ...prev, 
                                     [post._id]: !prev[post._id] 
-                                }))}
+                                }))} 
                                 className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                             >
                                 <FaCommentMedical className='text-[1.7rem]' />
@@ -292,31 +294,36 @@ const CreatorPage = ({ params }: PageProps) => {
                                         )
                                         .map((comment, idx) => (
                                             <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
-                                                <p className='text-gray-400 text-sm font-mono mb-1'>
-                                                    {censorAddress(comment.address)}
-                                                </p>
-                                                <p className='text-white text-sm'>{comment.comment}</p>
+                                                <p className='text-gray-400'>{censorAddress(comment.address)}</p>
+                                                <p>{comment.comment}</p>
                                             </div>
                                         ))}
-                                    {(!post.comments || post.comments.length === 0) && (
-                                        <p className='text-gray-500 text-center py-2'>No comments yet</p>
-                                    )}
                                 </div>
                             </div>
                         )}
                     </div>
                 ))}
 
-                {posts.length === 0 && (
-                    <div className='text-white text-xl text-center py-20'>
-                        This creator hasn't posted anything yet.
+                {/* {showGiftModal && (
+                    <div className='fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center'>
+                        <div className='bg-[#272B30] p-5 rounded-lg w-[80vw] max-w-[600px]'>
+                            <div className='flex justify-between items-center'>
+                                <h2 className='text-white text-xl'>Send Sol</h2>
+                                <button onClick={() => setShowGiftModal(false)}>
+                                    <IoMdClose className='text-white text-[1.5rem]' />
+                                </button>
+                            </div>
+                            <p className='text-white my-5'>Gift items to this creator!</p>
+                            <button 
+                                onClick={handleGift} 
+                                className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full'
+                            >
+                                Send Gift
+                            </button>
+                        </div>
                     </div>
-                )}
-            </div>
-            <Footer />
-
-            {/* Gift Modal */}
-            {showGiftModal && (
+                )} */}
+                {showGiftModal && (
                 <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
                     <div className='bg-[#272B30] rounded-lg p-6 w-[400px] relative'>
                         <button 
@@ -330,7 +337,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         
                         <div className='space-y-4'>
                             <div className='flex flex-col gap-y-2'>
-                                <p className='text-gray-300 text-sm'>Creator's Address:</p>
+                                <p className='text-gray-300 text-sm'>This creator address can receive SOL:</p>
                                 <div className='flex items-center gap-x-2'>
                                     <p className='text-white font-mono bg-[#1A1D1F] p-2 rounded flex-1 overflow-x-auto'>
                                         {id}
@@ -347,34 +354,19 @@ const CreatorPage = ({ params }: PageProps) => {
                                 )}
                             </div>
 
-                            <div className='text-center text-white text-lg font-bold'>OR</div>
-
-                            <div className='flex justify-evenly items-center'>
-                                <div className='flex flex-col items-center'>
-                                    <GiFlowerPot size={30} className='text-white mb-2' />
-                                    <p className='text-sm text-white'>0.002 SOL</p>
-                                </div>
-                                <div className='flex flex-col items-center'>
-                                    <GiRing size={30} className='text-white mb-2' />
-                                    <p className='text-sm text-white'>0.1 SOL</p>
-                                </div>
-                                <div className='flex flex-col items-center'>
-                                    <FaCar size={30} className='text-white mb-2' />
-                                    <p className='text-sm text-white'>1.2 SOL</p>
-                                </div>
-                                <div className='flex flex-col items-center'>
-                                    <FaLaptopHouse size={30} className='text-white mb-2' />
-                                    <p className='text-sm text-white'>2.7 SOL</p>
-                                </div>
-                                <div className='flex flex-col items-center'>
-                                    <FaPlane size={30} className='text-white mb-2' />
-                                    <p className='text-sm text-white'>5 SOL</p>
-                                </div>
-                            </div>
+                            <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
+                            <button 
+                                onClick={handleGift} 
+                                className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full'
+                            >
+                                BUY SOL
+                            </button>
                         </div>
-                    </div>
-                </div>
-            )}
+                        </div>
+                        </div>
+                )}
+            </div>
+            <Footer />
         </div>
     );
 };

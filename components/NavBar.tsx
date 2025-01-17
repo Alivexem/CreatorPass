@@ -61,13 +61,13 @@ const NavBar = () => {
       </div>
       <div className='flex items-center gap-x-6 text-white text-[1rem] mr-3'>
         <Link href='/welcome'>
-          <p className={`cursor-pointer ${pathname === '/welcome' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Home</p>
+          <p className={`cursor-pointer ${pathname === '/welcome' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
         </Link>
         <Link href='/dashboard'>
-          <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Dashboard</p>
+          <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
         </Link>
         <Link href='/passes'>
-          <p className={`cursor-pointer ${pathname === '/passes' ? 'bg-gray-400' : ''} p-2 rounded-lg`}>Passes</p>
+          <p className={`cursor-pointer ${pathname === '/passes' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Passes</p>
         </Link>
 
         {/* <div

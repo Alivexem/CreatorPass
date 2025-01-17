@@ -11,7 +11,9 @@
   "dependencies": {
     "@reown/appkit": "^1.6.4",
     "@reown/appkit-adapter-solana": "^1.6.4",
+    "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-wallets": "^0.19.32",
+    "@solana/web3.js": "^1.98.0",
     "@walletconnect/client": "^1.8.0",
     "@walletconnect/web3-provider": "^1.8.0",
     "cloudinary": "^2.5.1",
