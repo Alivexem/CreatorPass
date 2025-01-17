@@ -9,7 +9,7 @@ const Footer = () => {
                     <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
                     <p className='font-bold text-[1.4rem] font-mono'> Developed by Athkins</p>
                 </div>
-                <div className='flex items-center gap-x-2'>
+                <div className='flex items-center gap-x-2 mb-[50px]'>
                     <FaFire />
                     <p className='font-mono text-[1rem]'>20 days Bounty Task Built using Reown AppKit</p>
                     <FaFire />
