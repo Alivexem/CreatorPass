@@ -144,13 +144,13 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                   </div>
                 </div>
               </div>
-              <button className='bg-red-500 text-[0.8rem] flex items-center gap-x-3 font-bold border-black border-[1px] text-white px-4 py-2 mt-4'>
+              <button className='bg-gray-500 text-[0.8rem] cursor-not-allowed flex items-center gap-x-3 font-bold border-black border-[1px] text-white px-4 py-2 mt-4'>
                 <MdDeleteForever size={25} />Delete Pass
               </button>
             </div>
           </div>
           <div className='flex justify-center items-center my-7 mb-[40px]'>
-            <button className='bg-green-600 font-bold text-white h-[55px] w-[200px] rounded-[15px]'>Create new pass</button>
+            <button className='bg-gray-600 font-bold cursor-not-allowed text-white h-[55px] w-[200px] rounded-[15px]'>Create new pass</button>
           </div>
         </>
       )}
