@@ -157,17 +157,20 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
      </div>
       <div className='flex items-center gap-x-4'>
         <div 
-          className='h-[300px] w-[350px] bg-gray-600 rounded-lg flex justify-center items-center cursor-pointer relative overflow-hidden'
+          className='h-[300px] w-[350px] bg-gray-600 rounded-lg flex justify-center items-center cursor-pointer relative'
           onClick={() => fileInputRef.current?.click()}
         >
           {selectedImagePreview || profileImage ? (
-            <Image 
-              src={selectedImagePreview || profileImage} 
-              alt="Profile" 
-              fill
-              style={{objectFit: 'cover'}}
-              className="rounded-lg"
-            />
+            <div className='relative h-full w-full'>
+              <Image 
+                src={selectedImagePreview || profileImage} 
+                alt="Profile" 
+                fill
+                sizes="(max-width: 350px) 100vw"
+                priority
+                className="rounded-lg object-cover"
+              />
+            </div>
           ) : (
             <div className='border-dashed h-[250px] w-[300px] border-[1px] border-gray-200 rounded-lg flex text-white justify-center items-center'>
               <FaImages size={30} />
