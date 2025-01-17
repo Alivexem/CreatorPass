@@ -117,18 +117,24 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
             <div className='flex flex-col justify-center items-center my-10'>
               <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
                 <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-                  <Image height={30} width={30} src='/sol.png' alt='sol' />
+                  <div className='relative w-[30px] h-[30px]'>
+                    <Image src='/sol.png' alt='sol' fill style={{objectFit: 'contain'}} />
+                  </div>
                   <p className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Access Card</p>
                 </div>
                 <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-                  <Image src='/whiteLogo.png' alt='logo' height={10} width={70} />
-                  <Image 
-                    src={profile?.profileImage || '/smile.jpg'} 
-                    className='rounded-md' 
-                    height={80} 
-                    width={180} 
-                    alt='profile' 
-                  />
+                  <div className='relative w-[70px] h-[10px] mb-2'>
+                    <Image src='/whiteLogo.png' alt='logo' fill style={{objectFit: 'contain'}} />
+                  </div>
+                  <div className='relative w-[180px] h-[80px]'>
+                    <Image 
+                      src={profile?.profileImage || '/smile.jpg'} 
+                      className='rounded-md'
+                      fill
+                      style={{objectFit: 'cover'}}
+                      alt='profile' 
+                    />
+                  </div>
                   <div className='flex items-center gap-x-4'>
                     <RiHeart2Line className='text-white' />
                     <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>

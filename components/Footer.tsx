@@ -7,7 +7,7 @@ const Footer = () => {
             <div className='flex justify-center items-center flex-col space-y-5'>
                 <div className='flex items-center gap-x-2'>
                     <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
-                    <p className='font-bold text-[1.4rem]'> Developed by Athkins</p>
+                    <p className='font-bold text-[1.4rem] font-mono'> Developed by Athkins</p>
                 </div>
                 <div className='flex items-center gap-x-2'>
                     <FaFire />

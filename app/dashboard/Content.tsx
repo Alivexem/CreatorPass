@@ -366,13 +366,15 @@ const Content = ({ setToast }: ContentProps) => {
                             <div key={index} className='w-[65vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
                     <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
                         <div className='flex items-center gap-x-3'>
-                                        <Image 
-                                            src={userProfile?.profilePic} 
-                                            height={60} 
-                                            width={60} 
-                                            alt='profile' 
-                                            className='rounded-lg' 
-                                        />
+                                        <div className='h-[60px] w-[60px] relative'>
+                                            <Image 
+                                                src={userProfile?.profilePic} 
+                                                fill
+                                                alt='profile' 
+                                                className='rounded-lg object-cover'
+                                                sizes="60px"
+                                            />
+                                        </div>
                                         <p className='text-[1.1rem]'>{userProfile?.username}</p>
                         </div>
                         <div className='flex items-center gap-x-2'>

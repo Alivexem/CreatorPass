@@ -25,7 +25,7 @@ const page = () => {
         <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] rotate-[7deg] h-[500px]'>
           <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
             <Image height={40} width={40} src='/sol.png' alt='sol' />
-            <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Bronze Access</p>
+            <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
             {/* <p className='mt-4 bg-gray-800 rounded-lg text-white p-2 text-[0.6rem]'>3v7rE4hWTKi8vswPg8VbjGLJt9DeNNDG15dMuSHTX6Ev</p> */}
           </div>
           <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>

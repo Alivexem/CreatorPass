@@ -6,26 +6,36 @@ import { FaCommentMedical } from "react-icons/fa6";
 import { FaGift } from "react-icons/fa6";
 import { FaCopy } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
+import { GiFlowerPot, GiRing } from "react-icons/gi";
+import { FaCar, FaPlane } from "react-icons/fa";
+import { FaLaptopHouse } from "react-icons/fa";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useAppKit, useAppKitAccount } from '../../../utils/reown';
 
 interface Post {
-  _id: string;
-  username: string;
-  note: string;
-  image: string;
-  createdAt: string;
+    _id: string;
+    username: string;
+    note: string;
+    image: string;
+    createdAt: string;
+    comments?: Array<{
+        address: string;
+        comment: string;
+        timestamp?: Date;
+    }>;
+    likes?: string[];
+    likeCount?: number;
 }
 
 interface Profile {
-  username: string;
-  profileImage: string;
-  address: string;
+    username: string;
+    profileImage: string;
+    address: string;
 }
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }
 
 const CreatorPage = ({ params }: PageProps) => {
@@ -36,10 +46,16 @@ const CreatorPage = ({ params }: PageProps) => {
     const [showGiftModal, setShowGiftModal] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
     const { open } = useAppKit();
+    const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
+    const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
+    const [likes, setLikes] = useState<{ [key: string]: number }>({});
+    const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         const fetchCreatorData = async () => {
             try {
+                const myAddress = localStorage.getItem('address') || '';
+                
                 // Fetch creator's profile
                 const profileRes = await fetch(`/api/profile?address=${id}`);
                 const profileData = await profileRes.json();
@@ -56,8 +72,19 @@ const CreatorPage = ({ params }: PageProps) => {
                 const creatorPosts = postsData.creator.filter((post: Post) => 
                     post.username === id
                 );
+
+                // Initialize likes state for each post
+                const initialLikes: { [key: string]: number } = {};
+                const initialHasLiked: { [key: string]: boolean } = {};
+                
+                creatorPosts.forEach((post: Post) => {
+                    initialLikes[post._id] = post.likeCount || 0;
+                    initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
+                });
                 
                 setPosts(creatorPosts);
+                setLikes(initialLikes);
+                setHasLiked(initialHasLiked);
             } catch (error) {
                 console.error('Error fetching creator data:', error);
             } finally {
@@ -67,6 +94,71 @@ const CreatorPage = ({ params }: PageProps) => {
 
         fetchCreatorData();
     }, [id]);
+
+    const handleLike = async (postId: string) => {
+        try {
+            const address = localStorage.getItem('address');
+            if (!address) return;
+
+            const res = await fetch(`/api/posts/${postId}/like`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address })
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to update like');
+            }
+
+            const data = await res.json();
+            
+            setPosts(prevPosts => 
+                prevPosts.map(post => 
+                    post._id === postId 
+                        ? { ...post, likeCount: data.likeCount }
+                        : post
+                )
+            );
+
+            setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
+            setHasLiked(prev => ({ ...prev, [postId]: data.hasLiked }));
+            
+        } catch (error) {
+            console.error('Error updating like:', error);
+        }
+    };
+
+    const handleComment = async (e: React.FormEvent, postId: string) => {
+        e.preventDefault();
+        if (!newComment[postId]?.trim()) return;
+
+        try {
+            const address = localStorage.getItem('address');
+            if (!address) return;
+
+            const res = await fetch(`/api/posts/${postId}/comment`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    address, 
+                    comment: newComment[postId].trim() 
+                })
+            });
+
+            const data = await res.json();
+            setPosts(prevPosts => 
+                prevPosts.map(post => 
+                    post._id === postId 
+                        ? { ...post, comments: data.comments }
+                        : post
+                )
+            );
+            
+            setNewComment(prev => ({ ...prev, [postId]: '' }));
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
+    };
 
     const censorAddress = (address: string) => {
         if (!address) return '';
@@ -110,13 +202,15 @@ const CreatorPage = ({ params }: PageProps) => {
                     <div key={post._id} className='w-[65vw] min-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
                             <div className='flex items-center gap-x-3'>
-                                <Image 
-                                    src={profile?.profileImage || '/smile.jpg'} 
-                                    height={50} 
-                                    width={50} 
-                                    alt='profile' 
-                                    className='rounded-lg' 
-                                />
+                                <div className='relative h-[50px] w-[50px]'>
+                                    <Image 
+                                        src={profile?.profileImage || '/smile.jpg'} 
+                                        fill
+                                        style={{objectFit: 'cover'}}
+                                        alt='profile' 
+                                        className='rounded-lg' 
+                                    />
+                                </div>
                                 <p className='text-[1.1rem]'>{profile?.username || 'Anonymous'}</p>
                             </div>
                             <div className='flex items-center gap-x-2'>
@@ -129,24 +223,39 @@ const CreatorPage = ({ params }: PageProps) => {
                         </div>
                         {post.image && (
                             <div className='flex justify-center w-[100%] items-center'>
-                                <Image 
-                                    src={post.image} 
-                                    height={1000} 
-                                    width={1000} 
-                                    className='h-[350px] mt-7 w-[60%] rounded-lg border-[1px] border-gray-200 px-5' 
-                                    alt='post image' 
-                                />
+                                <div className='relative h-[350px] w-[60%] mt-7'>
+                                    <Image 
+                                        src={post.image} 
+                                        fill
+                                        style={{objectFit: 'contain'}}
+                                        className='rounded-lg border-[1px] border-gray-200 px-5' 
+                                        alt='post image' 
+                                    />
+                                </div>
                             </div>
                         )}
                         <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
-                            <div className='flex items-center gap-x-3 text-white'>
-                                <IoHeartHalf className='text-white text-[1.7rem]' />
-                                <p>0 likes</p>
-                            </div>
-                            <div className='flex items-center gap-x-3 text-white'>
-                                <FaCommentMedical className='text-white text-[1.7rem]' />
-                                <p>0 comments</p>
-                            </div>
+                            <button 
+                                onClick={() => handleLike(post._id)}
+                                className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                            >
+                                <IoHeartHalf 
+                                    className={`text-[1.7rem] transition-colors ${
+                                        hasLiked[post._id] ? 'text-purple-500' : 'text-white'
+                                    }`} 
+                                />
+                                <p>{likes[post._id] || post.likeCount || 0} likes</p>
+                            </button>
+                            <button 
+                                onClick={() => setShowComments(prev => ({ 
+                                    ...prev, 
+                                    [post._id]: !prev[post._id] 
+                                }))}
+                                className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                            >
+                                <FaCommentMedical className='text-[1.7rem]' />
+                                <p>{post.comments?.length || 0} comments</p>
+                            </button>
                             <button 
                                 onClick={() => setShowGiftModal(true)}
                                 className='bg-blue-700 text-[1rem] h-[40px] w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
@@ -154,6 +263,47 @@ const CreatorPage = ({ params }: PageProps) => {
                                 <FaGift className='text-[1.7rem]' />Gift
                             </button>
                         </div>
+
+                        {showComments[post._id] && (
+                            <div className='px-10 py-5 border-t border-gray-700 transition-all duration-300'>
+                                <form onSubmit={(e) => handleComment(e, post._id)} className='mb-4'>
+                                    <input
+                                        type="text"
+                                        value={newComment[post._id] || ''}
+                                        onChange={(e) => setNewComment(prev => ({
+                                            ...prev,
+                                            [post._id]: e.target.value
+                                        }))}
+                                        placeholder="Add a comment..."
+                                        className='w-full bg-[#272B30] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
+                                    />
+                                    <button 
+                                        type="submit"
+                                        className='w-full mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors'
+                                    >
+                                        Comment
+                                    </button>
+                                </form>
+
+                                <div className='max-h-[200px] overflow-y-auto space-y-3'>
+                                    {post.comments?.slice()
+                                        .sort((a, b) => 
+                                            new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime()
+                                        )
+                                        .map((comment, idx) => (
+                                            <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
+                                                <p className='text-gray-400 text-sm font-mono mb-1'>
+                                                    {censorAddress(comment.address)}
+                                                </p>
+                                                <p className='text-white text-sm'>{comment.comment}</p>
+                                            </div>
+                                        ))}
+                                    {(!post.comments || post.comments.length === 0) && (
+                                        <p className='text-gray-500 text-center py-2'>No comments yet</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
 
@@ -180,7 +330,6 @@ const CreatorPage = ({ params }: PageProps) => {
                         
                         <div className='space-y-4'>
                             <div className='flex flex-col gap-y-2'>
-                            <p className='text-gray-300 text-md'>Gift sol to the wallet below</p>
                                 <p className='text-gray-300 text-sm'>Creator's Address:</p>
                                 <div className='flex items-center gap-x-2'>
                                     <p className='text-white font-mono bg-[#1A1D1F] p-2 rounded flex-1 overflow-x-auto'>
@@ -198,12 +347,30 @@ const CreatorPage = ({ params }: PageProps) => {
                                 )}
                             </div>
 
-                            {/* <button
-                                onClick={handleGift}
-                                className='w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-x-2'
-                            >
-                                <FaGift /> Send Gift
-                            </button> */}
+                            <div className='text-center text-white text-lg font-bold'>OR</div>
+
+                            <div className='flex justify-evenly items-center'>
+                                <div className='flex flex-col items-center'>
+                                    <GiFlowerPot size={30} className='text-white mb-2' />
+                                    <p className='text-sm text-white'>0.002 SOL</p>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <GiRing size={30} className='text-white mb-2' />
+                                    <p className='text-sm text-white'>0.1 SOL</p>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <FaCar size={30} className='text-white mb-2' />
+                                    <p className='text-sm text-white'>1.2 SOL</p>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <FaLaptopHouse size={30} className='text-white mb-2' />
+                                    <p className='text-sm text-white'>2.7 SOL</p>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <FaPlane size={30} className='text-white mb-2' />
+                                    <p className='text-sm text-white'>5 SOL</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
