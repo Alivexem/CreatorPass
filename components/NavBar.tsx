@@ -21,6 +21,7 @@ const NavBar = () => {
   const [connectValue, setConnectValue] = useState('Connect Wallet');
   const { open } = useAppKit();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '' });
 
   useEffect(() => {
@@ -62,8 +63,11 @@ const NavBar = () => {
     }
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
     if (!searchTerm.trim()) return;
 
     try {
@@ -77,6 +81,7 @@ const NavBar = () => {
 
       if (foundUser) {
         router.push(`/creator/${foundUser.address}`);
+        setShowMobileSearch(false);
       } else {
         setToast({ show: true, message: 'User not found' });
       }
@@ -135,22 +140,52 @@ const NavBar = () => {
         </div>
       </div>
 
+      {/* Bottom nav below */}
+      <div className='h-[70px] box-border flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
+        <Link href='/welcome'>
+          <div className='flex flex-col cursor-pointer items-center space-y-3'>
+            <GoHomeFill />
+            <p>Home</p>
+          </div>
+        </Link>
 
-      <div className='h-[50px] flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
-        <div>
-          <GoHomeFill />
-          <p>Home</p>
-        </div>
+        <Link href='/dashboard'>
+          <div className='flex flex-col cursor-pointer items-center space-y-3'>
+            <MdDashboardCustomize />
+            <p>Dashboard</p>
+          </div>
+        </Link>
 
-        <div>
-          <MdDashboardCustomize />
-          <p>Dashboard</p>
-        </div>
+        <Link href='/passes'>
+          <div className='flex flex-col cursor-pointer items-center space-y-3'>
+            <IoTicketSharp />
+            <p>Passes</p>
+          </div>
+        </Link>
 
-
-        <div>
-          <IoTicketSharp />
-          <p>Passes</p>
+        <div className='flex cursor-pointer flex-col items-center space-y-3 relative' onClick={() => setShowMobileSearch(prev => !prev)}>
+          <FiSearch />
+          <p>Search</p>
+          {showMobileSearch && (
+            <div className='absolute bottom-[80px] right-[2px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search creators..."
+                className="flex-1 p-2 border rounded-lg text-black"
+              />
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSearch();
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg"
+              >
+                <FiSearch />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

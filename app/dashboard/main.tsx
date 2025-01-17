@@ -52,10 +52,10 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
   }, []);
 
   return (
-    <div className='bg-[#1A1D1F] w-[100%] h-auto overflow-hidden flex justify-start items-center flex-col'>
+    <div className='bg-[#1A1D1F] pb-[100px] md:pb-4 p-4 w-[100%] h-auto overflow-hidden flex justify-start items-center flex-col'>
       <div className='text-center font-bold pt-[30px] mb-[45px] flex justify-center items-center flex-col'>
-        <div className='flex items-center text-[2.8rem] text-purple-500'>
-          <p>Manage Contents </p> <FaDatabase className='mx-3' /> <p>and NFTs</p>
+        <div className='flex flex-col md:flex-row items-center text-[2.8rem] text-purple-500'>
+          <p>Manage Contents </p> <FaDatabase className='mx-3' /> <p>And NFTs</p>
         </div>
       </div>
 

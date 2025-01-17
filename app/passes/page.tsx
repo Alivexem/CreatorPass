@@ -18,6 +18,7 @@ interface Profile {
 const PassesPage = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [currentMobileIndex, setCurrentMobileIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const cardsPerPage = 4;
 
@@ -40,13 +41,21 @@ const PassesPage = () => {
   }, []);
 
   const handleNext = () => {
-    const totalPages = Math.ceil(profiles.length / cardsPerPage);
-    setCurrentPage((prev) => (prev + 1) % totalPages);
+    if (window.innerWidth >= 768) {
+      const totalPages = Math.ceil(profiles.length / cardsPerPage);
+      setCurrentPage((prev) => (prev + 1) % totalPages);
+    } else {
+      setCurrentMobileIndex((prev) => (prev + 1) % profiles.length);
+    }
   };
 
   const handlePrevious = () => {
-    const totalPages = Math.ceil(profiles.length / cardsPerPage);
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+    if (window.innerWidth >= 768) {
+      const totalPages = Math.ceil(profiles.length / cardsPerPage);
+      setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+    } else {
+      setCurrentMobileIndex((prev) => (prev - 1 + profiles.length) % profiles.length);
+    }
   };
 
   const getCurrentPageProfiles = () => {
@@ -54,8 +63,10 @@ const PassesPage = () => {
     return profiles.slice(startIndex, startIndex + cardsPerPage);
   };
 
+  const currentMobileProfile = profiles[currentMobileIndex];
+
   return (
-    <div className='bg-[#1A1D1F] relative'>
+    <div className='bg-[#1A1D1F] relative min-h-[100vh]'>
       <div className='absolute top-[170px] right-4'>
         <div className='bg-green-500 text-white px-6 py-2 rounded-lg text-sm'>
           All passes are free on this first release
@@ -63,7 +74,7 @@ const PassesPage = () => {
       </div>
       <NavBar />
       <div className='flex justify-center items-center mt-10'>
-      <div className='flex items-center font-bold my-5 text-[2.8rem] text-gray-200'>
+        <div className='flex items-center font-bold my-5 text-[2.8rem] text-gray-200'>
           <p>Mint Exclusive Passes</p>
         </div>
       </div>
@@ -78,12 +89,45 @@ const PassesPage = () => {
             <button
               onClick={handlePrevious}
               className='hover:scale-110 transition-transform'
-              disabled={profiles.length <= cardsPerPage}
+              disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
             >
               <FaArrowAltCircleLeft className='text-[2.5rem] mb-4 text-white' />
             </button>
 
-            <div className='flex gap-x-8'>
+            {/* Mobile View */}
+            <div className='md:hidden'>
+              {currentMobileProfile && (
+                <div className='flex flex-col justify-center items-center my-10'>
+                  <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
+                    <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
+                      <Image height={30} width={30} src='/sol.png' alt='sol' />
+                      <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Access Card</p>
+                    </div>
+                    <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
+                      <Image src='/whiteLogo.png' alt='logo' height={10} width={70} />
+                      <div className='w-[180px] h-[80px] relative'>
+                        <Image 
+                          src={currentMobileProfile.profileImage || '/smile.jpg'} 
+                          className='rounded-md'
+                          fill
+                          style={{objectFit: 'cover'}}
+                          alt='profile'
+                        />
+                      </div>
+                      <div className='flex items-center gap-x-4'>
+                        <RiHeart2Line className='text-white' />
+                        <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>{currentMobileProfile.username}</p>
+                        <RiHeart2Line className='text-white' />
+                      </div>
+                    </div>
+                  </div>
+                  <button disabled className='bg-gray-500 cursor-not-allowed flex items-center gap-x-4 text-[0.8rem] font-bold border-black border-[1px] text-white px-4 py-2 mt-4'><RiNftFill size={25} />Mint NFT</button>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop/Tablet View */}
+            <div className='hidden md:flex gap-x-8'>
               {getCurrentPageProfiles().map((profile, index) => (
                 <div key={index} className='flex flex-col justify-center items-center my-10'>
                   <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
@@ -117,7 +161,7 @@ const PassesPage = () => {
             <button
               onClick={handleNext}
               className='hover:scale-110 transition-transform'
-              disabled={profiles.length <= cardsPerPage}
+              disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
             >
               <FaArrowAltCircleRight className='text-[2.5rem] mt-4 text-white' />
             </button>

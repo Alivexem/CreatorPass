@@ -189,7 +189,7 @@ const CreatorPage = ({ params }: PageProps) => {
 
     if (loading) {
         return (
-            <div className='bg-[#1A1D1F] min-h-screen flex flex-col'>
+            <div className='bg-[#1A1D1F] pb-[100px] md:pb-0 min-h-screen flex flex-col'>
                 <NavBar />
                 <div className='flex-1 flex justify-center items-center'>
                     <p className='text-white text-2xl animate-pulse'>Loading creator content...</p>

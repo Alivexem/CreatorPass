@@ -6,6 +6,11 @@ import Leftbar from './Leftside'
 import Mainbar from './main'
 import NavBar from '@/components/NavBar'
 import Toast from '@/components/Toast'
+import Link from 'next/link'
+import { GoHomeFill } from "react-icons/go";
+import { MdDashboardCustomize } from "react-icons/md";
+import { IoTicketSharp } from "react-icons/io5";
+import { FaDatabase } from "react-icons/fa";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -65,16 +70,47 @@ const Dashboard = () => {
   return (
     <div>
       {toast.show && (
-        <Toast 
-          message={toast.message} 
-          type={toast.type} 
-          onClose={() => setToast({ ...toast, show: false })} 
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
         />
       )}
       <div className='flex items-center bg-[#1A1D1F]'>
-        <Leftbar onShowContent={handleShowContent} onShowDashboard={handleShowDashboard} onShowProfile={handleShowProfile} />
-        <div className='w-[75%] ml-[24%] h-[100%]'>
+        <div className='hidden md:block'>
+
+          <Leftbar onShowContent={handleShowContent} onShowDashboard={handleShowDashboard} onShowProfile={handleShowProfile} />
+        </div>
+        <div className='w-[100%] md:w-[75%] md:ml-[24%] h-[100%]'>
           <Mainbar showContent={showContent} showProfile={showProfile} setToast={setToast} />
+          <div className='h-[70px] box-border flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
+            <Link href='/welcome'>
+              <div className='flex flex-col cursor-pointer items-center space-y-3'>
+                <GoHomeFill />
+                <p>Home</p>
+              </div>
+            </Link>
+
+            <Link href='/dashboard'>
+              <div className='flex flex-col cursor-pointer items-center space-y-3'>
+                <MdDashboardCustomize />
+                <p>Dashboard</p>
+              </div>
+            </Link>
+            <Link href='/passes'>
+              <div className='flex flex-col cursor-pointer items-center space-y-3'>
+                <IoTicketSharp />
+                <p>Passes</p>
+              </div>
+            </Link>
+
+            <Link href='/passes'>
+              <div className='flex flex-col cursor-pointer items-center space-y-3'>
+                <FaDatabase />
+                <p>Contents</p>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

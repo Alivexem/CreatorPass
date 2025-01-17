@@ -54,11 +54,11 @@ const CreatorsPage = () => {
   const currentProfile = profiles[currentIndex];
 
   return (
-    <div className='bg-[#1A1D1F]'>
+    <div className='bg-[#1A1D1F] pb-[100px] md:pb-0'>
       <NavBar />
       <div className='flex justify-center items-center mt-10'>
       <div className='flex justify-center items-center mt-10'>
-      <div className='flex items-center font-bold my-5 text-[2.8rem] text-gray-200'>
+      <div className='flex items-center justify-center font-bold my-5 text-center text-[2.8rem] text-gray-200'>
           <p>Meet Your Favourite Creators</p>
         </div>
       </div>
@@ -80,10 +80,10 @@ const CreatorsPage = () => {
 
           {currentProfile && (
             <Link href={`/creator/${currentProfile.address}`}>
-              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#e7f0f5] via-[#dfeef7] to-[#e7f0f5] w-[350px] h-[500px]'>
+              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#e7f0f5] via-[#dfeef7] to-[#e7f0f5] h-[400px] w-[100%] md:w-[350px] md:h-[500px]'>
                 <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
                   <Image src='/whiteLogo.png' alt='logo' height={10} width={100} />
-                  <div className='relative w-[250px] h-[120px]'>
+                  <div className='relative h-[70px] w-[150px] md:w-[250px] md:h-[120px]'>
                     <Image 
                       src={currentProfile.profileImage || '/smile.jpg'} 
                       className='rounded-md'
@@ -118,7 +118,7 @@ const CreatorsPage = () => {
         </div>
       )}
 
-      <div className='flex justify-evenly items-center text-white text-[1.4rem]'>
+      <div className='flex flex-col space-y-4 md:flex-row justify-evenly items-center text-white text-[1.4rem]'>
               <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
                 <FaUnlockKeyhole />
                 <p className='text-center'>Access Fun Creators
@@ -130,13 +130,13 @@ const CreatorsPage = () => {
                   View Exclusive Contents
                 </p>
               </div>
-              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl hidden md:flex justify-center items-center flex-col'>
                  <SiFueler />
                 <p className='text-center'>
                   Mint NFT Passes
                 </p>
               </div>
-              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl lg:flex hidden justify-center items-center flex-col'>
                 <RiVipCrown2Fill />
                 <p className='text-center'>
                   Engage and have fun     

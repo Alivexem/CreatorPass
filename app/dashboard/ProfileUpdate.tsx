@@ -151,13 +151,13 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col mb-[40px] space-y-5 justify-center items-center'>
-     <div className='flex justify-start items-start'>
-     <p className='text-white text-[2rem] font-bold mt-0'>Update profile</p>
+    <form onSubmit={handleSubmit} className='flex flex-col mb-[40px] space-y-5 justify-center items-center w-full px-[5%] md:px-0'>
+     <div className='flex p-5 justify-start md:justify-start items-start w-full md:w-auto'>
+       <p className='text-white text-[1.5rem] md:text-[2rem] font-bold mt-0'>Update profile</p>
      </div>
-      <div className='flex items-center gap-x-4'>
+      <div className='flex items-center gap-x-4 w-[90%] md:w-auto justify-center'>
         <div 
-          className='h-[300px] w-[350px] bg-gray-600 rounded-lg flex justify-center items-center cursor-pointer relative'
+          className='h-[250px] md:h-[300px] w-[280px] md:w-[350px] bg-gray-600 rounded-lg flex justify-center items-center cursor-pointer relative'
           onClick={() => fileInputRef.current?.click()}
         >
           {selectedImagePreview || profileImage ? (
@@ -172,7 +172,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
               />
             </div>
           ) : (
-            <div className='border-dashed h-[250px] w-[300px] border-[1px] border-gray-200 rounded-lg flex text-white justify-center items-center'>
+            <div className='border-dashed h-[200px] md:h-[250px] w-[240px] md:w-[300px] border-[1px] border-gray-200 rounded-lg flex text-white justify-center items-center'>
               <FaImages size={30} />
             </div>
           )}
@@ -193,7 +193,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
         </button>
         {errors.image && <p className="text-red-500 text-sm">{errors.image}</p>}
       </div>
-      <div className="w-[500px] space-y-4">
+      <div className="w-[90%] md:w-[500px] space-y-4">
         <div>
           <input 
             type="text" 
@@ -220,7 +220,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
           <textarea 
             value={about}
             onChange={(e) => setAbout(e.target.value)}
-            className={`p-5 text-black rounded-lg w-full ${errors.about ? 'border-red-500' : ''}`}
+            className={`p-5 text-black rounded-lg w-full h-[150px] md:h-auto ${errors.about ? 'border-red-500' : ''}`}
             placeholder='Tell other Creators about you *' 
             rows={8}
           />
