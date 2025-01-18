@@ -86,23 +86,24 @@ const Dashboard = () => {
             <Link href='/welcome'>
               <div className='flex flex-col cursor-pointer items-center space-y-2'>
                 <GoHomeFill />
-                <p>Home</p>
+                <p className='text-[0.8rem]'>Home</p>
               </div>
             </Link>
 
-            <Link href='/dashboard'>
-              <div className='flex flex-col cursor-pointer items-center space-y-2'>
-                <MdDashboardCustomize />
-                <p>Dashboard</p>
-              </div>
-            </Link>
+            <div 
+              onClick={handleShowDashboard}
+              className='flex flex-col cursor-pointer items-center space-y-2'
+            >
+              <MdDashboardCustomize />
+              <p className='text-[0.8rem]'>Dashboard</p>
+            </div>
          
             <div 
               onClick={handleShowProfile}
               className='flex flex-col cursor-pointer items-center space-y-2'
             >
               <IoTicketSharp />
-              <p>Profile</p>
+              <p className='text-[0.8rem]'>Profile</p>
             </div>
    
             <div 
@@ -110,7 +111,7 @@ const Dashboard = () => {
               className='flex flex-col cursor-pointer items-center space-y-2'
             >
               <FaDatabase />
-              <p>Contents</p>
+              <p className='text-[0.8rem]'>Contents</p>
             </div>
     
           </div>

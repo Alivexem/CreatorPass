@@ -145,27 +145,27 @@ const NavBar = () => {
         <Link href='/welcome'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <GoHomeFill />
-            <p>Home</p>
+            <p className='text-[0.8rem]'>Home</p>
           </div>
         </Link>
 
         <Link href='/dashboard'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <MdDashboardCustomize />
-            <p>Dashboard</p>
+            <p className='text-[0.8rem]'>Dashboard</p>
           </div>
         </Link>
 
         <Link href='/passes'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <IoTicketSharp />
-            <p>Passes</p>
+            <p className='text-[0.8rem]'>Passes</p>
           </div>
         </Link>
 
         <div className='flex cursor-pointer flex-col items-center space-y-2 relative' onClick={() => setShowMobileSearch(prev => !prev)}>
           <FiSearch />
-          <p>Search</p>
+          <p className='text-[0.8rem]'>Search</p>
           {showMobileSearch && (
             <div className='absolute bottom-[80px] right-[2px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
               <input

@@ -189,7 +189,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
           onClick={() => fileInputRef.current?.click()}
           className='bg-orange-500 flex items-center gap-x-2 text-white py-3 mt-5 rounded-lg px-3'
         >
-          <TiRefresh size={20} />Edit image
+          <TiRefresh size={20} /><p className='hidden md:block'>Edit image</p>
         </button>
         {errors.image && <p className="text-red-500 text-sm">{errors.image}</p>}
       </div>

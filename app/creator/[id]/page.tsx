@@ -204,7 +204,7 @@ const CreatorPage = ({ params }: PageProps) => {
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
                 {posts.map((post) => (
-                    <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
+                    <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] max-h-[400px] md:max-h-[500px] rounded-xl bg-transparent border-[1px] border-gray-200'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
@@ -239,7 +239,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                 </div>
                             </div>
                         )}
-                        <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
+                        <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
                             <button 
                                 onClick={() => handleLike(post._id)}
                                 className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
@@ -261,9 +261,9 @@ const CreatorPage = ({ params }: PageProps) => {
                             </button>
                             <button 
                                 onClick={() => setShowGiftModal(true)}
-                                className='bg-blue-700 text-[1rem] h-[40px] w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
+                                className='bg-blue-700 text-[1rem] h-[40px] w-auto p-3 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
                             >
-                                <FaGift className='text-[1.7rem]' />Gift
+                                <FaGift className='text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
                             </button>
                         </div>
                         {showComments[post._id] && (

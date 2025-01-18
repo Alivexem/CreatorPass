@@ -66,7 +66,7 @@ const PassesPage = () => {
   const currentMobileProfile = profiles[currentMobileIndex];
 
   return (
-    <div className='bg-[#1A1D1F] relative min-h-[100vh]'>
+    <div className='bg-[#1A1D1F] relative min-h-[100vh] pb-[70px] md:pb-0'>
       <div className='absolute top-[160px] right-4'>
         <div className='bg-green-500 text-white px-6 py-2 rounded-lg text-sm'>
           All passes are free on this first release
@@ -74,12 +74,12 @@ const PassesPage = () => {
       </div>
       <NavBar />
       <div className='flex justify-center items-center mt-10'>
-        <div className='flex items-center justify-center font-bold my-5 text-[2.8rem] text-gray-200'>
+        <div className='flex items-center p-3 justify-center font-bold my-5 text-[2.8rem] text-gray-200'>
           <p>Mint Exclusive Passes</p>
         </div>
       </div>
 
-      <div className='flex items-center justify-center my-14 md:gap-x-10 gap-x-4'>
+      <div className='flex items-center justify-center md:my-14 my-10 md:gap-x-10 gap-x-4'>
         {loading ? (
           <div className="text-white text-xl">Loading passes...</div>
         ) : profiles.length === 0 ? (

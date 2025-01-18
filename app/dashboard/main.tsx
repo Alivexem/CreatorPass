@@ -61,7 +61,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
 
       {!showContent && !showProfile && (
         <>
-          <div className='flex flex-col md:flex-row gap-x-10 justify-center items-center'>
+          <div className='flex space-y-4 flex-col md:flex-row gap-x-10 justify-center items-center'>
             <div className='w-[237px] bg-[#272B30] h-[200px] rounded-[25px] flex justify-center items-center'>
               <div className='flex justify-center items-center flex-col text-white gap-y-2'>
                 <SiSolana className='text-[1.7rem]' />
@@ -84,7 +84,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
               </div>
             </div>
           </div>
-          <div className='my-[20px] h-auto w-[100%] p-2 flex flex-col md:flex-row justify-evenly items-center'>
+          <div className='my-[20px] h-auto w-[100%] p-2 flex space-y-4 flex-col md:flex-row justify-evenly items-center'>
             <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
               <div className='bg-green-200 h-[40px] w-[40px] rounded-full flex justify-center items-center'>
                 <SiThefinals size={22} className='text-green-800' />
