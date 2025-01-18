@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
+import { TiWarningOutline } from "react-icons/ti";
 import { useAppKit, useAppKitAccount } from '../utils/reown';
 
 const App = () => {
@@ -113,6 +113,11 @@ const App = () => {
                         </div>
                         <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators.</p>
                     </div>
+                </div>
+                <div className='flex items-center justify-start gap-x-2 p-2 my-3 text-red-500 font-mono'>
+
+                    <TiWarningOutline />
+                    <p className='text-[0.7rem]'>For the sake of testing: Please use a VPN if you are in a restricted region</p>
                 </div>
                 <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg md:rounded-none md:ml-4 flex justify-center mb-14 md:mb-0 mt-6'>
                     <button className='w-full md:max-w-[250px] lg:max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
