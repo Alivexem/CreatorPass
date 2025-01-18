@@ -1,4 +1,4 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical } from "react-icons/fa6";
@@ -6,6 +6,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { MdAddCircle } from "react-icons/md";
 import { FaImages } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
+import PostCard from '@/components/PostCard';
 
 interface ContentProps {
   setToast: (toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
@@ -369,107 +370,29 @@ const Content = ({ setToast }: ContentProps) => {
                     </div>
                 ) : (
                     <div className='flex flex-col gap-y-8 w-full items-center'>
-                        {posts && posts.map((post: any, index: number) => (
-                            <div key={index} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
-                    <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
-                        <div className='flex items-center gap-x-3'>
-                                        <div className='h-[60px] w-[60px] relative'>
-                                            <Image 
-                                                src={userProfile?.profilePic} 
-                                                fill
-                                                alt='profile' 
-                                                className='rounded-lg object-cover'
-                                                sizes="60px"
-                                            />
-                                        </div>
-                                        <p className='text-[1.1rem]'>{userProfile?.username}</p>
-                        </div>
-                        <div className='flex items-center gap-x-2'>
-                            <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                                        <p className='hidden md:block'>{censorAddress(post.username)}</p>
-                        </div>
-                    </div>
-                    <div className='flex-start px-10 mt-5 text-white'>
-                                    <p className='text-left'>{post.note}</p>
-                    </div>
-                                {post.image && (
-                    <div className='flex justify-center w-[100%] items-center'>
-                                        <Image src={post.image} height={1000} width={1000} className='md:h-[350px] h-[55%] mt-7 w-[80%] rounded-lg border-[1px] border-gray-400 px-5' alt='post image' />
-                    </div>
-                                )}
-                    <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center flex-wrap gap-y-4'>
-                                    <button 
-                                        onClick={() => handleLike(post._id)}
-                                        className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
-                                    >
-                                        <IoHeartHalf 
-                                            className={`text-[1.7rem] transition-colors ${
-                                                hasLiked[post._id] ? 'text-purple-500' : 'text-white'
-                                            }`} 
-                                        />
-                                        <p>{likes[post._id] || post.likeCount || 0} likes</p>
-                                    </button>
-                                    <button 
-                                        onClick={() => setShowComments(prev => ({ 
-                                            ...prev, 
-                                            [post._id]: !prev[post._id] 
-                                        }))}
-                                        className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
-                                    >
-                                        <FaCommentMedical className='text-[1.7rem]' />
-                                        <p>{post.comments?.length || 0} comments</p>
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(post._id)}
-                                        className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
-                                    >
-                                        <MdDeleteForever className='text-[1.7rem]' /><p className='hidden md:block'>Delete</p>
-                                    </button>
-                </div>
-
-                                {showComments[post._id] && (
-                                    <div className='px-10 py-5 border-t border-gray-700 transition-all duration-300'>
-                                        <form onSubmit={(e) => handleComment(e, post._id)} className='mb-4'>
-                                            <input
-                                                type="text"
-                                                value={newComment[post._id] || ''}
-                                                onChange={(e) => setNewComment(prev => ({
-                                                    ...prev,
-                                                    [post._id]: e.target.value
-                                                }))}
-                                                placeholder="Add a comment..."
-                                                className='w-full bg-[#272B30] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
-                                                disabled={isCommentLoading[post._id]}
-                                            />
-                                            <button 
-                                                type="submit"
-                                                className='w-full mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50'
-                                                disabled={isCommentLoading[post._id]}
-                                            >
-                                                {isCommentLoading[post._id] ? 'Adding comment...' : 'Comment'}
-                                            </button>
-                                        </form>
-
-                                        <div className='max-h-[200px] overflow-y-auto space-y-3'>
-                                            {post.comments?.slice()
-                                                .sort((a: { timestamp: Date }, b: { timestamp: Date }) => 
-                                                    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-                                                )
-                                                .map((comment: any, idx: number) => (
-                                                    <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
-                                                        <p className='text-gray-400 text-sm font-mono mb-1'>
-                                                            {censorAddress(comment.address)}
-                                                        </p>
-                                                        <p className='text-white text-sm'>{comment.comment}</p>
-                                                    </div>
-                                                ))}
-                                            {(!post.comments || post.comments.length === 0) && (
-                                                <p className='text-gray-500 text-center py-2'>No comments yet</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-                    </div>
+                        {posts && posts.map((post: any) => (
+                            <PostCard
+                                key={post._id}
+                                post={post}
+                                userProfile={userProfile}
+                                hasLiked={hasLiked[post._id]}
+                                likes={likes[post._id] || post.likeCount || 0}
+                                showComments={showComments[post._id]}
+                                onLike={() => handleLike(post._id)}
+                                onDelete={() => handleDelete(post._id)}
+                                onToggleComments={() => setShowComments(prev => ({ 
+                                    ...prev, 
+                                    [post._id]: !prev[post._id] 
+                                }))}
+                                handleComment={(e) => handleComment(e, post._id)}
+                                newComment={newComment[post._id] || ''}
+                                setNewComment={(value) => setNewComment(prev => ({
+                                    ...prev,
+                                    [post._id]: value
+                                }))}
+                                isCommentLoading={isCommentLoading[post._id]}
+                                censorAddress={censorAddress}
+                            />
                         ))}
                     </div>
                 )}
@@ -494,7 +417,7 @@ const Content = ({ setToast }: ContentProps) => {
                                 >
                                     Cancel
                                 </button>
-                        </div>
+                            </div>
                         </div>
                     </div>
                 )}

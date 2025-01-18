@@ -100,7 +100,7 @@ const page = () => {
             Fueling Creativity, Building Connections
           </p>
         </div>
-        <div className='bg-[#272B30] p-3 w-[90%] md:hidden lg:flex border-[2px] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+        <div className='bg-[#272B30] p-3 w-[90%] hidden lg:flex border-[2px] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl justify-center items-center flex-col'>
           <RiVipCrown2Fill />
           <p className='text-center'>
             The Future of Content, Powered by You
