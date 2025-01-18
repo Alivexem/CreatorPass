@@ -204,7 +204,7 @@ const CreatorPage = ({ params }: PageProps) => {
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
                 {posts.map((post) => (
-                    <div key={post._id} className='w-[50vw] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
+                    <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
@@ -242,7 +242,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
                             <button 
                                 onClick={() => handleLike(post._id)}
-                                className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                                className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                             >
                                 <IoHeartHalf 
                                     className={`text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : 'text-white'}`} 
@@ -254,7 +254,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                     ...prev, 
                                     [post._id]: !prev[post._id] 
                                 }))} 
-                                className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                                className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                             >
                                 <FaCommentMedical className='text-[1.7rem]' />
                                 <p>{post.comments?.length || 0} comments</p>
@@ -305,7 +305,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         
                         {showGiftModal && (
                             <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-                                <div className='bg-[#272B30] rounded-lg p-6 w-[400px] relative'>
+                                <div className='bg-[#272B30] rounded-lg p-6 md:w-[400px] w-[95%] relative'>
                                     <button 
                                         onClick={() => setShowGiftModal(false)}
                                         className='absolute top-4 right-4 text-white hover:text-gray-300'

@@ -40,7 +40,7 @@ const page = () => {
         </div>
 
         {/* Center card */}
-        <div className='flex border-[1px] rotate-[5deg] md:rotate-0 relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] z-10 h-[500px]'>
+        <div className='flex border-[1px] rotate-[5deg] md:rotate-0 relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[90%] md:w-[350px] z-10 h-[400px] md:h-[500px]'>
           <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
             <Image height={25} width={25} src='/sol.png' alt='sol' />
             <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
@@ -110,7 +110,7 @@ const page = () => {
 
       <div className='flex md:hidden items-center justify-center mt-5 gap-x-2'>
         <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
-        <p className='text-[0.8rem] text-white font-mono'> Designed and developed by Athkins</p>
+        <p className='text-[0.8rem] text-white font-mono font-bold'> Designed and developed by Athkins</p>
       </div>
       <div className='flex md:hidden justify-center text-white items-center'>
 

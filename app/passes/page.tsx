@@ -67,19 +67,19 @@ const PassesPage = () => {
 
   return (
     <div className='bg-[#1A1D1F] relative min-h-[100vh]'>
-      <div className='absolute top-[170px] right-4'>
+      <div className='absolute top-[160px] right-4'>
         <div className='bg-green-500 text-white px-6 py-2 rounded-lg text-sm'>
           All passes are free on this first release
         </div>
       </div>
       <NavBar />
       <div className='flex justify-center items-center mt-10'>
-        <div className='flex items-center font-bold my-5 text-[2.8rem] text-gray-200'>
+        <div className='flex items-center justify-center font-bold my-5 text-[2.8rem] text-gray-200'>
           <p>Mint Exclusive Passes</p>
         </div>
       </div>
 
-      <div className='flex items-center justify-center my-14 gap-x-10'>
+      <div className='flex items-center justify-center my-14 md:gap-x-10 gap-x-4'>
         {loading ? (
           <div className="text-white text-xl">Loading passes...</div>
         ) : profiles.length === 0 ? (
@@ -91,7 +91,7 @@ const PassesPage = () => {
               className='hover:scale-110 transition-transform'
               disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
             >
-              <FaArrowAltCircleLeft className='text-[2.5rem] mb-4 text-white' />
+              <FaArrowAltCircleLeft className='md:text-[2.5rem] text-[1.2rem] mb-4 text-white' />
             </button>
 
             {/* Mobile View */}
@@ -163,7 +163,7 @@ const PassesPage = () => {
               className='hover:scale-110 transition-transform'
               disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
             >
-              <FaArrowAltCircleRight className='text-[2.5rem] mt-4 text-white' />
+              <FaArrowAltCircleRight className='md:text-[2.5rem] text-[1.2rem] mt-4 text-white' />
             </button>
           </>
         )}

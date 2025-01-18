@@ -69,13 +69,13 @@ const CreatorsPage = () => {
           <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
         </div>
       ) : (
-        <div className='flex justify-center gap-x-10 items-center my-10 mt-14'>
+        <div className='flex justify-center md:gap-x-10 gap-x-5 items-center my-10 mt-14'>
           <button 
             onClick={handlePrevious}
             className='hover:scale-110 transition-transform'
             disabled={profiles.length <= 1}
           >
-            <FaArrowAltCircleLeft className='text-[2.5rem] mb-4 text-white' />
+            <FaArrowAltCircleLeft className='md:text-[2.5rem] text-[1.2rem] mb-4 text-white' />
           </button>
 
           {currentProfile && (
@@ -113,7 +113,7 @@ const CreatorsPage = () => {
             className='hover:scale-110 transition-transform'
             disabled={profiles.length <= 1}
           >
-            <FaArrowAltCircleRight className='text-[2.5rem] mt-4 text-white' />
+            <FaArrowAltCircleRight className='md:text-[2.5rem] text-[1.2rem] mt-4 text-white' />
           </button>
         </div>
       )}

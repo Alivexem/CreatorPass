@@ -61,37 +61,37 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
 
       {!showContent && !showProfile && (
         <>
-          <div className='flex gap-x-10 items-center'>
+          <div className='flex flex-col md:flex-row gap-x-10 justify-center items-center'>
             <div className='w-[237px] bg-[#272B30] h-[200px] rounded-[25px] flex justify-center items-center'>
               <div className='flex justify-center items-center flex-col text-white gap-y-2'>
                 <SiSolana className='text-[1.7rem]' />
                 <p className='text-[1.3rem]'>Total passes sold</p>
-                <p className='text-[16px] font-medium'>36</p>
+                <p className='text-[16px] font-medium'>coming soon</p>
               </div>
             </div>
             <div className='w-[237px] bg-[#272B30] h-[200px] rounded-[25px] flex justify-center items-center'>
               <div className='flex justify-center items-center flex-col text-white gap-y-2'>
                 <SiSolana className='text-[1.7rem]' />
                 <p className='text-[1.3rem]'>Revenue Generated</p>
-                <p className='text-[16px] font-medium'>$70,000</p>
+                <p className='text-[16px] font-medium'>coming soon</p>
               </div>
             </div>
             <div className='w-[237px] bg-[#272B30] h-[200px] rounded-[25px] flex justify-center items-center'>
               <div className='flex justify-center items-center flex-col text-white gap-y-2'>
                 <SiSolana className='text-[1.7rem]' />
                 <p className='text-[1.3rem]'>Top selling pass</p>
-                <p className='text-[16px] font-medium'>Gold</p>
+                <p className='text-[16px] font-medium'>coming soon</p>
               </div>
             </div>
           </div>
-          <div className='my-[20px] h-auto w-[100%] p-2 flex justify-evenly items-center'>
+          <div className='my-[20px] h-auto w-[100%] p-2 flex flex-col md:flex-row justify-evenly items-center'>
             <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
               <div className='bg-green-200 h-[40px] w-[40px] rounded-full flex justify-center items-center'>
                 <SiThefinals size={22} className='text-green-800' />
               </div>
               <div>
                 <p className='text-[0.8rem] font-thin text-black'>Total Followers</p>
-                <p className='font-bold text-black'>73</p>
+                <p className='font-bold text-black'>coming soon</p>
               </div>
             </div>
             <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
@@ -100,7 +100,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
               </div>
               <div>
                 <p className='text-[0.8rem] font-thin text-black'>Last posted</p>
-                <p className='font-bold text-black'>4 days ago</p>
+                <p className='font-bold text-black'>coming soon</p>
               </div>
             </div>
             <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
@@ -109,7 +109,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
               </div>
               <div>
                 <p className='text-[0.8rem] font-thin text-black'>Passes owned</p>
-                <p className='font-bold text-black'>49</p>
+                <p className='font-bold text-black'>coming soon</p>
               </div>
             </div>
           </div>

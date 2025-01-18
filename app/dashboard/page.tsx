@@ -78,38 +78,41 @@ const Dashboard = () => {
       )}
       <div className='flex items-center bg-[#1A1D1F]'>
         <div className='hidden md:block'>
-
           <Leftbar onShowContent={handleShowContent} onShowDashboard={handleShowDashboard} onShowProfile={handleShowProfile} />
         </div>
         <div className='w-[100%] md:w-[75%] md:ml-[24%] h-[100%]'>
           <Mainbar showContent={showContent} showProfile={showProfile} setToast={setToast} />
-          <div className='h-[70px] box-border flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
+          <div className='h-[80px] box-border pt-3 flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
             <Link href='/welcome'>
-              <div className='flex flex-col cursor-pointer items-center space-y-3'>
+              <div className='flex flex-col cursor-pointer items-center space-y-2'>
                 <GoHomeFill />
                 <p>Home</p>
               </div>
             </Link>
 
             <Link href='/dashboard'>
-              <div className='flex flex-col cursor-pointer items-center space-y-3'>
+              <div className='flex flex-col cursor-pointer items-center space-y-2'>
                 <MdDashboardCustomize />
                 <p>Dashboard</p>
               </div>
             </Link>
-            <Link href='/passes'>
-              <div className='flex flex-col cursor-pointer items-center space-y-3'>
-                <IoTicketSharp />
-                <p>Passes</p>
-              </div>
-            </Link>
-
-            <Link href='/passes'>
-              <div className='flex flex-col cursor-pointer items-center space-y-3'>
-                <FaDatabase />
-                <p>Contents</p>
-              </div>
-            </Link>
+         
+            <div 
+              onClick={handleShowProfile}
+              className='flex flex-col cursor-pointer items-center space-y-2'
+            >
+              <IoTicketSharp />
+              <p>Profile</p>
+            </div>
+   
+            <div 
+              onClick={handleShowContent}
+              className='flex flex-col cursor-pointer items-center space-y-2'
+            >
+              <FaDatabase />
+              <p>Contents</p>
+            </div>
+    
           </div>
         </div>
       </div>
