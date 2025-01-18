@@ -108,7 +108,7 @@ const page = () => {
         </div>
       </div>
 
-      <div className='flex md:hidden items-center justify-center mt-5 gap-x-2'>
+      <div className='flex md:hidden items-center justify-center mt-14 gap-x-2'>
         <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
         <p className='text-[0.8rem] text-white font-mono font-bold'> Designed and developed by Athkins</p>
       </div>
