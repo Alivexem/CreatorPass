@@ -12,7 +12,7 @@ import { RiVipCrown2Fill } from "react-icons/ri";
 import { FaFire } from "react-icons/fa6";
 const page = () => {
   return (
-    <div className='bg-[#1A1D1F] pb-[100px] lg:pb-0'>
+    <div className='bg-[#1A1D1F] pb-[100px] md:pb-0'>
       <NavBar />
       <div className='text-center font-bold mt-20 flex justify-center items-center flex-col'>
         <div className='flex flex-col md:flex-row items-center text-[2.8rem] text-gray-200'>
@@ -25,7 +25,7 @@ const page = () => {
         {/* Left card */}
         <div className='hidden md:flex border-[1px] relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] rotate-[-15deg] h-[500px] -mr-40'>
           <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-            <Image height={25} width={25} src='/sol.png' alt='sol' />
+            <Image height={45} width={45} src='/sol.png' alt='sol' />
             <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
           </div>
           <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
@@ -42,7 +42,7 @@ const page = () => {
         {/* Center card */}
         <div className='flex border-[1px] rotate-[5deg] md:rotate-0 relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[90%] md:w-[350px] z-10 h-[400px] md:h-[500px]'>
           <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-            <Image height={25} width={25} src='/sol.png' alt='sol' />
+            <Image height={45} width={45} src='/sol.png' alt='sol' />
             <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
           </div>
           <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
@@ -59,7 +59,7 @@ const page = () => {
         {/* Right card */}
         <div className='hidden md:flex border-[1px] relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] rotate-[15deg] h-[500px] -ml-40'>
           <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-            <Image height={25} width={25} src='/sol.png' alt='sol' />
+            <Image height={45} width={45} src='/sol.png' alt='sol' />
             <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
           </div>
           <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
@@ -76,8 +76,8 @@ const page = () => {
 
       <div className='flex justify-center items-center gap-x-8 mb-14 mt-20'>
 
-        <Link href='/creators'>
-          <button className='h-[55px] w-[300px] text-[1.2rem] p-3 bg-purple-600 hover:bg-purple-700 text-white'>Explore Creators</button>
+        <Link href='/passes'>
+          <button className='h-[55px] w-[300px] text-[1.2rem] p-3 bg-purple-600 hover:bg-purple-700 text-white'>Explore Passes</button>
         </Link>
       </div>
 
@@ -114,11 +114,11 @@ const page = () => {
       </div>
       <div className='flex md:hidden justify-center text-white items-center'>
 
-        <div className='flex items-center justify-center gap-x-2 mb-[50px]'>
+        {/* <div className='flex items-center justify-center gap-x-2 mb-[50px]'>
        
           <p className='font-mono text-[0.8rem] text-center'>During the 20 days Bounty Task using Reown AppKit</p>
     
-        </div>
+        </div> */}
       </div>
       <Footer />
     </div>

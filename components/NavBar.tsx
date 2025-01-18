@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { FiSearch } from "react-icons/fi";
@@ -23,6 +23,18 @@ const NavBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '' });
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowMobileSearch(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (!isConnected) {
@@ -120,8 +132,8 @@ const NavBar = () => {
           <Link href='/dashboard' className='hidden md:block'>
             <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
           </Link>
-          <Link href='/passes' className='hidden md:block'>
-            <p className={`cursor-pointer ${pathname === '/passes' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Passes</p>
+          <Link href='/creators' className='hidden md:block'>
+            <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
           </Link>
 
           {/* <div
@@ -144,22 +156,22 @@ const NavBar = () => {
       <div className='h-[80px] pt-3 box-border flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
         <Link href='/welcome'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
-            <GoHomeFill />
-            <p className='text-[0.8rem]'>Home</p>
+            <GoHomeFill className={pathname === '/welcome' ? 'text-purple-500' : ''} />
+            <p className={`text-[0.8rem] ${pathname === '/welcome' ? 'text-purple-500' : ''}`}>Home</p>
           </div>
         </Link>
 
         <Link href='/dashboard'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
-            <MdDashboardCustomize />
-            <p className='text-[0.8rem]'>Dashboard</p>
+            <MdDashboardCustomize className={pathname === '/dashboard' ? 'text-purple-500' : ''} />
+            <p className={`text-[0.8rem] ${pathname === '/dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
           </div>
         </Link>
 
-        <Link href='/passes'>
+        <Link href='/creators'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
-            <IoTicketSharp />
-            <p className='text-[0.8rem]'>Passes</p>
+            <IoTicketSharp className={pathname === '/creators' ? 'text-purple-500' : ''} />
+            <p className={`text-[0.8rem] ${pathname === '/creators' ? 'text-purple-500' : ''}`}>Creators</p>
           </div>
         </Link>
 
@@ -167,7 +179,7 @@ const NavBar = () => {
           <FiSearch />
           <p className='text-[0.8rem]'>Search</p>
           {showMobileSearch && (
-            <div className='absolute bottom-[80px] right-[2px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
+            <div ref={searchRef} className='absolute bottom-[80px] right-[2px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
               <input
                 type="text"
                 value={searchTerm}
