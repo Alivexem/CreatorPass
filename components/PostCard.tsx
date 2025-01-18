@@ -39,7 +39,7 @@ const PostCard = ({
 }: PostCardProps) => {
     return (
         <div className='w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
-            <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
+            <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                 {/* Profile Section */}
                 <div className='flex items-center gap-x-3'>
                     <div className='h-[60px] w-[60px] relative'>
