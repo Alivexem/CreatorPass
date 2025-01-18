@@ -370,7 +370,7 @@ const Content = ({ setToast }: ContentProps) => {
                 ) : (
                     <div className='flex flex-col gap-y-8 w-full items-center'>
                         {posts && posts.map((post: any, index: number) => (
-                            <div key={index} className='w-[50vw] min-h-[200px] max-h-[600px] rounded-xl h-auto flex flex-col bg-transparent border-[1px] border-gray-200'>
+                            <div key={index} className='md:w-[50vw] w-[95%] min-h-[200px] max-h-[400px] md:max-h-[500px] rounded-xl bg-transparent border-[1px] border-gray-200'>
                     <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
                         <div className='flex items-center gap-x-3'>
                                         <div className='h-[60px] w-[60px] relative'>
@@ -394,13 +394,13 @@ const Content = ({ setToast }: ContentProps) => {
                     </div>
                                 {post.image && (
                     <div className='flex justify-center w-[100%] items-center'>
-                                        <Image src={post.image} height={1000} width={1000} className='h-[350px] mt-7 w-[80%] rounded-lg border-[1px] border-gray-400 px-5' alt='post image' />
+                                        <Image src={post.image} height={1000} width={1000} className='md:h-[350px] h-[55%] mt-7 w-[80%] rounded-lg border-[1px] border-gray-400 px-5' alt='post image' />
                     </div>
                                 )}
                     <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
                                     <button 
                                         onClick={() => handleLike(post._id)}
-                                        className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                                        className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                                     >
                                         <IoHeartHalf 
                                             className={`text-[1.7rem] transition-colors ${
@@ -414,16 +414,16 @@ const Content = ({ setToast }: ContentProps) => {
                                             ...prev, 
                                             [post._id]: !prev[post._id] 
                                         }))}
-                                        className='flex items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                                        className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                                     >
                                         <FaCommentMedical className='text-[1.7rem]' />
                                         <p>{post.comments?.length || 0} comments</p>
                                     </button>
                                     <button 
                                         onClick={() => handleDelete(post._id)}
-                                        className='bg-red-700 text-[1rem] h-[40px] w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
+                                        className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
                                     >
-                                        <MdDeleteForever className='text-[1.7rem]' />Delete
+                                        <MdDeleteForever className='text-[1.7rem]' /><p className='hidden md:block'>Delete</p>
                                     </button>
                 </div>
 
