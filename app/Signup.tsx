@@ -46,7 +46,7 @@ const App = () => {
             )}
             <div className='flex flex-col items-center lg:items-start max-w-[600px] w-full'>
                 <div style={{
-                    backgroundImage: 'url(/aiwoman.jpeg)',
+                    backgroundImage: 'url(/aiwoman.png)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     position: 'absolute',
