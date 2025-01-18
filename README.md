@@ -77,9 +77,3 @@ npm run dev
 ### The Vision
 
 CreatorPass isn’t just a bounty submission, it’s a blueprint for the future of creator monetization on Web3. The goal is to onboard a new wave of users to Solana through a seamless, user-friendly platform.
-
-<<<<<<< HEAD
-CreatorPass could become a full-scale startup, redefining how creators and fans connect. With Solana’s speed and Reown AppKit’s powerful features, the possibilities are infact endless.
-=======
-CreatorPass could become a full-scale startup, redefining how creators and fans connect. With Solana’s speed and Reown AppKit’s powerful features, the possibilities are infact endless.
->>>>>>> 0a7368a8434ffd8cab23649946f13c64a3fc52b0
