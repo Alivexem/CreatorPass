@@ -370,7 +370,7 @@ const Content = ({ setToast }: ContentProps) => {
                 ) : (
                     <div className='flex flex-col gap-y-8 w-full items-center'>
                         {posts && posts.map((post: any, index: number) => (
-                            <div key={index} className='md:w-[50vw] w-[95%] min-h-[200px] max-h-[400px] md:max-h-[500px] rounded-xl bg-transparent border-[1px] border-gray-200'>
+                            <div key={index} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
                     <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-green-700'>
                         <div className='flex items-center gap-x-3'>
                                         <div className='h-[60px] w-[60px] relative'>
@@ -386,7 +386,7 @@ const Content = ({ setToast }: ContentProps) => {
                         </div>
                         <div className='flex items-center gap-x-2'>
                             <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                                        <p>{censorAddress(post.username)}</p>
+                                        <p className='hidden md:block'>{censorAddress(post.username)}</p>
                         </div>
                     </div>
                     <div className='flex-start px-10 mt-5 text-white'>
@@ -397,7 +397,7 @@ const Content = ({ setToast }: ContentProps) => {
                                         <Image src={post.image} height={1000} width={1000} className='md:h-[350px] h-[55%] mt-7 w-[80%] rounded-lg border-[1px] border-gray-400 px-5' alt='post image' />
                     </div>
                                 )}
-                    <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center'>
+                    <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center flex-wrap gap-y-4'>
                                     <button 
                                         onClick={() => handleLike(post._id)}
                                         className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
