@@ -80,7 +80,7 @@ const CreatorsPage = () => {
 
           {currentProfile && (
             <Link href={`/creator/${currentProfile.address}`}>
-              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#e7f0f5] via-[#dfeef7] to-[#e7f0f5] h-[400px] w-[100%] md:w-[350px] md:h-[500px]'>
+              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#e7f0f5] via-[#dfeef7] to-[#e7f0f5] h-[350px] w-[250px] md:w-[350px] md:h-[500px]'>
                 <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
                   <Image src='/whiteLogo.png' alt='logo' height={10} width={100} />
                   <div className='relative h-[70px] w-[150px] md:w-[250px] md:h-[120px]'>

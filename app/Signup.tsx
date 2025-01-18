@@ -115,7 +115,7 @@ const App = () => {
                     </div>
                 </div>
                 <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg md:rounded-none flex justify-center mb-14 md:mb-0 mt-6'>
-                    <button className='w-full max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
+                    <button className='w-full md:max-w-[250px] lg:max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
                         <Image src='/sol.png' alt='sol' height={20} width={20} /> {isConnected ? 'Go in' : 'Get started'}
                     </button>
                 </div>
