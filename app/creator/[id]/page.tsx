@@ -199,7 +199,7 @@ const CreatorPage = ({ params }: PageProps) => {
     }
 
     return (
-        <div className='bg-[#1A1D1F]'>
+        <div className='bg-[#1A1D1F] pb-[80px]'>
             <NavBar />
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
@@ -228,12 +228,12 @@ const CreatorPage = ({ params }: PageProps) => {
                         </div>
                         {post.image && (
                             <div className='flex justify-center w-[100%] items-center'>
-                                <div className='relative md:h-[350px] h-[55%] w-[80%] mt-7'>
+                                <div className='relative md:h-[350px] h-[300px] w-[95%] mt-7'>
                                     <Image 
                                         src={post.image} 
                                         fill
-                                        style={{objectFit: 'contain'}}
-                                        className='rounded-lg border-[1px] border-gray-400 px-5' 
+                                        style={{objectFit: 'cover'}}
+                                        className='rounded-lg border-[1px] border-gray-400' 
                                         alt='post image' 
                                     />
                                 </div>
