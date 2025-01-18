@@ -46,20 +46,36 @@ With things in place, this project could be scaled into a full-fledged startup, 
 - **MongoDB**: Local or cloud instance.  
 
 ### Steps
-1. Clone the repository:
+
+To run this project locally, follow these steps:
+
+*Step 1: Clone the Repository*
 ```
-   git clone https://github.com/your-repo/creatorpass.git
-   cd creatorpass
- ```
+bash
+git clone https://github.com/alivexem/CreatorPass.git
+cd CreatorPass
+```
 
-2. ```npm install```
+*Step 2: Install Dependencies*
+```
+bash
+npm install
+```
 
-3. ```npm install @reown/appkit @reown/appkit-adapter-solana @solana/wallet-adapter-react @solana/wallet-adapter-wallets @solana/web3.js @walletconnect/client @walletconnect/web3-provider cloudinary echarts-for-react mongoose tailwindcss postcss typescript```
+*Step 3: Install Additional Dependencies*
+```
+bash
+npm install @reown/appkit @reown/appkit-adapter-solana @solana/wallet-adapter-react @solana/wallet-adapter-wallets @solana/web3.js @walletconnect/client @walletconnect/web3-provider cloudinary echarts-for-react mongoose tailwindcss postcss typescript
+```
 
-4. ```npm run dev```
+*Step 4: Start the Development Server*
+```
+bash
+npm run dev
+```
 
 ### The Vision
 
 CreatorPass isn’t just a bounty submission, it’s a blueprint for the future of creator monetization on Web3. The goal is to onboard a new wave of users to Solana through a seamless, user-friendly platform.
 
-CreatorPass could become a full-scale startup, redefining how creators and fans connect. With Solana’s speed and Reown AppKit’s powerful features, the possibilities are infact endless
+CreatorPass could become a full-scale startup, redefining how creators and fans connect. With Solana’s speed and Reown AppKit’s powerful features, the possibilities are infact endless.
