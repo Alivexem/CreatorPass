@@ -199,7 +199,7 @@ const CreatorPage = ({ params }: PageProps) => {
     }
 
     return (
-        <div className='bg-[#1A1D1F] pb-[80px]'>
+        <div className='bg-[#1A1D1F] pb-[80px] md:pb-0'>
             <NavBar />
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
