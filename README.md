@@ -52,11 +52,11 @@ With things in place, this project could be scaled into a full-fledged startup, 
    cd creatorpass
  ```
 
-```npm install```
+2. ```npm install```
 
-```npm install @reown/appkit @reown/appkit-adapter-solana @solana/wallet-adapter-react @solana/wallet-adapter-wallets @solana/web3.js @walletconnect/client @walletconnect/web3-provider cloudinary echarts-for-react mongoose tailwindcss postcss typescript```
+3. ```npm install @reown/appkit @reown/appkit-adapter-solana @solana/wallet-adapter-react @solana/wallet-adapter-wallets @solana/web3.js @walletconnect/client @walletconnect/web3-provider cloudinary echarts-for-react mongoose tailwindcss postcss typescript```
 
-```npm run dev```
+4. ```npm run dev```
 
 ### The Vision
 
