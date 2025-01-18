@@ -157,7 +157,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
      </div>
       <div className='flex items-center gap-x-4 w-[90%] md:w-auto justify-center'>
         <div 
-          className='h-[250px] md:h-[300px] w-[280px] md:w-[350px] bg-gray-600 rounded-lg flex justify-center items-center cursor-pointer relative'
+          className='h-[250px] md:h-[300px] w-[280px] md:w-[350px] bg-gray-600 rounded-lg flex justify-center items-center cursor-pointer relative p-4'
           onClick={() => fileInputRef.current?.click()}
         >
           {selectedImagePreview || profileImage ? (
@@ -172,7 +172,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
               />
             </div>
           ) : (
-            <div className='border-dashed h-[200px] md:h-[250px] w-[240px] md:w-[300px] border-[1px] border-gray-200 rounded-lg flex text-white justify-center items-center'>
+            <div className='border-dashed h-[180px] md:h-[230px] w-[220px] md:w-[280px] border-[1px] border-gray-200 rounded-lg flex text-white justify-center items-center'>
               <FaImages size={30} />
             </div>
           )}

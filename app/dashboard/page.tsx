@@ -17,6 +17,7 @@ const Dashboard = () => {
   const { isConnected } = useAppKitAccount();
   const [showContent, setShowContent] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(true);
   const [toast, setToast] = useState<{
     show: boolean;
     message: string;
@@ -55,16 +56,19 @@ const Dashboard = () => {
   const handleShowContent = () => {
     setShowContent(true);
     setShowProfile(false);
+    setShowDashboard(false);
   };
 
   const handleShowDashboard = () => {
     setShowContent(false);
     setShowProfile(false);
+    setShowDashboard(true);
   };
 
   const handleShowProfile = () => {
     setShowProfile(true);
     setShowContent(false);
+    setShowDashboard(false);
   };
 
   return (
@@ -92,7 +96,7 @@ const Dashboard = () => {
 
             <div 
               onClick={handleShowDashboard}
-              className='flex flex-col cursor-pointer items-center space-y-2'
+              className={`flex flex-col cursor-pointer items-center space-y-2 ${showDashboard ? 'text-purple-500' : ''}`}
             >
               <MdDashboardCustomize />
               <p className='text-[0.8rem]'>Dashboard</p>
@@ -100,7 +104,7 @@ const Dashboard = () => {
          
             <div 
               onClick={handleShowProfile}
-              className='flex flex-col cursor-pointer items-center space-y-2'
+              className={`flex flex-col cursor-pointer items-center space-y-2 ${showProfile ? 'text-purple-500' : ''}`}
             >
               <IoTicketSharp />
               <p className='text-[0.8rem]'>Profile</p>
@@ -108,7 +112,7 @@ const Dashboard = () => {
    
             <div 
               onClick={handleShowContent}
-              className='flex flex-col cursor-pointer items-center space-y-2'
+              className={`flex flex-col cursor-pointer items-center space-y-2 ${showContent ? 'text-purple-500' : ''}`}
             >
               <FaDatabase />
               <p className='text-[0.8rem]'>Contents</p>
