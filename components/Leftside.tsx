@@ -42,7 +42,7 @@ const SideNav = () => {
 
             <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
                 <Image 
-                    src='/aiwoman.jpeg' 
+                    src='/aiwoman.png' 
                     className='rounded-lg' 
                     alt='aiwoman' 
                     height={250} 
