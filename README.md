@@ -77,3 +77,7 @@ npm run dev
 ### The Vision
 
 CreatorPass isn’t just a bounty submission, it’s a blueprint for the future of creator monetization on Web3. The goal is to onboard a new wave of users to Solana through a seamless, user-friendly platform.
+
+ ---
+ 
+**Live Demo**: [CreatorPass.vercel.app](https://CreatorPass.vercel.app/)
