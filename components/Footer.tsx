@@ -9,11 +9,11 @@ const Footer = () => {
                     <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
                     <p className='font-bold text-[1.4rem] font-mono'> Designed and Developed by Athkins</p>
                 </div>
-                <div className='flex items-center gap-x-2 mb-[50px]'>
+                {/* <div className='flex items-center gap-x-2 mb-[50px]'>
                     <FaFire />
                     <p className='font-mono text-[1rem]'>During the 20 days Bounty Task using Reown AppKit</p>
                     <FaFire />
-                </div>
+                </div> */}
             </div>
 
         </div>
