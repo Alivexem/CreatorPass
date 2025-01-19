@@ -49,28 +49,28 @@ With things in place, this project could be scaled into a full-fledged startup, 
 
 To run this project locally, follow these steps:
 
+*CLONE REPO*
+```
+git clone https://github.com/alivexem/CreatorPass.git
+```
+
 *Step 1: Clone the Repository*
 ```
-bash
-git clone https://github.com/alivexem/CreatorPass.git
 cd CreatorPass
 ```
 
 *Step 2: Install Dependencies*
 ```
-bash
 npm install
 ```
 
 *Step 3: Install Additional Dependencies*
 ```
-bash
 npm install @reown/appkit @reown/appkit-adapter-solana @solana/wallet-adapter-react @solana/wallet-adapter-wallets @solana/web3.js @walletconnect/client @walletconnect/web3-provider cloudinary echarts-for-react mongoose tailwindcss postcss typescript
 ```
 
 *Step 4: Start the Development Server*
 ```
-bash
 npm run dev
 ```
 
