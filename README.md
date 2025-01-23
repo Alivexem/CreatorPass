@@ -78,7 +78,4 @@ npm run dev
 CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time - it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
 
 
-CreatorPass isn’t just a bounty submission, it’s a blueprint for the future of creator monetization on Web3. The goal is to onboard a new wave of users to Solana through a seamless, user-friendly platform.
-
-
 **Live Demo**: [CreatorPass.vercel.app](https://CreatorPass.vercel.app/)
