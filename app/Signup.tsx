@@ -38,7 +38,7 @@ const App = () => {
 
     };
     return (
-        <div className='flex min-h-screen m-0 p-0 w-full items-center justify-center bg-[#1A1D1F] text-white'>
+        <div className='flex min-h-screen m-0 p-0 w-full items-center justify-center text-white'>
             {showToaster && (
                 <div className='absolute top-5 right-5 bg-blue-500 text-white px-4 py-2 rounded'>
                     Authentication Succesfull
@@ -88,11 +88,15 @@ const App = () => {
                     <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
                         <p className='leading-none'>For fans</p>
                     </div>
-                    <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators.</p>
+                    <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance.</p>
 
                 </div>
 
-                <div className='md:hidden mt-[500px]'>
+                <div className='md:hidden mt-[500px]' style={{
+                    backgroundImage: 'url(/mobile.jpeg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4'>
                         <div className='text-[2.5rem] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
                             <p>CreatorPass</p>
@@ -111,7 +115,7 @@ const App = () => {
                         <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
                             <p className='leading-none'>For fans</p>
                         </div>
-                        <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly through app and buy crypto effortlessly to top-up balance.</p>
+                        <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance.</p>
                     </div>
                 </div>
                 {!isConnected && (

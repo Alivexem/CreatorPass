@@ -12,7 +12,7 @@ import { RiVipCrown2Fill } from "react-icons/ri";
 import { FaFire } from "react-icons/fa6";
 const page = () => {
   return (
-    <div className='bg-[#1A1D1F] pb-[100px] md:pb-0'>
+    <div className='pb-[100px] bg-[#1A1D1F] md:pb-0'>
       <NavBar />
       <div className='text-center font-bold mt-20 flex justify-center items-center flex-col'>
         <div className='flex flex-col md:flex-row items-center text-[2.8rem] text-gray-200'>
@@ -83,7 +83,7 @@ const page = () => {
 
       <div className='flex flex-col md:flex-row space-y-4 justify-evenly mt-[70px] items-center text-white text-[1.4rem]'>
 
-        <div className='bg-[#272B30] border-[2px] p-3 w-[90%] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+        <div className='bg-[#1f2225] border-[2px] p-3 w-[90%] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
           <FaUnlockKeyhole />
           <p className='text-center'>Unlocking the Future of Content Creation
           </p>
@@ -94,13 +94,13 @@ const page = () => {
             Bridging Creators and Fans with Innovation
           </p>
         </div>
-        <div className='bg-[#272B30] border-[2px] p-3 w-[90%] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+        <div className='bg-[#1f2225] border-[2px] p-3 w-[90%] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
           <SiFueler />
           <p className='text-center'>
             Fueling Creativity, Building Connections
           </p>
         </div>
-        <div className='bg-[#272B30] p-3 w-[90%] hidden lg:flex border-[2px] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl justify-center items-center flex-col'>
+        <div className='bg-[#1f2225] p-3 w-[90%] hidden lg:flex border-[2px] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl justify-center items-center flex-col'>
           <RiVipCrown2Fill />
           <p className='text-center'>
             The Future of Content, Powered by You

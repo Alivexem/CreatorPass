@@ -109,7 +109,7 @@ const NavBar = () => {
           {toast.message}
         </div>
       )}
-      <div style={{ background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between items-center'>
+      <div style={{ background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between position-fixed top-0 items-center'>
         <Image src='/whiteLogo.png' alt='logo' height={40} width={200} />
 
         <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
@@ -129,12 +129,13 @@ const NavBar = () => {
           <Link href='/welcome' className='hidden md:block'>
             <p className={`cursor-pointer md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
           </Link>
-          <Link href='/dashboard' className='hidden md:block'>
-            <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
-          </Link>
           <Link href='/creators' className='hidden md:block'>
             <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
           </Link>
+          <Link href='/dashboard' className='hidden md:block'>
+            <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
+          </Link>
+          
 
           {/* <div
             onClick={handleDisconnect}
@@ -161,17 +162,19 @@ const NavBar = () => {
           </div>
         </Link>
 
-        <Link href='/dashboard'>
-          <div className='flex flex-col cursor-pointer items-center space-y-2'>
-            <MdDashboardCustomize className={pathname === '/dashboard' ? 'text-purple-500' : ''} />
-            <p className={`text-[0.8rem] ${pathname === '/dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
-          </div>
-        </Link>
+       
 
         <Link href='/creators'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <IoTicketSharp className={pathname === '/creators' ? 'text-purple-500' : ''} />
             <p className={`text-[0.8rem] ${pathname === '/creators' ? 'text-purple-500' : ''}`}>Creators</p>
+          </div>
+        </Link>
+
+        <Link href='/dashboard'>
+          <div className='flex flex-col cursor-pointer items-center space-y-2'>
+            <MdDashboardCustomize className={pathname === '/dashboard' ? 'text-purple-500' : ''} />
+            <p className={`text-[0.8rem] ${pathname === '/dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
           </div>
         </Link>
 

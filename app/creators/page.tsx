@@ -119,24 +119,24 @@ const CreatorsPage = () => {
       )}
 
       <div className='flex flex-col space-y-4 md:flex-row justify-evenly items-center text-white text-[1.4rem]'>
-              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
                 <FaUnlockKeyhole />
                 <p className='text-center'>Access Fun Creators
                 </p>
               </div>
-              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
+              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
                 <FaBridgeCircleCheck />
                 <p className='text-center'>
                   View Exclusive Contents
                 </p>
               </div>
-              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl hidden md:flex justify-center items-center flex-col'>
+              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl hidden md:flex justify-center items-center flex-col'>
                  <SiFueler />
                 <p className='text-center'>
                   Mint NFT Passes
                 </p>
               </div>
-              <div className='bg-[#272B30] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl lg:flex hidden justify-center items-center flex-col'>
+              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl lg:flex hidden justify-center items-center flex-col'>
                 <RiVipCrown2Fill />
                 <p className='text-center'>
                   Engage and have fun     

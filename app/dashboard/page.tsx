@@ -72,7 +72,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
+    <div className='bg-[#1A1D1F]'>
       {toast.show && (
         <Toast
           message={toast.message}
@@ -80,7 +80,7 @@ const Dashboard = () => {
           onClose={() => setToast({ ...toast, show: false })}
         />
       )}
-      <div className='flex items-center bg-[#1A1D1F]'>
+      <div className='flex items-center' >
         <div className='hidden md:block'>
           <Leftbar onShowContent={handleShowContent} onShowDashboard={handleShowDashboard} onShowProfile={handleShowProfile} />
         </div>
@@ -94,30 +94,30 @@ const Dashboard = () => {
               </div>
             </Link>
 
-            <div 
+            <div
               onClick={handleShowDashboard}
               className={`flex flex-col cursor-pointer items-center space-y-2 ${showDashboard ? 'text-purple-500' : ''}`}
             >
               <MdDashboardCustomize />
               <p className='text-[0.8rem]'>Dashboard</p>
             </div>
-         
-            <div 
+
+            <div
               onClick={handleShowProfile}
               className={`flex flex-col cursor-pointer items-center space-y-2 ${showProfile ? 'text-purple-500' : ''}`}
             >
               <IoTicketSharp />
               <p className='text-[0.8rem]'>Profile</p>
             </div>
-   
-            <div 
+
+            <div
               onClick={handleShowContent}
               className={`flex flex-col cursor-pointer items-center space-y-2 ${showContent ? 'text-purple-500' : ''}`}
             >
               <FaDatabase />
               <p className='text-[0.8rem]'>Contents</p>
             </div>
-    
+
           </div>
         </div>
       </div>
