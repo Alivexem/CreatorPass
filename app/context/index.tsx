@@ -4,6 +4,12 @@ import { createAppKit } from '@reown/appkit/react';
 import { SolanaAdapter } from '@reown/appkit-adapter-solana/react';
 import { solana, solanaTestnet, solanaDevnet } from '@reown/appkit/networks';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+
+// import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
+// import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
+// import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+// import type { Provider } from '@reown/appkit-adapter-solana/react';
+
 import React, { ReactNode } from 'react';
 
 // Retrieve the project ID from environment variables
@@ -30,6 +36,7 @@ const metadata = {
 export const modal = createAppKit({
   adapters: [solanaAdapter],
   projectId,
+
   networks: [solana, solanaTestnet, solanaDevnet],
   metadata,
   features: {

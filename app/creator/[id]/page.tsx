@@ -7,11 +7,21 @@ import { FaGift } from "react-icons/fa6";
 import { FaCopy } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { GiFlowerPot, GiRing } from "react-icons/gi";
-import { FaCar, FaPlane } from "react-icons/fa";
 import { FaLaptopHouse } from "react-icons/fa";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import { useAppKit, useAppKitAccount } from '../../../utils/reown';
+import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect, PublicKey, Transaction, SystemProgram, Provider } from '../../../utils/reown';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
+import { FaCar } from "react-icons/fa";
+
+
+
+
+// import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
+// import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+// import type { Provider } from '@reown/appkit-adapter-solana/react';
+
+
 
 interface Post {
     _id: string;
@@ -23,7 +33,7 @@ interface Post {
         address: string;
         comment: string;
         timestamp?: Date;
-    }> ;
+    }>;
     likes?: string[];
     likeCount?: number;
 }
@@ -51,16 +61,79 @@ const CreatorPage = ({ params }: PageProps) => {
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
     const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
     const [isCommenting, setIsCommenting] = useState<{ [key: string]: boolean }>({});
+    const [giftAmount, setGiftAmount] = useState(0); 
+    const [selectedGift, setSelectedGift] = useState({
+        flower: 20000000, // 0.02 SOL
+        car: 100000000,   // 0.1 SOL
+        house: 1000000000 // 1 SOL
+    });
+    const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'error'}>({
+        show: false,
+        message: '',
+        type: 'success'
+    });
+
+
+    const { isConnected, address } = useAppKitAccount();
+    const { connection } = useAppKitConnection();
+    const { walletProvider } = useAppKitProvider<Provider>('solana');
+
+
+    // function to send a TX
+    const handleSendTx = async (amount: number, receiver: string) => {
+        try {
+            const lamports = amount;
+            
+            const latestBlockhash = connection ? await connection.getLatestBlockhash() : null;
+            const walletAddress = localStorage.getItem('address') || '';
+
+            const transaction = new Transaction({
+                feePayer: new PublicKey(walletAddress),
+                recentBlockhash: latestBlockhash?.blockhash,
+            }).add(
+                SystemProgram.transfer({
+                    fromPubkey: new PublicKey(walletAddress),
+                    toPubkey: new PublicKey(receiver),
+                    lamports: lamports,
+                })
+            );
+
+            const signature = connection ? await walletProvider.sendTransaction(transaction, connection) : null;
+            console.log(signature);
+            
+            setToast({
+                show: true,
+                message: 'Gift sent successfully!',
+                type: 'success'
+            });
+
+            setTimeout(() => {
+                setToast({show: false, message: '', type: 'success'});
+            }, 3000);
+
+        } catch (error) {
+            console.error('Transaction failed:', error);
+            setToast({
+                show: true,
+                message: 'Failed to send gift. Please try again.',
+                type: 'error'
+            });
+
+            setTimeout(() => {
+                setToast({show: false, message: '', type: 'error'});
+            }, 3000);
+        }
+    }
 
     useEffect(() => {
         const fetchCreatorData = async () => {
             try {
                 const myAddress = localStorage.getItem('address') || '';
-                
+
                 // Fetch creator's profile
                 const profileRes = await fetch(`/api/profile?address=${id}`);
                 const profileData = await profileRes.json();
-                
+
                 if (profileData.profile) {
                     setProfile(profileData.profile);
                 }
@@ -68,21 +141,21 @@ const CreatorPage = ({ params }: PageProps) => {
                 // Fetch all posts
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
-                
+
                 // Filter posts for this creator
-                const creatorPosts = postsData.creator.filter((post: Post) => 
+                const creatorPosts = postsData.creator.filter((post: Post) =>
                     post.username === id
                 );
 
                 // Initialize likes state for each post
                 const initialLikes: { [key: string]: number } = {};
                 const initialHasLiked: { [key: string]: boolean } = {};
-                
+
                 creatorPosts.forEach((post: Post) => {
                     initialLikes[post._id] = post.likeCount || 0;
                     initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
                 });
-                
+
                 setPosts(creatorPosts);
                 setLikes(initialLikes);
                 setHasLiked(initialHasLiked);
@@ -112,10 +185,10 @@ const CreatorPage = ({ params }: PageProps) => {
             }
 
             const data = await res.json();
-            
-            setPosts(prevPosts => 
-                prevPosts.map(post => 
-                    post._id === postId 
+
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post._id === postId
                         ? { ...post, likeCount: data.likeCount }
                         : post
                 )
@@ -123,7 +196,7 @@ const CreatorPage = ({ params }: PageProps) => {
 
             setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
             setHasLiked(prev => ({ ...prev, [postId]: data.hasLiked }));
-            
+
         } catch (error) {
             console.error('Error updating like:', error);
         }
@@ -142,21 +215,21 @@ const CreatorPage = ({ params }: PageProps) => {
             const res = await fetch(`/api/posts/${postId}/comment`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    address, 
-                    comment: newComment[postId].trim() 
+                body: JSON.stringify({
+                    address,
+                    comment: newComment[postId].trim()
                 })
             });
 
             const data = await res.json();
-            setPosts(prevPosts => 
-                prevPosts.map(post => 
-                    post._id === postId 
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post._id === postId
                         ? { ...post, comments: data.comments }
                         : post
                 )
             );
-            
+
             setNewComment(prev => ({ ...prev, [postId]: '' }));
         } catch (error) {
             console.error('Error adding comment:', error);
@@ -201,6 +274,16 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className='bg-[#1A1D1F] pb-[80px] md:pb-0'>
             <NavBar />
+            {/* Toast Notification */}
+            {toast.show && (
+                <div 
+                    className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+                        toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                    } text-white transition-opacity duration-300`}
+                >
+                    {toast.message}
+                </div>
+            )}
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
                 {posts.map((post) => (
@@ -208,12 +291,12 @@ const CreatorPage = ({ params }: PageProps) => {
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
-                                    <Image 
-                                        src={profile?.profileImage || '/smile.jpg'} 
+                                    <Image
+                                        src={profile?.profileImage || '/smile.jpg'}
                                         fill
-                                        style={{objectFit: 'cover'}}
-                                        alt='profile' 
-                                        className='rounded-lg' 
+                                        style={{ objectFit: 'cover' }}
+                                        alt='profile'
+                                        className='rounded-lg'
                                     />
                                 </div>
                                 <p className='text-[1.1rem]'>{profile?.username || 'Anonymous'}</p>
@@ -229,37 +312,37 @@ const CreatorPage = ({ params }: PageProps) => {
                         {post.image && (
                             <div className='flex justify-center w-[100%] items-center'>
                                 <div className='relative md:h-[350px] h-[300px] w-[95%] mt-7'>
-                                    <Image 
-                                        src={post.image} 
+                                    <Image
+                                        src={post.image}
                                         fill
-                                        style={{objectFit: 'cover'}}
-                                        className='rounded-lg border-[1px] border-gray-400' 
-                                        alt='post image' 
+                                        style={{ objectFit: 'cover' }}
+                                        className='rounded-lg border-[1px] border-gray-400'
+                                        alt='post image'
                                     />
                                 </div>
                             </div>
                         )}
                         <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
-                            <button 
+                            <button
                                 onClick={() => handleLike(post._id)}
                                 className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                             >
-                                <IoHeartHalf 
-                                    className={`text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : 'text-white'}`} 
+                                <IoHeartHalf
+                                    className={`text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : 'text-white'}`}
                                 />
                                 <p>{likes[post._id] || post.likeCount || 0} likes</p>
                             </button>
-                            <button 
-                                onClick={() => setShowComments(prev => ({ 
-                                    ...prev, 
-                                    [post._id]: !prev[post._id] 
-                                }))} 
+                            <button
+                                onClick={() => setShowComments(prev => ({
+                                    ...prev,
+                                    [post._id]: !prev[post._id]
+                                }))}
                                 className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                             >
                                 <FaCommentMedical className='text-[1.7rem]' />
                                 <p>{post.comments?.length || 0} comments</p>
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setShowGiftModal(true)}
                                 className='bg-blue-700 text-[1rem] h-[40px] w-auto p-3 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
                             >
@@ -279,7 +362,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                         placeholder="Add a comment..."
                                         className='w-full bg-[#272B30] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
                                     />
-                                    <button 
+                                    <button
                                         type="submit"
                                         className='w-full mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors'
                                         disabled={isCommenting[post._id]}
@@ -287,10 +370,10 @@ const CreatorPage = ({ params }: PageProps) => {
                                         {isCommenting[post._id] ? 'Posting comment...' : 'Comment'}
                                     </button>
                                 </form>
-                    
+
                                 <div className='max-h-[200px] overflow-y-auto space-y-3'>
                                     {post.comments?.slice()
-                                        .sort((a, b) => 
+                                        .sort((a, b) =>
                                             new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime()
                                         )
                                         .map((comment, idx) => (
@@ -302,11 +385,11 @@ const CreatorPage = ({ params }: PageProps) => {
                                 </div>
                             </div>
                         )}
-                        
+
                         {showGiftModal && (
                             <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
                                 <div className='bg-[#272B30] rounded-lg p-6 md:w-[400px] w-[95%] relative'>
-                                    <button 
+                                    <button
                                         onClick={() => setShowGiftModal(false)}
                                         className='absolute top-4 right-4 text-white hover:text-gray-300'
                                     >
@@ -314,7 +397,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                     </button>
 
                                     <h2 className='text-white text-xl font-bold mb-6'>Gift {profile?.username}</h2>
-                                    
+
                                     <div className='space-y-4'>
                                         <div className='flex flex-col gap-y-2'>
                                             <p className='text-gray-300 text-sm'>This creator address can receive SOL:</p>
@@ -322,7 +405,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                 <p className='text-white font-mono bg-[#1A1D1F] p-2 rounded flex-1 overflow-x-auto'>
                                                     {id}
                                                 </p>
-                                                <button 
+                                                <button
                                                     onClick={handleCopyAddress}
                                                     className='bg-blue-600 p-2 rounded hover:bg-blue-700 transition-colors'
                                                 >
@@ -333,14 +416,57 @@ const CreatorPage = ({ params }: PageProps) => {
                                                 <p className='text-green-500 text-sm'>Address copied!</p>
                                             )}
                                         </div>
+                                       
+                                        <div className='text-center text-gray-400 text-sm'>Send SOL directly to this creator</div>
+                                       <div className='flex my-2 items-center justify-center gap-x-5'>
+                                       <button 
+                                            onClick={() => {
+                                                setGiftAmount(selectedGift.flower);
+                                                handleSendTx(selectedGift.flower, id);
+                                            }} 
+                                            className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
+                                        >
+                                             <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
+                                            <GiFlowerPot className='text-[1rem]' />
+                                            <p className='text-[0.8rem]'>Send flower</p>
+                                        </button>
+
+                                        <button 
+                                            onClick={() => {
+                                                setGiftAmount(selectedGift.car);
+                                                handleSendTx(selectedGift.car, id);
+                                            }} 
+                                            className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
+                                        >
+                                             <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
+                                            <FaCar className='text-[1rem]' />
+                                            <p className='text-[0.8rem]'>Send car</p>
+                                        </button>
+
+                                        <button 
+                                            onClick={() => {
+                                                setGiftAmount(selectedGift.house);
+                                                handleSendTx(selectedGift.house, id);
+                                            }} 
+                                            className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
+                                        >
+                                             <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
+                                            <FaLaptopHouse className='text-[1rem]' />
+                                            <p className='text-[0.8rem]'>Send house</p>
+                                        </button>
+                                     
+                                       </div>
+                                        
 
                                         <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
-                                        <button 
-                                            onClick={handleGift} 
+                                        <button
+                                            onClick={handleGift}
                                             className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full'
                                         >
                                             BUY SOL
                                         </button>
+
+
                                     </div>
                                 </div>
                             </div>
