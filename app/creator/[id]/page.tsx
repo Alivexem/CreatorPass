@@ -61,6 +61,17 @@ const CreatorPage = ({ params }: PageProps) => {
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
     const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
     const [isCommenting, setIsCommenting] = useState<{ [key: string]: boolean }>({});
+    const [giftAmount, setGiftAmount] = useState(0); 
+    const [selectedGift, setSelectedGift] = useState({
+        flower: 20000000, // 0.02 SOL
+        car: 100000000,   // 0.1 SOL
+        house: 1000000000 // 1 SOL
+    });
+    const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'error'}>({
+        show: false,
+        message: '',
+        type: 'success'
+    });
 
 
     const { isConnected, address } = useAppKitAccount();
@@ -70,22 +81,48 @@ const CreatorPage = ({ params }: PageProps) => {
 
     // function to send a TX
     const handleSendTx = async (amount: number, receiver: string) => {
-        const latestBlockhash = connection ? await connection.getLatestBlockhash() : null;
-        const walletAddress = localStorage.getItem('address') || '';
+        try {
+            const lamports = amount;
+            
+            const latestBlockhash = connection ? await connection.getLatestBlockhash() : null;
+            const walletAddress = localStorage.getItem('address') || '';
 
-        const transaction = new Transaction({
-            feePayer: new PublicKey(walletAddress),
-            recentBlockhash: latestBlockhash?.blockhash,
-        }).add(
-            SystemProgram.transfer({
-                fromPubkey: new PublicKey(walletAddress),
-                toPubkey: new PublicKey(receiver),
-                lamports: amount,
-            })
-        );
+            const transaction = new Transaction({
+                feePayer: new PublicKey(walletAddress),
+                recentBlockhash: latestBlockhash?.blockhash,
+            }).add(
+                SystemProgram.transfer({
+                    fromPubkey: new PublicKey(walletAddress),
+                    toPubkey: new PublicKey(receiver),
+                    lamports: lamports,
+                })
+            );
 
-        const signature = connection ? await walletProvider.sendTransaction(transaction, connection) : null;
-        console.log(signature);
+            const signature = connection ? await walletProvider.sendTransaction(transaction, connection) : null;
+            console.log(signature);
+            
+            setToast({
+                show: true,
+                message: 'Gift sent successfully!',
+                type: 'success'
+            });
+
+            setTimeout(() => {
+                setToast({show: false, message: '', type: 'success'});
+            }, 3000);
+
+        } catch (error) {
+            console.error('Transaction failed:', error);
+            setToast({
+                show: true,
+                message: 'Failed to send gift. Please try again.',
+                type: 'error'
+            });
+
+            setTimeout(() => {
+                setToast({show: false, message: '', type: 'error'});
+            }, 3000);
+        }
     }
 
     useEffect(() => {
@@ -237,6 +274,16 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className='bg-[#1A1D1F] pb-[80px] md:pb-0'>
             <NavBar />
+            {/* Toast Notification */}
+            {toast.show && (
+                <div 
+                    className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+                        toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                    } text-white transition-opacity duration-300`}
+                >
+                    {toast.message}
+                </div>
+            )}
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
                 {posts.map((post) => (
@@ -370,28 +417,42 @@ const CreatorPage = ({ params }: PageProps) => {
                                             )}
                                         </div>
                                        
-                                        <div className='text-center text-gray-400 text-sm'>Send SOL directly to this address</div>
+                                        <div className='text-center text-gray-400 text-sm'>Send SOL directly to this creator</div>
                                        <div className='flex my-2 items-center justify-center gap-x-5'>
-                                       <button onClick={() => handleSendTx(20000000, id)} className='flex items-center justify-evenly flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'>
-                                             <p className='text-[0.8rem]'>0.02 SOL</p>
+                                       <button 
+                                            onClick={() => {
+                                                setGiftAmount(selectedGift.flower);
+                                                handleSendTx(selectedGift.flower, id);
+                                            }} 
+                                            className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
+                                        >
+                                             <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
                                             <GiFlowerPot className='text-[1rem]' />
-                                            <p className='text-[0.8rem]'>Send Gift</p>
-
+                                            <p className='text-[0.8rem]'>Send flower</p>
                                         </button>
-                                        
 
-                                        <button onClick={() => handleSendTx(100000000, id)} className='flex items-center justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'>
-                                             <p className='text-[0.8rem]'>0.1 SOL</p>
+                                        <button 
+                                            onClick={() => {
+                                                setGiftAmount(selectedGift.car);
+                                                handleSendTx(selectedGift.car, id);
+                                            }} 
+                                            className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
+                                        >
+                                             <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
                                             <FaCar className='text-[1rem]' />
-                                            <p className='text-[0.8rem]'>Send Gift</p>
-
+                                            <p className='text-[0.8rem]'>Send car</p>
                                         </button>
 
-                                        <button onClick={() => handleSendTx(1000000000, id)} className='flex items-center justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'>
-                                             <p className='text-[0.8rem]'>1 SOL</p>
+                                        <button 
+                                            onClick={() => {
+                                                setGiftAmount(selectedGift.house);
+                                                handleSendTx(selectedGift.house, id);
+                                            }} 
+                                            className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
+                                        >
+                                             <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
                                             <FaLaptopHouse className='text-[1rem]' />
-                                            <p className='text-[0.8rem]'>Send Gift</p>
-
+                                            <p className='text-[0.8rem]'>Send house</p>
                                         </button>
                                      
                                        </div>

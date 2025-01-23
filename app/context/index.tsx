@@ -36,6 +36,7 @@ const metadata = {
 export const modal = createAppKit({
   adapters: [solanaAdapter],
   projectId,
+
   networks: [solana, solanaTestnet, solanaDevnet],
   metadata,
   features: {
