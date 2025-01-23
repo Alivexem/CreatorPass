@@ -16,14 +16,14 @@ With things in place, this project could be scaled into a full-fledged startup, 
 
 ## Features
 
-- **Authentication**: Easily get onboarded on CreatorPass with your gmail or wallet using Reown Appkit SDK
-- **Gift creators**: Gift your favourite creators Flowers, cars and houses in SOL using Reown Appkit SDK in-app without having to leave the application.
-- **Buy Crypto**: You can purchase crypto when you have a low balance using Reown Appkit SDK in-app without having to leave the application.
+
+### For Creators:
+- **Gift creators**: Gift your favourite creators SOL using reown Appkit SDK in-app without having to leave the application.
+- **Buy Crypto**: You can purchase crypto using reown Appkit SDK in-app without having to leave the application.
 - **Manage Content**: Upload and delete exlusive contents from a personalized Admin Dashboard.  
 - **Engage with contents**: Users can like, comment and engage with posts.
-- **Mint NFT Passes**: In a short while, Creators will be able to create tiered passes e.g. Bronze, Silver, Gold for premium content
-- **In-App chat**: In a short while, users will be able to have a personal chat with creators
-
+-  **Mint NFT Passes**: Create tiered passes e.g. Bronze, Silver, Gold for premium content (feature incoming)
+-  **In-App chat**: Users will be able to have a personal chat with creators (feature incoming)
 
 - 📊 On the bright side of it: Remember, for every pass a creator mints or a fan purchases/renews. CreatorPass makes profit
 
@@ -77,6 +77,8 @@ npm run dev
 
 CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time - it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
 
- ---
- 
+
+CreatorPass isn’t just a bounty submission, it’s a blueprint for the future of creator monetization on Web3. The goal is to onboard a new wave of users to Solana through a seamless, user-friendly platform.
+
+
 **Live Demo**: [CreatorPass.vercel.app](https://CreatorPass.vercel.app/)
