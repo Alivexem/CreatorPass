@@ -4,12 +4,7 @@ const page = () => {
   return (
     <div>
 
-      <div className='p-3 box-border' style={{
-        backgroundImage: 'url(/pc.jpeg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}>
+      <div className='p-3 box-border bg-[#1A1D1F]' >
         <div className='absolute lg:hidden top-[5%] left-[5%]'>
           {/* <Whitelogo /> */}
         </div>
