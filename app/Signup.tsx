@@ -92,11 +92,7 @@ const App = () => {
 
                 </div>
 
-                <div className='md:hidden mt-[500px]' style={{
-                    backgroundImage: 'url(/mobile.jpeg)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                }}>
+                <div className='md:hidden mt-[500px] bg-[#1A1D1F]'>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4'>
                         <div className='text-[2.5rem] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
                             <p>CreatorPass</p>
