@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
 import Creates from '@/models/uploads';
 
 export async function GET(
-    request: Request,
+    request: NextRequest,
     { params }: { params: { address: string } }
 ) {
     try {
