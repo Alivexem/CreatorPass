@@ -2,7 +2,8 @@
 import { RxDashboard } from "react-icons/rx";
 import { FaDatabase } from "react-icons/fa";
 import { RiProfileFill } from "react-icons/ri";
-
+import { GoHomeFill } from "react-icons/go";
+import Link from "next/link";
 interface DashboardMobileNavProps {
   onShowContent: () => void;
   onShowDashboard: () => void;
@@ -18,6 +19,15 @@ const DashboardMobileNav = ({
 }: DashboardMobileNavProps) => {
   return (
     <div className='fixed right-4 bottom-20 flex flex-col gap-4 md:hidden z-50'>
+      <Link href='/welcome'>
+      <button  
+        className={`p-3 rounded-full shadow-lg hover:scale-110 transition-all`}
+      >
+        <GoHomeFill className="text-xl" />
+      </button>
+      </Link>
+
+
       <button
         onClick={onShowDashboard}
         className={`p-3 rounded-full shadow-lg ${
