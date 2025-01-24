@@ -59,6 +59,14 @@ const Content = ({ setToast }: ContentProps) => {
                 return;
             }
 
+            const res = await fetch(`/api/posts/user/${myAddress}`);
+            if (!res.ok) {
+                throw new Error('Failed to fetch posts');
+            }
+            
+            const data = await res.json();
+            setPosts(data.posts);
+
             // First get user profile
             const profileRes = await fetch(`/api/profile?address=${myAddress}`);
             const profileData = await profileRes.json();
@@ -78,24 +86,19 @@ const Content = ({ setToast }: ContentProps) => {
                 profilePic: profileData.profile.profileImage || '/smile.jpg'
             });
 
-            // Fetch only logged-in user's posts
-            const postsRes = await fetch(`/api/posts/user/${myAddress}`);
-            const { posts: userPosts } = await postsRes.json();
-
             const initialLikes: { [key: string]: number } = {};
             const initialHasLiked: { [key: string]: boolean } = {};
 
-            userPosts.forEach((post: Post) => {
+            data.posts.forEach((post: Post) => {
                 initialLikes[post._id] = post.likeCount || 0;
                 initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
             });
 
-            setPosts(userPosts);
             setLikes(initialLikes);
             setHasLiked(initialHasLiked);
 
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching posts:', error);
             setToast({
                 show: true,
                 message: 'Failed to fetch posts',

@@ -2,13 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
 import Creates from '@/models/uploads';
 
+interface RequestContext {
+    params: {
+        address: string;
+    };
+}
+
 export async function GET(
-    request: NextRequest,
-    { params }: { params: { address: string } }
+    _request: NextRequest,
+    context: RequestContext
 ): Promise<NextResponse> {
     try {
         await connectDB();
-        const address = params.address;
+        const { address } = context.params;
 
         const posts = await Creates.find({ username: address })
             .sort({ createdAt: -1 });
