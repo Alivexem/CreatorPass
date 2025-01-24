@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical } from "react-icons/fa6";
@@ -36,11 +36,13 @@ interface Profile {
 }
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+    params: {
+        id: string
+    }
 }
 
 const CreatorPage = ({ params }: PageProps) => {
-    const { id } = use(params);
+    const { id } = params;
     const [posts, setPosts] = useState<Post[]>([]);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
@@ -150,7 +152,9 @@ const CreatorPage = ({ params }: PageProps) => {
             }
         };
 
-        fetchCreatorData();
+        if (id) {
+            fetchCreatorData();
+        }
     }, [id]);
 
     const handleLike = async (postId: string) => {
