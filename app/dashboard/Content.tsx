@@ -46,7 +46,56 @@ const Content = ({ setToast }: ContentProps) => {
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImage, setModalImage] = useState('');
 
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const myAddress = localStorage.getItem('address') || '';
+                const res = await fetch('/api');
+                const data = await res.json();
+
+                const initialLikes: { [key: string]: number } = {};
+                const initialHasLiked: { [key: string]: boolean } = {};
+
+                data.creator.forEach((post: Post) => {
+                    initialLikes[post._id] = post.likeCount || 0;
+                    initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
+                });
+
+                setPosts(data.creator);
+                setLikes(initialLikes);
+                setHasLiked(initialHasLiked);
+                setIsLoadingPosts(false);
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                setIsLoadingPosts(false);
+            }
+        };
+
+        fetchPosts();
+    }, []);
+
     const handleDelete = async (postId: string) => {
+        const myAddress = localStorage.getItem('address');
+        if (!myAddress) {
+            setToast({
+                show: true,
+                message: 'Please connect your wallet first',
+                type: 'warning'
+            });
+            return;
+        }
+
+        // Find the post to verify ownership
+        const postToDelete = posts.find(post => post._id === postId);
+        if (!postToDelete || postToDelete.username !== myAddress) {
+            setToast({
+                show: true,
+                message: 'You can only delete your own posts',
+                type: 'error'
+            });
+            return;
+        }
+
         setPostToDelete(postId);
         setShowDeleteModal(true);
     };
@@ -55,18 +104,25 @@ const Content = ({ setToast }: ContentProps) => {
         if (!postToDelete) return;
         
         try {
+            const myAddress = localStorage.getItem('address');
             const res = await fetch(`/api/${postToDelete}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ address: myAddress })
             });
             
-            if (res.ok) {
-                setPosts(posts.filter(post => post._id !== postToDelete));
-                setToast({
-                    show: true,
-                    message: 'Post deleted successfully',
-                    type: 'success'
-                });
+            if (!res.ok) {
+                throw new Error('Failed to delete post');
             }
+
+            setPosts(prevPosts => prevPosts.filter(post => post._id !== postToDelete));
+            setToast({
+                show: true,
+                message: 'Post deleted successfully',
+                type: 'success'
+            });
         } catch (error) {
             setToast({
                 show: true,
@@ -113,9 +169,24 @@ const Content = ({ setToast }: ContentProps) => {
 
     const handleLike = async (postId: string) => {
         try {
+            const myAddress = localStorage.getItem('address');
+            if (!myAddress) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'warning'
+                });
+                return;
+            }
+
             const res = await fetch(`/api/posts/${postId}/like`, {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ address: myAddress })
             });
+
             if (res.ok) {
                 setHasLiked(prev => ({
                     ...prev,
@@ -123,17 +194,32 @@ const Content = ({ setToast }: ContentProps) => {
                 }));
                 setLikes(prev => ({
                     ...prev,
-                    [postId]: prev[postId] ? prev[postId] - 1 : prev[postId] + 1
+                    [postId]: hasLiked[postId] ? prev[postId] - 1 : prev[postId] + 1
                 }));
             }
         } catch (error) {
             console.error('Error liking post:', error);
+            setToast({
+                show: true,
+                message: 'Failed to like post',
+                type: 'error'
+            });
         }
     };
 
     const handleComment = async (e: React.FormEvent, postId: string) => {
         e.preventDefault();
         if (!newComment[postId]?.trim()) return;
+
+        const myAddress = localStorage.getItem('address');
+        if (!myAddress) {
+            setToast({
+                show: true,
+                message: 'Please connect your wallet first',
+                type: 'warning'
+            });
+            return;
+        }
 
         setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
 
@@ -143,7 +229,10 @@ const Content = ({ setToast }: ContentProps) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ comment: newComment[postId] })
+                body: JSON.stringify({ 
+                    address: myAddress,
+                    comment: newComment[postId]
+                })
             });
 
             if (res.ok) {
@@ -155,6 +244,11 @@ const Content = ({ setToast }: ContentProps) => {
             }
         } catch (error) {
             console.error('Error posting comment:', error);
+            setToast({
+                show: true,
+                message: 'Failed to post comment',
+                type: 'error'
+            });
         } finally {
             setIsCommentLoading(prev => ({ ...prev, [postId]: false }));
         }
@@ -164,6 +258,16 @@ const Content = ({ setToast }: ContentProps) => {
         e.preventDefault();
         if (!note.trim() || loading) return;
 
+        const myAddress = localStorage.getItem('address');
+        if (!myAddress) {
+            setToast({
+                show: true,
+                message: 'Please connect your wallet first',
+                type: 'warning'
+            });
+            return;
+        }
+
         setLoading(true);
         try {
             const res = await fetch('/api/posts', {
@@ -171,7 +275,11 @@ const Content = ({ setToast }: ContentProps) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ note, image })
+                body: JSON.stringify({ 
+                    note, 
+                    image,
+                    address: myAddress
+                })
             });
 
             if (res.ok) {
@@ -181,9 +289,19 @@ const Content = ({ setToast }: ContentProps) => {
                 setimage('');
                 setSelectedImage('');
                 setShowUploader(false);
+                setToast({
+                    show: true,
+                    message: 'Post created successfully',
+                    type: 'success'
+                });
             }
         } catch (error) {
             console.error('Error creating post:', error);
+            setToast({
+                show: true,
+                message: 'Failed to create post',
+                type: 'error'
+            });
         } finally {
             setLoading(false);
         }
@@ -319,7 +437,7 @@ const Content = ({ setToast }: ContentProps) => {
                                     </div>
 
                                     <div 
-                                        className='relative group cursor-pointer rounded-xl overflow-hidden'
+                                        className='relative group cursor-pointer rounded-xl overflow-hidden h-[200px]'
                                         onDragOver={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
@@ -339,13 +457,13 @@ const Content = ({ setToast }: ContentProps) => {
                                         }}
                                     >
                                         {selectedImage ? (
-                                            <div className='relative'>
+                                            <div className='relative h-full'>
                                                 <Image 
                                                     src={selectedImage}
                                                     alt="Preview"
-                                                    width={500}
-                                                    height={300}
-                                                    className='w-full h-[200px] object-cover rounded-xl'
+                                                    fill
+                                                    style={{ objectFit: 'cover' }}
+                                                    className='rounded-xl'
                                                 />
                                                 <div className='absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
                                                     <button
@@ -365,8 +483,8 @@ const Content = ({ setToast }: ContentProps) => {
                                                 </div>
                                             </div>
                                         ) : (
-                                            <label htmlFor="image-upload" className='block'>
-                                                <div className='h-[200px] border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
+                                            <label htmlFor="image-upload" className='block h-full'>
+                                                <div className='h-full border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
                                                     <FaImages className="text-4xl text-gray-400" />
                                                     <p className='text-gray-400 text-center'>Click or drag image to upload</p>
                                                 </div>
