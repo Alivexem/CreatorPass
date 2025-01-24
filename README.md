@@ -4,6 +4,7 @@
 
 ---
 
+
 ## Overview
 
 CreatorPass is a decentralized social platform designed to empower creators and their fans through blockchain technology. Creators can mint NFT-based passes that fans can purchase to access premium content, get Gifted crypto in-app and also update wallet balance in-app. It’s more than just a platform, it’s a gateway to fostering deeper connections and monetizing creativity. Artists can now price their craft, content-creators can move into the Web3 ecosystem and thrive, CreatorPass is infact for everyone.
@@ -17,7 +18,7 @@ With things in place, this project could be scaled into a full-fledged startup, 
 ## Features
 
 
-- **Seamless unboarding**: Easily get onboarded on the platform through Google or wallet using Reown AppKit.
+- **Seamless onboarding**: Easily get onboarded on the platform through Google or wallet using Reown AppKit.
 - **Gift creators**: Gift your favourite creators SOL using reown Appkit SDK in-app without having to leave the application.
 - **Buy Crypto**: You can purchase crypto using reown Appkit SDK in-app without having to leave the application.
 - **Manage Content**: Upload and delete exlusive contents from a personalized Admin Dashboard.  
@@ -76,6 +77,10 @@ npm run dev
 ### CONCLUSION
 
 CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time - it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
+
+##The Obvious
+
+I'll like to take account for my numerous commits to this project in a short timeline. My laptop can barely build a NextJs server so i just push the code and let vercel build it for me then i get feedback if there's an error.
 
 
 **Live Demo**: [CreatorPass.vercel.app](https://CreatorPass.vercel.app/)
