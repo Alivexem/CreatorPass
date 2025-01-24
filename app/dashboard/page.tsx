@@ -12,6 +12,7 @@ import { MdDashboardCustomize } from "react-icons/md";
 import { IoTicketSharp } from "react-icons/io5";
 import { FaDatabase } from "react-icons/fa";
 import { RiProfileFill } from "react-icons/ri";
+import NavigationProvider from '@/components/NavigationProvider'
 
 const Dashboard = () => {
   const router = useRouter();
@@ -72,57 +73,66 @@ const Dashboard = () => {
     setShowDashboard(false);
   };
 
+  const activeSection = showContent ? 'content' : showProfile ? 'profile' : 'dashboard';
+
   return (
-    <div className='bg-[#1A1D1F]'>
-      {toast.show && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast({ ...toast, show: false })}
-        />
-      )}
-      <div className='flex items-center' >
-        <div className='hidden md:block'>
-          <Leftbar onShowContent={handleShowContent} onShowDashboard={handleShowDashboard} onShowProfile={handleShowProfile} />
-        </div>
-        <div className='w-[100%] md:w-[75%] md:ml-[24%] h-[100%]'>
-          <Mainbar showContent={showContent} showProfile={showProfile} setToast={setToast} />
-          <div className='h-[80px] box-border pt-3 flex items-center justify-evenly z-50 w-full bg-black fixed bottom-0 text-white md:hidden'>
-            <Link href='/welcome'>
-              <div className='flex flex-col cursor-pointer items-center space-y-2'>
-                <GoHomeFill />
-                <p className='text-[0.8rem]'>Home</p>
+    <NavigationProvider 
+      onShowContent={handleShowContent}
+      onShowDashboard={handleShowDashboard}
+      onShowProfile={handleShowProfile}
+      activeSection={activeSection}
+    >
+      <div className='bg-[#1A1D1F]'>
+        {toast.show && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast({ ...toast, show: false })}
+          />
+        )}
+        <div className='flex items-center' >
+          <div className='hidden md:block'>
+            <Leftbar onShowContent={handleShowContent} onShowDashboard={handleShowDashboard} onShowProfile={handleShowProfile} />
+          </div>
+          <div className='w-[100%] md:w-[75%] md:ml-[24%] h-[100%]'>
+            <Mainbar showContent={showContent} showProfile={showProfile} setToast={setToast} />
+            <div className='h-[80px] box-border pt-3 flex items-center justify-evenly z-50 w-full bg-black fixed bottom-0 text-white md:hidden'>
+              <Link href='/welcome'>
+                <div className='flex flex-col cursor-pointer items-center space-y-2'>
+                  <GoHomeFill />
+                  <p className='text-[0.8rem]'>Home</p>
+                </div>
+              </Link>
+
+              <div
+                onClick={handleShowDashboard}
+                className={`flex flex-col cursor-pointer items-center space-y-2 ${showDashboard ? 'text-purple-500' : ''}`}
+              >
+                <MdDashboardCustomize />
+                <p className='text-[0.8rem]'>Dashboard</p>
               </div>
-            </Link>
 
-            <div
-              onClick={handleShowDashboard}
-              className={`flex flex-col cursor-pointer items-center space-y-2 ${showDashboard ? 'text-purple-500' : ''}`}
-            >
-              <MdDashboardCustomize />
-              <p className='text-[0.8rem]'>Dashboard</p>
+              <div
+                onClick={handleShowProfile}
+                className={`flex flex-col cursor-pointer items-center space-y-2 ${showProfile ? 'text-purple-500' : ''}`}
+              >
+                <RiProfileFill />
+                <p className='text-[0.8rem]'>Profile</p>
+              </div>
+
+              <div
+                onClick={handleShowContent}
+                className={`flex flex-col cursor-pointer items-center space-y-2 ${showContent ? 'text-purple-500' : ''}`}
+              >
+                <FaDatabase />
+                <p className='text-[0.8rem]'>Content</p>
+              </div>
+
             </div>
-
-            <div
-              onClick={handleShowProfile}
-              className={`flex flex-col cursor-pointer items-center space-y-2 ${showProfile ? 'text-purple-500' : ''}`}
-            >
-              <RiProfileFill />
-              <p className='text-[0.8rem]'>Profile</p>
-            </div>
-
-            <div
-              onClick={handleShowContent}
-              className={`flex flex-col cursor-pointer items-center space-y-2 ${showContent ? 'text-purple-500' : ''}`}
-            >
-              <FaDatabase />
-              <p className='text-[0.8rem]'>Content</p>
-            </div>
-
           </div>
         </div>
       </div>
-    </div>
+    </NavigationProvider>
   )
 }
 
