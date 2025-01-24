@@ -36,7 +36,8 @@ const PostCard = ({
     newComment,
     setNewComment,
     isCommentLoading,
-    censorAddress
+    censorAddress,
+    onImageClick
 }: PostCardProps) => {
     return (
         <div className='w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
@@ -67,13 +68,15 @@ const PostCard = ({
 
             {/* Post Image */}
             {post.image && (
-                <div className='flex justify-center w-[100%] items-center'>
-                    <Image 
-                        src={post.image} 
-                        height={1000} 
-                        width={1000} 
-                        className='h-[55%] mt-7 w-[80%] rounded-lg border-[1px] border-gray-400 px-5' 
-                        alt='post image' 
+                <div 
+                    className='relative cursor-pointer w-full aspect-video rounded-xl overflow-hidden'
+                    onClick={() => onImageClick(post.image!)}
+                >
+                    <Image
+                        src={post.image}
+                        alt="Post image"
+                        fill
+                        className='object-cover'
                     />
                 </div>
             )}

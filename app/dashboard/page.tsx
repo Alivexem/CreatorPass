@@ -11,6 +11,7 @@ import { GoHomeFill } from "react-icons/go";
 import { MdDashboardCustomize } from "react-icons/md";
 import { IoTicketSharp } from "react-icons/io5";
 import { FaDatabase } from "react-icons/fa";
+import { RiProfileFill } from "react-icons/ri";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -86,7 +87,7 @@ const Dashboard = () => {
         </div>
         <div className='w-[100%] md:w-[75%] md:ml-[24%] h-[100%]'>
           <Mainbar showContent={showContent} showProfile={showProfile} setToast={setToast} />
-          <div className='h-[80px] box-border pt-3 flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
+          <div className='h-[80px] box-border pt-3 flex items-center justify-evenly z-50 w-full bg-black fixed bottom-0 text-white md:hidden'>
             <Link href='/welcome'>
               <div className='flex flex-col cursor-pointer items-center space-y-2'>
                 <GoHomeFill />
@@ -106,7 +107,7 @@ const Dashboard = () => {
               onClick={handleShowProfile}
               className={`flex flex-col cursor-pointer items-center space-y-2 ${showProfile ? 'text-purple-500' : ''}`}
             >
-              <IoTicketSharp />
+              <RiProfileFill />
               <p className='text-[0.8rem]'>Profile</p>
             </div>
 
@@ -115,7 +116,7 @@ const Dashboard = () => {
               className={`flex flex-col cursor-pointer items-center space-y-2 ${showContent ? 'text-purple-500' : ''}`}
             >
               <FaDatabase />
-              <p className='text-[0.8rem]'>Contents</p>
+              <p className='text-[0.8rem]'>Content</p>
             </div>
 
           </div>

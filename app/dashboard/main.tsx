@@ -62,6 +62,13 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
         </div>
       )}
 
+      {/* Show Content when showContent is true */}
+      {showContent && <Content setToast={setToast} />}
+      
+      {/* Show Profile when showProfile is true */}
+      {showProfile && <ProfileUpdate setToast={setToast} />}
+      
+      {/* Show Dashboard when neither Content nor Profile is showing */}
       {!showContent && !showProfile && (
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
           {/* Header */}
@@ -159,7 +166,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                   {
                     title: 'Total Followers',
                     icon: <SiThefinals className='text-green-800' />,
-                    bgColor: 'bg-green-200',
+                    bgColor: 'bg-green-400',
                     iconBg: 'bg-green-200'
                   },
                   {
@@ -192,9 +199,6 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
           </div>
         </div>
       )}
-
-      {showContent && <Content setToast={setToast} />}
-      {showProfile && <ProfileUpdate setToast={setToast} />}
     </div>
   );
 };

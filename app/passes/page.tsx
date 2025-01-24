@@ -17,10 +17,8 @@ interface Profile {
 
 const PassesPage = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [currentMobileIndex, setCurrentMobileIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const cardsPerPage = 3;
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -40,30 +38,15 @@ const PassesPage = () => {
     fetchProfiles();
   }, []);
 
-  const handleNext = () => {
-    if (window.innerWidth >= 768) {
-      const totalPages = Math.ceil(profiles.length / cardsPerPage);
-      setCurrentPage((prev) => (prev + 1) % totalPages);
-    } else {
-      setCurrentMobileIndex((prev) => (prev + 1) % profiles.length);
-    }
-  };
-
   const handlePrevious = () => {
-    if (window.innerWidth >= 768) {
-      const totalPages = Math.ceil(profiles.length / cardsPerPage);
-      setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-    } else {
-      setCurrentMobileIndex((prev) => (prev - 1 + profiles.length) % profiles.length);
-    }
+    setCurrentIndex((prev) => (prev === 0 ? profiles.length - 1 : prev - 1));
   };
 
-  const getCurrentPageProfiles = () => {
-    const startIndex = currentPage * cardsPerPage;
-    return profiles.slice(startIndex, startIndex + cardsPerPage);
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev === profiles.length - 1 ? 0 : prev + 1));
   };
 
-  const currentMobileProfile = profiles[currentMobileIndex];
+  const currentProfile = profiles[currentIndex];
 
   return (
     <div className='min-h-screen pb-[60px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
@@ -97,27 +80,46 @@ const PassesPage = () => {
             <button
               onClick={handlePrevious}
               className='text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
+              disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleLeft className='text-3xl' />
             </button>
 
             {/* Mobile View */}
             <div className='md:hidden'>
-              {currentMobileProfile && (
-                <div className='transform hover:scale-105 transition-all duration-300'>
-                  <AccessCard
-                    image={currentMobileProfile.profileImage || '/smile.jpg'}
-                    name={currentMobileProfile.username}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600"
-                  />
+              <div className='flex justify-between items-center mb-8'>
+                <button 
+                  onClick={handlePrevious}
+                  className='text-white focus:outline-none'
+                >
+                  <FaArrowAltCircleLeft size={24} />
+                </button>
+                <h2 className='text-2xl font-bold text-white'>{currentProfile.username}</h2>
+                <button 
+                  onClick={handleNext}
+                  className='text-white focus:outline-none'
+                >
+                  <FaArrowAltCircleRight size={24} />
+                </button>
+              </div>
+              
+              <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl'>
+                <div className='bg-[#1A1D1F] rounded-xl p-6 space-y-6'>
+                  <div className='text-center'>
+                    <p className='text-3xl font-bold text-white mb-2'>{currentProfile.username}</p>
+                    <p className='text-gray-400'>Access Card</p>
+                  </div>
+                  <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
+                  <button className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all'>
+                    Get Started
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Desktop View */}
             <div className='hidden md:flex gap-6'>
-              {getCurrentPageProfiles().map((profile, index) => (
+              {profiles.map((profile, index) => (
                 <div 
                   key={index}
                   className={`transform transition-all duration-300 ${
@@ -139,7 +141,7 @@ const PassesPage = () => {
             <button
               onClick={handleNext}
               className='text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
+              disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleRight className='text-3xl' />
             </button>
