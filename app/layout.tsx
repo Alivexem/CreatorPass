@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${kanit.variable} antialiased pb-[80px] md:pb-0`}>
+      <body className={`${kanit.variable} antialiased`}>
         <ContextProvider>
           <NavigationProvider>
             {children}

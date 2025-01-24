@@ -6,12 +6,12 @@ import DashboardMobileNav from './DashboardMobileNav';
 export default function NavigationProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isDashboard = pathname.startsWith('/dashboard');
-  const isSignup = pathname === '/signup';
+  const hideNav = pathname === '/signup' || pathname === '/';
 
   return (
     <>
       {children}
-      {!isSignup && (isDashboard ? <DashboardMobileNav /> : <MobileNav />)}
+      {!hideNav && (isDashboard ? <DashboardMobileNav /> : <MobileNav />)}
     </>
   );
 } 

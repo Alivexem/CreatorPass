@@ -46,128 +46,8 @@ const Content = ({ setToast }: ContentProps) => {
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImage, setModalImage] = useState('');
 
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const myAddress = localStorage.getItem('address') || '';
-                const res = await fetch('/api');
-                const data = await res.json();
-
-                const initialLikes: { [key: string]: number } = {};
-                const initialHasLiked: { [key: string]: boolean } = {};
-
-                data.creator.forEach((post: Post) => {
-                    initialLikes[post._id] = post.likeCount || 0;
-                    initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
-                });
-
-                setPosts(data.creator);
-                setLikes(initialLikes);
-                setHasLiked(initialHasLiked);
-                setIsLoadingPosts(false);
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-                setIsLoadingPosts(false);
-            }
-        };
-
-        fetchPosts();
-    }, []);
-
-    const handleDelete = async (postId: string) => {
-        const myAddress = localStorage.getItem('address');
-        if (!myAddress) {
-            setToast({
-                show: true,
-                message: 'Please connect your wallet first',
-                type: 'warning'
-            });
-            return;
-        }
-
-        // Find the post to verify ownership
-        const postToDelete = posts.find(post => post._id === postId);
-        if (!postToDelete || postToDelete.username !== myAddress) {
-            setToast({
-                show: true,
-                message: 'You can only delete your own posts',
-                type: 'error'
-            });
-            return;
-        }
-
-        setPostToDelete(postId);
-        setShowDeleteModal(true);
-    };
-
-    const confirmDelete = async () => {
-        if (!postToDelete) return;
-        
-        try {
-            const myAddress = localStorage.getItem('address');
-            const res = await fetch(`/api/${postToDelete}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ address: myAddress })
-            });
-            
-            if (!res.ok) {
-                throw new Error('Failed to delete post');
-            }
-
-            setPosts(prevPosts => prevPosts.filter(post => post._id !== postToDelete));
-            setToast({
-                show: true,
-                message: 'Post deleted successfully',
-                type: 'success'
-            });
-        } catch (error) {
-            setToast({
-                show: true,
-                message: 'Failed to delete post',
-                type: 'error'
-            });
-        } finally {
-            setShowDeleteModal(false);
-            setPostToDelete(null);
-        }
-    };
-
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setSelectedImage(URL.createObjectURL(file));
-        setLoading(true);
-
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!res.ok) throw new Error('Upload failed');
-
-            const data = await res.json();
-            setimage(data.imageUrl);
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            setToast({
-                show: true,
-                message: 'Failed to upload image',
-                type: 'error'
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleLike = async (postId: string) => {
+    const fetchPosts = async () => {
+        setIsLoadingPosts(true);
         try {
             const myAddress = localStorage.getItem('address');
             if (!myAddress) {
@@ -179,29 +59,257 @@ const Content = ({ setToast }: ContentProps) => {
                 return;
             }
 
-            const res = await fetch(`/api/posts/${postId}/like`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ address: myAddress })
+            // First get user profile
+            const profileRes = await fetch(`/api/profile?address=${myAddress}`);
+            const profileData = await profileRes.json();
+
+            if (!profileData.profile) {
+                setToast({
+                    show: true,
+                    message: 'Please set up your profile first',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            setUserProfile({
+                username: profileData.profile.username || 'Anonymous',
+                address: profileData.profile.address,
+                profilePic: profileData.profile.profileImage || '/smile.jpg'
             });
 
-            if (res.ok) {
-                setHasLiked(prev => ({
-                    ...prev,
-                    [postId]: !prev[postId]
-                }));
-                setLikes(prev => ({
-                    ...prev,
-                    [postId]: hasLiked[postId] ? prev[postId] - 1 : prev[postId] + 1
-                }));
-            }
+            // Fetch only logged-in user's posts
+            const postsRes = await fetch(`/api/posts/user/${myAddress}`);
+            const { posts: userPosts } = await postsRes.json();
+
+            const initialLikes: { [key: string]: number } = {};
+            const initialHasLiked: { [key: string]: boolean } = {};
+
+            userPosts.forEach((post: Post) => {
+                initialLikes[post._id] = post.likeCount || 0;
+                initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
+            });
+
+            setPosts(userPosts);
+            setLikes(initialLikes);
+            setHasLiked(initialHasLiked);
+
         } catch (error) {
-            console.error('Error liking post:', error);
+            console.error('Error fetching data:', error);
             setToast({
                 show: true,
-                message: 'Failed to like post',
+                message: 'Failed to fetch posts',
+                type: 'error'
+            });
+        } finally {
+            setIsLoadingPosts(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
+    }, []);
+
+    const handleDelete = async (postId: string) => {
+        setPostToDelete(postId);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            const res = await fetch(`/api/${postToDelete}`, {
+                method: 'DELETE'
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to delete post');
+            }
+
+            await fetchPosts();
+            setShowDeleteModal(false);
+            setPostToDelete(null);
+            setToast({
+                show: true,
+                message: 'Post deleted successfully!',
+                type: 'success'
+            });
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            setToast({
+                show: true,
+                message: 'Failed to delete post. Please try again.',
+                type: 'error'
+            });
+        }
+    };
+
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        setLoading(true);
+
+        reader.onloadend = async () => {
+            const base64data = reader.result;
+
+            try {
+                const res = await fetch("/api/imageApi", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ data: base64data }),
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Upload failed: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setimage(data.url);
+                setSelectedImage(URL.createObjectURL(file));
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                setToast({
+                    show: true,
+                    message: 'Failed to upload image. Please try again.',
+                    type: 'error'
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        reader.onerror = () => {
+            setToast({
+                show: true,
+                message: 'Error reading file. Please try again.',
+                type: 'error'
+            });
+            setLoading(false);
+        };
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!note) {
+            setToast({
+                show: true,
+                message: 'Type a post before submitting!',
+                type: 'warning'
+            });
+            return;
+        }
+
+        if (note.length > 300) {
+            setToast({
+                show: true,
+                message: 'Thread too long, make it concise! (300 letters maximum)',
+                type: 'warning'
+            });
+            return;
+        }
+
+        setPostText('Loading...');
+        const myAddress = localStorage.getItem('address');
+
+        try {
+            const profileRes = await fetch(`/api/profile?address=${myAddress}`);
+            const profileData = await profileRes.json();
+
+            if (!profileData.profile) {
+                throw new Error('Profile not found, setup your profile');
+            }
+
+            const fullData = {
+                username: myAddress,
+                note: note.trim(),
+                image: image || ''
+            };
+
+            const res = await fetch('/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(fullData)
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (data.message === 'Post uploaded') {
+                setToast({
+                    show: true,
+                    message: 'Posted successfully!',
+                    type: 'success'
+                });
+                setNote('');
+                setimage('');
+                setSelectedImage('');
+                setShowUploader(false);
+                fetchPosts();
+            } else {
+                throw new Error(data.message || 'Failed to upload post');
+            }
+        } catch (error: any) {
+            console.error('Submission error:', error);
+            setToast({
+                show: true,
+                message: error.message || 'Failed to upload post, please try again',
+                type: 'error'
+            });
+        } finally {
+            setPostText('Post');
+        }
+    };
+
+    const handleLike = async (postId: string) => {
+        try {
+            const address = localStorage.getItem('address');
+            if (!address) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            const res = await fetch(`/api/posts/${postId}/like`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address })
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to update like');
+            }
+
+            const data = await res.json();
+            
+            setPosts(prevPosts => 
+                prevPosts.map(post => 
+                    post._id === postId 
+                        ? { ...post, likeCount: data.likeCount, likes: data.likes }
+                        : post
+                )
+            );
+
+            setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
+            setHasLiked(prev => ({ ...prev, [postId]: data.hasLiked }));
+            
+        } catch (error) {
+            console.error('Error updating like:', error);
+            setToast({
+                show: true,
+                message: 'Failed to update like',
                 type: 'error'
             });
         }
@@ -211,42 +319,47 @@ const Content = ({ setToast }: ContentProps) => {
         e.preventDefault();
         if (!newComment[postId]?.trim()) return;
 
-        const myAddress = localStorage.getItem('address');
-        if (!myAddress) {
-            setToast({
-                show: true,
-                message: 'Please connect your wallet first',
-                type: 'warning'
-            });
-            return;
-        }
-
-        setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
-
         try {
+            const address = localStorage.getItem('address');
+            if (!address) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
+
             const res = await fetch(`/api/posts/${postId}/comment`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    address: myAddress,
-                    comment: newComment[postId]
+                    address, 
+                    comment: newComment[postId].trim() 
                 })
             });
 
-            if (res.ok) {
-                const updatedPost = await res.json();
-                setPosts(prev => prev.map(post => 
-                    post._id === postId ? updatedPost : post
-                ));
-                setNewComment(prev => ({ ...prev, [postId]: '' }));
+            if (!res.ok) {
+                throw new Error('Failed to add comment');
             }
+
+            const data = await res.json();
+            setPosts(prevPosts => 
+                prevPosts.map(post => 
+                    post._id === postId 
+                        ? { ...post, comments: data.comments }
+                        : post
+                )
+            );
+            
+            setNewComment(prev => ({ ...prev, [postId]: '' }));
         } catch (error) {
-            console.error('Error posting comment:', error);
+            console.error('Error adding comment:', error);
             setToast({
                 show: true,
-                message: 'Failed to post comment',
+                message: 'Failed to add comment',
                 type: 'error'
             });
         } finally {
@@ -254,67 +367,24 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!note.trim() || loading) return;
-
-        const myAddress = localStorage.getItem('address');
-        if (!myAddress) {
-            setToast({
-                show: true,
-                message: 'Please connect your wallet first',
-                type: 'warning'
-            });
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const res = await fetch('/api/posts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    note, 
-                    image,
-                    address: myAddress
-                })
-            });
-
-            if (res.ok) {
-                const newPost = await res.json();
-                setPosts(prev => [newPost, ...prev]);
-                setNote('');
-                setimage('');
-                setSelectedImage('');
-                setShowUploader(false);
-                setToast({
-                    show: true,
-                    message: 'Post created successfully',
-                    type: 'success'
-                });
-            }
-        } catch (error) {
-            console.error('Error creating post:', error);
-            setToast({
-                show: true,
-                message: 'Failed to create post',
-                type: 'error'
-            });
-        } finally {
-            setLoading(false);
-        }
+    const typing = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setNote(e.target.value);
     };
 
     const censorAddress = (address: string) => {
         if (!address) return '';
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+        const start = address.slice(0, 4);
+        const end = address.slice(-4);
+        return `${start}xxxxxxxx${end}`;
     };
 
-    const typing = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setNote(e.target.value);
-    };
+    useEffect(() => {
+        return () => {
+            if (selectedImage) {
+                URL.revokeObjectURL(selectedImage);
+            }
+        };
+    }, [selectedImage]);
 
     return (
         <div className='min-h-screen bg-[#1A1D1F] px-4 py-8'>
@@ -338,9 +408,13 @@ const Content = ({ setToast }: ContentProps) => {
                             Loading posts...
                         </div>
                     </div>
+                ) : posts.length === 0 ? (
+                    <div className='text-center text-gray-400 py-20'>
+                        <p>No post yet</p>
+                    </div>
                 ) : (
                     <div className='flex flex-col gap-y-8 w-full items-center'>
-                        {posts && posts.map((post: any) => (
+                        {posts.map((post: Post) => (
                             <PostCard
                                 key={post._id}
                                 post={post}
@@ -398,7 +472,7 @@ const Content = ({ setToast }: ContentProps) => {
                     </div>
                 )}
 
-                {/* Image Modal - Updated */}
+                {/* Image Modal */}
                 {showImageModal && (
                     <div className='fixed inset-0 bg-black flex justify-center items-center z-50'>
                         <div className='relative max-w-[95vw] max-h-[95vh]'>
@@ -448,12 +522,10 @@ const Content = ({ setToast }: ContentProps) => {
                                             e.stopPropagation();
                                             const files = Array.from(e.dataTransfer.files);
                                             if (files[0]) {
-                                                const fakeEvent = {
-                                                    target: { files: [files[0]] },
-                                                    preventDefault: () => {},
-                                                    currentTarget: e.currentTarget,
-                                                } as unknown as React.ChangeEvent<HTMLInputElement>;
-                                                handleImageChange(fakeEvent);
+                                                const input = document.createElement('input');
+                                                input.type = 'file';
+                                                input.files = e.dataTransfer.files;
+                                                handleImageChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
                                             }
                                         }}
                                     >
