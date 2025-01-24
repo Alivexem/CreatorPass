@@ -1,6 +1,4 @@
 'use client'
-import Link from 'next/link';
-import { GoHomeFill } from "react-icons/go";
 import { RxDashboard } from "react-icons/rx";
 import { FaDatabase } from "react-icons/fa";
 import { RiProfileFill } from "react-icons/ri";
@@ -19,43 +17,39 @@ const DashboardMobileNav = ({
   activeSection 
 }: DashboardMobileNavProps) => {
   return (
-    <div className='h-[80px] pt-3 box-border flex items-center justify-evenly w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
-      <Link href='/welcome'>
-        <div className='flex flex-col cursor-pointer items-center space-y-2'>
-          <GoHomeFill className="text-xl" />
-          <p className='text-[0.8rem]'>Home</p>
-        </div>
-      </Link>
-
-      <div 
-        className='flex flex-col cursor-pointer items-center space-y-2'
+    <div className='fixed right-4 bottom-20 flex flex-col gap-4 md:hidden z-50'>
+      <button
         onClick={onShowDashboard}
+        className={`p-3 rounded-full shadow-lg ${
+          activeSection === 'dashboard' 
+            ? 'bg-purple-500 text-white' 
+            : 'bg-gray-800 text-gray-300'
+        } hover:scale-110 transition-all`}
       >
-        <RxDashboard className={`text-xl ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`} />
-        <p className={`text-[0.8rem] ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`}>
-          Overview
-        </p>
-      </div>
+        <RxDashboard className="text-xl" />
+      </button>
 
-      <div 
-        className='flex flex-col cursor-pointer items-center space-y-2'
+      <button
         onClick={onShowContent}
+        className={`p-3 rounded-full shadow-lg ${
+          activeSection === 'content' 
+            ? 'bg-purple-500 text-white' 
+            : 'bg-gray-800 text-gray-300'
+        } hover:scale-110 transition-all`}
       >
-        <FaDatabase className={`text-xl ${activeSection === 'content' ? 'text-purple-500' : ''}`} />
-        <p className={`text-[0.8rem] ${activeSection === 'content' ? 'text-purple-500' : ''}`}>
-          Content
-        </p>
-      </div>
+        <FaDatabase className="text-xl" />
+      </button>
 
-      <div 
-        className='flex flex-col cursor-pointer items-center space-y-2'
+      <button
         onClick={onShowProfile}
+        className={`p-3 rounded-full shadow-lg ${
+          activeSection === 'profile' 
+            ? 'bg-purple-500 text-white' 
+            : 'bg-gray-800 text-gray-300'
+        } hover:scale-110 transition-all`}
       >
-        <RiProfileFill className={`text-xl ${activeSection === 'profile' ? 'text-purple-500' : ''}`} />
-        <p className={`text-[0.8rem] ${activeSection === 'profile' ? 'text-purple-500' : ''}`}>
-          Profile
-        </p>
-      </div>
+        <RiProfileFill className="text-xl" />
+      </button>
     </div>
   );
 };
