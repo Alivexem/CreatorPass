@@ -21,7 +21,7 @@ const DashboardMobileNav = ({
     <div className='fixed right-4 bottom-20 flex flex-col gap-4 md:hidden z-50'>
       <Link href='/welcome'>
       <button  
-        className={`p-3 rounded-full shadow-lg hover:scale-110 transition-all`}
+        className={`p-3 rounded-full bg-gray-800 text-gray-200 shadow-lg hover:scale-110 transition-all`}
       >
         <GoHomeFill className="text-xl" />
       </button>
