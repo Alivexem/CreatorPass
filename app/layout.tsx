@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
 import "./globals.css";
 import ContextProvider from './context'
-import MobileNav from '@/components/MobileNav';
+import NavigationProvider from '@/components/NavigationProvider';
 
 const kanit = Kanit({
   variable: "--font-kanit",
@@ -24,8 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${kanit.variable} antialiased pb-[80px] md:pb-0`}>
         <ContextProvider>
-          {children}
-          <MobileNav />
+          <NavigationProvider>
+            {children}
+          </NavigationProvider>
         </ContextProvider>
       </body>
     </html>

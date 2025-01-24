@@ -255,6 +255,17 @@ const CreatorPage = ({ params }: PageProps) => {
         );
     }
 
+    if (posts.length === 0) {
+        return (
+            <div className='bg-[#1A1D1F] pb-[100px] md:pb-0 min-h-screen flex flex-col'>
+                <NavBar />
+                <div className='flex-1 flex justify-center items-center'>
+                    <p className='text-white text-2xl'>This creator haven't posted yet</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className='bg-[#1A1D1F] pb-[80px] md:pb-0'>
             <NavBar />

@@ -127,13 +127,13 @@ const NavBar = () => {
         </form>
         <div className='flex items-center gap-x-5 text-white text-[1rem]'>
           <Link href='/welcome' className='hidden md:block'>
-            <p className={`cursor-pointer md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
+            <p className={`cursor-pointer md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
           </Link>
           <Link href='/creators' className='hidden md:block'>
-            <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
+            <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
           </Link>
           <Link href='/dashboard' className='hidden md:block'>
-            <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-400' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
+            <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
           </Link>
           
 
