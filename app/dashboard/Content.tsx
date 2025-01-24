@@ -398,15 +398,15 @@ const Content = ({ setToast }: ContentProps) => {
                     </div>
                 )}
 
-                {/* Image Modal */}
+                {/* Image Modal - Updated */}
                 {showImageModal && (
-                    <div className='fixed inset-0 bg-black bg-opacity-95 flex justify-center items-center z-50'>
+                    <div className='fixed inset-0 bg-black flex justify-center items-center z-50'>
                         <div className='relative max-w-[95vw] max-h-[95vh]'>
                             <button 
                                 className='absolute -top-12 right-0 text-white hover:text-red-500 transition-colors'
                                 onClick={() => setShowImageModal(false)}
                             >
-                                <MdCancel className="text-3xl" />
+                                <MdCancel className="text-4xl" />
                             </button>
                             <Image
                                 src={modalImage}
@@ -414,6 +414,7 @@ const Content = ({ setToast }: ContentProps) => {
                                 width={1200}
                                 height={800}
                                 className='object-contain max-h-[90vh] rounded-lg'
+                                onClick={(e) => e.stopPropagation()}
                             />
                         </div>
                     </div>

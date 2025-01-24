@@ -66,7 +66,7 @@ const PassesPage = () => {
   const currentMobileProfile = profiles[currentMobileIndex];
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
+    <div className='min-h-screen pb-[60px] bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
       
       {/* Hero Section */}

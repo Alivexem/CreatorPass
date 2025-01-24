@@ -11,7 +11,7 @@ const DashboardMobileNav = () => {
   const isDashboardSection = (section: string) => pathname.includes(section);
 
   return (
-    <div className='h-[80px] pt-3 box-border flex items-center justify-evenly w-full bg-slate-700 fixed bottom-0 text-white md:hidden z-50'>
+    <div className='h-[80px] pt-3 box-border flex items-center justify-evenly w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
       <Link href='/dashboard'>
         <div className='flex flex-col cursor-pointer items-center space-y-2'>
           <RxDashboard className={`text-xl ${!isDashboardSection('profile') && !isDashboardSection('content') ? 'text-purple-500' : ''}`} />

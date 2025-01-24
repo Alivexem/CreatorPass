@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
 import "./globals.css";
 import ContextProvider from './context'
-import MobileNav from '@/components/MobileNav';
-import DashboardMobileNav from '@/components/DashboardMobileNav';
-import { usePathname } from 'next/navigation';
+import NavigationProvider from '@/components/NavigationProvider';
 
 const kanit = Kanit({
   variable: "--font-kanit",
@@ -17,19 +15,6 @@ export const metadata: Metadata = {
   description: "A decentralized social platform that connects content creators to fans effortlessly",
 };
 
-function NavigationWrapper({ children }: { children: React.ReactNode }) {
-  'use client'
-  const pathname = usePathname();
-  const isDashboard = pathname.startsWith('/dashboard');
-
-  return (
-    <>
-      {children}
-      {isDashboard ? <DashboardMobileNav /> : <MobileNav />}
-    </>
-  );
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,9 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${kanit.variable} antialiased pb-[80px] md:pb-0`}>
         <ContextProvider>
-          <NavigationWrapper>
+          <NavigationProvider>
             {children}
-          </NavigationWrapper>
+          </NavigationProvider>
         </ContextProvider>
       </body>
     </html>
