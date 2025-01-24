@@ -20,7 +20,7 @@ const PassesPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [currentMobileIndex, setCurrentMobileIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const cardsPerPage = 4;
+  const cardsPerPage = 3;
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -66,111 +66,112 @@ const PassesPage = () => {
   const currentMobileProfile = profiles[currentMobileIndex];
 
   return (
-    <div className='bg-[#1A1D1F] relative min-h-[100vh] pb-[70px] md:pb-0'>
-      <div className='absolute top-[160px] right-4'>
-        <div className='bg-green-500 text-white px-6 py-2 rounded-lg text-sm'>
-          All passes are free on this first release
-        </div>
-      </div>
+    <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
-      <div className='flex justify-center items-center mt-10'>
-        <div className='flex items-center p-3 justify-center font-bold my-5 text-[2.8rem] text-gray-200'>
-          <p>Mint Exclusive Passes</p>
+      
+      {/* Hero Section */}
+      <div className='container mx-auto px-4 pt-20 pb-32'>
+        <div className='max-w-4xl mx-auto text-center space-y-6'>
+          <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+            Exclusive Creator Passes
+          </h1>
+          <p className='text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto'>
+            Get unlimited access to premium content and unique experiences from your favorite creators.
+          </p>
+          <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
+            All passes are free during initial release
+          </div>
         </div>
       </div>
 
-      <div className='flex items-center justify-center md:my-14 my-10 md:gap-x-10 gap-x-4'>
+      {/* Cards Section */}
+      <div className='relative max-w-6xl mx-auto px-4 -mt-20'>
         {loading ? (
-          <div className="text-white text-xl">Loading passes...</div>
+          <div className='flex justify-center items-center py-20'>
+            <div className='text-white text-xl animate-pulse'>Loading passes...</div>
+          </div>
         ) : profiles.length === 0 ? (
-          <div className="text-white text-xl">No passes available</div>
+          <div className='text-white text-xl text-center py-20'>No passes available</div>
         ) : (
-          <>
+          <div className='flex items-center justify-center gap-6'>
             <button
               onClick={handlePrevious}
-              className='hover:scale-110 transition-transform'
+              className='text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
             >
-              <FaArrowAltCircleLeft className='md:text-[2.5rem] text-[1.2rem] mb-4 text-white' />
+              <FaArrowAltCircleLeft className='text-3xl' />
             </button>
 
             {/* Mobile View */}
             <div className='md:hidden'>
               {currentMobileProfile && (
-                <div className='flex flex-col justify-center items-center my-10'>
-                  <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
-                    <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-                      <Image height={30} width={30} src='/sol.png' alt='sol' />
-                      <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Access Card</p>
-                    </div>
-                    <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-                      <Image src='/whiteLogo.png' alt='logo' height={10} width={70} />
-                      <div className='w-[180px] h-[80px] relative'>
-                        <Image 
-                          src={currentMobileProfile.profileImage || '/smile.jpg'} 
-                          className='rounded-md'
-                          fill
-                          style={{objectFit: 'cover'}}
-                          alt='profile'
-                        />
-                      </div>
-                      <div className='flex items-center gap-x-4'>
-                        <RiHeart2Line className='text-white' />
-                        <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>{currentMobileProfile.username}</p>
-                        <RiHeart2Line className='text-white' />
-                      </div>
-                    </div>
-                  </div>
-                  <button disabled className='bg-gray-500 cursor-not-allowed flex items-center gap-x-4 text-[0.8rem] font-bold border-black border-[1px] text-white px-4 py-2 mt-4'><RiNftFill size={25} />Mint NFT</button>
+                <div className='transform hover:scale-105 transition-all duration-300'>
+                  <AccessCard
+                    image={currentMobileProfile.profileImage || '/smile.jpg'}
+                    name={currentMobileProfile.username}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600"
+                  />
                 </div>
               )}
             </div>
 
-            {/* Desktop/Tablet View */}
-            <div className='hidden md:flex gap-x-8'>
+            {/* Desktop View */}
+            <div className='hidden md:flex gap-6'>
               {getCurrentPageProfiles().map((profile, index) => (
-                <div key={index} className='flex flex-col justify-center items-center my-10'>
-                  <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
-                    <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-                      <Image height={30} width={30} src='/sol.png' alt='sol' />
-                      <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Access Card</p>
-                    </div>
-                    <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-                      <Image src='/whiteLogo.png' alt='logo' height={10} width={70} />
-                      <div className='w-[180px] h-[80px] relative'>
-                        <Image 
-                          src={profile.profileImage || '/smile.jpg'} 
-                          className='rounded-md'
-                          fill
-                          style={{objectFit: 'cover'}}
-                          alt='profile'
-                        />
-                      </div>
-                      <div className='flex items-center gap-x-4'>
-                        <RiHeart2Line className='text-white' />
-                        <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>{profile.username}</p>
-                        <RiHeart2Line className='text-white' />
-                      </div>
-                    </div>
-                  </div>
-                  <button disabled className='bg-gray-500 cursor-not-allowed flex items-center gap-x-4 text-[0.8rem] font-bold border-black border-[1px] text-white px-4 py-2 mt-4'><RiNftFill size={25} />Mint NFT</button>
+                <div 
+                  key={index}
+                  className={`transform transition-all duration-300 ${
+                    index === 1 ? 'scale-105 hover:scale-110 z-10' : 'hover:scale-105'
+                  }`}
+                >
+                  <AccessCard
+                    image={profile.profileImage || '/smile.jpg'}
+                    name={profile.username}
+                    className={index === 1 
+                      ? "bg-gradient-to-r from-blue-500 to-purple-600"
+                      : "bg-gradient-to-r from-blue-400 to-purple-500"
+                    }
+                  />
                 </div>
               ))}
             </div>
 
             <button
               onClick={handleNext}
-              className='hover:scale-110 transition-transform'
+              className='text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= (window.innerWidth >= 768 ? cardsPerPage : 1)}
             >
-              <FaArrowAltCircleRight className='md:text-[2.5rem] text-[1.2rem] mt-4 text-white' />
+              <FaArrowAltCircleRight className='text-3xl' />
             </button>
-          </>
+          </div>
         )}
       </div>
+
       <Footer />
     </div>
   )
 }
+
+const AccessCard = ({ image, name, className }: { image: string, name: string, className: string }) => (
+  <div className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl ${className}`}>
+    <div className='p-6 text-center'>
+      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
+      <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
+    </div>
+    <div className='bg-slate-800 p-6 space-y-4'>
+      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
+      <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
+      <div className='flex items-center justify-center gap-3'>
+        <RiHeart2Line className='text-white' />
+        <p className='font-mono text-white font-bold'>{name}</p>
+        <RiHeart2Line className='text-white' />
+      </div>
+      <button disabled className='w-full bg-gray-700/50 text-gray-300 py-3 rounded-xl font-medium flex items-center justify-center gap-2 cursor-not-allowed'>
+        <RiNftFill className="text-xl" />
+        Mint NFT
+      </button>
+    </div>
+  </div>
+)
 
 export default PassesPage

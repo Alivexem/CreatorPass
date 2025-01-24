@@ -54,14 +54,15 @@ const CreatorsPage = () => {
   const currentProfile = profiles[currentIndex];
 
   return (
-    <div className='bg-[#1A1D1F] pb-[100px] md:pb-0'>
+    <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
-      <div className='flex justify-center items-center mt-10'>
-      <div className='flex justify-center items-center mt-10'>
-      <div className='flex items-center justify-center font-bold my-5 text-center text-[2.8rem] text-gray-200'>
-          <p>Meet Your Favourite Creators</p>
+      
+      <div className='container mx-auto px-4 pt-20'>
+        <div className='max-w-4xl mx-auto text-center space-y-6'>
+          <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+            Meet Your Favourite Creators
+          </h1>
         </div>
-      </div>
       </div>
 
       {loading ? (
@@ -69,84 +70,90 @@ const CreatorsPage = () => {
           <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
         </div>
       ) : (
-        <div className='flex justify-center md:gap-x-10 gap-x-5 items-center my-10 mt-14'>
-          <button 
-            onClick={handlePrevious}
-            className='hover:scale-110 transition-transform'
-            disabled={profiles.length <= 1}
-          >
-            <FaArrowAltCircleLeft className='md:text-[2.5rem] text-[1.2rem] mb-4 text-white' />
-          </button>
+        <div className='relative max-w-6xl mx-auto px-4 py-20'>
+          <div className='flex items-center justify-center gap-8'>
+            <button 
+              onClick={handlePrevious}
+              className='text-white/50 hover:text-white transition-colors'
+              disabled={profiles.length <= 1}
+            >
+              <FaArrowAltCircleLeft className='text-3xl' />
+            </button>
 
-          {currentProfile && (
-            <Link href={`/creator/${currentProfile.address}`}>
-              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#e7f0f5] via-[#dfeef7] to-[#e7f0f5] h-[350px] w-[250px] md:w-[350px] md:h-[500px]'>
-                <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-                  <Image src='/whiteLogo.png' alt='logo' height={10} width={100} />
-                  <div className='relative h-[70px] w-[150px] md:w-[250px] md:h-[120px]'>
+            {currentProfile && (
+              <Link href={`/creator/${currentProfile.address}`}>
+                <div className='w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-500 to-purple-600 transform hover:scale-105 transition-all duration-300'>
+                  <div className='p-6 text-center'>
+                    <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
+                    <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
+                  </div>
+                  <div className='bg-slate-800 p-6 space-y-4'>
+                    <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
                     <Image 
                       src={currentProfile.profileImage || '/smile.jpg'} 
-                      className='rounded-md'
-                      fill
-                      style={{objectFit: 'cover'}}
+                      className='rounded-lg w-full h-48 object-cover' 
+                      height={70} 
+                      width={150} 
                       alt='profile' 
                     />
-                  </div>
-                  <div className='flex items-center gap-x-4'>
-                    <RiHeart2Line className='text-white' />
-                    <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>
-                      {currentProfile.username}
-                    </p>
-                    <RiHeart2Line className='text-white' />
+                    <div className='flex items-center justify-center gap-3'>
+                      <RiHeart2Line className='text-white' />
+                      <p className='font-mono text-white font-bold'>{currentProfile.username}</p>
+                      <RiHeart2Line className='text-white' />
+                    </div>
+                    <p className='text-gray-300 text-center text-sm'>{currentProfile.about}</p>
                   </div>
                 </div>
-                <div className='h-[30%] flex-col w-[100%] bg-gray-800 mt-4 rounded-lg flex justify-center items-center text-white'>
-                  <FaFire />
-                  <p className='text-center text-[0.9rem] p-3'>{currentProfile.about}</p>
-                </div>
-              </div>
-            </Link>
-          )}
+              </Link>
+            )}
 
-          <button 
-            onClick={handleNext}
-            className='hover:scale-110 transition-transform'
-            disabled={profiles.length <= 1}
-          >
-            <FaArrowAltCircleRight className='md:text-[2.5rem] text-[1.2rem] mt-4 text-white' />
-          </button>
+            <button 
+              onClick={handleNext}
+              className='text-white/50 hover:text-white transition-colors'
+              disabled={profiles.length <= 1}
+            >
+              <FaArrowAltCircleRight className='text-3xl' />
+            </button>
+          </div>
         </div>
       )}
 
-      <div className='flex flex-col space-y-4 md:flex-row justify-evenly items-center text-white text-[1.4rem]'>
-              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
-                <FaUnlockKeyhole />
-                <p className='text-center'>Access Fun Creators
-                </p>
-              </div>
-              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
-                <FaBridgeCircleCheck />
-                <p className='text-center'>
-                  View Exclusive Contents
-                </p>
-              </div>
-              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl hidden md:flex justify-center items-center flex-col'>
-                 <SiFueler />
-                <p className='text-center'>
-                  Mint NFT Passes
-                </p>
-              </div>
-              <div className='bg-[#1f2225] border-[4px] border-[#823ac5] h-[250px] w-[300px] gap-y-4 rounded-xl lg:flex hidden justify-center items-center flex-col'>
-                <RiVipCrown2Fill />
-                <p className='text-center'>
-                  Engage and have fun     
-                </p>
-              </div>
-            </div>
+      <div className='container mx-auto px-4 pb-32'>
+        <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
+          <FeatureCard
+            icon={<FaUnlockKeyhole className="text-4xl" />}
+            title="Access Fun Creators"
+            description="Connect with your favorite content creators"
+          />
+          <FeatureCard
+            icon={<FaBridgeCircleCheck className="text-4xl" />}
+            title="View Exclusive Content"
+            description="Get access to unique and exclusive content"
+          />
+          <FeatureCard
+            icon={<SiFueler className="text-4xl" />}
+            title="Mint NFT Passes"
+            description="Collect unique NFT passes from creators"
+          />
+          <FeatureCard
+            icon={<RiVipCrown2Fill className="text-4xl" />}
+            title="Engage and Have Fun"
+            description="Interact and enjoy special experiences"
+          />
+        </div>
+      </div>
 
       <Footer />
     </div>
   );
 };
+
+const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => (
+  <div className='bg-[#232629] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
+    <div className='text-blue-400 mb-4'>{icon}</div>
+    <h3 className='text-xl font-bold text-white mb-2'>{title}</h3>
+    <p className='text-gray-300'>{description}</p>
+  </div>
+)
 
 export default CreatorsPage;

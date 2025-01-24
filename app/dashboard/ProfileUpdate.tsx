@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react';
-import { FaImages } from "react-icons/fa6";
+import { FaImages, FaUser, FaGlobe, FaPen } from "react-icons/fa";
 import { TiRefresh } from "react-icons/ti";
 import Image from 'next/image';
 
@@ -96,7 +96,6 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   };
 
   useEffect(() => {
-    // Fetch existing profile data
     const fetchProfile = async () => {
       const address = localStorage.getItem('address');
       if (!address) return;
@@ -122,7 +121,6 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create preview URL for immediate display
     setSelectedImagePreview(URL.createObjectURL(file));
     setLoading(true);
 
@@ -151,91 +149,115 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col mb-[40px] space-y-5 justify-center items-center w-full px-[5%] md:px-0'>
-     <div className='flex p-5 justify-start md:justify-start items-start w-full md:w-auto'>
-       <p className='text-white text-[1.5rem] md:text-[2rem] font-bold mt-0'>Update profile</p>
-     </div>
-      <div className='flex items-center gap-x-4 w-[90%] md:w-auto justify-center'>
-        <div 
-          className='h-[250px] md:h-[300px] w-[280px] md:w-[350px] bg-gray-600 rounded-lg flex justify-center items-center cursor-pointer relative p-4'
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {selectedImagePreview || profileImage ? (
-            <div className='relative h-full w-full'>
-              <Image 
-                src={selectedImagePreview || profileImage} 
-                alt="Profile" 
-                fill
-                sizes="(max-width: 350px) 100vw"
-                priority
-                className="rounded-lg object-cover"
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="bg-[#272B30] rounded-2xl p-8 shadow-xl">
+        <h1 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+          Profile Settings
+          <FaUser className="text-purple-500" />
+        </h1>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            {/* Profile Image Section */}
+            <div className="w-full md:w-1/3">
+              <div 
+                className="relative group cursor-pointer rounded-xl overflow-hidden bg-gradient-to-r from-purple-500/20 to-blue-500/20 aspect-square"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {selectedImagePreview || profileImage ? (
+                  <Image 
+                    src={selectedImagePreview || profileImage} 
+                    alt="Profile" 
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center">
+                    <FaImages className="text-4xl text-gray-400" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <TiRefresh className="text-3xl text-white" />
+                </div>
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
               />
+              {errors.image && <p className="text-red-400 text-sm mt-2">{errors.image}</p>}
             </div>
-          ) : (
-            <div className='border-dashed h-[180px] md:h-[230px] w-[220px] md:w-[280px] border-[1px] border-gray-200 rounded-lg flex text-white justify-center items-center'>
-              <FaImages size={30} />
+
+            {/* Form Fields */}
+            <div className="flex-1 space-y-6 w-full">
+              <div>
+                <label className="block text-gray-400 mb-2">Username</label>
+                <div className="relative">
+                  <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input 
+                    type="text" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className={`w-full bg-[#1A1D1F] text-white pl-10 pr-4 py-3 rounded-lg border ${errors.username ? 'border-red-500' : 'border-gray-700'} focus:border-purple-500 focus:outline-none`}
+                    placeholder="Enter your username" 
+                  />
+                </div>
+                {errors.username && <p className="text-red-400 text-sm mt-1">{errors.username}</p>}
+              </div>
+
+              <div>
+                <label className="block text-gray-400 mb-2">Country</label>
+                <div className="relative">
+                  <FaGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input 
+                    type="text" 
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className={`w-full bg-[#1A1D1F] text-white pl-10 pr-4 py-3 rounded-lg border ${errors.country ? 'border-red-500' : 'border-gray-700'} focus:border-purple-500 focus:outline-none`}
+                    placeholder="Enter your country" 
+                  />
+                </div>
+                {errors.country && <p className="text-red-400 text-sm mt-1">{errors.country}</p>}
+              </div>
+
+              <div>
+                <label className="block text-gray-400 mb-2">About</label>
+                <div className="relative">
+                  <FaPen className="absolute left-3 top-3 text-gray-400" />
+                  <textarea 
+                    value={about}
+                    onChange={(e) => setAbout(e.target.value)}
+                    className={`w-full bg-[#1A1D1F] text-white pl-10 pr-4 py-3 rounded-lg border ${errors.about ? 'border-red-500' : 'border-gray-700'} focus:border-purple-500 focus:outline-none`}
+                    placeholder="Tell other creators about yourself" 
+                    rows={4}
+                  />
+                </div>
+                {errors.about && <p className="text-red-400 text-sm mt-1">{errors.about}</p>}
+              </div>
             </div>
-          )}
-        </div>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-          accept="image/*"
-          className="hidden"
-        />
-        <button 
-          type="button" 
-          onClick={() => fileInputRef.current?.click()}
-          className='bg-orange-500 flex items-center gap-x-2 text-white py-3 mt-5 rounded-lg px-3'
-        >
-          <TiRefresh size={20} /><p className='hidden md:block'>Edit image</p>
-        </button>
-        {errors.image && <p className="text-red-500 text-sm">{errors.image}</p>}
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <button 
+              type="submit"
+              disabled={loading}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <span className="animate-spin">⟳</span>
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
-      <div className="w-[90%] md:w-[500px] space-y-4">
-        <div>
-          <input 
-            type="text" 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={`h-[50px] p-5 text-black rounded-lg w-full ${errors.username ? 'border-red-500' : ''}`}
-            placeholder='Username *' 
-          />
-          {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
-        </div>
-
-        <div>
-          <input 
-            type="text" 
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className={`h-[50px] text-black p-5 rounded-lg w-full ${errors.country ? 'border-red-500' : ''}`}
-            placeholder='Country of origin *' 
-          />
-          {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
-        </div>
-
-        <div>
-          <textarea 
-            value={about}
-            onChange={(e) => setAbout(e.target.value)}
-            className={`p-5 text-black rounded-lg w-full h-[150px] md:h-auto ${errors.about ? 'border-red-500' : ''}`}
-            placeholder='Tell other Creators about you *' 
-            rows={8}
-          />
-          {errors.about && <p className="text-red-500 text-sm">{errors.about}</p>}
-        </div>
-      </div>
-
-      <button 
-        type="submit"
-        disabled={loading}
-        className='h-[40px] w-[150px] bg-green-500 text-white rounded-lg mt-5 disabled:bg-gray-400 hover:bg-green-600 transition-colors'
-      >
-        {loading ? 'Saving...' : 'Save'}
-      </button>
-    </form>
+    </div>
   );
 };
 

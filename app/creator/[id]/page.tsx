@@ -14,15 +14,6 @@ import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect, PublicKe
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { FaCar } from "react-icons/fa";
 
-
-
-
-// import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
-// import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
-// import type { Provider } from '@reown/appkit-adapter-solana/react';
-
-
-
 interface Post {
     _id: string;
     username: string;
@@ -61,29 +52,26 @@ const CreatorPage = ({ params }: PageProps) => {
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
     const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
     const [isCommenting, setIsCommenting] = useState<{ [key: string]: boolean }>({});
-    const [giftAmount, setGiftAmount] = useState(0); 
+    const [giftAmount, setGiftAmount] = useState(0);
     const [selectedGift, setSelectedGift] = useState({
-        flower: 20000000, // 0.02 SOL
-        car: 100000000,   // 0.1 SOL
-        house: 1000000000 // 1 SOL
+        flower: 20000000,
+        car: 100000000,
+        house: 1000000000
     });
     const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'error'}>({
         show: false,
         message: '',
         type: 'success'
     });
-
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const { isConnected, address } = useAppKitAccount();
     const { connection } = useAppKitConnection();
     const { walletProvider } = useAppKitProvider<Provider>('solana');
 
-
-    // function to send a TX
     const handleSendTx = async (amount: number, receiver: string) => {
         try {
             const lamports = amount;
-            
             const latestBlockhash = connection ? await connection.getLatestBlockhash() : null;
             const walletAddress = localStorage.getItem('address') || '';
 
@@ -130,7 +118,6 @@ const CreatorPage = ({ params }: PageProps) => {
             try {
                 const myAddress = localStorage.getItem('address') || '';
 
-                // Fetch creator's profile
                 const profileRes = await fetch(`/api/profile?address=${id}`);
                 const profileData = await profileRes.json();
 
@@ -138,16 +125,13 @@ const CreatorPage = ({ params }: PageProps) => {
                     setProfile(profileData.profile);
                 }
 
-                // Fetch all posts
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
 
-                // Filter posts for this creator
                 const creatorPosts = postsData.creator.filter((post: Post) =>
                     post.username === id
                 );
 
-                // Initialize likes state for each post
                 const initialLikes: { [key: string]: number } = {};
                 const initialHasLiked: { [key: string]: boolean } = {};
 
@@ -274,7 +258,6 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className='bg-[#1A1D1F] pb-[80px] md:pb-0'>
             <NavBar />
-            {/* Toast Notification */}
             {toast.show && (
                 <div 
                     className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
@@ -287,8 +270,8 @@ const CreatorPage = ({ params }: PageProps) => {
             <div className='mt-[80px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
                 {posts.map((post) => (
-                    <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
-                        <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
+                    <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
+                        <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
                                     <Image
@@ -299,24 +282,27 @@ const CreatorPage = ({ params }: PageProps) => {
                                         className='rounded-lg'
                                     />
                                 </div>
-                                <p className='text-[1.1rem]'>{profile?.username || 'Anonymous'}</p>
+                                <p className='text-[1.1rem] font-medium'>{profile?.username || 'Anonymous'}</p>
                             </div>
                             <div className='flex items-center gap-x-2'>
                                 <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                                <p className='hidden md:block'>{censorAddress(post.username)}</p>
+                                <p className='hidden md:block text-gray-400'>{censorAddress(post.username)}</p>
                             </div>
                         </div>
-                        <div className='flex-start px-10 mt-5 text-white'>
+                        <div className='px-10 mt-5 text-gray-200'>
                             <p className='text-left'>{post.note}</p>
                         </div>
                         {post.image && (
                             <div className='flex justify-center w-[100%] items-center'>
-                                <div className='relative md:h-[350px] h-[300px] w-[95%] mt-7'>
+                                <div 
+                                    className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
+                                    onClick={() => setSelectedImage(post.image)}
+                                >
                                     <Image
                                         src={post.image}
                                         fill
                                         style={{ objectFit: 'cover' }}
-                                        className='rounded-lg border-[1px] border-gray-400'
+                                        className='rounded-lg shadow-md'
                                         alt='post image'
                                     />
                                 </div>
@@ -325,10 +311,10 @@ const CreatorPage = ({ params }: PageProps) => {
                         <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
                             <button
                                 onClick={() => handleLike(post._id)}
-                                className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                                className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                             >
                                 <IoHeartHalf
-                                    className={`text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : 'text-white'}`}
+                                    className={`text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : ''}`}
                                 />
                                 <p>{likes[post._id] || post.likeCount || 0} likes</p>
                             </button>
@@ -337,20 +323,20 @@ const CreatorPage = ({ params }: PageProps) => {
                                     ...prev,
                                     [post._id]: !prev[post._id]
                                 }))}
-                                className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                                className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                             >
                                 <FaCommentMedical className='text-[1.7rem]' />
                                 <p>{post.comments?.length || 0} comments</p>
                             </button>
                             <button
                                 onClick={() => setShowGiftModal(true)}
-                                className='bg-blue-700 text-[1rem] h-[40px] w-auto p-3 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
+                                className='bg-gradient-to-r from-purple-600 to-blue-600 text-[1rem] h-[40px] w-auto p-3 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
                             >
                                 <FaGift className='text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
                             </button>
                         </div>
                         {showComments[post._id] && (
-                            <div className='px-10 py-5 border-t border-gray-700 transition-all duration-300'>
+                            <div className='px-10 py-5 border-t border-gray-800 transition-all duration-300'>
                                 <form onSubmit={(e) => handleComment(e, post._id)} className='mb-4'>
                                     <input
                                         type="text"
@@ -360,11 +346,11 @@ const CreatorPage = ({ params }: PageProps) => {
                                             [post._id]: e.target.value
                                         }))}
                                         placeholder="Add a comment..."
-                                        className='w-full bg-[#272B30] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
+                                        className='w-full bg-[#1A1D1F] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
                                     />
                                     <button
                                         type="submit"
-                                        className='w-full mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors'
+                                        className='w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity'
                                         disabled={isCommenting[post._id]}
                                     >
                                         {isCommenting[post._id] ? 'Posting comment...' : 'Comment'}
@@ -377,9 +363,9 @@ const CreatorPage = ({ params }: PageProps) => {
                                             new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime()
                                         )
                                         .map((comment, idx) => (
-                                            <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
+                                            <div key={idx} className='bg-[#1A1D1F] p-3 rounded-lg'>
                                                 <p className='text-gray-400'>{censorAddress(comment.address)}</p>
-                                                <p className='text-white'>{comment.comment}</p>
+                                                <p className='text-gray-200'>{comment.comment}</p>
                                             </div>
                                         ))}
                                 </div>
@@ -387,11 +373,11 @@ const CreatorPage = ({ params }: PageProps) => {
                         )}
 
                         {showGiftModal && (
-                            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-                                <div className='bg-[#272B30] rounded-lg p-6 md:w-[400px] w-[95%] relative'>
+                            <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
+                                <div className='bg-[#1A1D1F] rounded-lg p-6 md:w-[400px] w-[95%] relative shadow-xl'>
                                     <button
                                         onClick={() => setShowGiftModal(false)}
-                                        className='absolute top-4 right-4 text-white hover:text-gray-300'
+                                        className='absolute top-4 right-4 text-gray-400 hover:text-white transition-colors'
                                     >
                                         <IoMdClose size={24} />
                                     </button>
@@ -400,14 +386,14 @@ const CreatorPage = ({ params }: PageProps) => {
 
                                     <div className='space-y-4'>
                                         <div className='flex flex-col gap-y-2'>
-                                            <p className='text-gray-300 text-sm'>This creator address can receive SOL:</p>
+                                            <p className='text-gray-400 text-sm'>This creator address can receive SOL:</p>
                                             <div className='flex items-center gap-x-2'>
-                                                <p className='text-white font-mono bg-[#1A1D1F] p-2 rounded flex-1 overflow-x-auto'>
+                                                <p className='text-gray-200 font-mono bg-[#111315] p-2 rounded flex-1 overflow-x-auto'>
                                                     {id}
                                                 </p>
                                                 <button
                                                     onClick={handleCopyAddress}
-                                                    className='bg-blue-600 p-2 rounded hover:bg-blue-700 transition-colors'
+                                                    className='bg-gradient-to-r from-purple-600 to-blue-600 p-2 rounded hover:opacity-90 transition-opacity'
                                                 >
                                                     <FaCopy className='text-white' />
                                                 </button>
@@ -418,55 +404,51 @@ const CreatorPage = ({ params }: PageProps) => {
                                         </div>
                                        
                                         <div className='text-center text-gray-400 text-sm'>Send SOL directly to this creator</div>
-                                       <div className='flex my-2 items-center justify-center gap-x-5'>
-                                       <button 
-                                            onClick={() => {
-                                                setGiftAmount(selectedGift.flower);
-                                                handleSendTx(selectedGift.flower, id);
-                                            }} 
-                                            className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
-                                        >
-                                             <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
-                                            <GiFlowerPot className='text-[1rem]' />
-                                            <p className='text-[0.8rem]'>Send flower</p>
-                                        </button>
+                                        <div className='flex my-2 items-center justify-center gap-x-8'>
+                                            <button 
+                                                onClick={() => {
+                                                    setGiftAmount(selectedGift.flower);
+                                                    handleSendTx(selectedGift.flower, id);
+                                                }} 
+                                                className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 transition-opacity'
+                                            >
+                                                <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
+                                                <GiFlowerPot className='text-[1.5rem]' />
+                                                <p className='text-[0.8rem]'>Send flower</p>
+                                            </button>
 
-                                        <button 
-                                            onClick={() => {
-                                                setGiftAmount(selectedGift.car);
-                                                handleSendTx(selectedGift.car, id);
-                                            }} 
-                                            className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
-                                        >
-                                             <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
-                                            <FaCar className='text-[1rem]' />
-                                            <p className='text-[0.8rem]'>Send car</p>
-                                        </button>
+                                            <button 
+                                                onClick={() => {
+                                                    setGiftAmount(selectedGift.car);
+                                                    handleSendTx(selectedGift.car, id);
+                                                }} 
+                                                className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 transition-opacity'
+                                            >
+                                                <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
+                                                <FaCar className='text-[1.5rem]' />
+                                                <p className='text-[0.8rem]'>Send car</p>
+                                            </button>
 
-                                        <button 
-                                            onClick={() => {
-                                                setGiftAmount(selectedGift.house);
-                                                handleSendTx(selectedGift.house, id);
-                                            }} 
-                                            className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors'
-                                        >
-                                             <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
-                                            <FaLaptopHouse className='text-[1rem]' />
-                                            <p className='text-[0.8rem]'>Send house</p>
-                                        </button>
-                                     
-                                       </div>
-                                        
+                                            <button 
+                                                onClick={() => {
+                                                    setGiftAmount(selectedGift.house);
+                                                    handleSendTx(selectedGift.house, id);
+                                                }} 
+                                                className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 transition-opacity'
+                                            >
+                                                <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
+                                                <FaLaptopHouse className='text-[1.5rem]' />
+                                                <p className='text-[0.8rem]'>Send house</p>
+                                            </button>
+                                        </div>
 
                                         <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
                                         <button
                                             onClick={handleGift}
-                                            className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full'
+                                            className='bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
                                         >
                                             BUY SOL
                                         </button>
-
-
                                     </div>
                                 </div>
                             </div>
@@ -474,6 +456,26 @@ const CreatorPage = ({ params }: PageProps) => {
                     </div>
                 ))}
             </div>
+
+            {selectedImage && (
+                <div className='fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50'>
+                    <button
+                        onClick={() => setSelectedImage(null)}
+                        className='absolute top-4 right-4 text-gray-400 hover:text-white transition-colors'
+                    >
+                        <IoMdClose size={30} />
+                    </button>
+                    <div className='relative w-[90vw] h-[90vh]'>
+                        <Image
+                            src={selectedImage}
+                            fill
+                            style={{ objectFit: 'contain' }}
+                            alt='full size image'
+                        />
+                    </div>
+                </div>
+            )}
+
             <Footer />
         </div>
     );
