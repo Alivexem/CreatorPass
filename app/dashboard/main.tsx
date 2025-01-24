@@ -1,17 +1,13 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { FaRegCheckCircle } from "react-icons/fa";
-import { SiThefinals } from "react-icons/si";
-import { SiSolana } from "react-icons/si";
-import { FaDatabase } from "react-icons/fa";
+import { FaRegCheckCircle, FaDatabase, FaClock } from "react-icons/fa";
+import { SiThefinals, SiSolana } from "react-icons/si";
 import { MdDeleteForever } from "react-icons/md";
 import { RiHeart2Line } from "react-icons/ri";
-import { FaClock } from "react-icons/fa6";
-import { FaImages } from "react-icons/fa6";
+import { IoTicketSharp } from "react-icons/io5";
 import Content from './Content';
-import { TiRefresh } from "react-icons/ti";
-import ProfileUpdate from './ProfileUpdate'; // Import ProfileUpdate
+import ProfileUpdate from './ProfileUpdate';
 
 interface MainbarProps {
   showContent: boolean;
@@ -28,6 +24,7 @@ interface Profile {
 const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showNftToast, setShowNftToast] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -37,7 +34,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
 
         const res = await fetch(`/api/profile?address=${address}`);
         const data = await res.json();
-        
+
         if (data.profile) {
           setProfile(data.profile);
         }
@@ -51,112 +48,149 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
     fetchProfile();
   }, []);
 
+  const handleNftClick = () => {
+    setShowNftToast(true);
+    setTimeout(() => setShowNftToast(false), 3000);
+  };
+
   return (
-    <div className='bg-[#1A1D1F] pb-[100px] md:pb-4 p-4 w-[100%] h-auto overflow-hidden flex justify-start items-center flex-col'>
-      <div className='text-center font-bold pt-[30px] mb-[45px] flex justify-center items-center flex-col'>
-        <div className='flex flex-col items-center text-[2.8rem] text-purple-500 md:justify-center'>
-          <div className='flex items-center'>
-            <p className='pl-4 md:pl-0'>Manage Contents</p>
-            <FaDatabase className='mx-3' />
-          </div>
-          <p>And NFTs</p>
+    <div className='bg-[#1A1D1F] min-h-screen pb-[100px] md:pb-4'>
+      {/* NFT Toast */}
+      {showNftToast && (
+        <div className='fixed top-5 right-5 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in'>
+          <p>NFT passes will be available on next update after MVP! 🚀</p>
         </div>
-      </div>
+      )}
 
       {!showContent && !showProfile && (
-        <>
-          <div className='flex space-y-4 flex-col md:flex-row gap-x-10 justify-center items-center'>
-            <div className='w-[237px] bg-[#272B30] h-[200px] rounded-[25px] flex justify-center items-center'>
-              <div className='flex justify-center items-center flex-col text-white gap-y-2'>
-                <SiSolana className='text-[1.7rem]' />
-                <p className='text-[1.3rem]'>Total passes sold</p>
-                <p className='text-[16px] font-medium'>coming soon</p>
-              </div>
-            </div>
-            <div className='w-[237px] bg-[#272B30] h-[200px] rounded-[25px] flex justify-center items-center'>
-              <div className='flex justify-center items-center flex-col text-white gap-y-2'>
-                <SiSolana className='text-[1.7rem]' />
-                <p className='text-[1.3rem]'>Revenue Generated</p>
-                <p className='text-[16px] font-medium'>coming soon</p>
-              </div>
-            </div>
-            <div className='w-[237px] bg-[#272B30] h-[200px] rounded-[25px] flex justify-center items-center'>
-              <div className='flex justify-center items-center flex-col text-white gap-y-2'>
-                <SiSolana className='text-[1.7rem]' />
-                <p className='text-[1.3rem]'>Top selling pass</p>
-                <p className='text-[16px] font-medium'>coming soon</p>
-              </div>
-            </div>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+          {/* Header */}
+          <div className='mb-10'>
+            <h1 className='text-4xl font-bold text-purple-500 flex items-center gap-3'>
+              Creator Dashboard
+              <FaDatabase />
+            </h1>
+            <p className='text-gray-400 mt-2'>Manage your content and NFT passes</p>
           </div>
-          <div className='my-[20px] h-auto w-[100%] p-2 flex space-y-4 flex-col md:flex-row justify-evenly items-center'>
-            <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
-              <div className='bg-green-200 h-[40px] w-[40px] rounded-full flex justify-center items-center'>
-                <SiThefinals size={22} className='text-green-800' />
-              </div>
-              <div>
-                <p className='text-[0.8rem] font-thin text-black'>Total Followers</p>
-                <p className='font-bold text-black'>coming soon</p>
-              </div>
-            </div>
-            <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
-              <div className='bg-yellow-300 h-[40px] w-[40px] rounded-full flex justify-center items-center'>
-                <FaClock size={22} className='text-yellow-600' />
-              </div>
-              <div>
-                <p className='text-[0.8rem] font-thin text-black'>Last posted</p>
-                <p className='font-bold text-black'>coming soon</p>
-              </div>
-            </div>
-            <div className='w-[237px] h-[80px] gap-x-2 bg-gray-200 rounded-2xl shadow-md p-3 flex items-center'>
-              <div className='bg-green-400 h-[40px] w-[40px] rounded-full flex justify-center items-center'>
-                <FaRegCheckCircle size={22} className='text-green-600' />
-              </div>
-              <div>
-                <p className='text-[0.8rem] font-thin text-black'>Passes owned</p>
-                <p className='font-bold text-black'>coming soon</p>
-              </div>
-            </div>
-          </div>
-          <div className='flex items-center justify-center gap-x-10'>
-            <div className='flex flex-col justify-center items-center my-10'>
-              <div className='flex relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-[1px] border-gray-800 from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[250px] h-[350px]'>
-                <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-                  <div className='relative w-[30px] h-[30px]'>
-                    <Image src='/sol.png' alt='sol' fill style={{objectFit: 'contain'}} />
+
+          <div className='grid lg:grid-cols-12 gap-8'>
+            {/* Left Column - Creator Card */}
+            <div className='lg:col-span-4 space-y-6'>
+              {/* Creator Pass Preview */}
+              <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl shadow-xl'>
+                <div className='bg-slate-800 rounded-xl p-4'>
+                  <div className='flex justify-between items-center mb-4'>
+                    <Image src='/sol.png' alt='sol' width={24} height={24} />
+                    <p className='text-white font-bold'>Access Card</p>
                   </div>
-                  <p className='bg-slate-800 p-2 rounded-xl text-white text-[1.2rem] font-bold mt-4'>Access Card</p>
-                </div>
-                <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-                  <div className='relative w-[70px] h-[10px] mb-2'>
-                    <Image src='/whiteLogo.png' alt='logo' fill style={{objectFit: 'contain'}} />
-                  </div>
-                  <div className='relative w-[180px] h-[80px]'>
-                    <Image 
-                      src={profile?.profileImage || '/smile.jpg'} 
-                      className='rounded-md'
+                  <div className='relative h-48 w-full mb-4'>
+                    <Image
+                      src={profile?.profileImage || '/emptProfile.jpg'}
                       fill
-                      style={{objectFit: 'cover'}}
-                      alt='profile' 
+                      className='rounded-lg object-cover'
+                      alt='profile'
                     />
                   </div>
-                  <div className='flex items-center gap-x-4'>
-                    <RiHeart2Line className='text-white' />
-                    <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4'>
-                      {profile?.username || 'Anonymous'}
-                    </p>
-                    <RiHeart2Line className='text-white' />
+                  <div className='flex items-center justify-between'>
+                    <Image src='/whiteLogo.png' alt='logo' width={60} height={20} />
+                    <p className='text-white font-mono'>{profile?.username || 'Anonymous'}</p>
                   </div>
                 </div>
               </div>
-              <button className='bg-gray-500 text-[0.8rem] cursor-not-allowed flex items-center gap-x-3 font-bold border-black border-[1px] text-white px-4 py-2 mt-4'>
-                <MdDeleteForever size={25} />Delete Pass
-              </button>
+
+              {/* Action Buttons */}
+              <div className='flex gap-4'>
+                <button
+                  onClick={handleNftClick}
+                  className='flex-1 bg-purple-600 hover:bg-purple-700 transition-all py-3 px-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2'
+                >
+                  <IoTicketSharp size={20} />
+                  Create Pass
+                </button>
+                <button
+                  className='flex-1 bg-gray-700 py-3 px-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2 cursor-not-allowed opacity-60'
+                >
+                  <MdDeleteForever size={20} />
+                  Delete Pass
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column - Stats */}
+            <div className='lg:col-span-8 space-y-6'>
+              {/* Main Stats */}
+              <div className='grid md:grid-cols-3 gap-6'>
+                {[
+                  {
+                    title: 'Total Passes',
+                    description: 'Track your NFT pass sales',
+                    icon: <SiSolana className='text-purple-500 text-2xl' />,
+                    bgColor: 'bg-purple-500/20'
+                  },
+                  {
+                    title: 'Revenue',
+                    description: 'Monitor your earnings',
+                    icon: <SiSolana className='text-green-500 text-2xl' />,
+                    bgColor: 'bg-green-500/20'
+                  },
+                  {
+                    title: 'Top Pass',
+                    description: 'Your best performing pass',
+                    icon: <SiSolana className='text-blue-500 text-2xl' />,
+                    bgColor: 'bg-blue-500/20'
+                  }
+                ].map((stat, index) => (
+                  <div key={index} className='bg-[#272B30] p-6 rounded-xl'>
+                    <div className='flex justify-between items-center mb-4'>
+                      <div className={`${stat.bgColor} p-3 rounded-lg`}>
+                        {stat.icon}
+                      </div>
+                      <span className='text-gray-400 text-sm'>Coming Soon</span>
+                    </div>
+                    <h3 className='text-white text-lg font-semibold'>{stat.title}</h3>
+                    <p className='text-gray-400 text-sm mt-2'>{stat.description}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Stats */}
+              <div className='grid md:grid-cols-3 gap-6'>
+                {[
+                  {
+                    title: 'Total Followers',
+                    icon: <SiThefinals className='text-green-800' />,
+                    bgColor: 'bg-green-200',
+                    iconBg: 'bg-green-200'
+                  },
+                  {
+                    title: 'Last Posted',
+                    icon: <FaClock className='text-yellow-600' />,
+                    bgColor: 'bg-yellow-100',
+                    iconBg: 'bg-yellow-300'
+                  },
+                  {
+                    title: 'Passes Owned',
+                    icon: <FaRegCheckCircle className='text-green-600' />,
+                    bgColor: 'bg-green-100',
+                    iconBg: 'bg-green-400'
+                  }
+                ].map((stat, index) => (
+                  <div key={index} 
+                    className={`${stat.bgColor} rounded-xl p-4 flex items-center gap-4`}
+                  >
+                    <div className={`${stat.iconBg} h-12 w-12 rounded-full flex items-center justify-center`}>
+                      {stat.icon}
+                    </div>
+                    <div>
+                      <p className='text-sm text-gray-600'>{stat.title}</p>
+                      <p className='font-bold text-gray-900'>coming soon</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className='flex justify-center items-center my-7 mb-[40px]'>
-            <button className='bg-gray-600 font-bold cursor-not-allowed text-white h-[55px] w-[200px] rounded-[15px]'>Create new pass</button>
-          </div>
-        </>
+        </div>
       )}
 
       {showContent && <Content setToast={setToast} />}

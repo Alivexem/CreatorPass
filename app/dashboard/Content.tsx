@@ -31,7 +31,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [note, setNote] = useState('');
     const [image, setimage] = useState('');
     const [loading, setLoading] = useState(false);
-    const [postText, setPostText] = useState('post');
+    const [postText, setPostText] = useState('Post');
     const [selectedImage, setSelectedImage] = useState<string>('');
     const [posts, setPosts] = useState<Post[]>([]);
     const [userProfile, setUserProfile] = useState<any>(null);
@@ -43,275 +43,91 @@ const Content = ({ setToast }: ContentProps) => {
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
     const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
     const [isCommentLoading, setIsCommentLoading] = useState<{ [key: string]: boolean }>({});
-  
-    const fetchPosts = async () => {
-      setIsLoadingPosts(true);
-      try {
-        const myAddress = localStorage.getItem('address') || '';
-        
-        // First get the user's profile
-        const profileResponse = await fetch(`/api/profile?address=${myAddress}`);
-        const profileData = await profileResponse.json();
-        
-        // Then fetch posts
-        const postsResponse = await fetch('/api');
-        const postsData = await postsResponse.json();
-        
-        // Filter posts to match the profile's address
-        const userPosts = postsData.creator.filter((post: any) => {
-          return post.username === profileData.profile?.address;
-        });
-        
-        // Initialize likes state for each post
-        const initialLikes: { [key: string]: number } = {};
-        const initialHasLiked: { [key: string]: boolean } = {};
-        
-        userPosts.forEach((post: Post) => {
-          initialLikes[post._id] = post.likeCount || 0;
-          initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
-        });
-
-        setPosts(userPosts);
-        setLikes(initialLikes);
-        setHasLiked(initialHasLiked);
-        
-        setUserProfile({
-          username: profileData.profile?.username || 'Anonymous',
-          address: profileData.profile?.address,
-          profilePic: profileData.profile?.profileImage || '/smile.jpg'
-        });
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoadingPosts(false);
-      }
-    };
-
-    useEffect(() => {
-      fetchPosts();
-    }, []);
-
-    const typing = (e:any) => {
-      setNote(e.target.value);
-    };
+    const [showImageModal, setShowImageModal] = useState(false);
+    const [modalImage, setModalImage] = useState('');
 
     const handleDelete = async (postId: string) => {
-      setPostToDelete(postId);
-      setShowDeleteModal(true);
+        setPostToDelete(postId);
+        setShowDeleteModal(true);
     };
 
     const confirmDelete = async () => {
-      try {
-        const res = await fetch(`/api/${postToDelete}`, {
-          method: 'DELETE',
-        });
-
-        if (!res.ok) {
-          throw new Error('Failed to delete post');
-        }
-
-        // Refresh posts after deletion
-        await fetchPosts();
-        setShowDeleteModal(false);
-        setPostToDelete(null);
-        setToast({
-          show: true,
-          message: 'Post deleted successfully!',
-          type: 'success'
-        });
-      } catch (error) {
-        console.error('Error deleting post:', error);
-        setToast({
-          show: true,
-          message: 'Failed to delete post. Please try again.',
-          type: 'error'
-        });
-      }
-    };
-  
-    const handleImageChange = async (e:any) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.readAsDataURL(file); 
-      setLoading(true);
-    
-      reader.onloadend = async () => {
-        const base64data = reader.result; 
-    
+        if (!postToDelete) return;
+        
         try {
-          const res = await fetch("/api/imageApi", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ data: base64data }), 
-          });
-
-          if (!res.ok) {
-            throw new Error(`Upload failed: ${res.status}`);
-          }
-
-          const data = await res.json();
-            setimage(data.url);
-          setSelectedImage(URL.createObjectURL(file));
+            const res = await fetch(`/api/${postToDelete}`, {
+                method: 'DELETE'
+            });
+            
+            if (res.ok) {
+                setPosts(posts.filter(post => post._id !== postToDelete));
+                setToast({
+                    show: true,
+                    message: 'Post deleted successfully',
+                    type: 'success'
+                });
+            }
         } catch (error) {
-          console.error('Error uploading image:', error);
-          setToast({
-            show: true,
-            message: 'Failed to upload image. Please try again.',
-            type: 'error'
-          });
+            setToast({
+                show: true,
+                message: 'Failed to delete post',
+                type: 'error'
+            });
         } finally {
-          setLoading(false);
+            setShowDeleteModal(false);
+            setPostToDelete(null);
         }
-      };
-    
-      reader.onerror = (error) => {
-        console.error("Error reading file:", error);
-        setToast({
-          show: true,
-          message: 'Error reading file. Please try again.',
-          type: 'error'
-        });
-        setLoading(false);
-      };
     };
-    
-    const handleSubmit = async (e:any) => {
-      e.preventDefault();
-      if (!note) {
-        setToast({
-          show: true,
-          message: 'Type a post before submitting!',
-          type: 'warning'
-        });
-        return;
-      }
-      
-      if (note.length > 300) {
-        setToast({
-          show: true,
-          message: 'Thread too long, make it concise! (300 letters maximum)',
-          type: 'warning'
-        });
-        return;
-      }
 
-      setPostText('Loading...');
-      const myAddress = localStorage.getItem('address');
-      
-      try {
-        // Get profile data first
-        const profileRes = await fetch(`/api/profile?address=${myAddress}`);
-        const profileData = await profileRes.json();
-        
-        if (!profileData.profile) {
-          throw new Error('Profile not found, setup your profile');
-        }
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-        const fullData = {
-          username: profileData.profile.address,
-          note: note.trim(),
-          image: image || ''
-        };
-        
-        console.log('Sending data:', fullData);
-        
-        const res = await fetch('/api', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(fullData)
-        });
+        setSelectedImage(URL.createObjectURL(file));
+        setLoading(true);
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        const data = await res.json();
-        console.log('Response:', data);
-
-        if (data.message === 'Post uploaded') {
-          setToast({
-            show: true,
-            message: 'Posted successfully!',
-            type: 'success'
-          });
-          setNote('');
-          setimage('');
-          setSelectedImage('');
-          setShowUploader(false);
-          
-          // Refresh posts
-          fetchPosts();
-        } else {
-          throw new Error(data.message || 'Failed to upload post');
-        }
-      } catch (error: any) {
-        console.error('Submission error:', error);
-        setToast({
-          show: true,
-          message: error.message || 'Failed to upload post, please try again',
-          type: 'error'
-        });
-      } finally {
-        setPostText('post');
-      }
-    };
-    
-    useEffect(() => {
-      // Cleanup function to revoke the object URL when component unmounts
-      // or when selectedImage changes
-      return () => {
-        if (selectedImage) {
-          URL.revokeObjectURL(selectedImage);
-        }
-      };
-    }, [selectedImage]);
-
-    const censorAddress = (address: string) => {
-      if (!address) return '';
-      const start = address.slice(0, 4);
-      const end = address.slice(-4);
-      return `${start}xxxxxxxx${end}`;
-    };
-    
-    const handleLike = async (postId: string) => {
         try {
-            const address = localStorage.getItem('address');
-            if (!address) return;
+            const formData = new FormData();
+            formData.append('file', file);
 
-            const res = await fetch(`/api/posts/${postId}/like`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address })
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
             });
 
-            if (!res.ok) {
-                throw new Error('Failed to update like');
-            }
+            if (!res.ok) throw new Error('Upload failed');
 
             const data = await res.json();
-            
-            // Update the posts state to reflect the new like count
-            setPosts(prevPosts => 
-                prevPosts.map(post => 
-                    post._id === postId 
-                        ? { ...post, likeCount: data.likeCount }
-                        : post
-                )
-            );
-
-            // Update likes count and hasLiked status using the new API response format
-            setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
-            setHasLiked(prev => ({ ...prev, [postId]: data.hasLiked }));
-            
+            setimage(data.imageUrl);
         } catch (error) {
-            console.error('Error updating like:', error);
+            console.error('Error uploading image:', error);
+            setToast({
+                show: true,
+                message: 'Failed to upload image',
+                type: 'error'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLike = async (postId: string) => {
+        try {
+            const res = await fetch(`/api/posts/${postId}/like`, {
+                method: 'POST'
+            });
+            if (res.ok) {
+                setHasLiked(prev => ({
+                    ...prev,
+                    [postId]: !prev[postId]
+                }));
+                setLikes(prev => ({
+                    ...prev,
+                    [postId]: prev[postId] ? prev[postId] - 1 : prev[postId] + 1
+                }));
+            }
+        } catch (error) {
+            console.error('Error liking post:', error);
         }
     };
 
@@ -319,54 +135,90 @@ const Content = ({ setToast }: ContentProps) => {
         e.preventDefault();
         if (!newComment[postId]?.trim()) return;
 
+        setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
+
         try {
-            const address = localStorage.getItem('address');
-            if (!address) return;
-
-            // Set loading state for this specific comment
-            setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
-
             const res = await fetch(`/api/posts/${postId}/comment`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    address, 
-                    comment: newComment[postId].trim() 
-                })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ comment: newComment[postId] })
             });
 
-            const data = await res.json();
-            setPosts(prevPosts => 
-                prevPosts.map(post => 
-                    post._id === postId 
-                        ? { ...post, comments: data.comments }
-                        : post
-                )
-            );
-            
-            setNewComment(prev => ({ ...prev, [postId]: '' }));
+            if (res.ok) {
+                const updatedPost = await res.json();
+                setPosts(prev => prev.map(post => 
+                    post._id === postId ? updatedPost : post
+                ));
+                setNewComment(prev => ({ ...prev, [postId]: '' }));
+            }
         } catch (error) {
-            console.error('Error adding comment:', error);
+            console.error('Error posting comment:', error);
         } finally {
-            // Clear loading state
             setIsCommentLoading(prev => ({ ...prev, [postId]: false }));
         }
     };
-    
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!note.trim() || loading) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ note, image })
+            });
+
+            if (res.ok) {
+                const newPost = await res.json();
+                setPosts(prev => [newPost, ...prev]);
+                setNote('');
+                setimage('');
+                setSelectedImage('');
+                setShowUploader(false);
+            }
+        } catch (error) {
+            console.error('Error creating post:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const censorAddress = (address: string) => {
+        if (!address) return '';
+        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    };
+
+    const typing = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setNote(e.target.value);
+    };
+
     return (
-        <div className='flex flex-col justify-center items-center mb-20 min-h-[100vh] bg-[#1A1D1F]'>
-            <div className='flex flex-col justify-center items-center mb-20 gap-y-7'>
-                <div
-                    className='flex hover:bg-blue-700 cursor-pointer items-center gap-x-3 h-[50px] w-[200px] rounded-lg justify-center text-white bg-blue-500 text-[1.3rem]'
-                    onClick={() => setShowUploader(true)}
-                >
-                    <MdAddCircle />
-                    <p>Add content</p>
+        <div className='min-h-screen bg-[#1A1D1F] px-4 py-8'>
+            <div className='max-w-4xl mx-auto'>
+                {/* Header Section */}
+                <div className='mb-10'>
+                    <button
+                        onClick={() => setShowUploader(true)}
+                        className='w-full max-w-md mx-auto flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-xl shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300'
+                    >
+                        <MdAddCircle className="text-2xl" />
+                        <span className="font-medium text-lg">Create New Post</span>
+                    </button>
                 </div>
 
+                {/* Posts Section */}
                 {isLoadingPosts ? (
-                    <div className='text-white text-xl animate-pulse'>
-                        Loading posts...
+                    <div className='flex justify-center items-center py-20'>
+                        <div className='text-white text-xl animate-pulse flex items-center gap-3'>
+                            <div className='w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin'></div>
+                            Loading posts...
+                        </div>
                     </div>
                 ) : (
                     <div className='flex flex-col gap-y-8 w-full items-center'>
@@ -392,28 +244,34 @@ const Content = ({ setToast }: ContentProps) => {
                                 }))}
                                 isCommentLoading={isCommentLoading[post._id]}
                                 censorAddress={censorAddress}
+                                onImageClick={(imageUrl) => {
+                                    setModalImage(imageUrl);
+                                    setShowImageModal(true);
+                                }}
                             />
                         ))}
                     </div>
                 )}
 
+                {/* Delete Modal */}
                 {showDeleteModal && (
-                    <div className='fixed inset-0 bg-gray-700 bg-opacity-85 flex justify-center items-center'>
-                        <div className='bg-white p-6 rounded-lg flex flex-col items-center gap-y-4'>
-                            <p className='text-lg text-black font-semibold'>Are you sure you want to delete this post?</p>
-                            <div className='flex gap-x-4'>
+                    <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
+                        <div className='bg-[#2A2D2F] p-8 rounded-xl max-w-md w-full mx-4'>
+                            <h3 className='text-xl text-white font-semibold mb-4'>Delete Post</h3>
+                            <p className='text-gray-300 mb-6'>Are you sure you want to delete this post? This action cannot be undone.</p>
+                            <div className='flex gap-4'>
                                 <button
                                     onClick={confirmDelete}
-                                    className='bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700'
+                                    className='flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors'
                                 >
-                                    Yes, delete
+                                    Delete
                                 </button>
                                 <button
                                     onClick={() => {
                                         setShowDeleteModal(false);
                                         setPostToDelete(null);
                                     }}
-                                    className='bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600'
+                                    className='flex-1 bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors'
                                 >
                                     Cancel
                                 </button>
@@ -422,93 +280,138 @@ const Content = ({ setToast }: ContentProps) => {
                     </div>
                 )}
 
-                {showUploader && (
-                    <div className='fixed inset-0 bg-gray-700 bg-opacity-85 flex justify-center items-center'>
-                        <form onSubmit={handleSubmit}>
-                        <div className='flex h-auto w-[400px] flex-col mb-[40px] space-y-5 justify-center items-center bg-white p-5 rounded-lg'>
-                            <p className='text-black text-[1.3rem] font-bold'>What do you have for your viewers?</p>
-                            <div className='flex items-center gap-x-4'>
-                                <div 
-                                    className='h-[150px] w-[200px] text-black bg-gray-600 rounded-lg flex justify-center items-center'
-                                    onDragOver={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                    }}
-                                    onDrop={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const files = e.dataTransfer.files;
-                                        if (files && files[0]) {
-                                            handleImageChange({ target: { files: [files[0]] } });
-                                        }
-                                    }}
-                                >
-                                    {selectedImage ? (
-                                        <>
-                                            <Image 
-                                                src={selectedImage}
-                                                alt="Preview"
-                                                width={200}
-                                                height={150}
-                                                className='h-full w-full text-black object-cover rounded-lg'
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setSelectedImage('');
-                                                    const input = document.getElementById('image-upload') as HTMLInputElement;
-                                                    if (input) {
-                                                        input.value = '';
-                                                        input.click();
-                                                    }
-                                                }}
-                                                className='absolute mt-[160px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600'
-                                            >
-                                                Change Image
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <label htmlFor="image-upload" className='cursor-pointer text-black w-full h-full'>
-                                            <div className='border-dashed h-full w-full border-[1px] border-gray-200 rounded-lg flex flex-col text-white justify-center items-center gap-2'>
-                                        <FaImages size={30} />
-                                                <p className='text-sm text-black text-center'>Click or drag image to upload</p>
-                                    </div>
-                                            <input 
-                                                type="file"
-                                                id="image-upload"
-                                                className='hidden'
-                                                accept="image/*"
-                                                onChange={handleImageChange}
-                                            />
-                                        </label>
-                                    )}
-                                </div>
-                            </div>
-                            {loading && <p className='mt-3 ml-2' style={{color:'lime'}}>Processing image please wait...</p>}
-                                     <br />
-                            <textarea 
-                                value={note}
-                                onChange={typing} 
-                                name="about" 
-                                placeholder='Express yourself' 
-                                className='p-5 rounded-lg text-black border-[1px] border-black' 
-                                cols={30} 
-                                rows={2}
-                            />
-                            <button
-                            style={{ pointerEvents: loading ? 'none' : 'auto' }}
-                            disabled={loading}
-                            className={`${loading ? 'cursor-not-allowed' : 'cursor-pointer'} h-[40px] w-[150px] bg-green-500 text-white rounded-lg mt-5`}>{postText}</button>
-                            <div
-                                className='text-red-500 text-[2rem] rounded-lg mt-5 cursor-pointer'
-                                onClick={() => setShowUploader(false)}
+                {/* Image Modal */}
+                {showImageModal && (
+                    <div className='fixed inset-0 bg-black bg-opacity-95 flex justify-center items-center z-50'>
+                        <div className='relative max-w-[95vw] max-h-[95vh]'>
+                            <button 
+                                className='absolute -top-12 right-0 text-white hover:text-red-500 transition-colors'
+                                onClick={() => setShowImageModal(false)}
                             >
-                                <MdCancel />
-                            </div>
+                                <MdCancel className="text-3xl" />
+                            </button>
+                            <Image
+                                src={modalImage}
+                                alt="Full size image"
+                                width={1200}
+                                height={800}
+                                className='object-contain max-h-[90vh] rounded-lg'
+                            />
                         </div>
-                        </form>
                     </div>
-                    
+                )}
+
+                {/* Upload Modal */}
+                {showUploader && (
+                    <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4'>
+                        <div className='bg-[#2A2D2F] rounded-xl max-w-xl w-full'>
+                            <form onSubmit={handleSubmit} className='p-6'>
+                                <div className='flex flex-col gap-6'>
+                                    <div className='flex justify-between items-center'>
+                                        <h3 className='text-xl text-white font-semibold'>Create New Post</h3>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setShowUploader(false)}
+                                            className='text-gray-400 hover:text-red-500 transition-colors'
+                                        >
+                                            <MdCancel className="text-2xl" />
+                                        </button>
+                                    </div>
+
+                                    <div 
+                                        className='relative group cursor-pointer rounded-xl overflow-hidden'
+                                        onDragOver={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                        }}
+                                        onDrop={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            const files = Array.from(e.dataTransfer.files);
+                                            if (files[0]) {
+                                                const fakeEvent = {
+                                                    target: { files: [files[0]] },
+                                                    preventDefault: () => {},
+                                                    currentTarget: e.currentTarget,
+                                                } as unknown as React.ChangeEvent<HTMLInputElement>;
+                                                handleImageChange(fakeEvent);
+                                            }
+                                        }}
+                                    >
+                                        {selectedImage ? (
+                                            <div className='relative'>
+                                                <Image 
+                                                    src={selectedImage}
+                                                    alt="Preview"
+                                                    width={500}
+                                                    height={300}
+                                                    className='w-full h-[200px] object-cover rounded-xl'
+                                                />
+                                                <div className='absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedImage('');
+                                                            const input = document.getElementById('image-upload') as HTMLInputElement;
+                                                            if (input) {
+                                                                input.value = '';
+                                                                input.click();
+                                                            }
+                                                        }}
+                                                        className='bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors'
+                                                    >
+                                                        Change Image
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <label htmlFor="image-upload" className='block'>
+                                                <div className='h-[200px] border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
+                                                    <FaImages className="text-4xl text-gray-400" />
+                                                    <p className='text-gray-400 text-center'>Click or drag image to upload</p>
+                                                </div>
+                                                <input 
+                                                    type="file"
+                                                    id="image-upload"
+                                                    className='hidden'
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
+
+                                    {loading && (
+                                        <div className='text-green-500 flex items-center gap-2'>
+                                            <div className='animate-spin h-4 w-4 border-2 border-green-500 border-t-transparent rounded-full'></div>
+                                            Processing image...
+                                        </div>
+                                    )}
+
+                                    <textarea 
+                                        value={note}
+                                        onChange={typing}
+                                        placeholder='Express yourself...' 
+                                        className='w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none resize-none'
+                                        rows={4}
+                                    />
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <div className='animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full'></div>
+                                                Processing...
+                                            </>
+                                        ) : postText}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

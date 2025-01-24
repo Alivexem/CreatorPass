@@ -20,6 +20,7 @@ interface PostCardProps {
     setNewComment: (value: string) => void;
     isCommentLoading: boolean;
     censorAddress: (address: string) => string;
+    onImageClick: (imageUrl: string) => void;
 }
 
 const PostCard = ({

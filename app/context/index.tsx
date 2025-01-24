@@ -31,7 +31,6 @@ const metadata = {
   url: 'https://creatorpass.vercel.app', // Ensure this matches your app's URL
   icons: ['https://avatars.githubusercontent.com/u/179229932'],
 };
-
 // Initialize AppKit with the Solana adapter and network configurations
 export const modal = createAppKit({
   adapters: [solanaAdapter],
@@ -43,8 +42,15 @@ export const modal = createAppKit({
     email: true,
     socials: ['google'],
     emailShowWallets: true,
+    swaps: true, 
+    onramp: true,
   },
   allWallets: 'SHOW',
+  themeMode: 'dark',
+  themeVariables: {
+    '--w3m-color-mix': '#4F6E85',
+    '--w3m-color-mix-strength': 30
+  }
 });
 
 // Context provider component

@@ -18,8 +18,15 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-kanit);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
+@media (max-width: 768px) {
+  main {
+    padding-bottom: 80px; /* Height of mobile nav */
+  }
+}
 
 .loader {
   border: 4px dotted #fff;
@@ -32,6 +39,21 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
 }
 
 /* Blue button */
@@ -48,3 +70,9 @@ body {
 .blue-button:hover {
   background-color: #0077b3;
 } */
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+}

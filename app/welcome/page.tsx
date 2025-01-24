@@ -10,119 +10,128 @@ import { FaBridgeCircleCheck } from "react-icons/fa6";
 import { SiFueler } from "react-icons/si";
 import { RiVipCrown2Fill } from "react-icons/ri";
 import { FaFire } from "react-icons/fa6";
-const page = () => {
+
+interface AccessCardProps {
+  image: string;
+  name: string;
+  className: string;
+}
+
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+const Page = () => {
   return (
-    <div className='pb-[100px] bg-[#1A1D1F] md:pb-0'>
+    <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
-      <div className='text-center font-bold mt-20 flex justify-center items-center flex-col'>
-        <div className='flex flex-col md:flex-row items-center text-[2.8rem] text-gray-200'>
-          <p>Empowering Creators </p> <Gi3dGlasses className='mx-3' /> <p>Rewarding Fans</p>
-        </div>
-        <p className='text-[1.2rem] font-bold text-gray-400'>Access exclusive posts, videos, and more from your favorite creators.</p>
-      </div>
-
-      <div className='flex justify-center items-center my-10 mt-24 relative'>
-        {/* Left card */}
-        <div className='hidden md:flex border-[1px] relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] rotate-[-15deg] h-[500px] -mr-40'>
-          <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-            <Image height={45} width={45} src='/sol.png' alt='sol' />
-            <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
-          </div>
-          <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-            <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-[100px]' />
-            <Image src='/two.jpeg' className='rounded-md' height={70} width={150} alt='profile' />
-            <div className='flex items-center gap-x-4'>
-              <RiHeart2Line className='text-white text-base' />
-              <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4 text-base'>Josh Daniel</p>
-              <RiHeart2Line className='text-white text-base' />
-            </div>
-          </div>
-        </div>
-
-        {/* Center card */}
-        <div className='flex border-[1px] rotate-[5deg] md:rotate-0 relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[90%] md:w-[350px] z-10 h-[400px] md:h-[500px]'>
-          <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-            <Image height={45} width={45} src='/sol.png' alt='sol' />
-            <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
-          </div>
-          <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-            <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-[100px]' />
-            <Image src='/smile.jpg' className='rounded-md' height={70} width={150} alt='profile' />
-            <div className='flex items-center gap-x-4'>
-              <RiHeart2Line className='text-white text-base' />
-              <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4 text-base'>Justina Kate</p>
-              <RiHeart2Line className='text-white text-base' />
-            </div>
-          </div>
-        </div>
-
-        {/* Right card */}
-        <div className='hidden md:flex border-[1px] relative flex-col justify-center items-center p-5 rounded-2xl shadow-2xl bg-gradient-to-r border-none from-[#75bde7] via-[#22a1eb] to-[#75bde7] w-[350px] rotate-[15deg] h-[500px] -ml-40'>
-          <div className='w-full h-[30%] rounded-t-[20px] bg-transparent flex justify-center items-center flex-col'>
-            <Image height={45} width={45} src='/sol.png' alt='sol' />
-            <p style={{ fontFamily: 'cursive' }} className='bg-slate-800 p-2 rounded-xl text-white text-[1.7rem] font-bold mt-4'>Access card</p>
-          </div>
-          <div className='w-full h-[65%] rounded-[20px] bg-slate-800 mt-3 flex justify-center items-center flex-col'>
-            <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-[100px]' />
-            <Image src='/three.jpeg' className='rounded-md' height={70} width={150} alt='profile' />
-            <div className='flex items-center gap-x-4'>
-              <RiHeart2Line className='text-white text-base' />
-              <p style={{ fontFamily: 'monospace' }} className='text-white mt-5 font-bold mb-4 text-base'>Kelvin Jones</p>
-              <RiHeart2Line className='text-white text-base' />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className='flex justify-center items-center gap-x-8 mb-14 mt-20'>
-
-        <Link href='/passes'>
-          <button className='h-[55px] w-[300px] text-[1.2rem] p-3 bg-purple-600 hover:bg-purple-700 text-white'>Explore Passes</button>
-        </Link>
-      </div>
-
-      <div className='flex flex-col md:flex-row space-y-4 justify-evenly mt-[70px] items-center text-white text-[1.4rem]'>
-
-        <div className='bg-[#1f2225] border-[2px] p-3 w-[90%] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
-          <FaUnlockKeyhole />
-          <p className='text-center'>Unlocking the Future of Content Creation
+      
+      {/* Hero Section */}
+      <div className='container mx-auto px-4 pt-20 pb-32'>
+        <div className='max-w-4xl mx-auto text-center space-y-6'>
+          <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+            Empowering Creators & Rewarding Fans
+          </h1>
+          <p className='text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto'>
+            Join the next generation of content creation. Access exclusive posts, videos, and experiences from your favorite creators.
           </p>
-        </div>
-        <div className='bg-[#272B30] border-[2px] p-3 w-[90%] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
-          <FaBridgeCircleCheck />
-          <p className='text-center'>
-            Bridging Creators and Fans with Innovation
-          </p>
-        </div>
-        <div className='bg-[#1f2225] border-[2px] p-3 w-[90%] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl flex justify-center items-center flex-col'>
-          <SiFueler />
-          <p className='text-center'>
-            Fueling Creativity, Building Connections
-          </p>
-        </div>
-        <div className='bg-[#1f2225] p-3 w-[90%] hidden lg:flex border-[2px] border-blue-500 h-[250px] md:w-[250px] lg:w-[300px] gap-y-4 rounded-xl justify-center items-center flex-col'>
-          <RiVipCrown2Fill />
-          <p className='text-center'>
-            The Future of Content, Powered by You
-          </p>
+          <Link href='/passes'>
+            <button className='mt-8 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
+              Explore Passes
+            </button>
+          </Link>
         </div>
       </div>
 
-      <div className='flex md:hidden items-center justify-center mt-14 gap-x-2'>
-        <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
-        <p className='text-[0.8rem] text-white font-mono font-bold'> Designed and developed by Athkins</p>
-      </div>
-      <div className='flex md:hidden justify-center text-white items-center'>
+      {/* Cards Section */}
+      <div className='relative max-w-6xl mx-auto px-4 -mt-20'>
+        <div className='flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4'>
+          {/* Card 1 */}
+          <div className='hidden md:block transform -rotate-12 hover:rotate-0 transition-all duration-300'>
+            <AccessCard
+              image="/two.jpeg"
+              name="Josh Daniel"
+              className="bg-gradient-to-r from-blue-400 to-purple-500"
+            />
+          </div>
 
-        {/* <div className='flex items-center justify-center gap-x-2 mb-[50px]'>
-       
-          <p className='font-mono text-[0.8rem] text-center'>During the 20 days Bounty Task using Reown AppKit</p>
-    
-        </div> */}
+          {/* Main Card */}
+          <div className='transform scale-105 hover:scale-110 transition-all duration-300 z-10'>
+            <AccessCard
+              image="/smile.jpg"
+              name="Justina Kate"
+              className="bg-gradient-to-r from-blue-500 to-purple-600"
+            />
+          </div>
+
+          {/* Card 3 */}
+          <div className='hidden md:block transform rotate-12 hover:rotate-0 transition-all duration-300'>
+            <AccessCard
+              image="/three.jpeg"
+              name="Kelvin Jones"
+              className="bg-gradient-to-r from-blue-400 to-purple-500"
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Features Section */}
+      <div className='container mx-auto px-4 py-32'>
+        <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
+          <FeatureCard
+            icon={<FaUnlockKeyhole className="text-4xl" />}
+            title="Unlock the Future"
+            description="Revolutionary content creation and sharing platform"
+          />
+          <FeatureCard
+            icon={<FaBridgeCircleCheck className="text-4xl" />}
+            title="Bridge Connections"
+            description="Direct creator-to-fan relationships and experiences"
+          />
+          <FeatureCard
+            icon={<SiFueler className="text-4xl" />}
+            title="Fuel Creativity"
+            description="Innovative tools for content creators to thrive"
+          />
+          <FeatureCard
+            icon={<RiVipCrown2Fill className="text-4xl" />}
+            title="Premium Experience"
+            description="Exclusive content and unique fan experiences"
+          />
+        </div>
+      </div>
+
       <Footer />
     </div>
   )
 }
 
-export default page
+const AccessCard = ({ image, name, className }: AccessCardProps) => (
+  <div className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl ${className}`}>
+    <div className='p-6 text-center'>
+      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
+      <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
+    </div>
+    <div className='bg-slate-800 p-6 space-y-4'>
+      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
+      <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
+      <div className='flex items-center justify-center gap-3'>
+        <RiHeart2Line className='text-white' />
+        <p className='font-mono text-white font-bold'>{name}</p>
+        <RiHeart2Line className='text-white' />
+      </div>
+    </div>
+  </div>
+)
+
+const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
+  <div className='bg-[#232629] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
+    <div className='text-blue-400 mb-4'>{icon}</div>
+    <h3 className='text-xl font-bold text-white mb-2'>{title}</h3>
+    <p className='text-gray-300'>{description}</p>
+  </div>
+)
+
+export default Page
