@@ -98,7 +98,7 @@ const MobileNav = () => {
           <FiSearch className='text-xl' />
           <p className='text-[0.8rem]'>Search</p>
           {showMobileSearch && (
-            <div ref={searchRef} className='absolute bottom-[80px] right-[-100px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
+            <div ref={searchRef} className='absolute bottom-[80px] right-[5vw] bg-white p-4 rounded-lg shadow-lg w-[200px] flex gap-2' onClick={(e) => e.stopPropagation()}>
               <input
                 type="text"
                 value={searchTerm}
