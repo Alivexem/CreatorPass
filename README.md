@@ -64,7 +64,7 @@ With things in place, this project could be scaled into a full-fledged startup, 
 
 ### Current App Features 
 
-- **Seamless onboarding**: Easily get onboarded on the CreatorPass through socials (Google) or wallet using Reown AppKit.
+- **Seamless onboarding**: Easily get onboarded to CreatorPass through socials (Google) or wallet using Reown AppKit.
 - **Gift creators**: Gift your favourite creators SOL using reown Appkit SDK in-app without having to leave the application.
 - **Crypto Purchase**: You can purchase crypto using reown Appkit SDK in-app without having to leave the application.
 - **Manage Content**: Upload and delete exlusive contents from a personalized Admin Dashboard.  
