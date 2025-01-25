@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, TouchEvent } from 'react'
 import NavBar from '@/components/NavBar'
 import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
@@ -19,6 +19,8 @@ const PassesPage = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -44,6 +46,32 @@ const PassesPage = () => {
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === profiles.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleTouchStart = (e: TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(distance) < minSwipeDistance) return;
+
+    if (distance > 0) {
+      // Swiped left
+      handleNext();
+    } else {
+      // Swiped right
+      handlePrevious();
+    }
   };
 
   const currentProfile = profiles[currentIndex];
@@ -86,7 +114,12 @@ const PassesPage = () => {
             </button>
 
             {/* Mobile View */}
-            <div className='md:hidden w-full max-w-[300px] mb-[60px]'>
+            <div 
+              className='md:hidden w-full max-w-[300px] mb-[60px]'
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl'>
                 <div className='bg-[#1A1D1F] rounded-xl p-6 space-y-6'>
                   <div className='text-center'>
