@@ -192,7 +192,7 @@ const PassesPage = () => {
               <IoMdClose size={24} />
             </button>
             <p className="text-white text-center text-lg">
-              Please checkout creators Nav to view contents
+              hEY! Searching for contents? Access CREATORS in Nav section
             </p>
           </div>
         </div>

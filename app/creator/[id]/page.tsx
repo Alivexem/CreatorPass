@@ -278,7 +278,7 @@ const CreatorPage = ({ params }: PageProps) => {
             <NavBar />
             <button 
                 onClick={() => router.push('/creators')}
-                className='absolute top-40 left-4 h-[50px] w-[50px] bg-transparent z-50 text-white hover:text-gray-600 transition-colors'
+                className='absolute top-40 left-4 md:left-14 h-[50px] w-[50px] bg-transparent z-50 text-white hover:text-gray-600 transition-colors'
             >
                 <IoArrowBack size={24} />
             </button>
