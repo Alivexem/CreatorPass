@@ -79,9 +79,10 @@ const Page = () => {
           {/* Card 1 */}
           <motion.div 
             initial={{ opacity: 0, x: -100, rotate: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className='hidden md:block transform -rotate-12 hover:rotate-0 transition-all duration-300 hover:scale-105'
+            animate={{ opacity: 1, x: 0, rotate: -12 }}
+            whileHover={{ rotate: 0, scale: 1.05 }}
+            transition={{ duration: 0.3 }}
+            className='hidden md:block'
           >
             <AccessCard
               image="/two.jpeg"
@@ -93,9 +94,10 @@ const Page = () => {
           {/* Main Card */}
           <motion.div 
             initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className='transform scale-105 hover:scale-110 transition-all duration-300 z-10 hover:shadow-2xl'
+            animate={{ opacity: 1, y: 0, scale: 1.05 }}
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.3 }}
+            className='z-10'
           >
             <AccessCard
               image="/smile.jpg"
@@ -107,9 +109,10 @@ const Page = () => {
           {/* Card 3 */}
           <motion.div 
             initial={{ opacity: 0, x: 100, rotate: 12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className='hidden md:block transform rotate-12 hover:rotate-0 transition-all duration-300 hover:scale-105'
+            animate={{ opacity: 1, x: 0, rotate: 12 }}
+            whileHover={{ rotate: 0, scale: 1.05 }}
+            transition={{ duration: 0.3 }}
+            className='hidden md:block'
           >
             <AccessCard
               image="/three.jpeg"
