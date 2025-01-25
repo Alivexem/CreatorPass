@@ -86,9 +86,7 @@ const PassesPage = () => {
             </button>
 
             {/* Mobile View */}
-            <div className='md:hidden'>
-            
-              
+            <div className='md:hidden w-full max-w-[300px] mb-[60px]'>
               <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl'>
                 <div className='bg-[#1A1D1F] rounded-xl p-6 space-y-6'>
                   <div className='text-center'>
@@ -96,7 +94,7 @@ const PassesPage = () => {
                     <p className='text-gray-400'>Access Card</p>
                   </div>
                   <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
-                  <button className='w-full bg-gray-300 text-white py-3 rounded-lg'>
+                  <button className='w-full bg-gray-700 text-gray-400 py-3 rounded-lg'>
                     Mint nft
                   </button>
                 </div>

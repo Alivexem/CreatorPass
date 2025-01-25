@@ -1,4 +1,5 @@
-import React from 'react'
+'use client'
+import React, { useEffect } from 'react'
 import NavBar from '@/components/NavBar'
 import { Gi3dGlasses } from "react-icons/gi";
 import Image from 'next/image';
@@ -10,6 +11,7 @@ import { FaBridgeCircleCheck } from "react-icons/fa6";
 import { SiFueler } from "react-icons/si";
 import { RiVipCrown2Fill } from "react-icons/ri";
 import { FaFire } from "react-icons/fa6";
+import { motion } from "framer-motion";
 
 interface AccessCardProps {
   image: string;
@@ -29,78 +31,132 @@ const Page = () => {
       <NavBar />
       
       {/* Hero Section */}
-      <div className='container mx-auto px-4 pt-20 pb-32'>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className='container mx-auto px-4 pt-20 pb-32'
+      >
         <div className='max-w-4xl mx-auto text-center space-y-6'>
-          <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+          <motion.h1 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
+          >
             Empowering Creators & Rewarding Fans
-          </h1>
-          <p className='text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto'>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.4 }}
+            className='text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto'
+          >
             Join the next generation of content creation. Access exclusive posts, videos, and experiences from your favorite creators.
-          </p>
-          <Link href='/passes'>
-            <button className='mt-8 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
-              Explore Passes
-            </button>
-          </Link>
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <Link href='/passes'>
+              <button className='mt-8 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
+                Explore Passes
+              </button>
+            </Link>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Cards Section */}
-      <div className='relative max-w-6xl mx-auto px-4 -mt-20'>
+      <motion.div 
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className='relative max-w-6xl mx-auto px-4 -mt-20'
+      >
         <div className='flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4'>
           {/* Card 1 */}
-          <div className='hidden md:block transform -rotate-12 hover:rotate-0 transition-all duration-300'>
+          <motion.div 
+            initial={{ opacity: 0, x: -100, rotate: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className='hidden md:block transform -rotate-12 hover:rotate-0 transition-all duration-300'
+          >
             <AccessCard
               image="/two.jpeg"
               name="Josh Daniel"
               className="bg-gradient-to-r from-blue-400 to-purple-500"
             />
-          </div>
+          </motion.div>
 
           {/* Main Card */}
-          <div className='transform scale-105 hover:scale-110 transition-all duration-300 z-10'>
+          <motion.div 
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className='transform scale-105 hover:scale-110 transition-all duration-300 z-10'
+          >
             <AccessCard
               image="/smile.jpg"
               name="Justina Kate"
               className="bg-gradient-to-r from-blue-500 to-purple-600"
             />
-          </div>
+          </motion.div>
 
           {/* Card 3 */}
-          <div className='hidden md:block transform rotate-12 hover:rotate-0 transition-all duration-300'>
+          <motion.div 
+            initial={{ opacity: 0, x: 100, rotate: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            className='hidden md:block transform rotate-12 hover:rotate-0 transition-all duration-300'
+          >
             <AccessCard
               image="/three.jpeg"
               name="Kelvin Jones"
               className="bg-gradient-to-r from-blue-400 to-purple-500"
             />
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Features Section */}
       <div className='container mx-auto px-4 py-32'>
-        <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
-          <FeatureCard
-            icon={<FaUnlockKeyhole className="text-4xl" />}
-            title="Unlock the Future"
-            description="Revolutionary content creation and sharing platform"
-          />
-          <FeatureCard
-            icon={<FaBridgeCircleCheck className="text-4xl" />}
-            title="Bridge Connections"
-            description="Direct creator-to-fan relationships and experiences"
-          />
-          <FeatureCard
-            icon={<SiFueler className="text-4xl" />}
-            title="Fuel Creativity"
-            description="Innovative tools for content creators to thrive"
-          />
-          <FeatureCard
-            icon={<RiVipCrown2Fill className="text-4xl" />}
-            title="Premium Experience"
-            description="Exclusive content and unique fan experiences"
-          />
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'
+        >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
+            <FeatureCard
+              icon={<FaUnlockKeyhole className="text-4xl" />}
+              title="Unlock the Future"
+              description="Revolutionary content creation and sharing platform"
+            />
+          </motion.div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>
+            <FeatureCard
+              icon={<FaBridgeCircleCheck className="text-4xl" />}
+              title="Bridge Connections"
+              description="Direct creator-to-fan relationships and experiences"
+            />
+          </motion.div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}>
+            <FeatureCard
+              icon={<SiFueler className="text-4xl" />}
+              title="Fuel Creativity"
+              description="Innovative tools for content creators to thrive"
+            />
+          </motion.div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}>
+            <FeatureCard
+              icon={<RiVipCrown2Fill className="text-4xl" />}
+              title="Premium Experience"
+              description="Exclusive content and unique fan experiences"
+            />
+          </motion.div>
+        </motion.div>
       </div>
 
       <Footer />
