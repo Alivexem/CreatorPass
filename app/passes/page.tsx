@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { RiNftFill } from "react-icons/ri";
+import { IoMdClose } from "react-icons/io";
 
 interface Profile {
   address: string;
@@ -21,6 +22,7 @@ const PassesPage = () => {
   const [loading, setLoading] = useState(true);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -76,6 +78,17 @@ const PassesPage = () => {
 
   const currentProfile = profiles[currentIndex];
 
+  const getVisibleProfiles = () => {
+    if (profiles.length <= 3) return profiles;
+    
+    let visibleProfiles = [];
+    for (let i = 0; i < 3; i++) {
+      const index = (currentIndex + i) % profiles.length;
+      visibleProfiles.push(profiles[index]);
+    }
+    return visibleProfiles;
+  };
+
   return (
     <div className='min-h-screen pb-[60px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
@@ -119,6 +132,7 @@ const PassesPage = () => {
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
+              onClick={() => setShowPopup(true)}
             >
               <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl'>
                 <div className='bg-[#1A1D1F] rounded-xl p-6 space-y-6'>
@@ -136,12 +150,13 @@ const PassesPage = () => {
 
             {/* Desktop View */}
             <div className='hidden md:flex gap-6'>
-              {profiles.map((profile, index) => (
+              {getVisibleProfiles().map((profile, index) => (
                 <div 
                   key={index}
                   className={`transform transition-all duration-300 ${
                     index === 1 ? 'scale-105 hover:scale-110 z-10' : 'hover:scale-105'
                   }`}
+                  onClick={() => setShowPopup(true)}
                 >
                   <AccessCard
                     image={profile.profileImage || '/smile.jpg'}
@@ -165,6 +180,23 @@ const PassesPage = () => {
           </div>
         )}
       </div>
+
+      {/* Popup */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4">
+            <button 
+              onClick={() => setShowPopup(false)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+            >
+              <IoMdClose size={24} />
+            </button>
+            <p className="text-white text-center text-lg">
+              Please checkout creators Nav to view contents
+            </p>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
