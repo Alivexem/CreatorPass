@@ -59,7 +59,8 @@ With things in place, this project could be scaled into a full-fledged startup, 
 - Payment systems often limit access to global creators and fans due to regional restrictions or currency issues.
 
 
-
+---
+---
 
 ### Current App Features 
 
