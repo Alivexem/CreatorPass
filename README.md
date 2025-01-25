@@ -15,7 +15,68 @@ With things in place, this project could be scaled into a full-fledged startup, 
 
 ---
 
-## Features
+## WHY CREATORPASS?
+
+1. Limited Monetization Options for Creators
+
+Traditional platforms take significant cuts from creators' earnings.
+
+Monetization methods like ads and subscriptions often lack transparency and flexibility for creators.
+
+
+
+2. Centralized Platform Dependence
+
+Creators rely on centralized platforms that control their content, revenue, and audience access.
+
+Platforms can de-platform creators without notice, affecting income and audience reach.
+
+
+
+3. Exclusivity Challenges
+
+Providing exclusive content to fans often requires third-party services, which can be costly and inefficient.
+
+Fans lack a seamless way to access exclusive creator content without juggling multiple apps.
+
+
+
+4. High Fees for Fans and Creators
+
+Payment gateways charge high transaction fees for fans to access content, reducing creators' earnings.
+
+
+
+5. Ownership and Licensing Issues
+
+Creators often lack control over the intellectual property (IP) of their content on traditional platforms.
+
+Fans have no real ownership of purchased content or benefits.
+
+
+
+6. Lack of Incentive for Fans
+
+Fans who support creators don't receive tangible benefits or rewards in most cases.
+
+No system exists to build stronger connections between fans and creators beyond financial support.
+
+
+
+7. Lack of Interoperability
+
+Fans and creators are restricted to specific platforms, making it hard to transfer benefits, memberships, or digital content across platforms.
+
+
+
+8. Global Accessibility Barriers
+
+Payment systems often limit access to global creators and fans due to regional restrictions or currency issues.
+
+
+
+
+## CURRENT APP FEATURES
 
 
 - **Seamless onboarding**: Easily get onboarded on the platform through Google or wallet using Reown AppKit.
