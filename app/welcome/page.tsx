@@ -81,7 +81,7 @@ const Page = () => {
             initial={{ opacity: 0, x: -100, rotate: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className='hidden md:block transform -rotate-12 hover:rotate-0 transition-all duration-300'
+            className='hidden md:block transform -rotate-12 hover:rotate-0 transition-all duration-300 hover:scale-105'
           >
             <AccessCard
               image="/two.jpeg"
@@ -95,7 +95,7 @@ const Page = () => {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className='transform scale-105 hover:scale-110 transition-all duration-300 z-10'
+            className='transform scale-105 hover:scale-110 transition-all duration-300 z-10 hover:shadow-2xl'
           >
             <AccessCard
               image="/smile.jpg"
@@ -109,7 +109,7 @@ const Page = () => {
             initial={{ opacity: 0, x: 100, rotate: 12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className='hidden md:block transform rotate-12 hover:rotate-0 transition-all duration-300'
+            className='hidden md:block transform rotate-12 hover:rotate-0 transition-all duration-300 hover:scale-105'
           >
             <AccessCard
               image="/three.jpeg"
