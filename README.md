@@ -72,7 +72,7 @@ With things in place, this project could be scaled into a full-fledged startup, 
 ---
 -  **Mint NFT Passes**: Create tiered passes e.g. Bronze, Silver, Gold for premium content (feature incoming).
 -  **In-App chat**: Users will be able to have a personal chat with creators (feature incoming).
-- **A.I Integration**: A.I recommendation for content creation and Fans pass purchat, A.I powered NFT management system (feature incoming).
+- **A.I Integration**: A.I recommendation for content creation and Fans pass purchase, A.I powered NFT management system (feature incoming).
 
 - 📊 On the bright side of it: Remember, for every pass a creator mints or a fan purchases/renews. CreatorPass makes profit
 
