@@ -61,7 +61,7 @@ With things in place, this project could be scaled into a full-fledged startup, 
 
 
 
-## Features 
+### Current App Features 
 
 - **Seamless onboarding**: Easily get onboarded on the platform through Google or wallet using Reown AppKit.
 - **Gift creators**: Gift your favourite creators SOL using reown Appkit SDK in-app without having to leave the application.
