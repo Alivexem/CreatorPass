@@ -80,7 +80,7 @@ const Page = () => {
           <motion.div 
             initial={{ opacity: 0, x: -100, rotate: -12 }}
             animate={{ opacity: 1, x: 0, rotate: -12 }}
-            whileHover={{ rotate: 0, scale: 1.05 }}
+            whileHover={{ rotate: 0, scale: 1.05, x: -10 }}
             transition={{ duration: 0.3 }}
             className='hidden md:block'
           >
@@ -110,7 +110,7 @@ const Page = () => {
           <motion.div 
             initial={{ opacity: 0, x: 100, rotate: 12 }}
             animate={{ opacity: 1, x: 0, rotate: 12 }}
-            whileHover={{ rotate: 0, scale: 1.05 }}
+            whileHover={{ rotate: 0, scale: 1.05, x: 10 }}
             transition={{ duration: 0.3 }}
             className='hidden md:block'
           >
