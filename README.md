@@ -9,7 +9,7 @@
 
 CreatorPass is a decentralized social platform designed to empower creators and their fans through blockchain technology. Creators can mint NFT-based passes that fans can purchase to access premium content, get Gifted crypto in-app and also update wallet balance in-app. It’s more than just a platform, it’s a gateway to fostering deeper connections and monetizing creativity. Artists can now price their craft, content-creators can move into the Web3 ecosystem and thrive, CreatorPass is infact for everyone.
 
-This project commenced on **January 9, 2025.** CreatorPass highlights the potential of Web3 by leveraging Solana and Reown AppKit for seamless integration. By bringing creators and fans to the blockchain, CreatorPass is helping onboard more users to the web3 ecosystem.
+This project commenced on **January 9, 2025** but the idea have long been in my heart. CreatorPass highlights the potential of Web3 by leveraging Solana and Reown AppKit for seamless integration. By bringing creators and fans to the blockchain, CreatorPass is helping onboard more users to the web3 ecosystem.
 
 With things in place, this project could be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
 
