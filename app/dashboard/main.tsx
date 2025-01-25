@@ -166,8 +166,8 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                   {
                     title: 'Total Followers',
                     icon: <SiThefinals className='text-green-800' />,
-                    bgColor: 'bg-green-400',
-                    iconBg: 'bg-green-200'
+                    bgColor: 'bg-green-200',
+                    iconBg: 'bg-green-400'
                   },
                   {
                     title: 'Last Posted',
