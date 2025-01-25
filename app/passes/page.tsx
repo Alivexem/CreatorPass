@@ -94,7 +94,7 @@ const PassesPage = () => {
                     <p className='text-gray-400'>Access Card</p>
                   </div>
                   <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
-                  <button className='w-full bg-gray-700 text-gray-400 py-3 rounded-lg'>
+                  <button className='w-full bg-gray-700 cursor-not-allowed text-gray-400 py-3 rounded-lg'>
                     Mint nft
                   </button>
                 </div>

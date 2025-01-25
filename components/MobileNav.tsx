@@ -26,6 +26,15 @@ const MobileNav = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => {
+        setToast({ show: false, message: '' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.show]);
+
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
@@ -45,11 +54,13 @@ const MobileNav = () => {
       if (foundUser) {
         router.push(`/creator/${foundUser.address}`);
         setShowMobileSearch(false);
+        setSearchTerm('');
       } else {
         setToast({ show: true, message: 'User not found' });
       }
     } catch (error) {
       console.error('Search error:', error);
+      setToast({ show: true, message: 'Search failed' });
     }
   };
 
@@ -84,10 +95,10 @@ const MobileNav = () => {
         </Link>
 
         <div className='flex cursor-pointer flex-col items-center space-y-2 relative' onClick={() => setShowMobileSearch(prev => !prev)}>
-          <FiSearch />
+          <FiSearch className='text-xl' />
           <p className='text-[0.8rem]'>Search</p>
           {showMobileSearch && (
-            <div ref={searchRef} className='absolute bottom-[80px] right-[2px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
+            <div ref={searchRef} className='absolute bottom-[80px] right-[-100px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
               <input
                 type="text"
                 value={searchTerm}
