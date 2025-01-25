@@ -8,11 +8,13 @@ import { FaCopy } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { GiFlowerPot, GiRing } from "react-icons/gi";
 import { FaLaptopHouse } from "react-icons/fa";
+import { IoArrowBack } from "react-icons/io5";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect, PublicKey, Transaction, SystemProgram, Provider } from '../../../utils/reown';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { FaCar } from "react-icons/fa";
+import { useRouter } from 'next/navigation';
 
 interface Post {
     _id: string;
@@ -43,6 +45,7 @@ interface PageProps {
 
 const CreatorPage = ({ params }: PageProps) => {
     const { id } = params;
+    const router = useRouter();
     const [posts, setPosts] = useState<Post[]>([]);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
@@ -273,6 +276,12 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className='bg-[#1A1D1F] pb-[80px] md:pb-0'>
             <NavBar />
+            <button 
+                onClick={() => router.push('/creators')}
+                className='fixed top-24 left-4 z-50 text-white hover:text-gray-300 transition-colors'
+            >
+                <IoArrowBack size={24} />
+            </button>
             {toast.show && (
                 <div 
                     className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
