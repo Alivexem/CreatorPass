@@ -9,7 +9,7 @@
 
 CreatorPass is a decentralized social platform designed to empower creators and their fans through blockchain technology. Creators can mint NFT-based passes that fans can purchase to access premium content, get Gifted crypto in-app and also update wallet balance in-app. It’s more than just a platform, it’s a gateway to fostering deeper connections and monetizing creativity. Artists can now price their craft, content-creators can move into the Web3 ecosystem and thrive, CreatorPass is infact for everyone.
 
-This project commenced on **January 9, 2025.** I've had this idea all along and seeing the bounty program, i knew it was my opportunity to kickstart the project, CreatorPass highlights the potential of Web3 by leveraging Solana and Reown AppKit for seamless integration. By bringing creators and fans to the blockchain, CreatorPass is helping onboard more users to the web3 ecosystem.
+This project commenced on **January 9, 2025** but the idea have long been in my heart. CreatorPass highlights the potential of Web3 by leveraging Solana and Reown AppKit for seamless integration. By bringing creators and fans to the blockchain, CreatorPass is helping onboard more users to the web3 ecosystem.
 
 With things in place, this project could be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
 
@@ -64,13 +64,14 @@ With things in place, this project could be scaled into a full-fledged startup, 
 
 ### Current App Features 
 
-- **Seamless onboarding**: Easily get onboarded on the platform through Google or wallet using Reown AppKit.
+- **Seamless onboarding**: Easily get onboarded to CreatorPass through socials (Google) or wallet using Reown AppKit.
 - **Gift creators**: Gift your favourite creators SOL using reown Appkit SDK in-app without having to leave the application.
-- **Buy Crypto**: You can purchase crypto using reown Appkit SDK in-app without having to leave the application.
+- **Crypto Purchase**: You can purchase crypto using reown Appkit SDK in-app without having to leave the application.
 - **Manage Content**: Upload and delete exlusive contents from a personalized Admin Dashboard.  
 - **Engage with contents**: Users can like, comment and engage with posts.
--  **Mint NFT Passes**: Create tiered passes e.g. Bronze, Silver, Gold for premium content (feature incoming)
--  **In-App chat**: Users will be able to have a personal chat with creators (feature incoming)
+-  **Mint NFT Passes**: Create tiered passes e.g. Bronze, Silver, Gold for premium content (Listed in issues and free for open-source contribution).
+-  **In-App chat**: Users will be able to have a personal chat with creators (Listed in issues and free for open-source contribution).
+- **A.I Integration**: A.I recommendation for content creation and Fans pass purchase, A.I powered NFT management system (Listed in issues and free for open-source contribution).
 
 - 📊 On the bright side of it: Remember, for every pass a creator mints or a fan purchases/renews. CreatorPass makes profit
 
