@@ -87,21 +87,7 @@ const PassesPage = () => {
 
             {/* Mobile View */}
             <div className='md:hidden'>
-              <div className='flex justify-between items-center mb-8'>
-                <button 
-                  onClick={handlePrevious}
-                  className='text-white focus:outline-none'
-                >
-                  <FaArrowAltCircleLeft size={24} />
-                </button>
-                <h2 className='text-2xl font-bold text-white'>{currentProfile.username}</h2>
-                <button 
-                  onClick={handleNext}
-                  className='text-white focus:outline-none'
-                >
-                  <FaArrowAltCircleRight size={24} />
-                </button>
-              </div>
+            
               
               <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl'>
                 <div className='bg-[#1A1D1F] rounded-xl p-6 space-y-6'>
@@ -110,8 +96,8 @@ const PassesPage = () => {
                     <p className='text-gray-400'>Access Card</p>
                   </div>
                   <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
-                  <button className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all'>
-                    Get Started
+                  <button className='w-full bg-gray-300 text-white py-3 rounded-lg'>
+                    Mint nft
                   </button>
                 </div>
               </div>
