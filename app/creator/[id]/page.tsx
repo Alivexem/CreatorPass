@@ -417,7 +417,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                 </p>
                                                 <button
                                                     onClick={handleCopyAddress}
-                                                    className='bg-gradient-to-r from-purple-600 to-blue-600 p-2 rounded hover:opacity-90 transition-opacity'
+                                                    className='bg-blue-600 p-2 rounded hover:opacity-90 transition-opacity'
                                                 >
                                                     <FaCopy className='text-white' />
                                                 </button>
@@ -469,7 +469,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                         <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
                                         <button
                                             onClick={handleGift}
-                                            className='bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
+                                            className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
                                         >
                                             BUY SOL
                                         </button>

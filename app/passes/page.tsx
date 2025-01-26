@@ -23,6 +23,7 @@ const PassesPage = () => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [showSwipeModal, setShowSwipeModal] = useState(false);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -40,6 +41,11 @@ const PassesPage = () => {
     };
 
     fetchProfiles();
+
+    // Show swipe modal on mobile devices
+    if (window.innerWidth <= 768) {
+      setShowSwipeModal(true);
+    }
   }, []);
 
   const handlePrevious = () => {
@@ -120,7 +126,7 @@ const PassesPage = () => {
           <div className='flex items-center justify-center gap-6'>
             <button
               onClick={handlePrevious}
-              className='text-white/50 hover:text-white transition-colors'
+              className='hidden md:block text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleLeft className='text-3xl' />
@@ -172,7 +178,7 @@ const PassesPage = () => {
 
             <button
               onClick={handleNext}
-              className='text-white/50 hover:text-white transition-colors'
+              className='hidden md:block text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleRight className='text-3xl' />
@@ -193,6 +199,23 @@ const PassesPage = () => {
             </button>
             <p className="text-white text-center text-lg">
               hEY! Searching for contents? Access CREATORS in Nav section
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Swipe Modal */}
+      {showSwipeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4">
+            <button 
+              onClick={() => setShowSwipeModal(false)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+            >
+              <IoMdClose size={24} />
+            </button>
+            <p className="text-white text-center text-lg">
+              Please swipe to see more passes
             </p>
           </div>
         </div>
