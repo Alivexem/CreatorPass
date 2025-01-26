@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, TouchEvent } from 'react'
+import React, { useState, useEffect, TouchEvent, useRef } from 'react'
 import NavBar from '@/components/NavBar'
 import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
@@ -8,7 +8,11 @@ import { FaArrowAltCircleLeft } from "react-icons/fa";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { RiNftFill } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
-
+import { toPng } from 'html-to-image';
+import { uploadToIPFS, uploadMetadataToIPFS } from '@/utils/ipfsService';
+import { AccessCardTemplate } from '@/utils/cardTemplate';
+import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProgram, PublicKey, Provider } from '../../utils/reown';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 interface Profile {
   address: string;
   username: string;
@@ -24,6 +28,17 @@ const PassesPage = () => {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [showSwipeModal, setShowSwipeModal] = useState(false);
+  const [mintingStates, setMintingStates] = useState<{[key: string]: boolean}>({});
+  const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'error'}>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
+  const { connection } = useAppKitConnection();
+  const { isConnected, address } = useAppKitAccount();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isMinting, setIsMinting] = useState(false);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -32,6 +47,12 @@ const PassesPage = () => {
         const data = await res.json();
         if (data.profiles) {
           setProfiles(data.profiles);
+          // Initialize minting states for all profiles
+          const states = data.profiles.reduce((acc: any, profile: Profile) => {
+            acc[profile.address] = false;
+            return acc;
+          }, {});
+          setMintingStates(states);
         }
       } catch (error) {
         console.error('Error fetching profiles:', error);
@@ -95,6 +116,82 @@ const PassesPage = () => {
     return visibleProfiles;
   };
 
+  const mintNFT = async (profile: Profile) => {
+    if (!cardRef.current || !connection || !walletProvider) return;
+    setIsMinting(true);
+    
+    try {
+    // Set minting state for specific profile
+    setMintingStates(prev => ({...prev, [profile.address]: true}));
+
+      // Convert card to PNG
+      const dataUrl = await toPng(cardRef.current);
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const file = new File([blob], 'card.png', { type: 'image/png' });
+
+      // Upload image to IPFS
+      const imageUrl = await uploadToIPFS(file);
+      
+      // Upload metadata to IPFS
+      const metadataUrl = await uploadMetadataToIPFS(imageUrl, profile.username);
+
+      const walletAddress = localStorage.getItem('address');
+      if (!walletAddress) throw new Error('No wallet address found');
+
+      const latestBlockhash = await connection.getLatestBlockhash('finalized');
+
+      // Create transaction
+      const transaction = new Transaction({
+        feePayer: new PublicKey(walletAddress),
+        recentBlockhash: latestBlockhash?.blockhash,
+      }).add(
+        SystemProgram.transfer({
+          fromPubkey: new PublicKey(walletAddress),
+          toPubkey: new PublicKey(profile.address),
+          lamports: 10000000, // 0.01 SOL as minting fee
+        })
+      );
+
+      const signature = await walletProvider.sendTransaction(transaction, connection);
+      console.log('NFT minted:', signature);
+      
+      setToast({
+        show: true,
+        message: 'NFT minted successfully!',
+        type: 'success'
+      });
+
+      setTimeout(() => {
+        setToast({show: false, message: '', type: 'success'});
+      }, 3000);
+
+    } catch (err) {
+      console.error('Error minting NFT:', err);
+      let errorMessage = 'Failed to mint NFT. Please try again.';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('Blockhash not found')) {
+          errorMessage = 'Transaction expired. Please try again.';
+        }
+      }
+      
+      setToast({
+        show: true,
+        message: errorMessage,
+        type: 'error'
+      });
+
+      setTimeout(() => {
+        setToast({show: false, message: '', type: 'error'});
+      }, 3000);
+    } finally {
+      setIsMinting(false);
+    // Reset minting state for specific profile regardless of success/failure
+    setMintingStates(prev => ({...prev, [profile.address]: false}));
+    }
+  };
+
   return (
     <div className='min-h-screen pb-[60px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
@@ -147,8 +244,16 @@ const PassesPage = () => {
                     <p className='text-gray-400'>Access Card</p>
                   </div>
                   <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
-                  <button className='w-full bg-gray-700 cursor-not-allowed text-gray-400 py-3 rounded-lg'>
-                    Mint nft
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      mintNFT(currentProfile);
+                    }}
+                    disabled={mintingStates[currentProfile.address]}
+                    className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+                  >
+                    <RiNftFill className="text-xl" />
+                    {mintingStates[currentProfile.address] ? 'Minting...' : 'Mint NFT'}
                   </button>
                 </div>
               </div>
@@ -171,6 +276,8 @@ const PassesPage = () => {
                       ? "bg-gradient-to-r from-blue-500 to-purple-600"
                       : "bg-gradient-to-r from-blue-400 to-purple-500"
                     }
+                    onMint={() => mintNFT(profile)}
+                    isMinting={mintingStates[profile.address]}
                   />
                 </div>
               ))}
@@ -221,12 +328,37 @@ const PassesPage = () => {
         </div>
       )}
 
+      {/* Hidden card template for conversion */}
+      <div style={{ position: 'absolute', left: '-9999px' }}>
+        <div ref={cardRef}>
+          <AccessCardTemplate 
+            image={currentProfile?.profileImage || '/smile.jpg'} 
+            name={currentProfile?.username || ''} 
+          />
+        </div>
+      </div>
+
+      {/* Toast */}
+      {toast.show && (
+        <div className={`fixed bottom-4 right-4 p-4 rounded-lg ${
+          toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } text-white`}>
+          {toast.message}
+        </div>
+      )}
+
       <Footer />
     </div>
   )
 }
 
-const AccessCard = ({ image, name, className }: { image: string, name: string, className: string }) => (
+const AccessCard = ({ image, name, className, onMint, isMinting }: { 
+  image: string, 
+  name: string, 
+  className: string,
+  onMint: () => void,
+  isMinting: boolean 
+}) => (
   <div className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl ${className}`}>
     <div className='p-6 text-center'>
       <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
@@ -240,9 +372,16 @@ const AccessCard = ({ image, name, className }: { image: string, name: string, c
         <p className='font-mono text-white font-bold'>{name}</p>
         <RiHeart2Line className='text-white' />
       </div>
-      <button disabled className='w-full bg-gray-700/50 text-gray-300 py-3 rounded-xl font-medium flex items-center justify-center gap-2 cursor-not-allowed'>
+      <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          onMint();
+        }}
+        disabled={isMinting}
+        className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+      >
         <RiNftFill className="text-xl" />
-        Mint NFT
+        {isMinting ? 'Minting...' : 'Mint NFT'}
       </button>
     </div>
   </div>
