@@ -58,7 +58,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
       {/* NFT Toast */}
       {showNftToast && (
         <div className='fixed top-5 right-5 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in'>
-          <p>NFT passes will be available on next update after MVP! 🚀</p>
+          <p>Premium Class NFT passes will be available on next update after MVP! 🚀</p>
         </div>
       )}
 

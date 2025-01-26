@@ -49,10 +49,10 @@ const Footer = () => {
 
             {/* Bottom Bar */}
             <div className='w-full max-w-6xl border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-y-4'>
-                <p className='text-gray-400 text-sm'>© 2024 CreatorPass. Designed & Developed by Athkins</p>
+                <p className='text-gray-400 text-sm'>© 2025 CreatorPass. Designed & Developed by Athkins</p>
                 <div className='flex items-center gap-x-2 text-purple-500'>
                     <IoTicketSharp size={20} />
-                    <p className='text-sm'>Powered by Solana and Reown Appkit</p>
+                    <p className='text-sm'>Powered by Solana and Reown</p>
                 </div>
             </div>
         </div>

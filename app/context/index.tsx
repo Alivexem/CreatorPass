@@ -36,7 +36,7 @@ export const modal = createAppKit({
   adapters: [solanaAdapter],
   projectId,
 
-  networks: [solana, solanaTestnet, solanaDevnet],
+  networks: [ solanaTestnet, solanaDevnet],
   metadata,
   features: {
     email: true,
