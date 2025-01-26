@@ -206,15 +206,6 @@ const Content = ({ setToast }: ContentProps) => {
             return;
         }
 
-        if (note.length > 300) {
-            setToast({
-                show: true,
-                message: 'Thread too long, make it concise! (300 letters maximum)',
-                type: 'warning'
-            });
-            return;
-        }
-
         setPostText('Loading...');
         const myAddress = localStorage.getItem('address');
 
@@ -371,7 +362,16 @@ const Content = ({ setToast }: ContentProps) => {
     };
 
     const typing = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setNote(e.target.value);
+        const newValue = e.target.value;
+        if (newValue.length <= 150) {
+            setNote(newValue);
+        } else {
+            setToast({
+                show: true,
+                message: 'Post cannot exceed 150 characters',
+                type: 'warning'
+            });
+        }
     };
 
     const censorAddress = (address: string) => {
@@ -588,6 +588,7 @@ const Content = ({ setToast }: ContentProps) => {
                                         placeholder='Express yourself...' 
                                         className='w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none resize-none'
                                         rows={4}
+                                        maxLength={150}
                                     />
 
                                     <button
