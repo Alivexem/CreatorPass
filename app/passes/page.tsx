@@ -198,7 +198,7 @@ const PassesPage = () => {
               <IoMdClose size={24} />
             </button>
             <p className="text-white text-center text-lg">
-              hEY! Searching for contents? Access CREATORS in Nav section
+              HEY! searching for contents? you can access `CREATORS` in navigation section
             </p>
           </div>
         </div>
