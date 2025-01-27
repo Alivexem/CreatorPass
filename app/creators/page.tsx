@@ -13,6 +13,7 @@ import { FaBridgeCircleCheck } from "react-icons/fa6";
 import { SiFueler } from "react-icons/si";
 import { RiVipCrown2Fill } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Profile {
   address: string;
@@ -158,21 +159,33 @@ const CreatorsPage = () => {
         </div>
       )}
 
-      {showSwipeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4">
-            <button 
-              onClick={() => setShowSwipeModal(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+      <AnimatePresence>
+        {showSwipeModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 md:hidden"
+          >
+            <motion.div 
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, y: 20 }}
+              className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4"
             >
-              <IoMdClose size={24} />
-            </button>
-            <p className="text-white text-center text-lg">
-              Please swipe to see more creators
-            </p>
-          </div>
-        </div>
-      )}
+              <button 
+                onClick={() => setShowSwipeModal(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+              >
+                <IoMdClose size={24} />
+              </button>
+              <p className="text-white text-center text-lg">
+                Please swipe to see more creators
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className='container mx-auto px-4 pb-32'>
         <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
