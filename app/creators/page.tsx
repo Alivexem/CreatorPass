@@ -171,15 +171,15 @@ const CreatorsPage = () => {
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
-              className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4"
+              className="bg-purple-900 p-8 rounded-xl relative max-w-md mx-4"
             >
               <button 
                 onClick={() => setShowSwipeModal(false)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                className="absolute top-2 right-2 text-red-600 hover:text-white"
               >
                 <IoMdClose size={24} />
               </button>
-              <p className="text-white text-center text-lg">
+              <p className="text-purple-300 text-center text-lg">
                 Please swipe to see more creators
               </p>
             </motion.div>
