@@ -69,9 +69,9 @@ With things in place, this project could be scaled into a full-fledged startup, 
 - **Crypto Purchase**: You can purchase crypto using reown Appkit SDK in-app without having to leave the application.
 - **Manage Content**: Upload and delete exlusive contents from a personalized Admin Dashboard.  
 - **Engage with contents**: Users can like, comment and engage with posts.
--  **Mint NFT Passes**: Create tiered passes e.g. Bronze, Silver, Gold for premium content (Still in development - isted in issues and free for open-source contribution).
--  **In-App chat**: Users will be able to have a personal chat with creators (Still in development - listed in issues and free for open-source contribution).
-- **A.I Integration**: A.I recommendation for content creation and Fans pass purchase, A.I powered NFT management system (Still in development -  listed in issues and free for open-source contribution).
+-  **Mint NFT Passes**: Create tiered passes e.g. Bronze, Silver, Gold for premium content (Still in development - Check issues to contribute).
+-  **In-App chat**: Users will be able to have a personal chat with creators (Still in development - Check issues to contribute).
+- **A.I Integration**: A.I recommendation for content creation and Fans pass purchase, A.I powered NFT management system (Still in development -  Check issues to contribute).
 
 - 📊 On the bright side of it: Remember, for every pass a creator mints or a fan purchases/renews. CreatorPass makes profit
 
