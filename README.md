@@ -111,12 +111,23 @@ cd CreatorPass
 npm install
 ```
 
-*Step 3: Install Additional Dependencies*
+*Step 3: Install Dependencies*
 ```
-npm install @reown/appkit @reown/appkit-adapter-solana @solana/wallet-adapter-react @solana/wallet-adapter-wallets @solana/web3.js @walletconnect/client @walletconnect/web3-provider cloudinary echarts-for-react mongoose tailwindcss postcss typescript
+npm install @metaplex-foundation/mpl-token-metadata @reown/appkit @reown/appkit-adapter-solana @solana/spl-token @solana/wallet-adapter-react @solana/wallet-adapter-wallets @solana/web3.js @walletconnect/client @walletconnect/web3-provider axios cloudinary echarts-for-react form-data framer-motion html-to-image html2canvas install mongoose next pinata react react-dom react-icons
 ```
 
-*Step 4: Start the Development Server*
+
+*Step 4: Install dev Dependencies*
+```
+npm install -D @types/node @types/react @types/react-dom postcss tailwindcss typescript
+```
+
+*Step 5: Generate Tailwind CSS Config (if not already generated)*
+```
+npx tailwindcss init
+```
+
+*Step 6: Start the Development Server*
 ```
 npm run dev
 ```
@@ -125,7 +136,9 @@ npm run dev
 
 CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time - it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
 
-## The Obvious
+---
+
+### The Obvious
 
 I'll like to take account for my numerous commits to this project in a short timeline. My laptop can barely build a NextJs server so i just push the code and let vercel build it for me then i get feedback if there's an error.
 
