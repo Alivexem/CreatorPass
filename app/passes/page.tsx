@@ -328,12 +328,12 @@ const PassesPage = () => {
                   </div>
                   <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
                   <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      mintNFT(currentProfile);
-                    }}
+                    // onClick={(e) => {
+                    //   e.stopPropagation();
+                    //   mintNFT(currentProfile);
+                    // }}
                     disabled={mintingStates[currentProfile.address]}
-                    className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+                    className='w-full pointer-events-none cursor-not-allowed bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
                   >
                     <RiNftFill className="text-xl" />
                     {mintingStates[currentProfile.address] ? 'Minting...' : 'Mint NFT'}
@@ -480,12 +480,12 @@ const AccessCard = ({ image, name, className, onMint, isMinting }: {
         <RiHeart2Line className='text-white' />
       </div>
       <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          onMint();
-        }}
+        // onClick={(e) => {
+        //   e.stopPropagation();
+        //   onMint();
+        // }}
         disabled={isMinting}
-        className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+        className='w-full pointer-events-none cursor-not-allowed bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
       >
         <RiNftFill className="text-xl" />
         {isMinting ? 'Minting...' : 'Mint NFT'}
