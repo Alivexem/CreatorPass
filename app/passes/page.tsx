@@ -333,7 +333,7 @@ const PassesPage = () => {
                       // mintNFT(currentProfile);
                     }}
                     disabled={mintingStates[currentProfile.address]}
-                    className='w-full cursor-not-allowed bg-gray-800 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+                    className='w-full cursor-not-allowed bg-gray-700 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
                   >
                     <RiNftFill className="text-xl" />
                     {mintingStates[currentProfile.address] ? 'Minting...' : 'Mint NFT'}
@@ -485,7 +485,7 @@ const AccessCard = ({ image, name, className, onMint, isMinting }: {
           // onMint();
         }}
         disabled={isMinting}
-        className='w-full cursor-not-allowed bg-gray-800 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+        className='w-full cursor-not-allowed bg-gray-700 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
       >
         <RiNftFill className="text-xl" />
         {isMinting ? 'Minting...' : 'Mint NFT'}
