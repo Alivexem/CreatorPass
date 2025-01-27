@@ -13,6 +13,8 @@ import { uploadToIPFS, uploadMetadataToIPFS } from '@/utils/ipfsService';
 import { AccessCardTemplate } from '@/utils/cardTemplate';
 import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProgram, PublicKey, Provider } from '../../utils/reown';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
+import { motion, AnimatePresence } from "framer-motion";
+
 interface Profile {
   address: string;
   username: string;
@@ -295,38 +297,62 @@ const PassesPage = () => {
       </div>
 
       {/* Popup */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4">
-            <button 
-              onClick={() => setShowPopup(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+      <AnimatePresence>
+        {showPopup && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div 
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, y: 20 }}
+              className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4"
             >
-              <IoMdClose size={24} />
-            </button>
-            <p className="text-white text-center text-lg">
-              HEY! searching for contents? you can access `CREATORS` in navigation section
-            </p>
-          </div>
-        </div>
-      )}
+              <button 
+                onClick={() => setShowPopup(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+              >
+                <IoMdClose size={24} />
+              </button>
+              <p className="text-white text-center text-lg">
+                HEY! searching for contents? you can access `CREATORS` in navigation section
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Swipe Modal */}
-      {showSwipeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4">
-            <button 
-              onClick={() => setShowSwipeModal(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+      <AnimatePresence>
+        {showSwipeModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div 
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, y: 20 }}
+              className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4"
             >
-              <IoMdClose size={24} />
-            </button>
-            <p className="text-white text-center text-lg">
-              Please swipe to see more passes
-            </p>
-          </div>
-        </div>
-      )}
+              <button 
+                onClick={() => setShowSwipeModal(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+              >
+                <IoMdClose size={24} />
+              </button>
+              <p className="text-white text-center text-lg">
+                Please swipe to see more passes
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hidden card template for conversion */}
       <div style={{ position: 'absolute', left: '-9999px' }}>
@@ -340,7 +366,7 @@ const PassesPage = () => {
 
       {/* Toast */}
       {toast.show && (
-        <div className={`fixed bottom-4 right-4 p-4 rounded-lg ${
+        <div className={`fixed md:bottom-4 bottom-20 right-4 p-4 rounded-lg ${
           toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
         } text-white`}>
           {toast.message}

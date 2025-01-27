@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical } from "react-icons/fa6";
@@ -15,6 +15,8 @@ import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect, PublicKe
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { FaCar } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
+import { IoFlash } from "react-icons/io5";
+import { IoSend } from "react-icons/io5";
 
 interface Post {
     _id: string;
@@ -35,6 +37,13 @@ interface Profile {
     username: string;
     profileImage: string;
     address: string;
+}
+
+interface FunChat {
+    address: string;
+    message: string;
+    profileImage: string;
+    timestamp: string;
 }
 
 interface PageProps {
@@ -69,6 +78,12 @@ const CreatorPage = ({ params }: PageProps) => {
         type: 'success'
     });
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [showFunChat, setShowFunChat] = useState(false);
+    const [funChats, setFunChats] = useState<FunChat[]>([]);
+    const [funChatMessage, setFunChatMessage] = useState('');
+    const chatRef = useRef<HTMLDivElement>(null);
+    const [userProfile, setUserProfile] = useState<Profile | null>(null);
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     const { isConnected, address } = useAppKitAccount();
     const { connection } = useAppKitConnection();
@@ -130,6 +145,13 @@ const CreatorPage = ({ params }: PageProps) => {
                     setProfile(profileData.profile);
                 }
 
+                // Fetch user's own profile
+                if (myAddress) {
+                    const userProfileRes = await fetch(`/api/profile?address=${myAddress}`);
+                    const userProfileData = await userProfileRes.json();
+                    setUserProfile(userProfileData.profile);
+                }
+
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
 
@@ -157,6 +179,25 @@ const CreatorPage = ({ params }: PageProps) => {
 
         if (id) {
             fetchCreatorData();
+        }
+    }, [id]);
+
+    useEffect(() => {
+        const fetchFunChats = async () => {
+            try {
+                const res = await fetch(`/api/creator/${id}/funchat`);
+                const data = await res.json();
+                setFunChats(data.chats);
+                if (chatRef.current) {
+                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error fetching fun chats:', error);
+            }
+        };
+
+        if (id) {
+            fetchFunChats();
         }
     }, [id]);
 
@@ -251,6 +292,57 @@ const CreatorPage = ({ params }: PageProps) => {
         setShowGiftModal(false);
     };
 
+    const handleSendFunChat = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!funChatMessage.trim()) return;
+
+        try {
+            const address = localStorage.getItem('address');
+            if (!address) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'error'
+                });
+                return;
+            }
+
+            if (!userProfile) {
+                setShowProfileModal(true);
+                return;
+            }
+
+            const res = await fetch(`/api/creator/${id}/funchat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    address,
+                    message: funChatMessage.trim()
+                })
+            });
+
+            const data = await res.json();
+            
+            if (data.error) {
+                setToast({
+                    show: true,
+                    message: data.error,
+                    type: 'error'
+                });
+                return;
+            }
+
+            setFunChats(data.chats);
+            setFunChatMessage('');
+            
+            if (chatRef.current) {
+                chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    };
+
     if (loading) {
         return (
             <div className='bg-[#1A1D1F] pb-[100px] md:pb-0 min-h-screen flex flex-col'>
@@ -276,12 +368,12 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className='bg-[#1A1D1F] pb-[80px] md:pb-0'>
             <NavBar />
-            <button 
+            {/* <button 
                 onClick={() => router.push('/creators')}
                 className='absolute top-40 left-4 md:left-14 h-[50px] w-[50px] bg-transparent z-50 text-white hover:text-gray-600 transition-colors'
             >
                 <IoArrowBack size={24} />
-            </button>
+            </button> */}
             {toast.show && (
                 <div 
                     className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
@@ -292,7 +384,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 </div>
             )}
             <div className='mt-[80px]'></div>
-            <div className='flex flex-col space-y-10 justify-center items-center mb-20'>
+            <div className='flex flex-col space-y-10 justify-center items-center mb-20 md:ml-[300px]'>
                 {posts.map((post) => (
                     <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
@@ -496,6 +588,100 @@ const CreatorPage = ({ params }: PageProps) => {
                             style={{ objectFit: 'contain' }}
                             alt='full size image'
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* Mobile Fun Chat Toggle */}
+            <div className="md:hidden fixed left-4 bottom-[10vh] transform -translate-y-1/2 z-40">
+                <button
+                    onClick={() => setShowFunChat(true)}
+                    className="bg-indigo-600 p-3 rounded-full shadow-lg"
+                >
+                    <IoFlash className="text-white text-2xl" />
+                </button>
+            </div>
+
+            {/* Fun Chat Section */}
+            <div className={`fixed md:absolute top-1/2 md:top-[65vh] transform -translate-y-1/2 left-0 md:left-10 h-[65vh] md:h-[70vh] md:w-[400px] w-full 
+                bg-gradient-to-b from-gray-600 to-gray-800
+                ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
+                transition-transform duration-300 z-30 shadow-xl rounded-r-lg`}
+            >
+                <div className="p-4 h-full flex flex-col bg-black/30 md:bg-transparent">
+                    {/* Mobile Close Button */}
+                    <button
+                        onClick={() => setShowFunChat(false)}
+                        className="md:hidden absolute top-4 right-4 text-white"
+                    >
+                        <IoMdClose size={24} />
+                    </button>
+
+                    {/* Chat Header */}
+                    <div className="flex items-center gap-2 mb-4">
+                        <h2 className="text-xl font-bold text-white">
+                            {profile?.username}'s Fun Talk
+                        </h2>
+                        <IoFlash className="text-white text-xl" />
+                    </div>
+
+                    {/* Chat Messages */}
+                    <div
+                        ref={chatRef}
+                        className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2"
+                    >
+                        {funChats.map((chat, index) => (
+                            <div key={index} className="flex items-start gap-2 bg-white/5 p-2 rounded-lg">
+                                <Image
+                                    src={chat.profileImage}
+                                    alt="Profile"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full"
+                                />
+                                <div>
+                                    <p className="text-blue-200 text-xs">
+                                        {censorAddress(chat.address)}
+                                    </p>
+                                    <p className="text-white text-sm">{chat.message}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Chat Input */}
+                    <form onSubmit={handleSendFunChat} className="mt-auto">
+                        <input
+                            type="text"
+                            value={funChatMessage}
+                            onChange={(e) => setFunChatMessage(e.target.value)}
+                            placeholder="Type your message..."
+                            className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
+                        />
+                    </form>
+                </div>
+            </div>
+
+            {/* Profile Required Modal */}
+            {showProfileModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+                    <div className="bg-[#1A1D1F] rounded-lg p-6 md:w-[400px] w-[95%] relative">
+                        <button
+                            onClick={() => setShowProfileModal(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                        >
+                            <IoMdClose size={24} />
+                        </button>
+                        <div className="text-center">
+                            <h3 className="text-xl font-bold text-white mb-4">Profile Required</h3>
+                            <p className="text-gray-300 mb-6">You need to create a profile before you can chat</p>
+                            <button
+                                onClick={() => router.push('/dashboard')}
+                                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                            >
+                                Create Profile
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
