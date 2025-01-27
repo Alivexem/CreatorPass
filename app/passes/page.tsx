@@ -14,6 +14,20 @@ import { AccessCardTemplate } from '@/utils/cardTemplate';
 import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProgram, PublicKey, Provider } from '../../utils/reown';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { motion, AnimatePresence } from "framer-motion";
+import { 
+  createMint,
+  getOrCreateAssociatedTokenAccount,
+  mintTo,
+  TOKEN_PROGRAM_ID,
+  MINT_SIZE,
+  getMinimumBalanceForRentExemptMint,
+  createInitializeMintInstruction,
+  createAssociatedTokenAccountInstruction,
+  createMintToInstruction,
+} from '@solana/spl-token';
+import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+import { createCreateMetadataAccountV3Instruction } from '@metaplex-foundation/mpl-token-metadata';
+import { Keypair, Signer } from '@solana/web3.js';
 
 interface Profile {
   address: string;
@@ -123,76 +137,143 @@ const PassesPage = () => {
     setIsMinting(true);
     
     try {
-    // Set minting state for specific profile
-    setMintingStates(prev => ({...prev, [profile.address]: true}));
+        setMintingStates(prev => ({...prev, [profile.address]: true}));
 
-      // Convert card to PNG
-      const dataUrl = await toPng(cardRef.current);
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'card.png', { type: 'image/png' });
+        // Convert card to PNG and upload to IPFS
+        const dataUrl = await toPng(cardRef.current);
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], 'card.png', { type: 'image/png' });
+        const imageUrl = await uploadToIPFS(file);
+        const metadataUrl = await uploadMetadataToIPFS(imageUrl, profile.username);
 
-      // Upload image to IPFS
-      const imageUrl = await uploadToIPFS(file);
-      
-      // Upload metadata to IPFS
-      const metadataUrl = await uploadMetadataToIPFS(imageUrl, profile.username);
+        const walletAddress = localStorage.getItem('address');
+        if (!walletAddress) throw new Error('No wallet address found');
+        const walletPubkey = new PublicKey(walletAddress);
 
-      const walletAddress = localStorage.getItem('address');
-      if (!walletAddress) throw new Error('No wallet address found');
+        // Create mint account
+        const mintKeypair = Keypair.generate();
+        const lamports = await getMinimumBalanceForRentExemptMint(connection);
+        
+        // Create mint account transaction
+        const createMintAccountIx = SystemProgram.createAccount({
+            fromPubkey: walletPubkey,
+            newAccountPubkey: mintKeypair.publicKey,
+            space: MINT_SIZE,
+            lamports,
+            programId: TOKEN_PROGRAM_ID,
+        });
 
-      const latestBlockhash = await connection.getLatestBlockhash('finalized');
+        // Initialize mint instruction
+        const initializeMintIx = createInitializeMintInstruction(
+            mintKeypair.publicKey,
+            0,
+            walletPubkey,
+            walletPubkey,
+        );
 
-      // Create transaction
-      const transaction = new Transaction({
-        feePayer: new PublicKey(walletAddress),
-        recentBlockhash: latestBlockhash?.blockhash,
-      }).add(
-        SystemProgram.transfer({
-          fromPubkey: new PublicKey(walletAddress),
-          toPubkey: new PublicKey(profile.address),
-          lamports: 10000000, // 0.01 SOL as minting fee
-        })
-      );
+        // Get the token account address first
+        const [associatedTokenAddress] = await PublicKey.findProgramAddress(
+            [
+                walletPubkey.toBuffer(),
+                TOKEN_PROGRAM_ID.toBuffer(),
+                mintKeypair.publicKey.toBuffer(),
+            ],
+            TOKEN_PROGRAM_ID
+        );
 
-      const signature = await walletProvider.sendTransaction(transaction, connection);
-      console.log('NFT minted:', signature);
-      
-      setToast({
-        show: true,
-        message: 'NFT minted successfully!',
-        type: 'success'
-      });
+        // Create associated token account instruction
+        const createAtaIx = createAssociatedTokenAccountInstruction(
+            walletPubkey,
+            associatedTokenAddress,
+            walletPubkey,
+            mintKeypair.publicKey
+        );
 
-      setTimeout(() => {
-        setToast({show: false, message: '', type: 'success'});
-      }, 3000);
+        // Create mint to instruction
+        const mintToIx = createMintToInstruction(
+            mintKeypair.publicKey,
+            associatedTokenAddress,
+            walletPubkey,
+            1,
+            [],
+        );
+
+        // Create metadata
+        const [metadataAddress] = PublicKey.findProgramAddressSync(
+            [
+                Buffer.from('metadata'),
+                TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+                mintKeypair.publicKey.toBuffer(),
+            ],
+            TOKEN_METADATA_PROGRAM_ID
+        );
+
+        // Create metadata instruction
+        const createMetadataIx = createCreateMetadataAccountV3Instruction({
+            metadata: metadataAddress,
+            mint: mintKeypair.publicKey,
+            mintAuthority: walletPubkey,
+            payer: walletPubkey,
+            updateAuthority: walletPubkey,
+        }, {
+            createMetadataAccountArgsV3: {
+                data: {
+                    name: `${profile.username} Access Card`,
+                    symbol: 'PASS',
+                    uri: metadataUrl,
+                    sellerFeeBasisPoints: 0,
+                    creators: null,
+                    collection: null,
+                    uses: null,
+                },
+                isMutable: true,
+                collectionDetails: null,
+            },
+        });
+
+        // Combine all instructions in the correct order
+        const transaction = new Transaction().add(
+            createMintAccountIx,
+            initializeMintIx,
+            createAtaIx,  // Create ATA before minting
+            mintToIx,
+            createMetadataIx
+        );
+
+        const latestBlockhash = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = latestBlockhash.blockhash;
+        transaction.feePayer = walletPubkey;
+
+        // Sign with mint keypair
+        transaction.sign(mintKeypair);
+
+        // Send transaction
+        const signature = await walletProvider.sendTransaction(transaction, connection);
+        await connection.confirmTransaction(signature);
+
+        setToast({
+            show: true,
+            message: 'NFT minted successfully!',
+            type: 'success'
+        });
+
+        setTimeout(() => {
+            setToast({show: false, message: '', type: 'success'});
+        }, 3000);
 
     } catch (err) {
-      console.error('Error minting NFT:', err);
-      let errorMessage = 'Failed to mint NFT. Please try again.';
-      
-      if (err instanceof Error) {
-        if (err.message.includes('Blockhash not found')) {
-          errorMessage = 'Transaction expired. Please try again.';
-        }
-      }
-      
-      setToast({
-        show: true,
-        message: errorMessage,
-        type: 'error'
-      });
-
-      setTimeout(() => {
-        setToast({show: false, message: '', type: 'error'});
-      }, 3000);
+        console.error('Error minting NFT:', err);
+        setToast({
+            show: true,
+            message: 'Failed to mint NFT. Please try again.',
+            type: 'error'
+        });
     } finally {
-      setIsMinting(false);
-    // Reset minting state for specific profile regardless of success/failure
-    setMintingStates(prev => ({...prev, [profile.address]: false}));
+        setIsMinting(false);
+        setMintingStates(prev => ({...prev, [profile.address]: false}));
     }
-  };
+};
 
   return (
     <div className='min-h-screen pb-[60px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
