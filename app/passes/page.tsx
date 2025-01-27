@@ -155,24 +155,7 @@ const PassesPage = () => {
         const mintKeypair = Keypair.generate();
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
         
-        // Create mint account transaction
-        const createMintAccountIx = SystemProgram.createAccount({
-            fromPubkey: walletPubkey,
-            newAccountPubkey: mintKeypair.publicKey,
-            space: MINT_SIZE,
-            lamports,
-            programId: TOKEN_PROGRAM_ID,
-        });
-
-        // Initialize mint instruction
-        const initializeMintIx = createInitializeMintInstruction(
-            mintKeypair.publicKey,
-            0,
-            walletPubkey,
-            walletPubkey,
-        );
-
-        // Get the token account address first
+        // Get the token account address
         const [associatedTokenAddress] = await PublicKey.findProgramAddress(
             [
                 walletPubkey.toBuffer(),
@@ -182,24 +165,7 @@ const PassesPage = () => {
             TOKEN_PROGRAM_ID
         );
 
-        // Create associated token account instruction
-        const createAtaIx = createAssociatedTokenAccountInstruction(
-            walletPubkey,
-            associatedTokenAddress,
-            walletPubkey,
-            mintKeypair.publicKey
-        );
-
-        // Create mint to instruction
-        const mintToIx = createMintToInstruction(
-            mintKeypair.publicKey,
-            associatedTokenAddress,
-            walletPubkey,
-            1,
-            [],
-        );
-
-        // Create metadata
+        // Get metadata address
         const [metadataAddress] = PublicKey.findProgramAddressSync(
             [
                 Buffer.from('metadata'),
@@ -209,48 +175,82 @@ const PassesPage = () => {
             TOKEN_METADATA_PROGRAM_ID
         );
 
-        // Create metadata instruction
-        const createMetadataIx = createCreateMetadataAccountV3Instruction({
-            metadata: metadataAddress,
-            mint: mintKeypair.publicKey,
-            mintAuthority: walletPubkey,
-            payer: walletPubkey,
-            updateAuthority: walletPubkey,
-        }, {
-            createMetadataAccountArgsV3: {
-                data: {
-                    name: `${profile.username} Access Card`,
-                    symbol: 'PASS',
-                    uri: metadataUrl,
-                    sellerFeeBasisPoints: 0,
-                    creators: null,
-                    collection: null,
-                    uses: null,
+        // Create all instructions
+        const instructions = [
+            SystemProgram.createAccount({
+                fromPubkey: walletPubkey,
+                newAccountPubkey: mintKeypair.publicKey,
+                space: MINT_SIZE,
+                lamports,
+                programId: TOKEN_PROGRAM_ID,
+            }),
+            createInitializeMintInstruction(
+                mintKeypair.publicKey,
+                0,
+                walletPubkey,
+                walletPubkey,
+            ),
+            createAssociatedTokenAccountInstruction(
+                walletPubkey,
+                associatedTokenAddress,
+                walletPubkey,
+                mintKeypair.publicKey
+            ),
+            createMintToInstruction(
+                mintKeypair.publicKey,
+                associatedTokenAddress,
+                walletPubkey,
+                1,
+                [],
+            ),
+            createCreateMetadataAccountV3Instruction({
+                metadata: metadataAddress,
+                mint: mintKeypair.publicKey,
+                mintAuthority: walletPubkey,
+                payer: walletPubkey,
+                updateAuthority: walletPubkey,
+            }, {
+                createMetadataAccountArgsV3: {
+                    data: {
+                        name: `${profile.username} Access Card`,
+                        symbol: 'PASS',
+                        uri: metadataUrl,
+                        sellerFeeBasisPoints: 0,
+                        creators: null,
+                        collection: null,
+                        uses: null,
+                    },
+                    isMutable: true,
+                    collectionDetails: null,
                 },
-                isMutable: true,
-                collectionDetails: null,
-            },
-        });
+            })
+        ];
 
-        // Combine all instructions in the correct order
-        const transaction = new Transaction().add(
-            createMintAccountIx,
-            initializeMintIx,
-            createAtaIx,  // Create ATA before minting
-            mintToIx,
-            createMetadataIx
-        );
+        const transaction = new Transaction();
+        instructions.forEach(instruction => transaction.add(instruction));
 
-        const latestBlockhash = await connection.getLatestBlockhash();
+        const latestBlockhash = await connection.getLatestBlockhash('confirmed');
         transaction.recentBlockhash = latestBlockhash.blockhash;
         transaction.feePayer = walletPubkey;
 
-        // Sign with mint keypair
-        transaction.sign(mintKeypair);
+        // Sign with mint keypair first
+        transaction.partialSign(mintKeypair);
 
-        // Send transaction
-        const signature = await walletProvider.sendTransaction(transaction, connection);
-        await connection.confirmTransaction(signature);
+        // Send transaction through wallet
+        const signature = await walletProvider.sendTransaction(transaction, connection, {
+            signers: [mintKeypair]
+        });
+        
+        // Wait for confirmation
+        const confirmation = await connection.confirmTransaction({
+            signature,
+            blockhash: latestBlockhash.blockhash,
+            lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+        });
+
+        if (confirmation.value.err) {
+            throw new Error('Transaction failed');
+        }
 
         setToast({
             show: true,
@@ -330,10 +330,10 @@ const PassesPage = () => {
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      // mintNFT(currentProfile);
+                      mintNFT(currentProfile);
                     }}
                     disabled={mintingStates[currentProfile.address]}
-                    className='w-full cursor-not-allowed bg-gray-700 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+                    className='w-full bg-blue-700 hover:bg-blue-400 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
                   >
                     <RiNftFill className="text-xl" />
                     {mintingStates[currentProfile.address] ? 'Minting...' : 'Mint NFT'}
@@ -398,7 +398,7 @@ const PassesPage = () => {
               >
                 <IoMdClose size={24} />
               </button>
-              <p className="text-white text-center text-lg">
+              <p className="text-purple-500 text-center text-lg">
                 HEY! searching for contents? you can access `CREATORS` in navigation section
               </p>
             </motion.div>
@@ -419,15 +419,15 @@ const PassesPage = () => {
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
-              className="bg-purple-900 p-8 rounded-xl relative max-w-md mx-4"
+              className="bg-gray-900 p-8 rounded-xl relative max-w-md mx-4"
             >
               <button 
                 onClick={() => setShowSwipeModal(false)}
-                className="absolute top-2 right-2 text-red-600 hover:text-white"
+                className="absolute top-2 right-2 text-gray-300 hover:text-white"
               >
                 <IoMdClose size={24} />
               </button>
-              <p className="text-purple-300 text-center text-lg">
+              <p className="text-purple-400 text-center text-lg">
                 Please swipe to see more passes
               </p>
             </motion.div>
@@ -482,10 +482,10 @@ const AccessCard = ({ image, name, className, onMint, isMinting }: {
       <button 
         onClick={(e) => {
           e.stopPropagation();
-          // onMint();
+           onMint();
         }}
         disabled={isMinting}
-        className='w-full cursor-not-allowed bg-gray-700 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+        className='w-full bg-blue-700 hover:bg-blue-400 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
       >
         <RiNftFill className="text-xl" />
         {isMinting ? 'Minting...' : 'Mint NFT'}
