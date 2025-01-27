@@ -328,12 +328,12 @@ const PassesPage = () => {
                   </div>
                   <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
                   <button 
-                    // onClick={(e) => {
-                    //   e.stopPropagation();
-                    //   mintNFT(currentProfile);
-                    // }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // mintNFT(currentProfile);
+                    }}
                     disabled={mintingStates[currentProfile.address]}
-                    className='w-full pointer-events-none cursor-not-allowed bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+                    className='w-full cursor-not-allowed bg-gray-800 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
                   >
                     <RiNftFill className="text-xl" />
                     {mintingStates[currentProfile.address] ? 'Minting...' : 'Mint NFT'}
@@ -419,15 +419,15 @@ const PassesPage = () => {
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
-              className="bg-[#1A1D1F] p-8 rounded-xl relative max-w-md mx-4"
+              className="bg-purple-900 p-8 rounded-xl relative max-w-md mx-4"
             >
               <button 
                 onClick={() => setShowSwipeModal(false)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                className="absolute top-2 right-2 text-red-600 hover:text-white"
               >
                 <IoMdClose size={24} />
               </button>
-              <p className="text-white text-center text-lg">
+              <p className="text-purple-300 text-center text-lg">
                 Please swipe to see more passes
               </p>
             </motion.div>
@@ -480,12 +480,12 @@ const AccessCard = ({ image, name, className, onMint, isMinting }: {
         <RiHeart2Line className='text-white' />
       </div>
       <button 
-        // onClick={(e) => {
-        //   e.stopPropagation();
-        //   onMint();
-        // }}
+        onClick={(e) => {
+          e.stopPropagation();
+          // onMint();
+        }}
         disabled={isMinting}
-        className='w-full pointer-events-none cursor-not-allowed bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
+        className='w-full cursor-not-allowed bg-gray-800 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
       >
         <RiNftFill className="text-xl" />
         {isMinting ? 'Minting...' : 'Mint NFT'}
