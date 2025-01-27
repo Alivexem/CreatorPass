@@ -266,9 +266,13 @@ const PassesPage = () => {
         console.error('Error minting NFT:', err);
         setToast({
             show: true,
-            message: 'Failed to mint NFT. Please try again.',
+            message: 'Minting process terminated unexpectedly. Please try again later',
             type: 'error'
         });
+
+        setTimeout(() => {
+            setToast({show: false, message: '', type: 'error'});
+        }, 3000);
     } finally {
         setIsMinting(false);
         setMintingStates(prev => ({...prev, [profile.address]: false}));
