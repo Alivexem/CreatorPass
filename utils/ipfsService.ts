@@ -1,51 +1,50 @@
-const uploadToIPFS = async (file: File) => {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
+export const uploadToIPFS = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('file', file);
 
-    const res = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
-      method: 'POST',
-      headers: {
-        'pinata_api_key': process.env.NEXT_PUBLIC_PINATA_API_KEY!,
-        'pinata_secret_api_key': process.env.NEXT_PUBLIC_PINATA_SECRET_API_KEY!,
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to upload to IPFS');
+  }
+
+  const data = await response.json();
+  return data.url;
+};
+
+export const uploadMetadataToIPFS = async (imageUrl: string, name: string): Promise<string> => {
+  const metadata = {
+    name: `${name} Access Card`,
+    description: `Access Card for ${name}`,
+    image: imageUrl,
+    attributes: [
+      {
+        trait_type: "Type",
+        value: "Access Card"
       },
-      body: formData,
-    });
+      {
+        trait_type: "Creator",
+        value: name
+      }
+    ]
+  };
 
-    const data = await res.json();
-    return `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
-  } catch (error) {
-    console.error('Error uploading to IPFS:', error);
-    throw error;
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: JSON.stringify(metadata),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to upload metadata to IPFS');
   }
-};
 
-export const uploadMetadataToIPFS = async (imageUrl: string, name: string) => {
-  try {
-    const metadata = {
-      name: `${name} Access Pass`,
-      description: `Reown Access Pass for ${name}`,
-      image: imageUrl,
-      attributes: [
-        {
-          trait_type: "Type",
-          value: "Access Pass"
-        },
-        {
-          trait_type: "Creator",
-          value: name
-        }
-      ]
-    };
-
-    const blob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
-    const file = new File([blob], 'metadata.json');
-
-    return await uploadToIPFS(file);
-  } catch (error) {
-    console.error('Error uploading metadata:', error);
-    throw error;
-  }
-};
-
-export { uploadToIPFS }; 
+  const data = await response.json();
+  return data.url;
+}; 

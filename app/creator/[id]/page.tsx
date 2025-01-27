@@ -593,14 +593,16 @@ const CreatorPage = ({ params }: PageProps) => {
             )}
 
             {/* Mobile Fun Chat Toggle */}
-            <div className="md:hidden fixed left-4 bottom-[10vh] transform -translate-y-1/2 z-40">
-                <button
-                    onClick={() => setShowFunChat(true)}
-                    className="bg-indigo-600 p-3 rounded-full shadow-lg"
-                >
-                    <IoFlash className="text-white text-2xl" />
-                </button>
-            </div>
+            {!showFunChat && (
+                <div className="md:hidden fixed left-4 bottom-[10vh] transform -translate-y-1/2 z-40">
+                    <button
+                        onClick={() => setShowFunChat(true)}
+                        className="bg-indigo-600 p-3 rounded-full shadow-lg"
+                    >
+                        <IoFlash className="text-white text-2xl" />
+                    </button>
+                </div>
+            )}
 
             {/* Fun Chat Section */}
             <div className={`fixed md:absolute top-1/2 md:top-[65vh] transform -translate-y-1/2 left-0 md:left-10 h-[65vh] md:h-[70vh] md:w-[400px] w-full 

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
+import axios from 'axios';
+import FormData from 'form-data';
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -7,38 +9,67 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
     try {
-        const formData = await request.formData();
-        const file = formData.get('file');
+        const contentType = req.headers.get('content-type');
+        
+        // Handle JSON metadata
+        if (contentType?.includes('application/json')) {
+            const metadata = await req.json();
+            
+            const res = await axios.post(
+                'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+                metadata,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'pinata_api_key': process.env.NEXT_PUBLIC_PINATA_API_KEY!,
+                        'pinata_secret_api_key': process.env.NEXT_PUBLIC_PINATA_SECRET_API_KEY!,
+                    },
+                }
+            );
 
-        if (!file || !(file instanceof File)) {
-            return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
+            return NextResponse.json({ 
+                url: `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}` 
+            });
+        }
+        
+        // Handle file uploads
+        const data = await req.formData();
+        const file = data.get('file') as File;
+        
+        if (!file) {
+            return NextResponse.json({ error: 'No file provided' }, { status: 400 });
         }
 
-        // Convert file to base64
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const base64String = `data:${file.type};base64,${buffer.toString('base64')}`;
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const formData = new FormData();
+        formData.append('file', buffer, file.name);
 
-        // Upload to Cloudinary
-        const uploadResponse = await new Promise<any>((resolve, reject) => {
-            cloudinary.uploader.upload(base64String, {
-                folder: 'creator-pass-profiles'
-            }, (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            });
-        });
+        const res = await axios.post(
+            'https://api.pinata.cloud/pinning/pinFileToIPFS',
+            formData,
+            {
+                headers: {
+                    'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
+                    'pinata_api_key': process.env.NEXT_PUBLIC_PINATA_API_KEY!,
+                    'pinata_secret_api_key': process.env.NEXT_PUBLIC_PINATA_SECRET_API_KEY!,
+                },
+            }
+        );
 
         return NextResponse.json({ 
-            message: 'Image uploaded successfully',
-            imageUrl: uploadResponse.secure_url 
+            url: `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}` 
         });
-    } catch (error: any) {
+
+    } catch (error) {
         console.error('Upload error:', error);
-        return NextResponse.json({ 
-            message: `Upload failed: ${error.message}` 
-        }, { status: 500 });
+        if (axios.isAxiosError(error)) {
+            console.error('Pinata response:', error.response?.data);
+        }
+        return NextResponse.json(
+            { error: 'Error uploading to IPFS' }, 
+            { status: 500 }
+        );
     }
 } 
