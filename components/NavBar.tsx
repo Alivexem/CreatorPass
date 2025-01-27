@@ -127,13 +127,13 @@ const NavBar = () => {
         </form>
         <div className='flex items-center gap-x-5 text-white text-[1rem]'>
           <Link href='/welcome' className='hidden md:block'>
-            <p className={`cursor-pointer md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
+            <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
           </Link>
           <Link href='/creators' className='hidden md:block'>
-            <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
+            <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
           </Link>
           <Link href='/dashboard' className='hidden md:block'>
-            <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
+            <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
           </Link>
           
 
@@ -148,7 +148,7 @@ const NavBar = () => {
             className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
             onClick={handleConnect}
           >
-            <p className='text-[#682E9E]'>{connectValue}</p>
+            <p className='text-[#682E9E] font-mono'>{connectValue}</p>
           </div>
         </div>
       </div>
