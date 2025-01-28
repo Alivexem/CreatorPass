@@ -637,7 +637,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         {funChats.map((chat, index) => (
                             <div key={index} className="flex items-start gap-2 bg-white/5 p-2 rounded-lg">
                                 <Image
-                                    src={chat.profileImage}
+                                    src={chat.profileImage || '/empProfile.png'}
                                     alt="Profile"
                                     width={32}
                                     height={32}
