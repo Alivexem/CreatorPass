@@ -302,7 +302,7 @@ const Page = () => {
                             {hotCreators.map((creator, index) => (
                                 <div key={index} className='transform transition-all duration-300 hover:scale-105'>
                                     <AccessCard
-                                        image={creator.profileImage || '/smile.jpg'}
+                                        image={creator.profileImage || '/empProfile.png'}
                                         name={creator.username}
                                         className="bg-gradient-to-r from-blue-400 to-purple-500"
                                     />

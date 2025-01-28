@@ -13,6 +13,10 @@ const kanit = Kanit({
 export const metadata: Metadata = {
   title: "CreatorPass",
   description: "A decentralized social platform that connects content creators to fans effortlessly",
+  icons: {
+    icon: '/purpleLogo.png',
+    apple: '/purpleLogo.png',
+  },
 };
 
 export default function RootLayout({

@@ -131,7 +131,7 @@ const CreatorsPage = () => {
                   <div className='bg-slate-800 p-6 space-y-4'>
                     <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
                     <Image 
-                      src={currentProfile.profileImage || '/smile.jpg'} 
+                      src={currentProfile.profileImage || '/empProfile.png'} 
                       className='rounded-lg w-full h-48 object-cover' 
                       height={70} 
                       width={150} 

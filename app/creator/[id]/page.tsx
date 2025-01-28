@@ -391,7 +391,7 @@ const CreatorPage = ({ params }: PageProps) => {
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
                                     <Image
-                                        src={profile?.profileImage || '/smile.jpg'}
+                                        src={profile?.profileImage || '/empProfile.png'}
                                         fill
                                         style={{ objectFit: 'cover' }}
                                         alt='profile'

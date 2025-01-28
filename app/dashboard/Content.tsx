@@ -83,7 +83,7 @@ const Content = ({ setToast }: ContentProps) => {
             setUserProfile({
                 username: profileData.profile.username || 'Anonymous',
                 address: profileData.profile.address,
-                profilePic: profileData.profile.profileImage || '/smile.jpg'
+                profilePic: profileData.profile.profileImage || '/empProfile.png'
             });
 
             const initialLikes: { [key: string]: number } = {};

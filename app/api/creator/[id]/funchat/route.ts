@@ -29,7 +29,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         const chat = {
             address,
             message,
-            profileImage: profile?.profileImage || '/smile.jpg',
+            profileImage: profile?.profileImage || '/empProfile.png',
             timestamp: new Date()
         };
 
