@@ -121,19 +121,19 @@ const NavBar = () => {
             placeholder='Search CreatorPass'
             type='text'
           />
-          <button type="submit" className='h-[100%] lg:w-[15%] md:w-[30%] rounded-tr-[40px] rounded-br-[40px] bg-gray-800 hover:bg-gray-500 text-white flex justify-center items-center'>
+          <button type="submit" className='h-[100%] lg:w-[15%] md:w-[30%] rounded-full bg-gray-900 hover:bg-gray-500 text-white flex justify-center items-center'>
             <FiSearch />
           </button>
         </form>
         <div className='flex items-center gap-x-5 text-white text-[1rem]'>
           <Link href='/welcome' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
+            <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
           </Link>
           <Link href='/creators' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
+            <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
           </Link>
           <Link href='/dashboard' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-700' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
+            <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
           </Link>
           
 
