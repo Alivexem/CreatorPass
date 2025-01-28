@@ -63,7 +63,11 @@ const Page = () => {
         try {
             const res = await fetch('/api/worldchat');
             const data = await res.json();
-            setChats(data.chats);
+            // Sort chats by timestamp in ascending order (oldest first)
+            const sortedChats = [...data.chats].sort((a, b) => 
+                new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+            );
+            setChats(sortedChats);
             if (chatRef.current) {
                 chatRef.current.scrollTop = chatRef.current.scrollHeight;
             }
