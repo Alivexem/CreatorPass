@@ -121,32 +121,59 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setSelectedImagePreview(URL.createObjectURL(file));
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
     setLoading(true);
 
-    try {
-        const formData = new FormData();
-        formData.append('file', file);
+    reader.onloadend = async () => {
+        const base64data = reader.result;
 
-        const res = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-        });
+        try {
+            const res = await fetch("/api/imageApi", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ data: base64data }),
+            });
 
-        if (!res.ok) {
-            throw new Error(`Upload failed: ${res.status}`);
+            if (!res.ok) {
+                throw new Error(`Upload failed: ${res.status}`);
+            }
+
+            const data = await res.json();
+            setProfileImage(data.url);
+            setSelectedImagePreview(URL.createObjectURL(file));
+        } catch (error: any) {
+            console.error('Error uploading image:', error);
+            setToast({
+                show: true,
+                message: 'Failed to upload image. Please try again.',
+                type: 'error'
+            });
+            setSelectedImagePreview('');
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const data = await res.json();
-        setProfileImage(data.imageUrl);
-    } catch (error: any) {
-        console.error('Error uploading image:', error);
-        alert(error.message || 'Failed to upload image');
-        setSelectedImagePreview('');
-    } finally {
+    reader.onerror = () => {
+        setToast({
+            show: true,
+            message: 'Error reading file. Please try again.',
+            type: 'error'
+        });
         setLoading(false);
-    }
+    };
   };
+
+  useEffect(() => {
+    return () => {
+        if (selectedImagePreview) {
+            URL.revokeObjectURL(selectedImagePreview);
+        }
+    };
+  }, [selectedImagePreview]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
