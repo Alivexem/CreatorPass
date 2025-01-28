@@ -187,7 +187,8 @@ const CreatorPage = ({ params }: PageProps) => {
             try {
                 const res = await fetch(`/api/creator/${id}/funchat`);
                 const data = await res.json();
-                setFunChats(data.chats);
+                // Reverse the order of chats so recent ones appear at bottom
+                setFunChats([...data.chats].reverse());
                 if (chatRef.current) {
                     chatRef.current.scrollTop = chatRef.current.scrollHeight;
                 }
@@ -332,7 +333,8 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
-            setFunChats(data.chats);
+            // Reverse the order of chats so recent ones appear at bottom
+            setFunChats([...data.chats].reverse());
             setFunChatMessage('');
             
             if (chatRef.current) {
@@ -391,7 +393,7 @@ const CreatorPage = ({ params }: PageProps) => {
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
                                     <Image
-                                        src={profile?.profileImage || '/smile.jpg'}
+                                        src={profile?.profileImage || '/empProfile.png'}
                                         fill
                                         style={{ objectFit: 'cover' }}
                                         alt='profile'

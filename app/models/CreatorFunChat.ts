@@ -17,7 +17,7 @@ const CreatorFunChatSchema = new mongoose.Schema({
         },
         profileImage: {
             type: String,
-            default: '/smile.jpg'
+            default: '/empProfile.png'
         },
         timestamp: {
             type: Date,

@@ -330,7 +330,7 @@ const PassesPage = () => {
                     <p className='text-3xl font-bold text-white mb-2'>{currentProfile.username}</p>
                     <p className='text-gray-400'>Access Card</p>
                   </div>
-                  <Image src={currentProfile.profileImage || '/smile.jpg'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
+                  <Image src={currentProfile.profileImage || '/empProfile.png'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
@@ -357,7 +357,7 @@ const PassesPage = () => {
                   onClick={() => setShowPopup(true)}
                 >
                   <AccessCard
-                    image={profile.profileImage || '/smile.jpg'}
+                    image={profile.profileImage || '/empProfile.png'}
                     name={profile.username}
                     className={index === 1 
                       ? "bg-gradient-to-r from-blue-500 to-purple-600"
@@ -443,7 +443,7 @@ const PassesPage = () => {
       <div style={{ position: 'absolute', left: '-9999px' }}>
         <div ref={cardRef}>
           <AccessCardTemplate 
-            image={currentProfile?.profileImage || '/smile.jpg'} 
+            image={currentProfile?.profileImage || '/empProfile.png'} 
             name={currentProfile?.username || ''} 
           />
         </div>
