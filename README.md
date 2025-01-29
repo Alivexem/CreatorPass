@@ -7,7 +7,7 @@
 
 ## Overview
 
-###Development_Began: Jan 9th, 2025.
+> Development_Began: Jan 9th, 2025.
 
 CreatorPass is a decentralized social platform designed to empower creators and their fans through blockchain technology. Creators can mint NFT-based passes, allowing fans to access premium content, receive gifted crypto in-app, and update their wallet balance seamlessly. It’s more than just a platform, it’s a gateway to deeper creator-fan connections and sustainable monetization.
 
