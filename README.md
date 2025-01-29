@@ -168,7 +168,7 @@ CreatorPass was built during Reown bounty timeline, being an idea i've had for a
 
 ### The Obvious
 
-I'll like to take account for my numerous commits to this project in a short timeline. My laptop can barely build a NextJs server so i just push the code and let vercel build it for me then i get feedback if there's an error.
+I'll like to take account for my numerous commits to this project in a short timeline. My laptop can barely build this project's NextJs server cause of the size so i just push the code and let vercel build it for me then i get feedback if there's an error.
 
 
 **Live Demo**: [CreatorPass.vercel.app](https://CreatorPass.vercel.app/)
