@@ -128,7 +128,8 @@ npx tailwindcss init
 ```
 
 *Step 6: Environment Variables*:
-`
+
+```
 NEXT_PUBLIC_BUNDLR_NODE=your_bunblr_node_api
 
 NEXT_PUBLIC_SOLANA_RPC_URL=your_solana_rpc_url
@@ -149,7 +150,8 @@ CLOUDINARY_API_KEY=your_cloudinary_api_key
 
 CLOUDINARY_NAME=your_cloudinary_name
 
-NEXT_PUBLIC_REOWN_API_KEY=your_reown_api_key`
+NEXT_PUBLIC_REOWN_API_KEY=your_reown_api_key
+```
 
 
 
