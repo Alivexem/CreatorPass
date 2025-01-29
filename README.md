@@ -7,11 +7,15 @@
 
 ## Overview
 
-CreatorPass is a decentralized social platform designed to empower creators and their fans through blockchain technology. Creators can mint NFT-based passes that fans can purchase to access premium content, get Gifted crypto in-app and also update wallet balance in-app. It’s more than just a platform, it’s a gateway to fostering deeper connections and monetizing creativity. Artists can now price their craft, content-creators can move into the Web3 ecosystem and thrive, CreatorPass is infact for everyone.
+CreatorPass is a decentralized social platform designed to empower creators and their fans through blockchain technology. Creators can mint NFT-based passes, allowing fans to access premium content, receive gifted crypto in-app, and update their wallet balance seamlessly. It’s more than just a platform, it’s a gateway to deeper creator-fan connections and sustainable monetization.
+
+Artists can now price their craft, and content creators can thrive in Web3 without relying on centralized platforms. CreatorPass is built for everyone.
+
+While some platforms explore NFT-based access passes, such as Unlock Protocol, no other live platform is currently focused on CreatorPass’s unique blend of social engagement, direct creator monetization, and Web3-native experiences.
+
+
 
 This project commenced on **January 9, 2025** but the idea have long been in my heart. CreatorPass highlights the potential of Web3 by leveraging Solana and Reown AppKit for seamless integration. By bringing creators and fans to the blockchain, CreatorPass is helping onboard more users to the web3 ecosystem.
-
-With things in place, this project could be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
 
 ---
 
@@ -162,7 +166,10 @@ npm run dev
 
 ### CONCLUSION
 
-CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time - it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
+CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time - it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. With Web3 community support, this project will be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
+
+The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
+
 
 ---
 
