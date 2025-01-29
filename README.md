@@ -127,7 +127,33 @@ npm install -D @types/node @types/react @types/react-dom postcss tailwindcss typ
 npx tailwindcss init
 ```
 
-*Step 6: Start the Development Server*
+*Step 6: Environment Variables*:
+`
+NEXT_PUBLIC_BUNDLR_NODE=your_bunblr_node_api
+
+NEXT_PUBLIC_SOLANA_RPC_URL=your_solana_rpc_url
+
+NEXT_PUBLIC_PINATA_SECRET_API_KEY=your_pinata_secret_key
+
+NEXT_PUBLIC_PINATA_API_KEY=your_pinata_api_key
+
+NEXT_PUBLIC_SHYFT_KEY=your_shyft_api_key
+
+MONGODB_URI=your_mongodb_uri_for_vs_code_environment
+
+NODE_NO_WARNINGS=1
+
+CLOUDINARY_API_SECRET=your_cloudinary_secret_key
+
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+
+CLOUDINARY_NAME=your_cloudinary_name
+
+NEXT_PUBLIC_REOWN_API_KEY=your_reown_api_key`
+
+
+
+*Step 7: Start the Development Server*
 ```
 npm run dev
 ```
