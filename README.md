@@ -41,7 +41,7 @@ Providing exclusive content is costly and fragmented, forcing fans to juggle mul
 
 **4. Limited Global & Cross-Platform Reach**
 
-Payment and platform restrictions prevent seamless access, limiting opportunities for creators and fans worldwide.
+Payment and platform restrictions prevent seamless access, limiting opportunities for creators and fans worldwide due to regional restrictions from Fiat payment.
 
 
 ---
