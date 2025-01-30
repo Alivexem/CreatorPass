@@ -156,6 +156,6 @@ The goal is to onboard a new wave of users (both web2 and non-solana crypto nati
 
 ### The Obvious
 
-I'll like to take account for my numerous commits to this project in a short timeline. Due to hardware limitations, my laptop struggled to build the project's Next.js server locally because of it's size. To ensure smooth development, I relied on Vercel’s CI/CD pipeline for builds and debugging. After every push, Vercel automatically compiles the project, and I review the build logs to fix any errors. This approach ensured continuous progress despite local limitations. Balancing design and development within 20 days as a solo developer was no easy task, but the challenge made the entire development great.
+I'll like to take account for my numerous commits to this project in a short timeline. Due to hardware limitations, my laptop struggled to build the project's Next.js server locally because of it's size. To ensure smooth development, I relied on Vercel’s CI/CD pipeline for builds and debugging. After every push, Vercel automatically compiles the project, and I review the build logs to fix any errors. This approach ensured continuous progress despite local limitations. Balancing design and development within 20 days as a solo developer was no easy task, but I love that the challenge made the entire development experience great.
 
 **Live Demo**: [CreatorPass.vercel.app](https://CreatorPass.vercel.app/)
