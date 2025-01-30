@@ -147,9 +147,9 @@ npm run dev
 
 ### CONCLUSION
 
-CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time, it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. With good support, this project will be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
+CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time, it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. This project will be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
 
-The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform. CreatorPass is the first of it's kind in the web3 ecosystem and an early advantage.
+The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
 
 
 ---
