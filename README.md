@@ -20,46 +20,28 @@ While some platforms explore NFT-based access passes, such as Unlock Protocol, n
 
 ## Why CreatorPass?
 
-**1. Limited Monetization Options for Creators**
 
-- Traditional platforms take significant cuts from creators' earnings.
-- Monetization methods like ads and subscriptions often lack transparency and flexibility for creators.
+**1. Unfair Monetization & High Fees**
 
-**2. Centralized Platform Dependence**
-
-- Creators rely on centralized platforms that control their content, revenue, and audience access.
-- Platforms can de-platform creators without notice, affecting income and audience reach.
+Traditional platforms take large cuts, and payment gateways charge high transaction fees, reducing creators' earnings.
 
 
 
-**3. Exclusivity Challenges**
+**2. Lack of Ownership & Control**
 
-- Providing exclusive content to fans often requires third-party services, which can be costly and inefficient.
-- Fans lack a seamless way to access exclusive creator content without juggling multiple apps.
-
-
-**4. High Fees for Fans and Creators**
-- Payment gateways charge high transaction fees for fans to access content, reducing creators' earnings.
+Centralized platforms dictate content, revenue, and audience access, with no true ownership for creators or fans.
 
 
 
-**5. Ownership and Licensing Issues**
+**3. Inefficient Exclusivity & Access**
 
-- Creators often lack control over the intellectual property (IP) of their content on traditional platforms.
-- Fans have no real ownership of purchased content or benefits.
+Providing exclusive content is costly and fragmented, forcing fans to juggle multiple services.
 
-**6. Lack of Incentive for Fans**
 
-- Fans who support creators don't receive tangible benefits or rewards in most cases.
-- No system exists to build stronger connections between fans and creators beyond financial support.
 
-**7. Lack of Interoperability**
+**4. Limited Global & Cross-Platform Reach**
 
-- Fans and creators are restricted to specific platforms, making it hard to transfer benefits, memberships, or digital content across platforms.
-
-**8. Global Accessibility Barriers**
-
-- Payment systems often limit access to global creators and fans due to regional restrictions or currency issues.
+Payment and platform restrictions prevent seamless access, limiting opportunities for creators and fans worldwide.
 
 
 ---
@@ -165,9 +147,9 @@ npm run dev
 
 ### CONCLUSION
 
-CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time - it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. With Web3 community support, this project will be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
+CreatorPass was built during Reown bounty timeline, being an idea i've had for a long time, it isn’t just a bounty submission. I needed a spark and hope for support, it’s a blueprint for the future of content monetization around the world. With good support, this project will be scaled into a full-fledged startup, leveraging Solana and Reown AppKit for a range of Web3 features.
 
-The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform.
+The goal is to onboard a new wave of users (both web2 and non-solana crypto native users) to Solana and web3 through a seamless, user-friendly platform. CreatorPass is the first of it's kind in the web3 ecosystem and an early advantage.
 
 
 ---
