@@ -37,7 +37,7 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
   }
 
   return (
-    <div className="h-screen">
+    <div className="h-[90vh]">
       <CreatorChat
         creatorAddress={params.address}
         userAddress={userAddress}
