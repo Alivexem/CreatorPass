@@ -19,6 +19,6 @@ const profileSchema = new Schema({
 
 profileSchema.index({ address: 1 });
 
-const Profile = mongoose.models.Profile || mongoose.model('Profile', profileSchema);
+const Profile = mongoose.models.userProfiles || mongoose.model('userProfiles', profileSchema);
 
 export default Profile; 
