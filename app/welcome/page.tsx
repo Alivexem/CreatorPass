@@ -264,7 +264,7 @@ const Page = () => {
                                         alt='Profile'
                                         width={40}
                                         height={40}
-                                        className='rounded-full'
+                                        className='rounded-full object-cover w-[40px] h-[40px]'
                                     />
                                     <div>
                                         <p className='text-gray-400 text-sm'>
