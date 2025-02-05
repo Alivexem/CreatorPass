@@ -17,15 +17,15 @@ import { TbWorldCheck } from "react-icons/tb";
 import Toast from '@/components/Toast';
 
 interface AccessCardProps {
-  image: string;
-  name: string;
-  className: string;
+    image: string;
+    name: string;
+    className: string;
 }
 
 interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
+    icon: React.ReactNode;
+    title: string;
+    description: string;
 }
 
 interface WorldChat {
@@ -37,10 +37,10 @@ interface WorldChat {
 }
 
 interface Profile {
-  address: string;
-  username: string;
-  profileImage: string;
-  about?: string;
+    address: string;
+    username: string;
+    profileImage: string;
+    about?: string;
 }
 
 const Page = () => {
@@ -64,7 +64,7 @@ const Page = () => {
             const res = await fetch('/api/worldchat');
             const data = await res.json();
             // Sort chats by timestamp in ascending order (oldest first)
-            const sortedChats = [...data.chats].sort((a, b) => 
+            const sortedChats = [...data.chats].sort((a, b) =>
                 new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
             );
             setChats(sortedChats);
@@ -148,16 +148,16 @@ const Page = () => {
                 />
             )}
             <NavBar />
-            
+
             {/* Hero Section */}
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
                 className='container mx-auto px-4 pt-20 pb-32'
             >
                 <div className='max-w-4xl mx-auto text-center space-y-6'>
-                    <motion.h1 
+                    <motion.h1
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.2 }}
@@ -165,7 +165,7 @@ const Page = () => {
                     >
                         Empowering Creators & Rewarding Fans
                     </motion.h1>
-                    <motion.p 
+                    <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.4 }}
@@ -189,7 +189,7 @@ const Page = () => {
 
 
             {/* Cards Section */}
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
@@ -197,7 +197,7 @@ const Page = () => {
             >
                 <div className='flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4'>
                     {/* Card 1 */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, x: -100, rotate: -12 }}
                         animate={{ opacity: 1, x: 0, rotate: -12 }}
                         whileHover={{ rotate: 0, scale: 1.05, x: -10 }}
@@ -212,7 +212,7 @@ const Page = () => {
                     </motion.div>
 
                     {/* Main Card */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 100 }}
                         animate={{ opacity: 1, y: 0, scale: 1.05 }}
                         whileHover={{ scale: 1.1 }}
@@ -227,7 +227,7 @@ const Page = () => {
                     </motion.div>
 
                     {/* Card 3 */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, x: 100, rotate: 12 }}
                         animate={{ opacity: 1, x: 0, rotate: 12 }}
                         whileHover={{ rotate: 0, scale: 1.05, x: 10 }}
@@ -248,12 +248,15 @@ const Page = () => {
                 <div className='flex flex-col md:flex-row gap-8 max-w-7xl mx-auto'>
                     {/* World Chat */}
                     <div className='w-full md:w-2/3 bg-[#393e42] rounded-xl p-6'>
-                        <div className='flex items-center gap-2'>
-                        <h2 className='text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
-                        <TbWorldCheck size={30} className='text-white' />
+                        <div className='flex items-center flex-col'>
+                            <div className='flex items-center gap-2'>
+                                <h2 className='text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
+                                <TbWorldCheck size={30} className='text-white' />
+                            </div>
+                            <p className='text-gray-400 text-sm'>All Countries</p>
                         </div>
-                        
-                        <div 
+
+                        <div
                             ref={chatRef}
                             className='h-[400px] overflow-y-auto mb-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent'
                         >
@@ -313,11 +316,11 @@ const Page = () => {
                 </div>
             </div>
 
-            
+
 
             {/* Features Section */}
             <div className='container mx-auto px-4 py-32'>
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 1.2 }}
@@ -360,29 +363,29 @@ const Page = () => {
 }
 
 const AccessCard = ({ image, name, className }: AccessCardProps) => (
-  <div className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl ${className}`}>
-    <div className='p-6 text-center'>
-      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-      <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
+    <div className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl ${className}`}>
+        <div className='p-6 text-center'>
+            <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
+            <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
+        </div>
+        <div className='bg-slate-800 p-6 space-y-4'>
+            <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
+            <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
+            <div className='flex items-center justify-center gap-3'>
+                <RiHeart2Line className='text-white' />
+                <p className='font-mono text-white font-bold'>{name}</p>
+                <RiHeart2Line className='text-white' />
+            </div>
+        </div>
     </div>
-    <div className='bg-slate-800 p-6 space-y-4'>
-      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-      <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
-      <div className='flex items-center justify-center gap-3'>
-        <RiHeart2Line className='text-white' />
-        <p className='font-mono text-white font-bold'>{name}</p>
-        <RiHeart2Line className='text-white' />
-      </div>
-    </div>
-  </div>
 )
 
 const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
-  <div className='bg-[#232629] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
-    <div className='text-blue-400 mb-4'>{icon}</div>
-    <h3 className='text-xl font-bold text-white mb-2'>{title}</h3>
-    <p className='text-gray-300'>{description}</p>
-  </div>
+    <div className='bg-[#232629] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
+        <div className='text-blue-400 mb-4'>{icon}</div>
+        <h3 className='text-xl font-bold text-white mb-2'>{title}</h3>
+        <p className='text-gray-300'>{description}</p>
+    </div>
 )
 
 export default Page

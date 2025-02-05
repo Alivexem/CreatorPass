@@ -386,7 +386,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 </div>
             )}
             <div className='mt-[80px]'></div>
-            <div className='flex flex-col space-y-10 justify-center items-center mb-20 md:ml-[300px]'>
+            <div className='flex flex-col space-y-10 justify-center items-center mb-20 md:mb-44 md:ml-[300px]'>
                 {posts.map((post) => (
                     <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
