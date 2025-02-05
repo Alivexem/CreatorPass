@@ -11,9 +11,24 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
             creatorAddress: params.id 
         });
         
-        return NextResponse.json({ chats: creatorChats?.chats || [] });
+        return new NextResponse(JSON.stringify({ chats: creatorChats?.chats || [] }), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
+        });
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch chats' }, { status: 500 });
+        return new NextResponse(JSON.stringify({ error: 'Failed to fetch chats' }), {
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
+        });
     }
 }
 

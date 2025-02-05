@@ -7,13 +7,24 @@ export async function GET() {
         await connectDB();
         const profiles = await Profile.find({}).select('address username about profileImage');
         
-        return NextResponse.json({ 
-            profiles 
+        return new NextResponse(JSON.stringify({ profiles }), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
         });
     } catch (error) {
         console.error('Get profiles error:', error);
-        return NextResponse.json({ 
-            message: 'Error' 
-        }, { status: 500 });
+        return new NextResponse(JSON.stringify({ message: 'Error' }), {
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
+        });
     }
 } 
