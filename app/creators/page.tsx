@@ -14,6 +14,9 @@ import { SiFueler } from "react-icons/si";
 import { RiVipCrown2Fill } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import CreatorChat from '@/components/CreatorChat';
+import { useRouter } from 'next/navigation';
 
 interface Profile {
   address: string;
@@ -29,6 +32,9 @@ const CreatorsPage = () => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [showSwipeModal, setShowSwipeModal] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [userAddress, setUserAddress] = useState<string>('');
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -50,6 +56,11 @@ const CreatorsPage = () => {
     // Show modal on mobile devices
     if (window.innerWidth <= 768) {
       setShowSwipeModal(true);
+    }
+
+    const address = localStorage.getItem('address');
+    if (address) {
+      setUserAddress(address);
     }
   }, []);
 
@@ -87,6 +98,14 @@ const CreatorsPage = () => {
     }
   };
 
+  const handleChatClick = (creatorAddress: string) => {
+    if (window.innerWidth <= 768) {
+      router.push(`/chat/${creatorAddress}`);
+    } else {
+      setSelectedChat(creatorAddress);
+    }
+  };
+
   const currentProfile = profiles[currentIndex];
 
   return (
@@ -117,35 +136,53 @@ const CreatorsPage = () => {
             </button>
 
             {currentProfile && (
-              <Link href={`/creator/${currentProfile.address}`}>
-                <div 
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                  className='w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-500 to-purple-600 transform hover:scale-105 transition-all duration-300'
-                >
-                  <div className='p-6 text-center'>
-                    <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-                    <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
-                  </div>
-                  <div className='bg-slate-800 p-6 space-y-4'>
-                    <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-                    <Image 
-                      src={currentProfile.profileImage || '/empProfile.png'} 
-                      className='rounded-lg w-full h-48 object-cover' 
-                      height={70} 
-                      width={150} 
-                      alt='profile' 
-                    />
-                    <div className='flex items-center justify-center gap-3'>
-                      <RiHeart2Line className='text-white' />
-                      <p className='font-mono text-white font-bold'>{currentProfile.username}</p>
-                      <RiHeart2Line className='text-white' />
+              <motion.div 
+                className="flex flex-col items-center"
+                animate={{ 
+                  x: selectedChat ? -100 : 0 
+                }}
+                transition={{ duration: 0.5 }}
+              >
+                <Link href={`/creator/${currentProfile.address}`}>
+                  <div 
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    className='w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-500 to-purple-600 transform hover:scale-105 transition-all duration-300'
+                  >
+                    <div className='p-6 text-center'>
+                      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
+                      <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
                     </div>
-                    <p className='text-gray-300 text-center text-sm'>{currentProfile.about}</p>
+                    <div className='bg-slate-800 p-6 space-y-4'>
+                      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
+                      <Image 
+                        src={currentProfile.profileImage || '/empProfile.png'} 
+                        className='rounded-lg w-full h-48 object-cover' 
+                        height={70} 
+                        width={150} 
+                        alt='profile' 
+                      />
+                      <div className='flex items-center justify-center gap-3'>
+                        <RiHeart2Line className='text-white' />
+                        <p className='font-mono text-white font-bold'>{currentProfile.username}</p>
+                        <RiHeart2Line className='text-white' />
+                      </div>
+                      <p className='text-gray-300 text-center text-sm'>{currentProfile.about}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleChatClick(currentProfile.address);
+                  }}
+                  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <IoChatbubbleEllipsesOutline className="text-xl" />
+                  <span>Chat with {currentProfile.username}</span>
+                </button>
+              </motion.div>
             )}
 
             <button 
@@ -175,9 +212,9 @@ const CreatorsPage = () => {
             >
               <button 
                 onClick={() => setShowSwipeModal(false)}
-                className="absolute top-2 right-2 text-red-600 hover:text-white"
+                className="absolute top-2 right-2 text-white hover:text-white"
               >
-                <IoMdClose size={24} />
+                <IoMdClose size={15} />
               </button>
               <p className="text-purple-300 text-center text-lg">
                 Please swipe to see more creators
@@ -211,6 +248,20 @@ const CreatorsPage = () => {
           />
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedChat && (
+          <CreatorChat
+            creatorAddress={selectedChat}
+            userAddress={userAddress}
+            creatorProfile={{
+              username: profiles.find(p => p.address === selectedChat)?.username || 'Unknown',
+              profileImage: profiles.find(p => p.address === selectedChat)?.profileImage || '/empProfile.png'
+            }}
+            onClose={() => setSelectedChat(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>
