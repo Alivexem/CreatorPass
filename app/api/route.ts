@@ -34,18 +34,26 @@ export async function GET(request: NextRequest) {
         await connectDB();
         const posts = await Creates.find().sort({ createdAt: -1 });
         
-        posts.forEach(post => {
-            console.log('Post:', {
-                ...post.toObject(),
-                likeCount: post.likes?.length || 0
-            });
+        return new NextResponse(JSON.stringify({ creator: posts }), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
         });
-
-        return NextResponse.json({ creator: posts });
     } catch (error: any) {
         console.error('Get posts error:', error);
-        return NextResponse.json({ 
+        return new NextResponse(JSON.stringify({ 
             message: error.message || 'An error occurred'
+        }), {
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
         });
     }
 }
