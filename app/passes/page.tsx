@@ -400,10 +400,10 @@ const PassesPage = () => {
                 onClick={() => setShowPopup(false)}
                 className="absolute top-2 right-2 text-gray-400 hover:text-white"
               >
-                <IoMdClose size={24} />
+                <IoMdClose size={18} />
               </button>
               <p className="text-purple-500 text-center text-lg">
-                HEY! searching for contents? you can access `CREATORS` in navigation section
+                HEY! You might be looking for my contents? Please access [CREATORS] in navigation section
               </p>
             </motion.div>
           </motion.div>
@@ -429,7 +429,7 @@ const PassesPage = () => {
                 onClick={() => setShowSwipeModal(false)}
                 className="absolute top-2 right-2 text-gray-300 hover:text-white"
               >
-                <IoMdClose size={24} />
+                <IoMdClose size={15} />
               </button>
               <p className="text-purple-400 text-center text-lg">
                 Please swipe to see more passes
