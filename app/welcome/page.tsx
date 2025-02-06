@@ -200,7 +200,7 @@ const Page = () => {
                         transition={{ duration: 0.5, delay: 0.6 }}
                     >
                         <Link href='/passes'>
-                            <button className='mt-8 px-8 font-mono py-4 mb-[50px] bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg font-medium hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
+                            <button className='mt-8 px-8 font-mono py-4 mb-[10px] md:mb-[50px] bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg font-medium hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
                                 Explore Passes
                             </button>
 
@@ -331,7 +331,7 @@ const Page = () => {
                         <h2 className='text-2xl font-bold text-white mb-6 flex items-center gap-2'>
                             HOT <FaFire className="text-orange-500" />
                         </h2>
-                        <div className='space-y-4'>
+                        <div className='space-y-4 -mb-[150px] md:mb-0'>
                             {hotCreators.map((creator, index) => (
                                 <div key={index} className='transform transition-all duration-300 hover:scale-105'>
                                     <AccessCard
