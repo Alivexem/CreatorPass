@@ -198,6 +198,7 @@ const Page = () => {
                     >
                         <Link href='/passes'>
                             <button className='mt-8 px-8 font-mono py-4 mb-[50px] bg-blue-500 text-white text-lg font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
+
                                 Explore Passes
                             </button>
                         </Link>
