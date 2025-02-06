@@ -528,7 +528,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                     setGiftAmount(selectedGift.flower);
                                                     handleSendTx(selectedGift.flower, id);
                                                 }} 
-                                                className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 transition-opacity'
+                                                className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
                                             >
                                                 <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
                                                 <GiFlowerPot className='text-[1.5rem]' />
@@ -540,7 +540,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                     setGiftAmount(selectedGift.car);
                                                     handleSendTx(selectedGift.car, id);
                                                 }} 
-                                                className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 transition-opacity'
+                                                className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
                                             >
                                                 <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
                                                 <FaCar className='text-[1.5rem]' />
@@ -552,7 +552,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                     setGiftAmount(selectedGift.house);
                                                     handleSendTx(selectedGift.house, id);
                                                 }} 
-                                                className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 transition-opacity'
+                                                className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
                                             >
                                                 <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
                                                 <FaLaptopHouse className='text-[1.5rem]' />

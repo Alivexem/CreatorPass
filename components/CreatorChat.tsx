@@ -91,7 +91,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
       initial={{ x: "100%" }}
       animate={{ x: 0 }}
       exit={{ x: "100%" }}
-      className="fixed right-0 top-0 h-full w-full md:w-[400px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
+      className="fixed right-0 top-0 h-[80vh] w-full md:w-[400px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
     >
       {/* Header */}
       <div className="bg-purple-900 p-4 flex items-center justify-between">
@@ -101,7 +101,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
             alt="Creator"
             width={40}
             height={40}
-            className="rounded-full"
+            className="rounded-full h-[40px] w-[40px] object-cover"
           />
           <h3 className="text-white font-bold">{creatorProfile.username}</h3>
         </div>
