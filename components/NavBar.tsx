@@ -114,9 +114,9 @@ const NavBar = () => {
         <Image 
           src='/whiteLogo.png' 
           alt='logo' 
-          height={33} 
-          width={120} 
-          className='h-[25px] w-[120px] md:h-[37px] md:w-[170px] lg:h-[40px] lg:w-[180px]'
+          height={40} 
+          width={180} 
+          className='h-[25px] w-[120px] md:h-[40px] md:w-[200px] lg:h-[40px] lg:w-[200px]'
         />
 
         <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
