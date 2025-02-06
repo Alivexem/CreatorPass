@@ -132,13 +132,13 @@ const NavBar = () => {
             <NotificationDropdown />
           </div>
           <Link href='/welcome' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Home</p>
+            <p className={`cursor-pointer text-white font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Home</p>
           </Link>
           <Link href='/creators' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Creators</p>
+            <p className={`cursor-pointer text-white font-mono ${pathname === '/creators' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Creators</p>
           </Link>
           <Link href='/dashboard' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
+            <p className={`cursor-pointer text-white font-mono ${pathname === '/dashboard' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
           </Link>
           
 
