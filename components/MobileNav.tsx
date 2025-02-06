@@ -52,7 +52,7 @@ const MobileNav = () => {
       );
 
       if (foundUser) {
-        router.push(`/creator/${foundUser.address}`);
+        router.push(`/creators?highlight=${foundUser.address}`);
         setShowMobileSearch(false);
         setSearchTerm('');
       } else {
