@@ -275,7 +275,7 @@ const Page = () => {
                                 <h2 className='text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
                                 <TbWorldCheck size={30} className='text-white' />
                             </div>
-                            <p className='text-gray-400 text-sm'>All Countries</p>
+                            {/* <p className='text-gray-400 text-sm'>All Countries</p> */}
                         </div>
 
                         <div
