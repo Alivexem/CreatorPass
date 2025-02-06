@@ -280,7 +280,7 @@ const PassesPage = () => {
 };
 
   return (
-    <div className='min-h-screen pb-[60px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
+    <div className='min-h-screen pb-[120px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
       
       {/* Hero Section */}
@@ -299,7 +299,7 @@ const PassesPage = () => {
       </div>
 
       {/* Cards Section */}
-      <div className='relative max-w-6xl mx-auto px-4 -mt-20'>
+      <div className='relative max-w-6xl mx-auto px-4 -mt-20 mb-20'>
         {loading ? (
           <div className='flex justify-center items-center py-20'>
             <div className='text-white text-xl animate-pulse'>Loading passes...</div>
