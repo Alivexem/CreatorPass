@@ -162,7 +162,7 @@ const NavBar = () => {
               className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
               onClick={handleConnect}
             >
-              <p className='text-[#682E9E] text-[0.7rem] md:text-[1rem] font-mono'>{connectValue}</p>
+              <p className='text-[#682E9E] text-[0.8rem] md:text-[1rem] font-mono'>{connectValue}</p>
             </div>
           </div>
         </div>
