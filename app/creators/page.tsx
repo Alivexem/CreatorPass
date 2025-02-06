@@ -187,7 +187,7 @@ const CreatorsPage = () => {
                   className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                 >
                   <IoChatbubbleEllipsesOutline className="text-xl" />
-                  <span>Chat with {currentProfile.username}</span>
+                  <span>Chat {currentProfile.username}</span>
                 </button>
                 <Link href={`/creator/${currentProfile.address}`}>
                   <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
@@ -221,7 +221,7 @@ const CreatorsPage = () => {
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
-              className="bg-purple-900 p-8 rounded-xl relative max-w-md mx-4"
+              className="bg-gray-800 p-8 rounded-xl relative max-w-md mx-4"
             >
               <button 
                 onClick={() => setShowSwipeModal(false)}
@@ -230,7 +230,7 @@ const CreatorsPage = () => {
                 <IoMdClose size={15} />
               </button>
               <p className="text-purple-300 text-center text-lg">
-                Please swipe to see more creators
+                Swipe to see more creators
               </p>
             </motion.div>
           </motion.div>
