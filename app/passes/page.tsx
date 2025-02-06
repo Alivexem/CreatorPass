@@ -316,36 +316,6 @@ const PassesPage = () => {
               <FaArrowAltCircleLeft className='text-3xl' />
             </button>
 
-            {/* Mobile View */}
-            <div 
-              className='md:hidden w-full max-w-[300px] mb-[60px]'
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onClick={() => setShowPopup(true)}
-            >
-              <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl'>
-                <div className='bg-[#1A1D1F] rounded-xl p-6 space-y-6'>
-                  <div className='text-center'>
-                    <p className='text-3xl font-bold text-white mb-2'>{currentProfile.username}</p>
-                    <p className='text-gray-400'>Access Card</p>
-                  </div>
-                  <Image src={currentProfile.profileImage || '/empProfile.png'} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      mintNFT(currentProfile);
-                    }}
-                    disabled={mintingStates[currentProfile.address]}
-                    className='w-full bg-blue-700 hover:bg-blue-400 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
-                  >
-                    <RiNftFill className="text-xl" />
-                    {mintingStates[currentProfile.address] ? 'Minting...' : 'Mint NFT'}
-                  </button>
-                </div>
-              </div>
-            </div>
-
             {/* Desktop View */}
             <div className='hidden md:flex gap-6'>
               {getVisibleProfiles().map((profile, index) => (
