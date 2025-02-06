@@ -292,7 +292,7 @@ const Page = () => {
                                         className='rounded-full object-cover w-[40px] h-[40px]'
                                     />
                                     <div>
-                                        <p className='text-purple-400 text-sm'>
+                                        <p className='text-purple-100 text-sm'>
                                             {formatUserInfo(chat.address, chat.country)}
                                         </p>
                                         <p className='text-white'>{chat.message}</p>
