@@ -138,6 +138,24 @@ const Page = () => {
         return shortAddress;
     };
 
+    const formatDate = (timestamp: string) => {
+        const date = new Date(timestamp);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (date.toDateString() === today.toDateString()) {
+            return "Today's chat";
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            return "Yesterday's chat";
+        } else {
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric'
+            }) + " chat";
+        }
+    };
+
     return (
         <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
             {toast.show && (
@@ -179,7 +197,8 @@ const Page = () => {
                         transition={{ duration: 0.5, delay: 0.6 }}
                     >
                         <Link href='/passes'>
-                            <button className='mt-8 px-8 font-mono py-4 mb-[50px] bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg font-medium hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
+                            <button className='mt-8 px-8 font-mono py-4 mb-[50px] bg-blue-500 text-white text-lg font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
+
                                 Explore Passes
                             </button>
                         </Link>
@@ -274,6 +293,9 @@ const Page = () => {
                                             {formatUserInfo(chat.address, chat.country)}
                                         </p>
                                         <p className='text-white'>{chat.message}</p>
+                                        <p className='text-gray-500 text-xs mt-1'>
+                                            -{formatDate(chat.timestamp)}-
+                                        </p>
                                     </div>
                                 </div>
                             ))}

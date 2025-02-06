@@ -15,6 +15,7 @@ import { RiVipCrown2Fill } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import { RiGalleryFill } from "react-icons/ri";
 import CreatorChat from '@/components/CreatorChat';
 import { useRouter } from 'next/navigation';
 
@@ -113,11 +114,17 @@ const CreatorsPage = () => {
       <NavBar />
       
       <div className='container mx-auto px-4 pt-20'>
-        <div className='max-w-4xl mx-auto text-center space-y-6'>
+        <motion.div 
+          className='max-w-4xl mx-auto text-center space-y-6'
+          animate={{ 
+            x: selectedChat ? -100 : 0 
+          }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
             Meet Your Favourite Creators
           </h1>
-        </div>
+        </motion.div>
       </div>
 
       {loading ? (
@@ -182,6 +189,12 @@ const CreatorsPage = () => {
                   <IoChatbubbleEllipsesOutline className="text-xl" />
                   <span>Chat with {currentProfile.username}</span>
                 </button>
+                <Link href={`/creator/${currentProfile.address}`}>
+                  <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
+                    <RiGalleryFill className="text-xl" />
+                    <span>View Posts</span>
+                  </button>
+                </Link>
               </motion.div>
             )}
 
