@@ -155,7 +155,7 @@ const Page = () => {
             return date.toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric'
-            }) + " chat";
+            });
         }
     };
 
@@ -244,7 +244,7 @@ const Page = () => {
                         <AccessCard
                             image="/smile.jpg"
                             name="Justina Kate"
-                            className="bg-gradient-to-r from-blue-500 to-purple-600"
+                            className="bg-gradient-to-r from-blue-500 to-purple-600 hidden md:block"
                         />
                     </motion.div>
 
@@ -354,7 +354,7 @@ const Page = () => {
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 1.2 }}
-                    className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'
+                    className='hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8'
                 >
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
                         <FeatureCard
