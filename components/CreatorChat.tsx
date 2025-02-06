@@ -66,6 +66,23 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
       timestamp: Date.now(),
     });
 
+    // Create notification for the recipient
+    try {
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientAddress: creatorAddress,
+          senderAddress: userAddress,
+          senderName: 'You have a new message',
+          message: newMessage,
+          type: 'message'
+        })
+      });
+    } catch (error) {
+      console.error('Failed to create notification:', error);
+    }
+
     setNewMessage('');
   };
 

@@ -138,6 +138,24 @@ const Page = () => {
         return shortAddress;
     };
 
+    const formatDate = (timestamp: string) => {
+        const date = new Date(timestamp);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (date.toDateString() === today.toDateString()) {
+            return "Today's chat";
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            return "Yesterday's chat";
+        } else {
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric'
+            }) + " chat";
+        }
+    };
+
     return (
         <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
             {toast.show && (
@@ -274,6 +292,9 @@ const Page = () => {
                                             {formatUserInfo(chat.address, chat.country)}
                                         </p>
                                         <p className='text-white'>{chat.message}</p>
+                                        <p className='text-gray-500 text-xs mt-1'>
+                                            -{formatDate(chat.timestamp)}-
+                                        </p>
                                     </div>
                                 </div>
                             ))}

@@ -11,6 +11,7 @@ import type { Provider } from '@reown/appkit-adapter-solana'
 import { GoHomeFill } from "react-icons/go";
 import { MdDashboardCustomize } from "react-icons/md";
 import { IoTicketSharp } from "react-icons/io5";
+import NotificationDropdown from './NotificationDropdown';
 
 const NavBar = () => {
   const { walletProvider } = useAppKitProvider<Provider>('solana')
@@ -126,6 +127,9 @@ const NavBar = () => {
           </button>
         </form>
         <div className='flex items-center gap-x-5 text-white text-[1rem]'>
+          <div className="hidden md:block">
+            <NotificationDropdown />
+          </div>
           <Link href='/welcome' className='hidden md:block'>
             <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
           </Link>
@@ -144,11 +148,16 @@ const NavBar = () => {
             <p className='text-white'>Sign out</p>
           </div> */}
 
-          <div
-            className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
-            onClick={handleConnect}
-          >
-            <p className='text-[#682E9E] font-mono'>{connectValue}</p>
+          <div className="flex items-center gap-2">
+            <div className="md:hidden">
+              <NotificationDropdown />
+            </div>
+            <div
+              className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
+              onClick={handleConnect}
+            >
+              <p className='text-[#682E9E] font-mono'>{connectValue}</p>
+            </div>
           </div>
         </div>
       </div>
