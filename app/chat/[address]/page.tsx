@@ -37,7 +37,7 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
   }
 
   return (
-    <div className="h-[80vh]">
+    <div className="h-[80vh] bg-[#1A1D1F]">
       <CreatorChat
         creatorAddress={params.address}
         userAddress={userAddress}
