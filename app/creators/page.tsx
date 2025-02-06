@@ -172,7 +172,7 @@ const CreatorsPage = () => {
                       />
                       <div className='flex items-center justify-center gap-3'>
                         <RiHeart2Line className='text-white' />
-                        <p className='font-mono text-white font-bold'>{currentProfile.username}</p>
+                        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{currentProfile.username}</p>
                         <RiHeart2Line className='text-white' />
                       </div>
                       <p className='text-gray-300 text-center text-sm'>{currentProfile.about}</p>
