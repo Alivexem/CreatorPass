@@ -291,12 +291,12 @@ const Page = () => {
                                         className='rounded-full object-cover w-[40px] h-[40px]'
                                     />
                                     <div>
-                                        <p className='text-gray-400 text-sm'>
+                                        <p className='text-purple-400 text-sm'>
                                             {formatUserInfo(chat.address, chat.country)}
                                         </p>
                                         <p className='text-white'>{chat.message}</p>
-                                        <p className='text-purple-500 text-[0.7rem] mt-1'>
-                                            -{formatDate(chat.timestamp)}
+                                        <p className='text-gray-500 text-[0.7rem] mt-1'>
+                                            {formatDate(chat.timestamp)}
                                         </p>
                                     </div>
                                 </div>

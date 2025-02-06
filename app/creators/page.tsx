@@ -35,6 +35,7 @@ const CreatorsPage = () => {
   const [showSwipeModal, setShowSwipeModal] = useState(false);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [userAddress, setUserAddress] = useState<string>('');
+  const [hasProfile, setHasProfile] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -62,6 +63,17 @@ const CreatorsPage = () => {
     const address = localStorage.getItem('address');
     if (address) {
       setUserAddress(address);
+      // Check if user has profile
+      const checkProfile = async () => {
+        try {
+          const res = await fetch(`/api/profiles?address=${address}`);
+          const data = await res.json();
+          setHasProfile(!!data.profile);
+        } catch (error) {
+          console.error('Error checking profile:', error);
+        }
+      };
+      checkProfile();
     }
   }, []);
 
@@ -100,6 +112,11 @@ const CreatorsPage = () => {
   };
 
   const handleChatClick = (creatorAddress: string) => {
+    if (!hasProfile) {
+      alert('Please set up your profile first to chat with creators');
+      return;
+    }
+
     if (window.innerWidth <= 768) {
       router.push(`/chat/${creatorAddress}`);
     } else {
@@ -179,16 +196,22 @@ const CreatorsPage = () => {
                     </div>
                   </div>
                 </Link>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleChatClick(currentProfile.address);
-                  }}
-                  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                >
-                  <IoChatbubbleEllipsesOutline className="text-xl" />
-                  <span>Chat with {currentProfile.username}</span>
-                </button>
+                {currentProfile.address !== userAddress && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleChatClick(currentProfile.address);
+                    }}
+                    className={`mt-4 px-6 py-3 rounded-lg flex items-center gap-2 ${
+                      !hasProfile 
+                        ? 'bg-gray-600 cursor-not-allowed' 
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    } text-white transition-colors`}
+                  >
+                    <IoChatbubbleEllipsesOutline className="text-xl" />
+                    <span>Chat with {currentProfile.username}</span>
+                  </button>
+                )}
                 <Link href={`/creator/${currentProfile.address}`}>
                   <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
                     <RiGalleryFill className="text-xl" />
