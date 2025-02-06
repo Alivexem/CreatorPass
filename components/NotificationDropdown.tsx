@@ -84,7 +84,7 @@ export default function NotificationDropdown() {
                         <RxDotFilled className="absolute -top-1 -right-1 text-blue-500 text-lg" />
                     </>
                 ) : (
-                    <IoNotificationsOutline className="text-[18px] md:text-[25px] />
+                    <IoNotificationsOutline className="text-[18px] md:text-[25px]" />
                 )}
             </button>
 
