@@ -111,7 +111,7 @@ const NavBar = () => {
         </div>
       )}
       {/* style={{ background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)' }} */}
-      <div className='p-3 z-50 flex bg-black justify-between position-fixed top-0 items-center'>
+      <div className='p-3 z-50 flex bg-black justify-between position-fixed top-0 items-center border-b border-white'>
         <Image src='/whiteLogo.png' alt='logo' height={40} width={200} />
 
         <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
@@ -127,18 +127,18 @@ const NavBar = () => {
             <FiSearch />
           </button>
         </form>
-        <div className='flex items-center gap-x-5 text-black text-[1rem]'>
+        <div className='flex items-center gap-x-5 text-white text-[1rem]'>
           <div className="hidden md:block">
             <NotificationDropdown />
           </div>
           <Link href='/welcome' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-200' : 'hover:text-purple-500'} p-2 rounded-lg`}>Home</p>
+            <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Home</p>
           </Link>
           <Link href='/creators' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-200' : 'hover:text-purple-500'} p-2 rounded-lg`}>Creators</p>
+            <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Creators</p>
           </Link>
           <Link href='/dashboard' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-200' : 'hover:text-purple-500'} p-2 rounded-lg`}>Dashboard</p>
+            <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-300 text-black' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
           </Link>
           
 
