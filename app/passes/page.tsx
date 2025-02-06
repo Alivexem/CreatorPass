@@ -340,6 +340,24 @@ const PassesPage = () => {
               ))}
             </div>
 
+            {/* Mobile View */}
+            <div 
+              className='md:hidden w-full'
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div className='flex justify-center'>
+                <AccessCard
+                  image={currentProfile?.profileImage || '/empProfile.png'}
+                  name={currentProfile?.username}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600"
+                  onMint={() => mintNFT(currentProfile)}
+                  isMinting={mintingStates[currentProfile?.address || '']}
+                />
+              </div>
+            </div>
+
             <button
               onClick={handleNext}
               className='hidden md:block text-white/50 hover:text-white transition-colors'
