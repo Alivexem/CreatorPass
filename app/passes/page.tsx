@@ -468,7 +468,7 @@ const AccessCard = ({ image, name, className, onMint, isMinting }: {
       <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
       <div className='flex items-center justify-center gap-3'>
         <RiHeart2Line className='text-white' />
-        <p className='font-mono text-white font-bold'>{name}</p>
+        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{name}</p>
         <RiHeart2Line className='text-white' />
       </div>
       <button 
