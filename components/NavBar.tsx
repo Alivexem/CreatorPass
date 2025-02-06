@@ -116,7 +116,7 @@ const NavBar = () => {
           alt='logo' 
           height={40} 
           width={180} 
-          className='h-[35px] w-[140px] md:h-[40px] md:w-[240px] lg:h-[40px] lg:w-[240px]'
+       
         />
 
         <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
