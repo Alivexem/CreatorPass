@@ -79,6 +79,20 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           ...data,
         }));
         setMessages(messagesList);
+
+        // Store notifications in Firebase for unread messages
+        const notificationsRef = ref(database, `notifications/${creatorAddress}`);
+        messagesList.forEach(async (message) => {
+          if (message.sender !== creatorAddress && !message.read) {
+            await push(notificationsRef, {
+              type: 'message',
+              sender: message.sender,
+              message: message.text,
+              timestamp: message.timestamp,
+              read: false
+            });
+          }
+        });
       }
     });
 
