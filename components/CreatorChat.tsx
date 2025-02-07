@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from "framer-motion";
 import { IoSend } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
-import { BsEmojiSmile, BsReply } from 'react-icons/bs';
+import { BsEmojiSmile, BsReply, BsThreeDotsVertical } from 'react-icons/bs';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
@@ -50,7 +50,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        showEmoji && 
         emojiRef.current && 
         !emojiRef.current.contains(event.target as Node) &&
         emojiButtonRef.current &&
@@ -62,7 +61,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showEmoji]);
+  }, []);
 
   useEffect(() => {
     const chatId = [creatorAddress, userAddress].sort().join('-');
@@ -151,7 +150,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
 
   const onEmojiSelect = (emoji: any) => {
     setNewMessage(prev => prev + emoji.native);
-    setShowEmoji(false);
   };
 
   return (
@@ -189,18 +187,32 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.sender === userAddress ? 'justify-end' : 'justify-start'}`}
+            onMouseEnter={() => handleMouseEnter(message.id)}
+            onMouseLeave={handleMouseLeave}
+            className={`flex ${message.sender === userAddress ? 'justify-end' : 'justify-start'} group`}
           >
-            <div className="relative">
-              <button
-                onClick={() => setReplyingTo(message)}
-                className="absolute -top-8 right-0 p-1 bg-gray-700 rounded hover:bg-gray-600 opacity-0 group-hover:opacity-100"
-              >
-                <BsReply className="text-white" />
-              </button>
+            <div className="relative flex flex-col items-center">
+              <div className="flex items-center gap-2 mb-1">
+                {hoveredMessage === message.id && (
+                  <>
+                    <button
+                      onClick={() => setReplyingTo(message)}
+                      className="p-1 bg-gray-700 rounded hover:bg-gray-600"
+                    >
+                      <BsReply className="text-white" />
+                    </button>
+                    <button
+                      onClick={() => setShowOptions(message.id)}
+                      className="p-1 bg-gray-700 rounded hover:bg-gray-600"
+                    >
+                      <BsThreeDotsVertical className="text-white" />
+                    </button>
+                  </>
+                )}
+              </div>
 
               {message.replyTo && (
-                <div className="text-sm text-gray-400 mb-1">
+                <div className="text-sm text-gray-400 mb-1 self-start">
                   Replying to: {message.replyTo.text.substring(0, 30)}...
                 </div>
               )}
@@ -210,8 +222,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
                   ? 'bg-purple-600 text-white rounded-br-none'
                   : 'bg-gray-700 text-white rounded-bl-none'
               }`}>
-                <p>{message.text}</p>
-                <p className="text-xs opacity-70 mt-1">
+                <p className="text-center">{message.text}</p>
+                <p className="text-xs opacity-70 mt-1 text-center">
                   {new Date(message.timestamp).toLocaleTimeString()}
                 </p>
               </div>

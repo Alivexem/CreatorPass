@@ -35,6 +35,7 @@ const CreatorsPage = () => {
   const [showSwipeModal, setShowSwipeModal] = useState(false);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [userAddress, setUserAddress] = useState<string>('');
+  const [highlightedCreator, setHighlightedCreator] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,6 +44,26 @@ const CreatorsPage = () => {
         const res = await fetch('/api/profiles');
         const data = await res.json();
         if (data.profiles) {
+          // Get the highlight parameter from URL
+          const params = new URLSearchParams(window.location.search);
+          const highlightAddress = params.get('highlight');
+          
+          if (highlightAddress) {
+            // Find the highlighted creator
+            const highlightedProfile = data.profiles.find(
+              (profile: Profile) => profile.address === highlightAddress
+            );
+            
+            if (highlightedProfile) {
+              // Set the current index to show the highlighted creator
+              const index = data.profiles.findIndex(
+                (profile: Profile) => profile.address === highlightAddress
+              );
+              setCurrentIndex(index >= 0 ? index : 0);
+              setHighlightedCreator(highlightAddress);
+            }
+          }
+          
           setProfiles(data.profiles);
         }
       } catch (error) {
@@ -109,6 +130,9 @@ const CreatorsPage = () => {
 
   const currentProfile = profiles[currentIndex];
 
+  // Add highlight effect to the creator card if it matches the highlighted address
+  const isHighlighted = currentProfile && currentProfile.address === highlightedCreator;
+
   return (
     <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
@@ -155,7 +179,10 @@ const CreatorsPage = () => {
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
-                    className='w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-500 to-purple-600 transform hover:scale-105 transition-all duration-300'
+                    className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl 
+                      bg-gradient-to-r from-blue-500 to-purple-600 
+                      transform hover:scale-105 transition-all duration-300
+                      ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
                   >
                     <div className='p-6 text-center'>
                       <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
