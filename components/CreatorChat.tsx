@@ -209,7 +209,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               <div className="relative flex flex-col items-center">
                 <div className={`max-w-[80%] p-3 flex justify-center items-center flex-col px-6 rounded-md ${
                   message.sender === userAddress
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-700 text-white'
                 }`}>
                   <p className="text-center">{message.text}</p>
