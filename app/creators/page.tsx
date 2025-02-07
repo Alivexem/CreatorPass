@@ -211,7 +211,7 @@ const CreatorsPage = () => {
                     e.preventDefault();
                     handleChatClick(currentProfile.address);
                   }}
-                  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
                 >
                   <IoChatbubbleEllipsesOutline className="text-xl" />
                   <span>Chat {currentProfile.username}</span>

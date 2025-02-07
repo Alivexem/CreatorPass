@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from "framer-motion";
 import { IoSend } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
-import { BsEmojiSmile, BsReply, BsThreeDotsVertical } from 'react-icons/bs';
+import { BsEmojiSmile } from 'react-icons/bs';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
@@ -15,11 +15,6 @@ interface Message {
   text: string;
   sender: string;
   timestamp: number;
-  replyTo?: {
-    id: string;
-    text: string;
-    sender: string;
-  };
 }
 
 interface CreatorChatProps {
@@ -40,9 +35,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
   const [newMessage, setNewMessage] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showEmoji, setShowEmoji] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
-  const [showOptions, setShowOptions] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const emojiRef = useRef<HTMLDivElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
@@ -98,9 +91,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setHoveredMessage(null);
-      if (!showOptions) {
-        setShowOptions(null);
-      }
     }, 2000);
   };
 
@@ -115,14 +105,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
     const messageData = {
       text: newMessage,
       sender: userAddress,
-      timestamp: Date.now(),
-      ...(replyingTo && {
-        replyTo: {
-          id: replyingTo.id,
-          text: replyingTo.text,
-          sender: replyingTo.sender
-        }
-      })
+      timestamp: Date.now()
     };
 
     await push(messagesRef, messageData);
@@ -145,7 +128,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
     }
 
     setNewMessage('');
-    setReplyingTo(null);
   };
 
   const onEmojiSelect = (emoji: any) => {
@@ -192,35 +174,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
             className={`flex ${message.sender === userAddress ? 'justify-end' : 'justify-start'} group`}
           >
             <div className="relative flex flex-col items-center">
-              <div className="flex items-center gap-2 mb-1">
-                {hoveredMessage === message.id && (
-                  <>
-                    <button
-                      onClick={() => setReplyingTo(message)}
-                      className="p-1 bg-gray-700 rounded hover:bg-gray-600"
-                    >
-                      <BsReply className="text-white" />
-                    </button>
-                    <button
-                      onClick={() => setShowOptions(message.id)}
-                      className="p-1 bg-gray-700 rounded hover:bg-gray-600"
-                    >
-                      <BsThreeDotsVertical className="text-white" />
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {message.replyTo && (
-                <div className="text-sm text-gray-400 mb-1 self-start">
-                  Replying to: {message.replyTo.text.substring(0, 30)}...
-                </div>
-              )}
-
               <div className={`max-w-[80%] p-5 rounded-md ${
                 message.sender === userAddress
-                  ? 'bg-purple-600 text-white rounded-br-none'
-                  : 'bg-gray-700 text-white rounded-bl-none'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-700 text-white'
               }`}>
                 <p className="text-center">{message.text}</p>
                 <p className="text-xs opacity-70 mt-1 text-center">
@@ -234,20 +191,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
 
       {/* Input */}
       <form onSubmit={sendMessage} className="p-4 bg-[#232629]">
-        {replyingTo && (
-          <div className="mb-2 p-2 bg-gray-700 rounded-lg flex justify-between items-center">
-            <p className="text-sm text-gray-300">
-              Replying to: {replyingTo.text.substring(0, 30)}...
-            </p>
-            <button
-              onClick={() => setReplyingTo(null)}
-              className="text-gray-400 hover:text-white"
-            >
-              <IoMdClose size={16} />
-            </button>
-          </div>
-        )}
-        
         <div className="flex gap-2 items-center">
           <button
             ref={emojiButtonRef}
