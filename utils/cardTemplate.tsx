@@ -17,6 +17,7 @@ export const AccessCardTemplate = ({ image, name }: { image: string, name: strin
         width={150} 
         alt='profile'
         unoptimized
+        priority
       />
       <div className='flex items-center justify-center gap-3'>
         <RiHeart2Line className='text-white' />

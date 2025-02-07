@@ -149,169 +149,164 @@ const PassesPage = () => {
         // Ensure we're using the correct profile image for the NFT
         const cardElement = cardRef.current.querySelector('div');
         if (cardElement) {
-            // Update the card template with the correct profile image before converting to PNG
-            const cardTemplate = (
-                <AccessCardTemplate 
-                    image={profile.profileImage || '/empProfile.png'} 
-                    name={profile.username} 
-                />
-            );
-            // Render the template to the hidden div
-            const root = document.createElement('div');
-            root.style.position = 'absolute';
-            root.style.left = '-9999px';
-            document.body.appendChild(root);
+            // Update the hidden template with the correct profile data
+            const hiddenCard = cardRef.current;
+            const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
+            const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
             
-            // Render the specific card template to the hidden div
-            const hiddenCardRef = document.createElement('div');
-            hiddenCardRef.style.position = 'absolute';
-            hiddenCardRef.style.left = '-9999px';
-            document.body.appendChild(hiddenCardRef);
-            
-            // Use ReactDOM to render the template
-            const ReactDOM = require('react-dom');
-            ReactDOM.render(cardTemplate, hiddenCardRef);
-            
-            // Wait a moment for the image to load
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            // Convert card to PNG and upload to IPFS
-            const dataUrl = await toPng(hiddenCardRef);
-            document.body.removeChild(hiddenCardRef);
-            document.body.removeChild(root);
-            
-            const response = await fetch(dataUrl);
-            const blob = await response.blob();
-            const file = new File([blob], 'card.png', { type: 'image/png' });
-            const imageUrl = await uploadToIPFS(file);
-            
-            // Update metadata to include the correct profile information
-            const metadataUrl = await uploadMetadataToIPFS(imageUrl, profile.username);
-            
-            // Continue with the rest of the minting process...
-            const walletAddress = localStorage.getItem('address');
-            if (!walletAddress) throw new Error('No wallet address found');
-            const walletPubkey = new PublicKey(walletAddress);
+            if (profileImage && username) {
+                // Update the hidden template
+                profileImage.src = profile.profileImage || '/empProfile.png';
+                username.textContent = profile.username;
+                
+                // Wait for the profile image to load
+                await new Promise((resolve) => {
+                    if (profileImage.complete) resolve(null);
+                    else {
+                        profileImage.onload = () => resolve(null);
+                        profileImage.onerror = () => resolve(null);
+                    }
+                });
+                
+                // Add a small delay to ensure rendering is complete
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Convert card to PNG and upload to IPFS
+                const dataUrl = await toPng(hiddenCard);
+                
+                const response = await fetch(dataUrl);
+                const blob = await response.blob();
+                const file = new File([blob], 'card.png', { type: 'image/png' });
+                const imageUrl = await uploadToIPFS(file);
+                
+                // Update metadata to include the correct profile information
+                const metadataUrl = await uploadMetadataToIPFS(imageUrl, profile.username);
+                
+                // Continue with the rest of the minting process...
+                const walletAddress = localStorage.getItem('address');
+                if (!walletAddress) throw new Error('No wallet address found');
+                const walletPubkey = new PublicKey(walletAddress);
 
-            // Check wallet balance first
-            const balance = await connection.getBalance(walletPubkey);
-            const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
-            const estimatedCost = rentExempt + (0.05 * LAMPORTS_PER_SOL); // 0.05 SOL for fees
+                // Check wallet balance first
+                const balance = await connection.getBalance(walletPubkey);
+                const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
+                const estimatedCost = rentExempt + (0.05 * LAMPORTS_PER_SOL); // 0.05 SOL for fees
 
-            if (balance < estimatedCost) {
-                throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
-            }
+                if (balance < estimatedCost) {
+                    throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
+                }
 
-            // Create mint account
-            const mintKeypair = Keypair.generate();
-            const lamports = await getMinimumBalanceForRentExemptMint(connection);
-            
-            // Get the token account address
-            const [associatedTokenAddress] = await PublicKey.findProgramAddress(
-                [
-                    walletPubkey.toBuffer(),
-                    TOKEN_PROGRAM_ID.toBuffer(),
-                    mintKeypair.publicKey.toBuffer(),
-                ],
-                ASSOCIATED_TOKEN_PROGRAM_ID
-            );
+                // Create mint account
+                const mintKeypair = Keypair.generate();
+                const lamports = await getMinimumBalanceForRentExemptMint(connection);
+                
+                // Get the token account address
+                const [associatedTokenAddress] = await PublicKey.findProgramAddress(
+                    [
+                        walletPubkey.toBuffer(),
+                        TOKEN_PROGRAM_ID.toBuffer(),
+                        mintKeypair.publicKey.toBuffer(),
+                    ],
+                    ASSOCIATED_TOKEN_PROGRAM_ID
+                );
 
-            // Get metadata address
-            const [metadataAddress] = PublicKey.findProgramAddressSync(
-                [
-                    Buffer.from('metadata'),
-                    TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-                    mintKeypair.publicKey.toBuffer(),
-                ],
-                TOKEN_METADATA_PROGRAM_ID
-            );
+                // Get metadata address
+                const [metadataAddress] = PublicKey.findProgramAddressSync(
+                    [
+                        Buffer.from('metadata'),
+                        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+                        mintKeypair.publicKey.toBuffer(),
+                    ],
+                    TOKEN_METADATA_PROGRAM_ID
+                );
 
-            const createMintAccountIx = SystemProgram.createAccount({
-                fromPubkey: walletPubkey,
-                newAccountPubkey: mintKeypair.publicKey,
-                space: MINT_SIZE,
-                lamports,
-                programId: TOKEN_PROGRAM_ID,
-            });
+                const createMintAccountIx = SystemProgram.createAccount({
+                    fromPubkey: walletPubkey,
+                    newAccountPubkey: mintKeypair.publicKey,
+                    space: MINT_SIZE,
+                    lamports,
+                    programId: TOKEN_PROGRAM_ID,
+                });
 
-            const initializeMintIx = createInitializeMintInstruction(
-                mintKeypair.publicKey,
-                0,
-                walletPubkey,
-                walletPubkey,
-            );
+                const initializeMintIx = createInitializeMintInstruction(
+                    mintKeypair.publicKey,
+                    0,
+                    walletPubkey,
+                    walletPubkey,
+                );
 
-            const createAssociatedTokenAccountIx = createAssociatedTokenAccountInstruction(
-                walletPubkey,
-                associatedTokenAddress,
-                walletPubkey,
-                mintKeypair.publicKey,
-            );
+                const createAssociatedTokenAccountIx = createAssociatedTokenAccountInstruction(
+                    walletPubkey,
+                    associatedTokenAddress,
+                    walletPubkey,
+                    mintKeypair.publicKey,
+                );
 
-            const mintToIx = createMintToInstruction(
-                mintKeypair.publicKey,
-                associatedTokenAddress,
-                walletPubkey,
-                1,
-            );
+                const mintToIx = createMintToInstruction(
+                    mintKeypair.publicKey,
+                    associatedTokenAddress,
+                    walletPubkey,
+                    1,
+                );
 
-            const createMetadataIx = createCreateMetadataAccountV3Instruction(
-                {
-                    metadata: metadataAddress,
-                    mint: mintKeypair.publicKey,
-                    mintAuthority: walletPubkey,
-                    payer: walletPubkey,
-                    updateAuthority: walletPubkey,
-                },
-                {
-                    createMetadataAccountArgsV3: {
-                        data: {
-                            name: `${profile.username} Access Card`,
-                            symbol: 'CARD',
-                            uri: metadataUrl,
-                            sellerFeeBasisPoints: 0,
-                            creators: null,
-                            collection: null,
-                            uses: null,
-                        },
-                        isMutable: true,
-                        collectionDetails: null,
+                const createMetadataIx = createCreateMetadataAccountV3Instruction(
+                    {
+                        metadata: metadataAddress,
+                        mint: mintKeypair.publicKey,
+                        mintAuthority: walletPubkey,
+                        payer: walletPubkey,
+                        updateAuthority: walletPubkey,
                     },
-                },
-            );
+                    {
+                        createMetadataAccountArgsV3: {
+                            data: {
+                                name: `${profile.username} Access Card`,
+                                symbol: 'CARD',
+                                uri: metadataUrl,
+                                sellerFeeBasisPoints: 0,
+                                creators: null,
+                                collection: null,
+                                uses: null,
+                            },
+                            isMutable: true,
+                            collectionDetails: null,
+                        },
+                    },
+                );
 
-            const transaction = new Transaction({
-                feePayer: walletPubkey,
-                recentBlockhash: latestBlockhash.blockhash,
-            });
+                const transaction = new Transaction({
+                    feePayer: walletPubkey,
+                    recentBlockhash: latestBlockhash.blockhash,
+                });
 
-            transaction.add(
-                createMintAccountIx,
-                initializeMintIx,
-                createAssociatedTokenAccountIx,
-                mintToIx,
-                createMetadataIx,
-            );
+                transaction.add(
+                    createMintAccountIx,
+                    initializeMintIx,
+                    createAssociatedTokenAccountIx,
+                    mintToIx,
+                    createMetadataIx,
+                );
 
-            transaction.sign(mintKeypair);
+                transaction.sign(mintKeypair);
 
-            const signature = await walletProvider.sendTransaction(transaction, connection);
-            await connection.confirmTransaction(signature);
+                const signature = await walletProvider.sendTransaction(transaction, connection);
+                await connection.confirmTransaction(signature);
 
-            setToast({
-                show: true,
-                message: 'NFT minted successfully!',
-                type: 'success'
-            });
-
-            // Add timeout to clear success toast
-            setTimeout(() => {
                 setToast({
-                    show: false,
-                    message: '',
+                    show: true,
+                    message: 'NFT minted successfully!',
                     type: 'success'
                 });
-            }, 3000);
+
+                // Add timeout to clear success toast
+                setTimeout(() => {
+                    setToast({
+                        show: false,
+                        message: '',
+                        type: 'success'
+                    });
+                }, 3000);
+            }
         }
     } catch (err) {
         console.error('Error minting NFT:', err);
