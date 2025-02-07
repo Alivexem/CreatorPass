@@ -14,6 +14,9 @@ import { AccessCardTemplate } from '@/utils/cardTemplate';
 import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProgram, PublicKey, Provider } from '../../utils/reown';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { motion, AnimatePresence } from "framer-motion";
+
+
+
 import { 
   createMint,
   getOrCreateAssociatedTokenAccount,
@@ -24,10 +27,11 @@ import {
   createInitializeMintInstruction,
   createAssociatedTokenAccountInstruction,
   createMintToInstruction,
+  ASSOCIATED_TOKEN_PROGRAM_ID
 } from '@solana/spl-token';
 import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { createCreateMetadataAccountV3Instruction } from '@metaplex-foundation/mpl-token-metadata';
-import { Keypair, Signer } from '@solana/web3.js';
+import { Keypair, Signer, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 interface Profile {
   address: string;
@@ -137,6 +141,9 @@ const PassesPage = () => {
     setIsMinting(true);
     
     try {
+        // Get latest blockhash first
+        const latestBlockhash = await connection.getLatestBlockhash();
+        
         setMintingStates(prev => ({...prev, [profile.address]: true}));
 
         // Convert card to PNG and upload to IPFS
@@ -151,6 +158,15 @@ const PassesPage = () => {
         if (!walletAddress) throw new Error('No wallet address found');
         const walletPubkey = new PublicKey(walletAddress);
 
+        // Check wallet balance first
+        const balance = await connection.getBalance(walletPubkey);
+        const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
+        const estimatedCost = rentExempt + (0.05 * LAMPORTS_PER_SOL); // 0.05 SOL for fees
+
+        if (balance < estimatedCost) {
+            throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
+        }
+
         // Create mint account
         const mintKeypair = Keypair.generate();
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
@@ -162,7 +178,7 @@ const PassesPage = () => {
                 TOKEN_PROGRAM_ID.toBuffer(),
                 mintKeypair.publicKey.toBuffer(),
             ],
-            TOKEN_PROGRAM_ID
+            ASSOCIATED_TOKEN_PROGRAM_ID
         );
 
         // Get metadata address
@@ -175,45 +191,48 @@ const PassesPage = () => {
             TOKEN_METADATA_PROGRAM_ID
         );
 
-        // Create all instructions
-        const instructions = [
-            SystemProgram.createAccount({
-                fromPubkey: walletPubkey,
-                newAccountPubkey: mintKeypair.publicKey,
-                space: MINT_SIZE,
-                lamports,
-                programId: TOKEN_PROGRAM_ID,
-            }),
-            createInitializeMintInstruction(
-                mintKeypair.publicKey,
-                0,
-                walletPubkey,
-                walletPubkey,
-            ),
-            createAssociatedTokenAccountInstruction(
-                walletPubkey,
-                associatedTokenAddress,
-                walletPubkey,
-                mintKeypair.publicKey
-            ),
-            createMintToInstruction(
-                mintKeypair.publicKey,
-                associatedTokenAddress,
-                walletPubkey,
-                1,
-                [],
-            ),
-            createCreateMetadataAccountV3Instruction({
+        const createMintAccountIx = SystemProgram.createAccount({
+            fromPubkey: walletPubkey,
+            newAccountPubkey: mintKeypair.publicKey,
+            space: MINT_SIZE,
+            lamports,
+            programId: TOKEN_PROGRAM_ID,
+        });
+
+        const initializeMintIx = createInitializeMintInstruction(
+            mintKeypair.publicKey,
+            0,
+            walletPubkey,
+            walletPubkey,
+        );
+
+        const createAssociatedTokenAccountIx = createAssociatedTokenAccountInstruction(
+            walletPubkey,
+            associatedTokenAddress,
+            walletPubkey,
+            mintKeypair.publicKey,
+        );
+
+        const mintToIx = createMintToInstruction(
+            mintKeypair.publicKey,
+            associatedTokenAddress,
+            walletPubkey,
+            1,
+        );
+
+        const createMetadataIx = createCreateMetadataAccountV3Instruction(
+            {
                 metadata: metadataAddress,
                 mint: mintKeypair.publicKey,
                 mintAuthority: walletPubkey,
                 payer: walletPubkey,
                 updateAuthority: walletPubkey,
-            }, {
+            },
+            {
                 createMetadataAccountArgsV3: {
                     data: {
                         name: `${profile.username} Access Card`,
-                        symbol: 'PASS',
+                        symbol: 'CARD',
                         uri: metadataUrl,
                         sellerFeeBasisPoints: 0,
                         creators: null,
@@ -223,34 +242,26 @@ const PassesPage = () => {
                     isMutable: true,
                     collectionDetails: null,
                 },
-            })
-        ];
+            },
+        );
 
-        const transaction = new Transaction();
-        instructions.forEach(instruction => transaction.add(instruction));
-
-        const latestBlockhash = await connection.getLatestBlockhash('confirmed');
-        transaction.recentBlockhash = latestBlockhash.blockhash;
-        transaction.feePayer = walletPubkey;
-
-        // Sign with mint keypair first
-        transaction.partialSign(mintKeypair);
-
-        // Send transaction through wallet
-        const signature = await walletProvider.sendTransaction(transaction, connection, {
-            signers: [mintKeypair]
-        });
-        
-        // Wait for confirmation
-        const confirmation = await connection.confirmTransaction({
-            signature,
-            blockhash: latestBlockhash.blockhash,
-            lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+        const transaction = new Transaction({
+            feePayer: walletPubkey,
+            recentBlockhash: latestBlockhash.blockhash,
         });
 
-        if (confirmation.value.err) {
-            throw new Error('Transaction failed');
-        }
+        transaction.add(
+            createMintAccountIx,
+            initializeMintIx,
+            createAssociatedTokenAccountIx,
+            mintToIx,
+            createMetadataIx,
+        );
+
+        transaction.sign(mintKeypair);
+
+        const signature = await walletProvider.sendTransaction(transaction, connection);
+        await connection.confirmTransaction(signature);
 
         setToast({
             show: true,
@@ -258,27 +269,18 @@ const PassesPage = () => {
             type: 'success'
         });
 
-        setTimeout(() => {
-            setToast({show: false, message: '', type: 'success'});
-        }, 3000);
-
     } catch (err) {
         console.error('Error minting NFT:', err);
         setToast({
             show: true,
-            message: 'Minting process terminated unexpectedly. Please try again later',
+            message: err instanceof Error ? err.message : 'Failed to mint NFT',
             type: 'error'
         });
-
-        setTimeout(() => {
-            setToast({show: false, message: '', type: 'error'});
-        }, 3000);
     } finally {
         setIsMinting(false);
         setMintingStates(prev => ({...prev, [profile.address]: false}));
     }
 };
-
   return (
     <div className='min-h-screen pb-[120px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
       <NavBar />
