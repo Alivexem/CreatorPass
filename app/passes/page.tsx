@@ -162,8 +162,22 @@ const PassesPage = () => {
             root.style.left = '-9999px';
             document.body.appendChild(root);
             
+            // Render the specific card template to the hidden div
+            const hiddenCardRef = document.createElement('div');
+            hiddenCardRef.style.position = 'absolute';
+            hiddenCardRef.style.left = '-9999px';
+            document.body.appendChild(hiddenCardRef);
+            
+            // Use ReactDOM to render the template
+            const ReactDOM = require('react-dom');
+            ReactDOM.render(cardTemplate, hiddenCardRef);
+            
+            // Wait a moment for the image to load
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
             // Convert card to PNG and upload to IPFS
-            const dataUrl = await toPng(cardRef.current);
+            const dataUrl = await toPng(hiddenCardRef);
+            document.body.removeChild(hiddenCardRef);
             document.body.removeChild(root);
             
             const response = await fetch(dataUrl);
@@ -487,8 +501,8 @@ const PassesPage = () => {
       <div style={{ position: 'absolute', left: '-9999px' }}>
         <div ref={cardRef}>
             <AccessCardTemplate 
-                image={currentProfile?.profileImage || '/empProfile.png'} 
-                name={currentProfile?.username || ''} 
+                image={'/empProfile.png'} 
+                name={''} 
             />
         </div>
       </div>
