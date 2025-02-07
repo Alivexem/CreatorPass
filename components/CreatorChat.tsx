@@ -221,13 +221,15 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               className={`flex ${message.sender === userAddress ? 'justify-end' : 'justify-start'} group`}
             >
               <div className="relative flex flex-col items-center">
-                <div className={`max-w-[80%] p-3 flex justify-center items-center flex-col px-6 rounded-md ${
+                <div className={`max-w-[80%] p-3 flex flex-col px-6 rounded-md ${
                   message.sender === userAddress
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-700 text-white'
+                    ? 'bg-blue-600 text-white items-end'
+                    : 'bg-gray-700 text-white items-start'
                 }`}>
-                  <p className="text-center">{message.text}</p>
-                  <p className="text-xs opacity-70 mt-1 text-center">
+                  <p className={message.sender === userAddress ? "text-right" : "text-left"}>
+                    {message.text}
+                  </p>
+                  <p className={`text-xs opacity-70 mt-1 ${message.sender === userAddress ? "text-right" : "text-left"}`}>
                     {new Date(message.timestamp).toLocaleTimeString()}
                   </p>
                 </div>

@@ -10,7 +10,14 @@ export const AccessCardTemplate = ({ image, name }: { image: string, name: strin
     </div>
     <div className='bg-slate-800 p-6 space-y-4'>
       <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-      <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
+      <Image 
+        src={image || '/empProfile.png'} 
+        className='rounded-lg w-full h-48 object-cover' 
+        height={70} 
+        width={150} 
+        alt='profile'
+        unoptimized
+      />
       <div className='flex items-center justify-center gap-3'>
         <RiHeart2Line className='text-white' />
         <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{name}</p>
