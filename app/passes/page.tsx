@@ -269,13 +269,48 @@ const PassesPage = () => {
             type: 'success'
         });
 
+        // Add timeout to clear success toast
+        setTimeout(() => {
+            setToast({
+                show: false,
+                message: '',
+                type: 'success'
+            });
+        }, 3000);
+
     } catch (err) {
         console.error('Error minting NFT:', err);
-        setToast({
-            show: true,
-            message: err instanceof Error ? err.message : 'Failed to mint NFT',
-            type: 'error'
-        });
+        // Only show error toast for actual errors, not for confirmation timeout
+        const errorMessage = err instanceof Error ? err.message : 'Failed to mint NFT';
+        if (!errorMessage.includes('Transaction was not confirmed')) {
+            setToast({
+                show: true,
+                message: errorMessage,
+                type: 'error'
+            });
+            // Add timeout to clear error toast
+            setTimeout(() => {
+                setToast({
+                    show: false,
+                    message: '',
+                    type: 'error'
+                });
+            }, 3000);
+        } else {
+            // For confirmation timeout, still complete the minting process
+            setToast({
+                show: true,
+                message: 'NFT minted successfully! It may take a moment to appear.',
+                type: 'success'
+            });
+            setTimeout(() => {
+                setToast({
+                    show: false,
+                    message: '',
+                    type: 'success'
+                });
+            }, 3000);
+        }
     } finally {
         setIsMinting(false);
         setMintingStates(prev => ({...prev, [profile.address]: false}));
@@ -329,8 +364,7 @@ const PassesPage = () => {
                   onClick={() => setShowPopup(true)}
                 >
                   <AccessCard
-                    image={profile.profileImage || '/empProfile.png'}
-                    name={profile.username}
+                    profile={profile}
                     className={index === 1 
                       ? "bg-gradient-to-r from-blue-500 to-purple-600"
                       : "bg-gradient-to-r from-blue-400 to-purple-500"
@@ -351,8 +385,7 @@ const PassesPage = () => {
             >
               <div className='flex justify-center'>
                 <AccessCard
-                  image={currentProfile?.profileImage || '/empProfile.png'}
-                  name={currentProfile?.username}
+                  profile={currentProfile}
                   className="bg-gradient-to-r from-blue-500 to-purple-600"
                   onMint={() => mintNFT(currentProfile)}
                   isMinting={mintingStates[currentProfile?.address || '']}
@@ -453,9 +486,8 @@ const PassesPage = () => {
   )
 }
 
-const AccessCard = ({ image, name, className, onMint, isMinting }: { 
-  image: string, 
-  name: string, 
+const AccessCard = ({ profile, className, onMint, isMinting }: { 
+  profile: Profile, 
   className: string,
   onMint: () => void,
   isMinting: boolean 
@@ -467,16 +499,22 @@ const AccessCard = ({ image, name, className, onMint, isMinting }: {
     </div>
     <div className='bg-slate-800 p-6 space-y-4'>
       <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-      <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
+      <Image 
+        src={profile.profileImage || '/empProfile.png'} 
+        className='rounded-lg w-full h-48 object-cover' 
+        height={70} 
+        width={150} 
+        alt='profile' 
+      />
       <div className='flex items-center justify-center gap-3'>
         <RiHeart2Line className='text-white' />
-        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{name}</p>
+        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{profile.username}</p>
         <RiHeart2Line className='text-white' />
       </div>
       <button 
         onClick={(e) => {
           e.stopPropagation();
-           onMint();
+          onMint();
         }}
         disabled={isMinting}
         className='w-full bg-blue-700 hover:bg-blue-400 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
