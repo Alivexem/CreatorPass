@@ -44,6 +44,25 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
   const [showOptions, setShowOptions] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const emojiRef = useRef<HTMLDivElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showEmoji && 
+        emojiRef.current && 
+        !emojiRef.current.contains(event.target as Node) &&
+        emojiButtonRef.current &&
+        !emojiButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowEmoji(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showEmoji]);
 
   useEffect(() => {
     const chatId = [creatorAddress, userAddress].sort().join('-');
@@ -219,6 +238,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
         
         <div className="flex gap-2 items-center">
           <button
+            ref={emojiButtonRef}
             type="button"
             onClick={() => setShowEmoji(!showEmoji)}
             className="text-gray-400 hover:text-white"
@@ -243,7 +263,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, onClose }: C
         </div>
 
         {showEmoji && (
-          <div className="absolute bottom-20 right-4">
+          <div ref={emojiRef} className="absolute bottom-20 right-4">
             <Picker
               data={data}
               onEmojiSelect={onEmojiSelect}
