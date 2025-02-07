@@ -54,6 +54,7 @@ const NavBar = () => {
     // If connected, make sure we don't redirect
     if (isConnected) {
       setShouldRedirect(false);
+      setConnectValue('Connected');
     }
 
     return () => {
@@ -80,7 +81,7 @@ const NavBar = () => {
   const handleDisconnect = async () => {
     try {
       await disconnect();
-      setConnectValue('Connect Wallet');
+      setConnectValue('Establishing...');
       router.push('/');
     } catch (error) {
       console.error('Disconnect error:', error);
@@ -89,9 +90,11 @@ const NavBar = () => {
 
   const handleConnect = async () => {
     try {
+      setConnectValue('Establishing...');
       await open();
     } catch (error) {
       console.error('Connect error:', error);
+      setConnectValue('Connect Wallet');
     }
   };
 
