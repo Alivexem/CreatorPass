@@ -25,6 +25,7 @@ const NavBar = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '' });
   const searchRef = useRef<HTMLDivElement>(null);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,16 +39,34 @@ const NavBar = () => {
   }, []);
 
   useEffect(() => {
-    if (!isConnected) {
-      router.push('/');
+    let redirectTimer: NodeJS.Timeout;
+
+    // Start the 5-second timer only if not connected
+    if (!isConnected && !shouldRedirect) {
+      redirectTimer = setTimeout(() => {
+        // Only redirect if still not connected after 5 seconds
+        if (!isConnected) {
+          setShouldRedirect(true);
+        }
+      }, 5000);
     }
 
-    if (isConnected && address) {
-      setConnectValue('Connected');
-    } else {
-      setConnectValue('Connect Wallet');
+    // If connected, make sure we don't redirect
+    if (isConnected) {
+      setShouldRedirect(false);
     }
-  }, [isConnected, address, router]);
+
+    return () => {
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
+  }, [isConnected]);
+
+  // Handle the actual redirect
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push('/');
+    }
+  }, [shouldRedirect, router]);
 
   useEffect(() => {
     if (toast.show) {

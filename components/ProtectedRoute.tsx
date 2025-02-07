@@ -6,46 +6,57 @@ import { useAppKitAccount } from '../utils/reown';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { isConnected } = useAppKitAccount();
-  const [isLoading, setIsLoading] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     let redirectTimer: NodeJS.Timeout;
-    let loadingTimer: NodeJS.Timeout;
 
-    // Start a timer to set loading to false after a short delay
-    loadingTimer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    // Only start redirect timer if not connected
-    if (!isConnected) {
+    // Start the 5-second timer only if not connected
+    if (!isConnected && !shouldRedirect) {
       redirectTimer = setTimeout(() => {
-        // Double check that we're still not connected before redirecting
+        // Only redirect if still not connected after 5 seconds
         if (!isConnected) {
-          router.push('/');
+          setShouldRedirect(true);
         }
       }, 5000);
     }
 
-    // Clear both timers on cleanup or if isConnected changes
+    // Clear checking state after a brief moment
+    const checkingTimer = setTimeout(() => {
+      setIsChecking(false);
+    }, 1000);
+
+    // If connected, make sure we don't redirect
+    if (isConnected) {
+      setShouldRedirect(false);
+    }
+
     return () => {
       if (redirectTimer) clearTimeout(redirectTimer);
-      if (loadingTimer) clearTimeout(loadingTimer);
+      clearTimeout(checkingTimer);
     };
-  }, [isConnected, router]);
+  }, [isConnected]);
 
-  // Show loading state briefly while checking connection
-  if (isLoading) {
+  // Handle the actual redirect
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push('/');
+    }
+  }, [shouldRedirect, router]);
+
+  // Show initial loading state
+  if (isChecking) {
     return <div>Loading...</div>;
   }
 
-  // If connected, render children immediately
-  if (isConnected) {
-    return <>{children}</>;
+  // Show connecting message while waiting
+  if (!isConnected && !shouldRedirect) {
+    return <div>Connecting to wallet...</div>;
   }
 
-  // If not connected but within 5 second window, show connecting message
-  return <div>Connecting to wallet...</div>;
+  // If connected or still within grace period, show the protected content
+  return <>{children}</>;
 };
 
 export default ProtectedRoute; 

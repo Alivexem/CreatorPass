@@ -10,6 +10,7 @@ import DashboardMobileNav from '@/components/DashboardMobileNav'
 const Dashboard = () => {
   const router = useRouter();
   const { isConnected } = useAppKitAccount();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showDashboard, setShowDashboard] = useState(true);
@@ -43,21 +44,31 @@ const Dashboard = () => {
       }
     };
 
-    if (isConnected) {
-      checkProfile();
-    } else {
-      // Wait 5 seconds before redirecting
+    // Start the 5-second timer only if not connected
+    if (!isConnected && !shouldRedirect) {
       redirectTimer = setTimeout(() => {
-        router.push('/');
+        // Only redirect if still not connected after 5 seconds
+        if (!isConnected) {
+          setShouldRedirect(true);
+        }
       }, 5000);
+    } else if (isConnected) {
+      // If connected, check profile and clear redirect flag
+      checkProfile();
+      setShouldRedirect(false);
     }
 
     return () => {
-      if (redirectTimer) {
-        clearTimeout(redirectTimer);
-      }
+      if (redirectTimer) clearTimeout(redirectTimer);
     };
-  }, [isConnected, router]);
+  }, [isConnected]);
+
+  // Handle the actual redirect
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push('/');
+    }
+  }, [shouldRedirect, router]);
 
   const handleShowContent = () => {
     setShowContent(true);
