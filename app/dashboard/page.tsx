@@ -20,6 +20,8 @@ const Dashboard = () => {
   }>({ show: false, message: '', type: 'info' });
 
   useEffect(() => {
+    let redirectTimer: NodeJS.Timeout;
+
     const checkProfile = async () => {
       try {
         const address = localStorage.getItem('address');
@@ -44,8 +46,17 @@ const Dashboard = () => {
     if (isConnected) {
       checkProfile();
     } else {
-      router.push('/');
+      // Wait 5 seconds before redirecting
+      redirectTimer = setTimeout(() => {
+        router.push('/');
+      }, 5000);
     }
+
+    return () => {
+      if (redirectTimer) {
+        clearTimeout(redirectTimer);
+      }
+    };
   }, [isConnected, router]);
 
   const handleShowContent = () => {
