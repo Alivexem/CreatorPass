@@ -21,4 +21,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-export { database, ref, push, onValue, query, orderByChild };
+export { database, ref, push, onValue, query, orderByChild, app };
