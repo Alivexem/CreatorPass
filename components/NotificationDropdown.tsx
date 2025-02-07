@@ -6,6 +6,8 @@ import { MdDelete } from "react-icons/md";
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { RxDotFilled } from "react-icons/rx";
+import { getDatabase, ref, onValue, remove, query, orderByChild } from 'firebase/database';
+import { app } from '@/utils/firebase';
 
 interface Notification {
     _id: string;
@@ -23,24 +25,31 @@ export default function NotificationDropdown() {
     const [unreadCount, setUnreadCount] = useState(0);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+    const database = getDatabase(app);
 
     useEffect(() => {
-        const fetchNotifications = async () => {
-            const address = localStorage.getItem('address');
-            if (!address) return;
+        const address = localStorage.getItem('address');
+        if (!address) return;
 
-            const res = await fetch(`/api/notifications?address=${address}`);
-            const data = await res.json();
-            if (data.notifications) {
-                setNotifications(data.notifications);
-                setUnreadCount(data.notifications.filter((n: Notification) => !n.read).length);
+        const notificationsRef = ref(database, `notifications/${address}`);
+        const notificationsQuery = query(notificationsRef, orderByChild('timestamp'));
+
+        const unsubscribe = onValue(notificationsQuery, (snapshot) => {
+            const notificationsData = snapshot.val();
+            if (notificationsData) {
+                const notificationsList = Object.entries(notificationsData).map(([id, data]: [string, any]) => ({
+                    _id: id,
+                    ...data,
+                }));
+                setNotifications(notificationsList);
+                setUnreadCount(notificationsList.filter(n => !n.read).length);
+            } else {
+                setNotifications([]);
+                setUnreadCount(0);
             }
-        };
+        });
 
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
-
-        return () => clearInterval(interval);
+        return () => unsubscribe();
     }, []);
 
     useEffect(() => {
@@ -56,12 +65,11 @@ export default function NotificationDropdown() {
 
     const handleDelete = async (id: string) => {
         try {
-            await fetch('/api/notifications', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            setNotifications(notifications.filter(n => n._id !== id));
+            const address = localStorage.getItem('address');
+            if (!address) return;
+
+            const notificationRef = ref(database, `notifications/${address}/${id}`);
+            await remove(notificationRef);
         } catch (error) {
             console.error('Failed to delete notification:', error);
         }
