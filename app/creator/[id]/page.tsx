@@ -149,7 +149,9 @@ const CreatorPage = ({ params }: PageProps) => {
                 if (myAddress) {
                     const userProfileRes = await fetch(`/api/profile?address=${myAddress}`);
                     const userProfileData = await userProfileRes.json();
-                    setUserProfile(userProfileData.profile);
+                    if (userProfileData.profile) {
+                        setUserProfile(userProfileData.profile);
+                    }
                 }
 
                 const postsRes = await fetch('/api');
@@ -308,11 +310,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
-            if (!userProfile) {
-                setShowProfileModal(true);
-                return;
-            }
-
+            // Remove profile check since we already have userProfile state
             const res = await fetch(`/api/creator/${id}/funchat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -385,7 +383,7 @@ const CreatorPage = ({ params }: PageProps) => {
                     {toast.message}
                 </div>
             )}
-            <div className='mt-[200px]'></div>
+            <div className='pt-[200px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20 md:mb-64 md:ml-[300px]'>
                 {posts.map((post) => (
                     <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
