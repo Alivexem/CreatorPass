@@ -131,7 +131,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 setToast({show: false, message: '', type: 'error'});
             }, 3000);
         }
-    }
+    };
 
     useEffect(() => {
         const fetchCreatorData = async () => {
@@ -378,14 +378,14 @@ const CreatorPage = ({ params }: PageProps) => {
             </button> */}
             {toast.show && (
                 <div 
-                    className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+                    className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg ${
                         toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
                     } text-white transition-opacity duration-300`}
                 >
                     {toast.message}
                 </div>
             )}
-            <div className='mt-[80px]'></div>
+            <div className='mt-[200px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20 md:mb-64 md:ml-[300px]'>
                 {posts.map((post) => (
                     <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>

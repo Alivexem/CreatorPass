@@ -36,6 +36,8 @@ const CreatorsPage = () => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [userAddress, setUserAddress] = useState<string>('');
   const [highlightedCreator, setHighlightedCreator] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<Profile | null>(null);
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: string }>({ show: false, message: '', type: '' });
   const router = useRouter();
 
   useEffect(() => {
@@ -120,11 +122,34 @@ const CreatorsPage = () => {
     }
   };
 
-  const handleChatClick = (creatorAddress: string) => {
-    if (window.innerWidth <= 768) {
-      router.push(`/chat/${creatorAddress}`);
-    } else {
-      setSelectedChat(creatorAddress);
+  const handleChatClick = async (creatorAddress: string) => {
+    try {
+        const address = localStorage.getItem('address');
+        if (!address) {
+            setToast({
+                show: true,
+                message: 'Please connect your wallet first',
+                type: 'warning'
+            });
+            return;
+        }
+
+        // Check if user has a profile
+        const profileRes = await fetch(`/api/profile?address=${address}`);
+        const profileData = await profileRes.json();
+
+        if (!profileData.profile || !profileData.profile.username) {
+            router.push('/dashboard');
+            return;
+        }
+
+        if (window.innerWidth <= 768) {
+            router.push(`/chat/${creatorAddress}`);
+        } else {
+            setSelectedChat(creatorAddress);
+        }
+    } catch (error) {
+        console.error('Error checking profile:', error);
     }
   };
 
@@ -145,7 +170,7 @@ const CreatorsPage = () => {
           }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+          <h1 className='text-5xl md:text-7xl mt-[200px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
             Meet Your Favourite Creators
           </h1>
         </motion.div>
@@ -298,6 +323,10 @@ const CreatorsPage = () => {
               username: profiles.find(p => p.address === selectedChat)?.username || 'Unknown',
               profileImage: profiles.find(p => p.address === selectedChat)?.profileImage || '/empProfile.png'
             }}
+            userProfile={userProfile ? {
+              username: userProfile.username,
+              profileImage: userProfile.profileImage
+            } : undefined}
             onClose={() => setSelectedChat(null)}
           />
         )}
