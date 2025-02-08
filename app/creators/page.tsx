@@ -85,8 +85,22 @@ const CreatorsPage = () => {
     const address = localStorage.getItem('address');
     if (address) {
       setUserAddress(address);
+      // Fetch user profile when address is available
+      fetchUserProfile(address);
     }
   }, []);
+
+  const fetchUserProfile = async (address: string) => {
+    try {
+      const res = await fetch(`/api/profile?address=${address}`);
+      const data = await res.json();
+      if (data.profile) {
+        setUserProfile(data.profile);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % profiles.length);
@@ -139,8 +153,18 @@ const CreatorsPage = () => {
         const profileData = await profileRes.json();
 
         if (!profileData.profile || !profileData.profile.username) {
+            setToast({
+                show: true,
+                message: 'Please create a profile first',
+                type: 'warning'
+            });
             router.push('/dashboard');
             return;
+        }
+
+        // Set user profile if not already set
+        if (!userProfile) {
+            setUserProfile(profileData.profile);
         }
 
         if (window.innerWidth <= 768) {
@@ -150,6 +174,11 @@ const CreatorsPage = () => {
         }
     } catch (error) {
         console.error('Error checking profile:', error);
+        setToast({
+            show: true,
+            message: 'Error starting chat',
+            type: 'error'
+        });
     }
   };
 
@@ -331,6 +360,14 @@ const CreatorsPage = () => {
           />
         )}
       </AnimatePresence>
+
+      {toast.show && (
+        <div className={`fixed bottom-4 right-4 p-4 rounded-lg text-white ${
+          toast.type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+        }`}>
+          {toast.message}
+        </div>
+      )}
 
       <Footer />
     </div>
