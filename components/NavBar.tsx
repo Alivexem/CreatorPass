@@ -126,7 +126,7 @@ const NavBar = () => {
   return (
     <>
       {toast.show && (
-        <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-fade-in-out">
+        <div className="md:fixed absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-fade-in-out">
           {toast.message}
         </div>
       )}
