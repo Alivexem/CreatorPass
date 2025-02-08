@@ -196,7 +196,7 @@ const Page = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className='text-5xl md:text-7xl mt-[200px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
+                        className='text-5xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
                     >
                         Empowering Creators & Rewarding Fans
                     </motion.h1>
