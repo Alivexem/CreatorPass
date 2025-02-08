@@ -33,8 +33,10 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
   }, [params.address, router]);
 
   if (!creatorProfile) {
-    return <div>Loading...</div>;
+    return <div className='flex justify-center items-center h-[100vh] w-[100vw] bg-gray-900'><p className='text-white text-2xl font-bold animate-pulse'>Loading chat</p></div>;
   }
+
+
 
   return (
     <div className="h-full w-full bg-[#1A1D1F]">
