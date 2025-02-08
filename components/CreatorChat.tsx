@@ -220,19 +220,26 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               onMouseLeave={handleMouseLeave}
               className={`flex ${message.sender === userAddress ? 'justify-end' : 'justify-start'} group`}
             >
-              <div className="relative flex flex-col items-center">
-                <div className={`max-w-[80%] p-3 flex flex-col px-6 rounded-md ${
+              <div className={`max-w-[70%] break-words ${
+                message.sender === userAddress ? 'items-end' : 'items-start'
+              }`}>
+                <div className={`rounded-2xl px-4 py-2 ${
                   message.sender === userAddress
-                    ? 'bg-blue-600 text-white items-end'
-                    : 'bg-gray-700 text-white items-start'
+                    ? 'bg-blue-600 rounded-tr-none'
+                    : 'bg-gray-700 rounded-tl-none'
                 }`}>
-                  <p className={message.sender === userAddress ? "text-right" : "text-left"}>
+                  <p className="text-white text-sm whitespace-pre-wrap break-words">
                     {message.text}
                   </p>
-                  <p className={`text-xs opacity-70 mt-1 ${message.sender === userAddress ? "text-right" : "text-left"}`}>
-                    {new Date(message.timestamp).toLocaleTimeString()}
-                  </p>
                 </div>
+                <span className={`text-xs text-gray-400 mt-1 block ${
+                  message.sender === userAddress ? 'text-right' : 'text-left'
+                }`}>
+                  {new Date(message.timestamp).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
               </div>
             </div>
           ))}
