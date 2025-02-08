@@ -41,17 +41,14 @@ const NavBar = () => {
   useEffect(() => {
     let redirectTimer: NodeJS.Timeout;
 
-    // Start the 5-second timer only if not connected
     if (!isConnected && !shouldRedirect) {
       redirectTimer = setTimeout(() => {
-        // Only redirect if still not connected after 5 seconds
         if (!isConnected) {
           setShouldRedirect(true);
         }
       }, 5000);
     }
 
-    // If connected, make sure we don't redirect
     if (isConnected) {
       setShouldRedirect(false);
       setConnectValue('Connected');
@@ -62,7 +59,6 @@ const NavBar = () => {
     };
   }, [isConnected]);
 
-  // Handle the actual redirect
   useEffect(() => {
     if (shouldRedirect) {
       router.push('/');
@@ -81,7 +77,6 @@ const NavBar = () => {
   const handleDisconnect = async () => {
     try {
       await disconnect();
-      setConnectValue('Establishing...');
       router.push('/');
     } catch (error) {
       console.error('Disconnect error:', error);
@@ -92,6 +87,7 @@ const NavBar = () => {
     try {
       setConnectValue('Establishing...');
       await open();
+      setConnectValue('Connected');
     } catch (error) {
       console.error('Connect error:', error);
       setConnectValue('Connect Wallet');
@@ -102,7 +98,7 @@ const NavBar = () => {
     if (e) {
       e.preventDefault();
     }
-    
+
     if (!searchTerm.trim()) return;
 
     try {
@@ -134,17 +130,15 @@ const NavBar = () => {
           {toast.message}
         </div>
       )}
-      <div style={{ background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between position-fixed top-0 items-center'>
+      <div style={{ background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between fixed top-0 items-center w-full'>
         <Image 
           src='/whiteLogo.png' 
           alt='logo' 
           height={40} 
           width={180} 
-       
         />
 
         <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
-
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -156,12 +150,14 @@ const NavBar = () => {
             <FiSearch />
           </button>
         </form>
+
         <div className='flex items-center gap-x-5 text-white text-[1rem]'>
           <div className="hidden md:block">
             <NotificationDropdown />
           </div>
+
           <Link href='/welcome' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono md:ml-5 lg:ml-0 ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Home</p>
+            <p className={`cursor-pointer font-mono ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Home</p>
           </Link>
           <Link href='/creators' className='hidden md:block'>
             <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Creators</p>
@@ -169,14 +165,6 @@ const NavBar = () => {
           <Link href='/dashboard' className='hidden md:block'>
             <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
           </Link>
-          
-
-          {/* <div
-            onClick={handleDisconnect}
-            className='bg-gray-800 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
-          >
-            <p className='text-white'>Sign out</p>
-          </div> */}
 
           <div className="flex items-center gap-2">
             <div className="md:hidden">
@@ -192,7 +180,7 @@ const NavBar = () => {
         </div>
       </div>
 
-      {/* Bottom nav below */}
+      {/* Bottom Navigation */}
       <div className='h-[80px] pt-3 box-border flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
         <Link href='/welcome'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
@@ -201,46 +189,12 @@ const NavBar = () => {
           </div>
         </Link>
 
-       
-
         <Link href='/creators'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <IoTicketSharp className={pathname === '/creators' ? 'text-purple-500' : ''} />
             <p className={`text-[0.8rem] ${pathname === '/creators' ? 'text-purple-500' : ''}`}>Creators</p>
           </div>
         </Link>
-
-        <Link href='/dashboard'>
-          <div className='flex flex-col cursor-pointer items-center space-y-2'>
-            <MdDashboardCustomize className={pathname === '/dashboard' ? 'text-purple-500' : ''} />
-            <p className={`text-[0.8rem] ${pathname === '/dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
-          </div>
-        </Link>
-
-        <div className='flex cursor-pointer flex-col items-center space-y-2 relative' onClick={() => setShowMobileSearch(prev => !prev)}>
-          <FiSearch />
-          <p className='text-[0.8rem]'>Search</p>
-          {showMobileSearch && (
-            <div ref={searchRef} className='absolute bottom-[80px] right-[2px] bg-white p-4 rounded-lg shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search creators..."
-                className="flex-1 p-2 border rounded-lg text-black"
-              />
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSearch();
-                }}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg"
-              >
-                <FiSearch />
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     </>
   );
