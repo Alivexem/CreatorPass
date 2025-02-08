@@ -86,7 +86,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           if (message.sender !== creatorAddress && !message.read) {
             await push(notificationsRef, {
               type: 'message',
-              sender: message.sender,
+              senderAddress: message.sender,
               message: message.text,
               timestamp: message.timestamp,
               read: false
