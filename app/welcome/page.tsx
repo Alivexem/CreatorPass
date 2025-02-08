@@ -325,15 +325,10 @@ const Page = () => {
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder='Type your message...'
                                 className='flex-1 bg-[#1A1D1F] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
-                                disabled={chats.some(chat => chat.address === userAddress)}
                             />
                             <button
                                 type='submit'
-                                className={`bg-purple-600 text-white p-2 rounded-lg transition-colors ${chats.some(chat => chat.address === userAddress)
-                                        ? 'opacity-50 cursor-not-allowed'
-                                        : 'hover:bg-purple-700'
-                                    }`}
-                                disabled={chats.some(chat => chat.address === userAddress)}
+                                className='bg-purple-600 text-white p-2 rounded-lg transition-colors hover:bg-purple-700'
                             >
                                 <IoSend size={24} />
                             </button>
