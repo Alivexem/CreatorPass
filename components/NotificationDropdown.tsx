@@ -6,7 +6,7 @@ import { MdDelete } from "react-icons/md";
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { RxDotFilled } from "react-icons/rx";
-import { getDatabase, ref, onValue, remove, query, orderByChild } from 'firebase/database';
+import { getDatabase, ref, onValue, remove, query, orderByChild, update } from 'firebase/database';
 import { app } from '@/utils/firebase';
 
 interface Notification {
@@ -34,13 +34,36 @@ export default function NotificationDropdown() {
         const notificationsRef = ref(database, `notifications/${address}`);
         const notificationsQuery = query(notificationsRef, orderByChild('timestamp'));
 
-        const unsubscribe = onValue(notificationsQuery, (snapshot) => {
+        const unsubscribe = onValue(notificationsQuery, async (snapshot) => {
             const notificationsData = snapshot.val();
             if (notificationsData) {
-                const notificationsList = Object.entries(notificationsData).map(([id, data]: [string, any]) => ({
-                    _id: id,
-                    ...data,
-                }));
+                const notificationsList = await Promise.all(
+                    Object.entries(notificationsData).map(async ([id, data]: [string, any]) => {
+                        // Fetch sender's profile for each notification
+                        try {
+                            const profileRes = await fetch(`/api/profile?address=${data.senderAddress}`);
+                            const profileData = await profileRes.json();
+                            const profile = profileData.profile;
+
+                            return {
+                                _id: id,
+                                ...data,
+                                senderName: profile?.username || 'Unknown User',
+                                senderImage: profile?.profileImage || '/empProfile.png',
+                                createdAt: new Date(data.timestamp).toISOString()
+                            };
+                        } catch (error) {
+                            console.error('Error fetching sender profile:', error);
+                            return {
+                                _id: id,
+                                ...data,
+                                senderName: 'Unknown User',
+                                senderImage: '/empProfile.png',
+                                createdAt: new Date(data.timestamp).toISOString()
+                            };
+                        }
+                    })
+                );
                 setNotifications(notificationsList);
                 setUnreadCount(notificationsList.filter(n => !n.read).length);
             } else {
@@ -63,13 +86,19 @@ export default function NotificationDropdown() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent triggering the notification click
         try {
             const address = localStorage.getItem('address');
             if (!address) return;
 
+            // Remove from Firebase
             const notificationRef = ref(database, `notifications/${address}/${id}`);
             await remove(notificationRef);
+
+            // Update local state
+            setNotifications(prev => prev.filter(n => n._id !== id));
+            setUnreadCount(prev => prev - 1);
         } catch (error) {
             console.error('Failed to delete notification:', error);
         }
@@ -77,6 +106,13 @@ export default function NotificationDropdown() {
 
     const handleNotificationClick = (notification: Notification) => {
         router.push(`/creators?highlight=${notification.senderAddress}`);
+        
+        const address = localStorage.getItem('address');
+        if (address) {
+            const notificationRef = ref(database, `notifications/${address}/${notification._id}`);
+            update(notificationRef, { read: true });
+        }
+        
         setIsOpen(false);
     };
 
@@ -133,7 +169,7 @@ export default function NotificationDropdown() {
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => handleDelete(notification._id)}
+                                            onClick={(e) => handleDelete(notification._id, e)}
                                             className="text-red-500 hover:text-red-600 transition-colors"
                                         >
                                             <MdDelete size={20} />

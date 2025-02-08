@@ -86,7 +86,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           if (message.sender !== creatorAddress && !message.read) {
             await push(notificationsRef, {
               type: 'message',
-              sender: message.sender,
+              senderAddress: message.sender,
               message: message.text,
               timestamp: message.timestamp,
               read: false
@@ -186,7 +186,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
-        className="fixed right-0 top-0 h-[90vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
+        className="md:fixed md:right-0 md:top-0 h-[90vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
       >
         {/* Header */}
         <div className="bg-purple-900 p-4 mb-5 flex items-center justify-between">
