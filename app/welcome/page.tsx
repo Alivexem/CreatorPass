@@ -104,6 +104,19 @@ const Page = () => {
                 return;
             }
 
+            // First check if user has a profile
+            const profileRes = await fetch(`/api/profile?address=${address}`);
+            const profileData = await profileRes.json();
+
+            if (!profileData.profile || !profileData.profile.username) {
+                setToast({
+                    show: true,
+                    message: 'Please complete your profile in dashboard first',
+                    type: 'warning'
+                });
+                return;
+            }
+
             const response = await fetch('/api/worldchat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -121,8 +134,9 @@ const Page = () => {
                 return;
             }
 
+            // Update UI immediately with new chat
+            setChats(prevChats => [...prevChats, data.chat]);
             setMessage('');
-            fetchChats();
         } catch (error) {
             console.error('Error sending message:', error);
             setToast({
@@ -182,7 +196,7 @@ const Page = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
+                        className='text-5xl md:text-7xl mt-[200px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
                     >
                         Empowering Creators & Rewarding Fans
                     </motion.h1>

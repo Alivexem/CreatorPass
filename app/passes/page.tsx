@@ -351,7 +351,7 @@ const PassesPage = () => {
       <NavBar />
       
       {/* Hero Section */}
-      <div className='container mx-auto px-4 pt-20 pb-32'>
+      <div className='container mt-[200px] mx-auto px-4 pt-20 pb-32'>
         <div className='max-w-4xl mx-auto text-center space-y-6'>
           <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
             Exclusive Creator Passes
