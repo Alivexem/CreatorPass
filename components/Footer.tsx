@@ -52,7 +52,7 @@ const Footer = () => {
                 <p className='text-gray-400 text-sm'>© 2025 CreatorPass. Designed & Developed by Athkins</p>
                 <div className='flex items-center gap-x-2 text-purple-500'>
                     <IoTicketSharp size={20} />
-                    <p className='text-sm'>Powered by Solana and Reown</p>
+                    <p className='text-sm'>Powered by Solana</p>
                 </div>
             </div>
         </div>
