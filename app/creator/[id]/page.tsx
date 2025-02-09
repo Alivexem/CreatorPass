@@ -639,7 +639,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                     alt="Profile"
                                     width={32}
                                     height={32}
-                                    className="rounded-full"
+                                    className="rounded-full h-[40px] w-[40px] object-cover"
                                 />
                                 <div>
                                     <p className="text-blue-200 text-xs">
