@@ -51,7 +51,7 @@ const NavBar = () => {
 
     if (isConnected) {
       setShouldRedirect(false);
-      setConnectValue('Connected');
+      setConnectValue('Wallet');
     }
 
     return () => {
@@ -87,7 +87,7 @@ const NavBar = () => {
     try {
       setConnectValue('Establishing...');
       await open();
-      setConnectValue('Connected');
+      setConnectValue('Wallet');
     } catch (error) {
       console.error('Connect error:', error);
       setConnectValue('Connect Wallet');
@@ -130,71 +130,78 @@ const NavBar = () => {
           {toast.message}
         </div>
       )}
-      <div style={{ background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)' }} className='p-3 z-50 flex justify-between fixed top-0 items-center w-full'>
-        <Image 
-          src='/whiteLogo.png' 
-          alt='logo' 
-          height={40} 
-          width={180} 
-        />
-
-        <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
-          <input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className='ml-3 bg-transparent text-black pr-5 h-full w-full outline-none border-none'
-            placeholder='Search CreatorPass'
-            type='text'
+      <div className='w-full flex justify-center items-center'>
+        <div
+          style={{
+           
+            backdropFilter: 'blur(10px)', // This applies the blur effect to the background
+          }}
+          className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center w-[95%] rounded-[30px] px-[30px] shadow-md bg-opacity-50">
+          <Image
+            src='/whiteLogo.png'
+            alt='logo'
+            height={40}
+            width={180}
           />
-          <button type="submit" className='h-[100%] lg:w-[15%] md:w-[30%] rounded-full bg-gray-900 hover:bg-gray-500 text-white flex justify-center items-center'>
-            <FiSearch />
-          </button>
-        </form>
 
-        <div className='flex items-center gap-x-5 text-white text-[1rem]'>
-          <div className="hidden md:block">
-            <NotificationDropdown />
-          </div>
+          <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='ml-3 bg-transparent text-black pr-5 h-full w-full outline-none border-none'
+              placeholder='Search CreatorPass'
+              type='text'
+            />
+            <button type="submit" className='h-[100%] lg:w-[15%] md:w-[30%] rounded-full bg-gray-900 hover:bg-gray-500 text-white flex justify-center items-center'>
+              <FiSearch />
+            </button>
+          </form>
 
-          <Link href='/welcome' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Home</p>
-          </Link>
-          <Link href='/creators' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Creators</p>
-          </Link>
-          <Link href='/dashboard' className='hidden md:block'>
-            <p className={`cursor-pointer font-mono ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
-          </Link>
-
-          <div className="flex items-center gap-2">
-            <div className="md:hidden">
+          <div className='flex items-center gap-x-5 text-white text-[1rem]'>
+            <div className="hidden md:block">
               <NotificationDropdown />
             </div>
-            <div
-              className='bg-gray-200 h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
-              onClick={handleConnect}
-            >
-              <p className='text-[#682E9E] text-[0.8rem] md:text-[1rem] font-mono'>{connectValue}</p>
+
+            <Link href='/welcome' className='hidden md:block'>
+              <p className={`cursor-pointer ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Home</p>
+            </Link>
+            <Link href='/creators' className='hidden md:block'>
+              <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Creators</p>
+            </Link>
+            <Link href='/dashboard' className='hidden md:block'>
+              <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
+            </Link>
+
+            <div className="flex items-center gap-4">
+              <div className="md:hidden">
+                <NotificationDropdown />
+              </div>
+              <div
+                className='bg-gray-200 h-[70%] md:h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
+                onClick={handleConnect}
+              >
+                <p className='text-[#682E9E] text-[0.9rem] md:text-[1rem]'>{connectValue}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Navigation */}
-      <div className='h-[80px] pt-3 box-border flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
-        <Link href='/welcome'>
-          <div className='flex flex-col cursor-pointer items-center space-y-2'>
-            <GoHomeFill className={pathname === '/welcome' ? 'text-purple-500' : ''} />
-            <p className={`text-[0.8rem] ${pathname === '/welcome' ? 'text-purple-500' : ''}`}>Home</p>
-          </div>
-        </Link>
+        {/* Bottom Navigation */}
+        <div className='h-[80px] pt-3 box-border flex items-center justify-evenly z-50 w-full bg-slate-700 fixed bottom-0 text-white md:hidden'>
+          <Link href='/welcome'>
+            <div className='flex flex-col cursor-pointer items-center space-y-2'>
+              <GoHomeFill className={pathname === '/welcome' ? 'text-purple-500' : ''} />
+              <p className={`text-[0.8rem] ${pathname === '/welcome' ? 'text-purple-500' : ''}`}>Home</p>
+            </div>
+          </Link>
 
-        <Link href='/creators'>
-          <div className='flex flex-col cursor-pointer items-center space-y-2'>
-            <IoTicketSharp className={pathname === '/creators' ? 'text-purple-500' : ''} />
-            <p className={`text-[0.8rem] ${pathname === '/creators' ? 'text-purple-500' : ''}`}>Creators</p>
-          </div>
-        </Link>
+          <Link href='/creators'>
+            <div className='flex flex-col cursor-pointer items-center space-y-2'>
+              <IoTicketSharp className={pathname === '/creators' ? 'text-purple-500' : ''} />
+              <p className={`text-[0.8rem] ${pathname === '/creators' ? 'text-purple-500' : ''}`}>Creators</p>
+            </div>
+          </Link>
+        </div>
       </div>
     </>
   );

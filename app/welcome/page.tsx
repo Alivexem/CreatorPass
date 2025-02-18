@@ -59,7 +59,7 @@ const Page = () => {
         fetchChats();
         fetchHotCreators();
         const address = localStorage.getItem('address');
-        setUserAddress(address);
+            setUserAddress(address);
     }, []);
 
     const fetchChats = async () => {
@@ -189,14 +189,14 @@ const Page = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className='container mx-auto px-4 pt-20 pb-32'
+                className='container mx-auto px-4 md:mt-[60px] w-full min-h-[500px] flex pt-20 pb-32'
             >
-                <div className='max-w-4xl mx-auto text-center space-y-6'>
+                <div className='max-w-4xl flex items-start flex-col mx-auto text-center space-y-6'>
                     <motion.h1
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className='text-5xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
+                        className='text-5xl md:text-7xl mt-[100px] text-start font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
                     >
                         Empowering Creators & Rewarding Fans
                     </motion.h1>
@@ -204,22 +204,61 @@ const Page = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.4 }}
-                        className='text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto'
+                        className='text-xl md:text-2xl text-gray-300 text-start max-w-2xl'
                     >
-                        Join the next generation of content creation. Access exclusive posts, videos, and experiences from your favorite creators.
+                        Join the next generation of content creators and viewers. Access exclusive posts, videos, and experiences from your favorite creators.
                     </motion.p>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.6 }}
+                        className='flex items-center gap-x-14'
                     >
                         <Link href='/passes'>
-                            <button className='mt-8 px-8 font-mono py-4 mb-[10px] md:mb-[50px] bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg font-medium hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg'>
+                            <button className="mt-8 px-8 py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+  shadow-sm bg-blue-700">
                                 Explore Passes
                             </button>
 
                         </Link>
+
+                        <Link href='/creators'>
+                            <button className="mt-8 px-8 py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+  shadow-sm bg-purple-700">
+                                Visit creators
+                            </button>
+
+                        </Link>
                     </motion.div>
+                </div>
+
+
+                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-transparent rounded-[12px] text-white shadow-sm shadow-white'>
+                    <p className='text-[1.6rem] font-bold'>Messages</p>
+                    <div className='border-gray-500 border-t-[0.1px] w-full flex flex-col space-y-8 overflow-auto h-full mt-5'>
+              
+                                <div 
+                                 
+                                    className='mt-5 flex items-center gap-x-3 cursor-pointer hover:bg-purple-900/20 p-2 rounded-lg transition-all'
+                                 
+                                >
+                                    <Image 
+                                        width={40} 
+                                        height={40} 
+                                        alt='profilePic' 
+                                        src='/empProfile.png' 
+                                        className='rounded-full object-cover' 
+                                    />
+                                    <div className='flex flex-col'>
+                                        <p className='hover:text-purple-600'>Name</p>
+                                        <p className='text-sm text-gray-400 truncate max-w-[200px]'>mdsjankasd</p>
+                                    </div>
+                                </div>
+                    
+                    
+                            <p className='text-center text-gray-400 mt-8'>No chat history found</p>
+                   
+                    </div>
                 </div>
             </motion.div>
 
@@ -231,7 +270,7 @@ const Page = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className='relative max-w-6xl mx-auto px-4 -mt-20'
             >
-                <div className='flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4'>
+                <div className='flex flex-col md:flex-row mt-[60px] items-center justify-center gap-6 md:gap-4'>
                     {/* Card 1 */}
                     <motion.div
                         initial={{ opacity: 0, x: -100, rotate: -12 }}
@@ -280,7 +319,7 @@ const Page = () => {
             </motion.div>
 
             {/* Community Section */}
-            <div className='container mt-10 mx-auto px-4 py-20'>
+            <div className='container mt-10 mx-auto px-4 md:py-20'>
                 <div className='flex flex-col md:flex-row gap-8 max-w-7xl mx-auto'>
                     {/* World Chat */}
                     <div className='w-full md:w-2/3 bg-[#393e42] rounded-xl p-6'>
@@ -340,16 +379,18 @@ const Page = () => {
                         <h2 className='text-2xl font-bold text-white mb-6 flex items-center gap-2'>
                             HOT <FaFire className="text-orange-500" />
                         </h2>
-                        <div className='space-y-4 -mb-[150px] md:mb-0'>
-                            {hotCreators.map((creator, index) => (
-                                <div key={index} className='transform transition-all duration-300 hover:scale-105'>
-                                    <AccessCard
-                                        image={creator.profileImage || '/empProfile.png'}
-                                        name={creator.username}
-                                        className="bg-gradient-to-r from-blue-400 to-purple-500"
-                                    />
-                                </div>
-                            ))}
+                        <div className='flex justify-center items-center w-full mb-[60px]'>
+                            <div className='space-y-4 -mb-[150px] md:mb-0'>
+                                {hotCreators.map((creator, index) => (
+                                    <div key={index} className='transform transition-all duration-300 hover:scale-105'>
+                                        <AccessCard
+                                            image={creator.profileImage || '/empProfile.png'}
+                                            name={creator.username}
+                                            className="bg-gradient-to-r from-blue-400 to-purple-500"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -363,7 +404,7 @@ const Page = () => {
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 1.2 }}
-                    className='hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8'
+                    className='grid grid-cols-2 lg:grid-cols-4 gap-8'
                 >
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
                         <FeatureCard
