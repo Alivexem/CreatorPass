@@ -124,11 +124,11 @@ export default function NotificationDropdown() {
             >
                 {unreadCount > 0 ? (
                     <>
-                        <IoNotifications className="text-[18px] md:text-[25px]" />
+                        <IoNotifications className="text-[22px] md:text-[25px]" />
                         <RxDotFilled className="absolute -top-1 -right-1 text-blue-500 text-lg" />
                     </>
                 ) : (
-                    <IoNotificationsOutline className="text-[18px] md:text-[25px]" />
+                    <IoNotificationsOutline className="text-[22px] md:text-[25px]" />
                 )}
             </button>
 
