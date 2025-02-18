@@ -14,7 +14,11 @@ import Toast from '@/components/Toast';
 interface Message {
   id: string;
   text: string;
-  sender: string;
+  sender: {
+    address: string;
+    username: string;
+    profileImage: string;
+  };
   timestamp: number;
 }
 
@@ -83,10 +87,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         // Store notifications in Firebase for unread messages
         const notificationsRef = ref(database, `notifications/${creatorAddress}`);
         messagesList.forEach(async (message) => {
-          if (message.sender !== creatorAddress && !message.read) {
+          if (message.sender.address !== creatorAddress && !message.read) {
             await push(notificationsRef, {
               type: 'message',
-              senderAddress: message.sender,
+              senderAddress: message.sender.address,
               message: message.text,
               timestamp: message.timestamp,
               read: false
@@ -136,9 +140,14 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     const chatId = [creatorAddress, userAddress].sort().join('-');
     const messagesRef = ref(database, `chats/${chatId}/messages`);
 
+    // Store complete user info with the message
     const messageData = {
       text: newMessage,
-      sender: userAddress,
+      sender: {
+        address: userAddress,
+        username: userProfile.username,
+        profileImage: userProfile.profileImage || '/empProfile.png'
+      },
       timestamp: Date.now()
     };
 
@@ -152,7 +161,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         body: JSON.stringify({
           recipientAddress: creatorAddress,
           senderAddress: userAddress,
-          senderName: 'You have a new message',
+          senderName: userProfile.username,
+          senderImage: userProfile.profileImage,
           message: newMessage,
           type: 'message'
         })
@@ -218,13 +228,23 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               key={message.id}
               onMouseEnter={() => handleMouseEnter(message.id)}
               onMouseLeave={handleMouseLeave}
-              className={`flex ${message.sender === userAddress ? 'justify-end' : 'justify-start'} group`}
+              className={`flex ${message.sender.address === userAddress ? 'justify-end' : 'justify-start'} group`}
             >
               <div className={`max-w-[70%] break-words ${
-                message.sender === userAddress ? 'items-end' : 'items-start'
+                message.sender.address === userAddress ? 'items-end' : 'items-start'
               }`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Image
+                    src={message.sender.profileImage || '/empProfile.png'}
+                    alt={message.sender.username}
+                    width={24}
+                    height={24}
+                    className="rounded-full h-[24px] w-[24px] object-cover"
+                  />
+                  <span className="text-xs text-gray-400">{message.sender.username}</span>
+                </div>
                 <div className={`rounded-2xl px-4 py-2 ${
-                  message.sender === userAddress
+                  message.sender.address === userAddress
                     ? 'bg-blue-600 rounded-tr-none'
                     : 'bg-gray-700 rounded-tl-none'
                 }`}>
@@ -233,7 +253,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                   </p>
                 </div>
                 <span className={`text-xs text-gray-400 mt-1 block ${
-                  message.sender === userAddress ? 'text-right' : 'text-left'
+                  message.sender.address === userAddress ? 'text-right' : 'text-left'
                 }`}>
                   {new Date(message.timestamp).toLocaleTimeString([], {
                     hour: '2-digit',

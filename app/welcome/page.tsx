@@ -46,30 +46,30 @@ interface Profile {
 }
 
 interface Message {
-  text: string;
-  sender: string;
-  timestamp: number;
+    text: string;
+    sender: string;
+    timestamp: number;
 }
 
 interface ChatHistoryItem {
-  id: string;
-  recipientAddress: string;
-  username: string;
-  profileImage: string;
-  lastMessage: string;
-  timestamp: number;
+    id: string;
+    recipientAddress: string;
+    username: string;
+    profileImage: string;
+    lastMessage: string;
+    timestamp: number;
 }
 
 const formatTimestamp = (timestamp: string) => {
-  const now = new Date();
-  const messageDate = new Date(Number(timestamp));
-  const diffInMinutes = Math.floor((now.getTime() - messageDate.getTime()) / (1000 * 60));
+    const now = new Date();
+    const messageDate = new Date(Number(timestamp));
+    const diffInMinutes = Math.floor((now.getTime() - messageDate.getTime()) / (1000 * 60));
 
-  if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-  if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-  if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)}d ago`;
-  return messageDate.toLocaleDateString();
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)}d ago`;
+    return messageDate.toLocaleDateString();
 };
 
 const Page = () => {
@@ -96,59 +96,29 @@ const Page = () => {
     useEffect(() => {
         const fetchPersonalChats = async () => {
             const address = localStorage.getItem('address');
+            console.log('User Address from localStorage:', address); // Debugging
             if (!address) return;
 
             setIsLoadingPersonalChats(true);
-            const db = getDatabase(firebaseApp);
-            const chatsRef = ref(db, 'chats');
-
             try {
-                // Get profiles for usernames
-                const profilesRef = ref(db, 'profiles');
-                const profilesSnapshot = await get(profilesRef);
-                const profiles = profilesSnapshot.val() || {};
+                const res = await fetch(`/api/chat-history?address=${address}`);
+                const data = await res.json();
 
-                // Subscribe to chats
-                onValue(chatsRef, (snapshot) => {
-                    const chats = snapshot.val() || {};
-                    const userChats: ChatHistoryItem[] = [];
-
-                    for (const chatId in chats) {
-                        const chat = chats[chatId];
-                        if (chat.participants?.includes(address)) {
-                            const messages = chat.messages ? Object.values(chat.messages) : [];
-                            if (messages.length > 0) {
-                                const otherParticipant = chat.participants.find((p: string) => p !== address);
-                                if (otherParticipant) {
-                                    const participantInfo = chat.participantsInfo?.[otherParticipant];
-                                    const lastMessage = messages[messages.length - 1] as Message;
-
-                                    userChats.push({
-                                        id: chatId,
-                                        recipientAddress: otherParticipant,
-                                        username: participantInfo?.username || profiles[otherParticipant]?.username || 'Unknown User',
-                                        profileImage: participantInfo?.profileImage || profiles[otherParticipant]?.profileImage || '/empProfile.png',
-                                        lastMessage: lastMessage.text,
-                                        timestamp: lastMessage.timestamp
-                                    });
-                                }
-                            }
-                        }
-                    }
-
-                    // Sort by most recent first
-                    const sortedChats = userChats.sort((a, b) => b.timestamp - a.timestamp);
-                    setPersonalChats(sortedChats);
-                    setIsLoadingPersonalChats(false);
-                });
+                if (data.chatHistory) {
+                    console.log('Fetched Chat History:', data.chatHistory); // Debugging statement
+                    setPersonalChats(data.chatHistory);
+                }
             } catch (error) {
-                console.error('Error fetching personal chats:', error);
+                console.error('Error fetching chats:', error);
+            } finally {
                 setIsLoadingPersonalChats(false);
             }
         };
 
         fetchPersonalChats();
     }, []);
+
+
 
     const fetchChats = async () => {
         try {
@@ -277,7 +247,7 @@ const Page = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className='container mx-auto px-4 md:mt-[60px] w-full min-h-[500px] flex pt-20 pb-32'
+                className='container mx-auto px-4 md:mt-[10px] w-full min-h-[500px] flex pt-20 pb-32'
             >
                 <div className='max-w-4xl flex items-start flex-col mx-auto text-center space-y-6'>
                     <motion.h1
@@ -300,7 +270,7 @@ const Page = () => {
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.6 }}
-                        className='flex items-center gap-x-14'
+                        className='flex items-center gap-x-8'
                     >
                         <Link href='/passes'>
                             <button className="mt-8 px-8 py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
@@ -321,7 +291,7 @@ const Page = () => {
                 </div>
 
 
-                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F]/50 backdrop-blur-md rounded-[12px] text-white shadow-lg border border-gray-800'>
+                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F]/50 backdrop-blur-md rounded-[12px] text-white shadow-lg border border-blue-800'>
                     <div className='w-full flex justify-between items-center mb-4'>
                         <p className='text-[1.6rem] font-bold'>Messages</p>
                         <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
@@ -344,7 +314,7 @@ const Page = () => {
                                             height={45}
                                             alt='profilePic'
                                             src={chat.profileImage}
-                                            className='rounded-full object-cover'
+                                            className='rounded-full h-[45px] w-[45px] object-cover'
                                         />
                                         <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1A1D1F]'></div>
                                     </div>
@@ -352,7 +322,10 @@ const Page = () => {
                                         <div className='flex justify-between items-start'>
                                             <p className='font-semibold truncate'>{chat.username}</p>
                                             <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
-                                                {formatTimestamp(chat.timestamp.toString())}
+                                                {new Date(chat.timestamp).toLocaleTimeString([], {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
                                             </span>
                                         </div>
                                         <p className='text-sm text-gray-400 truncate'>

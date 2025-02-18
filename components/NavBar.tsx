@@ -149,7 +149,7 @@ const NavBar = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className='ml-3 bg-transparent text-black pr-5 h-full w-full outline-none border-none'
-              placeholder='Search CreatorPass'
+              placeholder='Find a creator'
               type='text'
             />
             <button type="submit" className='h-[100%] lg:w-[15%] md:w-[30%] rounded-full bg-gray-900 hover:bg-gray-500 text-white flex justify-center items-center'>
