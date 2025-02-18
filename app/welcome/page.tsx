@@ -15,6 +15,8 @@ import { motion } from "framer-motion";
 import { IoSend } from "react-icons/io5";
 import { TbWorldCheck } from "react-icons/tb";
 import Toast from '@/components/Toast';
+import { getDatabase, ref, onValue, query, orderByChild, get } from 'firebase/database';
+import { app as firebaseApp } from '@/utils/firebase';
 
 interface AccessCardProps {
     image: string;
@@ -43,6 +45,33 @@ interface Profile {
     about?: string;
 }
 
+interface Message {
+  text: string;
+  sender: string;
+  timestamp: number;
+}
+
+interface ChatHistoryItem {
+  id: string;
+  recipientAddress: string;
+  username: string;
+  profileImage: string;
+  lastMessage: string;
+  timestamp: number;
+}
+
+const formatTimestamp = (timestamp: string) => {
+  const now = new Date();
+  const messageDate = new Date(Number(timestamp));
+  const diffInMinutes = Math.floor((now.getTime() - messageDate.getTime()) / (1000 * 60));
+
+  if (diffInMinutes < 1) return 'Just now';
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+  if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  return messageDate.toLocaleDateString();
+};
+
 const Page = () => {
     const [chats, setChats] = useState<WorldChat[]>([]);
     const [message, setMessage] = useState('');
@@ -54,12 +83,71 @@ const Page = () => {
         message: string;
         type: 'success' | 'error' | 'info' | 'warning';
     }>({ show: false, message: '', type: 'info' });
+    const [personalChats, setPersonalChats] = useState<ChatHistoryItem[]>([]);
+    const [isLoadingPersonalChats, setIsLoadingPersonalChats] = useState(false);
 
     useEffect(() => {
         fetchChats();
         fetchHotCreators();
         const address = localStorage.getItem('address');
-            setUserAddress(address);
+        setUserAddress(address);
+    }, []);
+
+    useEffect(() => {
+        const fetchPersonalChats = async () => {
+            const address = localStorage.getItem('address');
+            if (!address) return;
+
+            setIsLoadingPersonalChats(true);
+            const db = getDatabase(firebaseApp);
+            const chatsRef = ref(db, 'chats');
+
+            try {
+                // Get profiles for usernames
+                const profilesRef = ref(db, 'profiles');
+                const profilesSnapshot = await get(profilesRef);
+                const profiles = profilesSnapshot.val() || {};
+
+                // Subscribe to chats
+                onValue(chatsRef, (snapshot) => {
+                    const chats = snapshot.val() || {};
+                    const userChats: ChatHistoryItem[] = [];
+
+                    for (const chatId in chats) {
+                        const chat = chats[chatId];
+                        if (chat.participants?.includes(address)) {
+                            const messages = chat.messages ? Object.values(chat.messages) : [];
+                            if (messages.length > 0) {
+                                const otherParticipant = chat.participants.find((p: string) => p !== address);
+                                if (otherParticipant) {
+                                    const participantInfo = chat.participantsInfo?.[otherParticipant];
+                                    const lastMessage = messages[messages.length - 1] as Message;
+
+                                    userChats.push({
+                                        id: chatId,
+                                        recipientAddress: otherParticipant,
+                                        username: participantInfo?.username || profiles[otherParticipant]?.username || 'Unknown User',
+                                        profileImage: participantInfo?.profileImage || profiles[otherParticipant]?.profileImage || '/empProfile.png',
+                                        lastMessage: lastMessage.text,
+                                        timestamp: lastMessage.timestamp
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // Sort by most recent first
+                    const sortedChats = userChats.sort((a, b) => b.timestamp - a.timestamp);
+                    setPersonalChats(sortedChats);
+                    setIsLoadingPersonalChats(false);
+                });
+            } catch (error) {
+                console.error('Error fetching personal chats:', error);
+                setIsLoadingPersonalChats(false);
+            }
+        };
+
+        fetchPersonalChats();
     }, []);
 
     const fetchChats = async () => {
@@ -233,31 +321,60 @@ const Page = () => {
                 </div>
 
 
-                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-transparent rounded-[12px] text-white shadow-sm shadow-white'>
-                    <p className='text-[1.6rem] font-bold'>Messages</p>
-                    <div className='border-gray-500 border-t-[0.1px] w-full flex flex-col space-y-8 overflow-auto h-full mt-5'>
-              
-                                <div 
-                                 
-                                    className='mt-5 flex items-center gap-x-3 cursor-pointer hover:bg-purple-900/20 p-2 rounded-lg transition-all'
-                                 
+                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F]/50 backdrop-blur-md rounded-[12px] text-white shadow-lg border border-gray-800'>
+                    <div className='w-full flex justify-between items-center mb-4'>
+                        <p className='text-[1.6rem] font-bold'>Messages</p>
+                        <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
+                    </div>
+                    <div className='border-gray-500/30 border-t w-full flex flex-col space-y-2 overflow-auto h-full px-2'>
+                        {isLoadingPersonalChats ? (
+                            <div className="flex justify-center items-center h-full">
+                                <p className="text-gray-400 animate-pulse">Loading chats...</p>
+                            </div>
+                        ) : personalChats.length > 0 ? (
+                            personalChats.map((chat) => (
+                                <Link
+                                    key={chat.id}
+                                    href={`/chat/${chat.recipientAddress}`}
+                                    className='flex items-center gap-x-3 cursor-pointer hover:bg-purple-900/20 p-3 rounded-lg transition-all'
                                 >
-                                    <Image 
-                                        width={40} 
-                                        height={40} 
-                                        alt='profilePic' 
-                                        src='/empProfile.png' 
-                                        className='rounded-full object-cover' 
-                                    />
-                                    <div className='flex flex-col'>
-                                        <p className='hover:text-purple-600'>Name</p>
-                                        <p className='text-sm text-gray-400 truncate max-w-[200px]'>mdsjankasd</p>
+                                    <div className='relative'>
+                                        <Image
+                                            width={45}
+                                            height={45}
+                                            alt='profilePic'
+                                            src={chat.profileImage}
+                                            className='rounded-full object-cover'
+                                        />
+                                        <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1A1D1F]'></div>
                                     </div>
-                                </div>
-                    
-                    
-                            <p className='text-center text-gray-400 mt-8'>No chat history found</p>
-                   
+                                    <div className='flex-1 min-w-0'>
+                                        <div className='flex justify-between items-start'>
+                                            <p className='font-semibold truncate'>{chat.username}</p>
+                                            <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+                                                {formatTimestamp(chat.timestamp.toString())}
+                                            </span>
+                                        </div>
+                                        <p className='text-sm text-gray-400 truncate'>
+                                            {chat.lastMessage}
+                                        </p>
+                                    </div>
+                                </Link>
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-full space-y-4">
+                                <p className='text-center text-gray-400'>No messages yet</p>
+                                <Link
+                                    href="/creators"
+                                    className="text-purple-500 hover:text-purple-400 text-sm flex items-center gap-2"
+                                >
+                                    <span>Find creators to chat with</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>
