@@ -188,7 +188,7 @@ const CreatorsPage = () => {
   const isHighlighted = currentProfile && currentProfile.address === highlightedCreator;
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
+    <div className='min-h-screen bg-black'>
       <NavBar />
       
       <div className='container mx-auto px-4 pt-20'>
@@ -311,7 +311,7 @@ const CreatorsPage = () => {
                 <IoMdClose size={15} />
               </button>
               <p className="text-purple-300 text-center text-lg">
-                Swipe to see more creators
+                Swipe left to see more creators
               </p>
             </motion.div>
           </motion.div>
