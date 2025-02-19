@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { TiWarningOutline } from "react-icons/ti";
 import { useAppKit, useAppKitAccount } from '../utils/reown';
-
+import { FcLinux } from "react-icons/fc";
+import { FcLike } from "react-icons/fc";
 const App = () => {
     const [showToaster, setShowToaster] = useState(false);
     const [buttonText, setButtonText] = useState('Get started')
@@ -81,11 +82,13 @@ const App = () => {
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4'>
                         CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes.</p>
-                    <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                    <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                        <FcLinux />
                         <p className='leading-none'>For creators</p>
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences.</p>
-                    <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                    <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                        <FcLike />
                         <p className='leading-none'>For fans</p>
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance.</p>

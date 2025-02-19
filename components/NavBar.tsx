@@ -136,7 +136,7 @@ const NavBar = () => {
            
             backdropFilter: 'blur(10px)', // This applies the blur effect to the background
           }}
-          className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center w-[95%] rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
+          className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center md:w-[95%] w-full md:rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
           <Image
             src='/whiteLogo.png'
             alt='logo'
@@ -173,7 +173,7 @@ const NavBar = () => {
               <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
             </Link>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <div className="md:hidden">
                 <NotificationDropdown />
               </div>
@@ -181,7 +181,7 @@ const NavBar = () => {
                 className='bg-gray-200 h-[70%] md:h-8 px-4 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purple-300'
                 onClick={handleConnect}
               >
-                <p className='text-black text-[0.9rem] md:text-[1rem]'>{connectValue}</p>
+                <p className='text-black text-[0.9rem] md:text-[1rem] whitespace-nowrap'>{connectValue}</p>
               </div>
             </div>
           </div>
