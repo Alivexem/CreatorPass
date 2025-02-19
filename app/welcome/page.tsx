@@ -254,7 +254,7 @@ const Page = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className='text-5xl md:text-7xl mt-[100px] text-start font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
+                        className='text-4xl md:text-7xl mt-[80px] text-start font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
                     >
                         Empowering Creators & Rewarding Fans
                     </motion.h1>
@@ -262,7 +262,7 @@ const Page = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.4 }}
-                        className='text-xl md:text-2xl text-gray-300 text-start max-w-2xl'
+                        className='text-lg md:text-2xl text-gray-300 text-start max-w-2xl'
                     >
                         Join the next generation of content creators and viewers. Access exclusive posts, videos, and experiences from your favorite creators.
                     </motion.p>
@@ -273,16 +273,16 @@ const Page = () => {
                         className='flex items-center gap-x-8'
                     >
                         <Link href='/passes'>
-                            <button className="mt-8 px-8 py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-blue-700">
+                            <button className="mt-8 text-[0.8rem] px-5 md:px-8 py-3 md:py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+  shadow-sm bg-transparent border-[2px] border-blue-700">
                                 Explore Passes
                             </button>
 
                         </Link>
 
                         <Link href='/creators'>
-                            <button className="mt-8 px-8 py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-purple-700">
+                            <button className="mt-8 text-[0.8rem] px-5 md:px-8 py-3 md:py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+  shadow-sm bg-transparent border-[2px] border-purple-700">
                                 Visit creators
                             </button>
 
@@ -291,7 +291,7 @@ const Page = () => {
                 </div>
 
 
-                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F]/50 backdrop-blur-md rounded-[12px] text-white shadow-lg border border-blue-800'>
+                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F]/50 backdrop-blur-md rounded-[12px] text-white shadow-lg border-[3px] border-blue-600'>
                     <div className='w-full flex justify-between items-center mb-4'>
                         <p className='text-[1.6rem] font-bold'>Messages</p>
                         <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
@@ -415,7 +415,7 @@ const Page = () => {
                     <div className='w-full md:w-2/3 bg-[#393e42] rounded-xl p-6'>
                         <div className='flex items-center flex-col'>
                             <div className='flex items-center gap-2'>
-                                <h2 className='text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
+                                <h2 className='text-2xl md:text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
                                 <TbWorldCheck size={30} className='text-white' />
                             </div>
                             {/* <p className='text-gray-400 text-sm'>All Countries</p> */}
@@ -430,15 +430,15 @@ const Page = () => {
                                     <Image
                                         src={chat.profileImage}
                                         alt='Profile'
-                                        width={40}
-                                        height={40}
+                                        width={35}
+                                        height={35}
                                         className='rounded-full object-cover w-[40px] h-[40px]'
                                     />
                                     <div>
                                         <p className='text-purple-100 text-sm'>
                                             {formatUserInfo(chat.address, chat.country)}
                                         </p>
-                                        <p className='text-white'>{chat.message}</p>
+                                        <p className='text-white text-[0.8rem] md:-[0.9rem]'>{chat.message}</p>
                                         <p className='text-gray-500 text-[0.7rem] mt-1'>
                                             {formatDate(chat.timestamp)}
                                         </p>
@@ -553,8 +553,8 @@ const AccessCard = ({ image, name, className }: AccessCardProps) => (
 const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
     <div className='bg-[#232629] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
         <div className='text-blue-400 mb-4'>{icon}</div>
-        <h3 className='text-xl font-bold text-white mb-2'>{title}</h3>
-        <p className='text-gray-300'>{description}</p>
+        <h3 className='text-lg md:text-xl font-bold text-white mb-2'>{title}</h3>
+        <p className='text-gray-300 text-[0.8rem] md:text-[0.9rem]'>{description}</p>
     </div>
 )
 
