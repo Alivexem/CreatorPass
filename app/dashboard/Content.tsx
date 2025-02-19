@@ -390,7 +390,7 @@ const Content = ({ setToast }: ContentProps) => {
     }, [selectedImage]);
 
     return (
-        <div className='min-h-screen bg-[#1A1D1F] px-4 py-8'>
+        <div className='min-h-screen bg-black px-4 py-8'>
             <div className='max-w-4xl mx-auto'>
                 {/* Header Section */}
                 <div className='mb-10'>

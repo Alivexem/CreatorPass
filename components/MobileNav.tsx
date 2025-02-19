@@ -74,7 +74,7 @@ const MobileNav = () => {
         </div>
       )}
       
-      <div className='h-[80px] pt-3 box-border flex items-center justify-evenly w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
+      <div className='h-[80px] border-purple-600 border-t pt-3 box-border flex items-center justify-evenly w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
         <Link href='/welcome'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <GoHomeFill className={pathname === '/welcome' ? 'text-purple-500' : ''} />

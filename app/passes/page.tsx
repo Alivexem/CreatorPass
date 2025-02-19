@@ -347,7 +347,7 @@ const PassesPage = () => {
     }
 };
   return (
-    <div className='min-h-screen pb-[120px] md:pb-0 bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
+    <div className='min-h-screen pb-[120px] md:pb-0 bg-black'>
       <NavBar />
       
       {/* Hero Section */}
@@ -467,28 +467,28 @@ const PassesPage = () => {
       <AnimatePresence>
         {showSwipeModal && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          >
-            <motion.div 
-              initial={{ scale: 0.8, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, y: 20 }}
-              className="bg-gray-900 p-8 rounded-xl relative max-w-md mx-4"
-            >
-              <button 
-                onClick={() => setShowSwipeModal(false)}
-                className="absolute top-2 right-2 text-gray-300 hover:text-white"
-              >
-                <IoMdClose size={15} />
-              </button>
-              <p className="text-purple-400 text-center text-lg">
-                Please swipe to see more passes
-              </p>
-            </motion.div>
-          </motion.div>
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 md:hidden"
+                    >
+                      <motion.div 
+                        initial={{ scale: 0.8, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.8, y: 20 }}
+                        className="bg-gray-800 p-8 rounded-xl relative max-w-md mx-4"
+                      >
+                        <button 
+                          onClick={() => setShowSwipeModal(false)}
+                          className="absolute top-2 right-2 text-white hover:text-white"
+                        >
+                          <IoMdClose size={15} />
+                        </button>
+                        <p className="text-purple-300 text-center text-lg">
+                          Swipe left to see more passes
+                        </p>
+                      </motion.div>
+                    </motion.div>
         )}
       </AnimatePresence>
 

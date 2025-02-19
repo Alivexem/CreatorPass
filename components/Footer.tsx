@@ -5,7 +5,7 @@ import { IoTicketSharp } from "react-icons/io5";
 
 const Footer = () => {
     return (
-        <div className='mt-[100px] bg-black w-full min-h-[200px] text-white hidden md:flex flex-col justify-center items-center p-8'>
+        <div className='mt-[100px] bg-black border-purple-600 border-t w-full min-h-[200px] text-white hidden md:flex flex-col justify-center items-center p-8'>
             <div className='max-w-6xl w-full grid grid-cols-1 md:grid-cols-3 gap-8'>
                 {/* Brand Section */}
                 <div className='flex flex-col items-center md:items-start gap-y-3'>

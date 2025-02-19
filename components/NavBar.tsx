@@ -141,7 +141,7 @@ const NavBar = () => {
             src='/whiteLogo.png'
             alt='logo'
             height={40}
-            width={150}
+            width={140}
             className='md:w-[180px] md:h-[80px] -ml-4'
           />
 
@@ -158,7 +158,7 @@ const NavBar = () => {
             </button>
           </form>
 
-          <div className='flex items-center gap-x-5 text-white text-[1rem]'>
+          <div className='flex items-center gap-x-2 md:gap-x-5 text-white text-[1rem]'>
             <div className="hidden md:block">
               <NotificationDropdown />
             </div>

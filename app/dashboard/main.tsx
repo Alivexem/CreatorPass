@@ -54,7 +54,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
   };
 
   return (
-    <div className='bg-[#1A1D1F] min-h-screen pb-[100px] md:pb-4'>
+    <div className='bg-black min-h-screen pb-[100px] md:pb-4'>
       {/* NFT Toast */}
       {showNftToast && (
         <div className='fixed top-5 right-5 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in'>

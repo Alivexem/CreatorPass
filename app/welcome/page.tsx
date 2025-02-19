@@ -232,7 +232,7 @@ const Page = () => {
     };
 
     return (
-        <div className='min-h-screen bg-gradient-to-b from-[#1A1D1F] to-[#2A2D2F]'>
+        <div className='min-h-screen bg-black'>
             {toast.show && (
                 <Toast
                     message={toast.message}
@@ -291,7 +291,7 @@ const Page = () => {
                 </div>
 
 
-                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F]/50 backdrop-blur-md rounded-[12px] text-white shadow-lg border-[3px] border-blue-600'>
+                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F] backdrop-blur-md rounded-[12px] text-white shadow-lg border-[3px] border-blue-600'>
                     <div className='w-full flex justify-between items-center mb-4'>
                         <p className='text-[1.6rem] font-bold'>Messages</p>
                         <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
@@ -412,7 +412,7 @@ const Page = () => {
             <div className='container mt-10 mx-auto px-4 md:py-20'>
                 <div className='flex flex-col md:flex-row gap-8 max-w-7xl mx-auto'>
                     {/* World Chat */}
-                    <div className='w-full md:w-2/3 bg-[#393e42] rounded-xl p-6'>
+                    <div className='w-full md:w-2/3 bg-[#252729] rounded-xl p-6'>
                         <div className='flex items-center flex-col'>
                             <div className='flex items-center gap-2'>
                                 <h2 className='text-2xl md:text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
@@ -453,7 +453,7 @@ const Page = () => {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder='Type your message...'
-                                className='flex-1 bg-[#1A1D1F] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
+                                className='flex-1 bg-[#292e31] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
                             />
                             <button
                                 type='submit'
@@ -538,7 +538,7 @@ const AccessCard = ({ image, name, className }: AccessCardProps) => (
             <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
             <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
         </div>
-        <div className='bg-slate-800 p-6 space-y-4'>
+        <div className='bg-[#080e0e] p-6 space-y-4'>
             <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
             <Image src={image} className='rounded-lg w-full h-48 object-cover' height={70} width={150} alt='profile' />
             <div className='flex items-center justify-center gap-3'>

@@ -91,7 +91,7 @@ const Dashboard = () => {
   const activeSection = showContent ? 'content' : showProfile ? 'profile' : 'dashboard';
 
   return (
-    <div className='bg-[#1A1D1F]'>
+    <div className='bg-black'>
       {toast.show && (
         <Toast
           message={toast.message}
