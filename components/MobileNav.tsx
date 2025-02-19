@@ -6,6 +6,8 @@ import { MdDashboardCustomize } from "react-icons/md";
 import { IoTicketSharp } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
 import { useState, useRef, useEffect } from 'react';
+import { IoMdMail } from "react-icons/io";
+
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -76,27 +78,37 @@ const MobileNav = () => {
         <Link href='/welcome'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <GoHomeFill className={pathname === '/welcome' ? 'text-purple-500' : ''} />
-            <p className={`text-[0.8rem] ${pathname === '/welcome' ? 'text-purple-500' : ''}`}>Home</p>
+            <p className={`text-[0.7rem] ${pathname === '/welcome' ? 'text-purple-500' : ''}`}>Home</p>
           </div>
         </Link>
 
         <Link href='/creators'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <IoTicketSharp className={pathname === '/creators' ? 'text-purple-500' : ''} />
-            <p className={`text-[0.8rem] ${pathname === '/creators' ? 'text-purple-500' : ''}`}>Creators</p>
+            <p className={`text-[0.7rem] ${pathname === '/creators' ? 'text-purple-500' : ''}`}>Creators</p>
           </div>
         </Link>
+        
+          <div className='flex flex-col cursor-pointer items-center space-y-2'>
+            <IoMdMail  />
+            <p className={`text-[0.7rem]`}>Messages</p>
+          </div>
+      
+
+        
+
+      
 
         <Link href='/dashboard'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <MdDashboardCustomize className={pathname === '/dashboard' ? 'text-purple-500' : ''} />
-            <p className={`text-[0.8rem] ${pathname === '/dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
+            <p className={`text-[0.7rem] ${pathname === '/dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
           </div>
         </Link>
 
         <div className='flex cursor-pointer flex-col items-center space-y-2 relative' onClick={() => setShowMobileSearch(prev => !prev)}>
           <FiSearch className='text-xl' />
-          <p className='text-[0.8rem]'>Search</p>
+          <p className='text-[0.7rem]'>Search</p>
           {showMobileSearch && (
             <div ref={searchRef} className='absolute bottom-[80px] right-[5vw] bg-white p-4 rounded-lg items-center shadow-lg w-[300px] flex gap-2' onClick={(e) => e.stopPropagation()}>
               <input

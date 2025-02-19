@@ -199,7 +199,7 @@ const CreatorsPage = () => {
           }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className='text-5xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+          <h1 className='text-4xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
             Meet Your Favourite Creators
           </h1>
         </motion.div>

@@ -136,12 +136,13 @@ const NavBar = () => {
            
             backdropFilter: 'blur(10px)', // This applies the blur effect to the background
           }}
-          className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center w-[95%] rounded-[30px] px-[30px] shadow-md bg-opacity-50">
+          className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center w-[95%] rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
           <Image
             src='/whiteLogo.png'
             alt='logo'
             height={40}
-            width={180}
+            width={150}
+            className='md:w-[180px] md:h-[80px] -ml-4'
           />
 
           <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
@@ -177,10 +178,10 @@ const NavBar = () => {
                 <NotificationDropdown />
               </div>
               <div
-                className='bg-gray-200 h-[70%] md:h-8 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-[#00C7A3]'
+                className='bg-gray-200 h-[70%] md:h-8 px-4 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purple-300'
                 onClick={handleConnect}
               >
-                <p className='text-[#682E9E] text-[0.9rem] md:text-[1rem]'>{connectValue}</p>
+                <p className='text-black text-[0.9rem] md:text-[1rem]'>{connectValue}</p>
               </div>
             </div>
           </div>

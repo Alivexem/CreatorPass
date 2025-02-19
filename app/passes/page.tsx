@@ -353,10 +353,10 @@ const PassesPage = () => {
       {/* Hero Section */}
       <div className='container mx-auto px-4 pt-20 pb-32'>
         <div className='max-w-4xl mx-auto text-center space-y-6'>
-          <h1 className='text-5xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+          <h1 className='text-4xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
             Exclusive Creator Passes
           </h1>
-          <p className='text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto'>
+          <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
             Get unlimited access to premium content and unique experiences from your favorite creators.
           </p>
           <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
