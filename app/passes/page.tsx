@@ -527,7 +527,7 @@ const AccessCard = ({ profile, className, onMint, isMinting }: {
       <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
       <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
     </div>
-    <div className='bg-slate-800 p-6 space-y-4'>
+    <div className='bg-[#080e0e] p-6 space-y-4'>
       <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
       <Image 
         src={profile.profileImage || '/empProfile.png'} 

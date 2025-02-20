@@ -13,6 +13,7 @@ import { RiProfileFill } from "react-icons/ri";
 import { useRouter } from 'next/navigation';
 import { useAppKit, useAppKitAccount, useDisconnect } from '../../utils/reown';
 import { FaMoneyCheckAlt } from "react-icons/fa";
+import { FaCircleDollarToSlot } from "react-icons/fa6";
 const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowContent: () => void, onShowDashboard: () => void, onShowProfile: () => void }) => {
   const router = useRouter();
   const { isConnected } = useAppKitAccount();
@@ -116,7 +117,7 @@ const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowCont
           className={`flex items-center gap-x-1 cursor-pointer ${isActive('contents')} hover:text-blue-500`}
         >
           <div onClick={handleToggle} className='flex items-center gap-x-1'>
-            <FaMoneyCheckAlt  />
+            <FaCircleDollarToSlot  />
             <p>Payout</p>
           </div>
         </div>

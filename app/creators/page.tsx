@@ -49,13 +49,13 @@ const CreatorsPage = () => {
           // Get the highlight parameter from URL
           const params = new URLSearchParams(window.location.search);
           const highlightAddress = params.get('highlight');
-          
+
           if (highlightAddress) {
             // Find the highlighted creator
             const highlightedProfile = data.profiles.find(
               (profile: Profile) => profile.address === highlightAddress
             );
-            
+
             if (highlightedProfile) {
               // Set the current index to show the highlighted creator
               const index = data.profiles.findIndex(
@@ -65,7 +65,7 @@ const CreatorsPage = () => {
               setHighlightedCreator(highlightAddress);
             }
           }
-          
+
           setProfiles(data.profiles);
         }
       } catch (error) {
@@ -121,7 +121,7 @@ const CreatorsPage = () => {
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const minSwipeDistance = 50;
 
@@ -138,47 +138,47 @@ const CreatorsPage = () => {
 
   const handleChatClick = async (creatorAddress: string) => {
     try {
-        const address = localStorage.getItem('address');
-        if (!address) {
-            setToast({
-                show: true,
-                message: 'Please connect your wallet first',
-                type: 'warning'
-            });
-            return;
-        }
-
-        // Check if user has a profile
-        const profileRes = await fetch(`/api/profile?address=${address}`);
-        const profileData = await profileRes.json();
-
-        if (!profileData.profile || !profileData.profile.username) {
-            setToast({
-                show: true,
-                message: 'Please create a profile first',
-                type: 'warning'
-            });
-            router.push('/dashboard');
-            return;
-        }
-
-        // Set user profile if not already set
-        if (!userProfile) {
-            setUserProfile(profileData.profile);
-        }
-
-        if (window.innerWidth <= 768) {
-            router.push(`/chat/${creatorAddress}`);
-        } else {
-            setSelectedChat(creatorAddress);
-        }
-    } catch (error) {
-        console.error('Error checking profile:', error);
+      const address = localStorage.getItem('address');
+      if (!address) {
         setToast({
-            show: true,
-            message: 'Error starting chat',
-            type: 'error'
+          show: true,
+          message: 'Please connect your wallet first',
+          type: 'warning'
         });
+        return;
+      }
+
+      // Check if user has a profile
+      const profileRes = await fetch(`/api/profile?address=${address}`);
+      const profileData = await profileRes.json();
+
+      if (!profileData.profile || !profileData.profile.username) {
+        setToast({
+          show: true,
+          message: 'Please create a profile first',
+          type: 'warning'
+        });
+        router.push('/dashboard');
+        return;
+      }
+
+      // Set user profile if not already set
+      if (!userProfile) {
+        setUserProfile(profileData.profile);
+      }
+
+      if (window.innerWidth <= 768) {
+        router.push(`/chat/${creatorAddress}`);
+      } else {
+        setSelectedChat(creatorAddress);
+      }
+    } catch (error) {
+      console.error('Error checking profile:', error);
+      setToast({
+        show: true,
+        message: 'Error starting chat',
+        type: 'error'
+      });
     }
   };
 
@@ -190,18 +190,28 @@ const CreatorsPage = () => {
   return (
     <div className='min-h-screen bg-black'>
       <NavBar />
-      
+
       <div className='container mx-auto px-4 pt-20'>
-        <motion.div 
+        <motion.div
           className='max-w-4xl mx-auto text-center space-y-6'
-          animate={{ 
-            x: selectedChat ? -100 : 0 
+          animate={{
+            x: selectedChat ? -100 : 0
           }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className='text-4xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
-            Meet Your Favourite Creators
-          </h1>
+          <div className='container mx-auto px-4 pt-20'>
+            <div className='max-w-4xl mx-auto text-center space-y-6'>
+              <h1 className='text-4xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+                Interact With Creators
+              </h1>
+              <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
+                Chat creators, view their posts where you have access to like, comment, gift and interact in their private rooms.
+              </p>
+              <div className='bg-purple-500/20 text-purple-400 px-6 py-3 rounded-xl inline-block'>
+                Access your favourite creators
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
 
@@ -212,7 +222,7 @@ const CreatorsPage = () => {
       ) : (
         <div className='relative max-w-6xl mx-auto px-4 py-20'>
           <div className='flex items-center justify-center gap-8'>
-            <button 
+            <button
               onClick={handlePrevious}
               className='hidden md:block text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= 1}
@@ -221,15 +231,15 @@ const CreatorsPage = () => {
             </button>
 
             {currentProfile && (
-              <motion.div 
+              <motion.div
                 className="flex flex-col items-center"
-                animate={{ 
-                  x: selectedChat ? -100 : 0 
+                animate={{
+                  x: selectedChat ? -100 : 0
                 }}
                 transition={{ duration: 0.5 }}
               >
                 <Link href={`/creator/${currentProfile.address}`}>
-                  <div 
+                  <div
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
@@ -242,14 +252,14 @@ const CreatorsPage = () => {
                       <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
                       <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
                     </div>
-                    <div className='bg-slate-800 p-6 space-y-4'>
+                    <div className='bg-[#080e0e] p-6 space-y-4'>
                       <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-                      <Image 
-                        src={currentProfile.profileImage || '/empProfile.png'} 
-                        className='rounded-lg w-full h-48 object-cover' 
-                        height={70} 
-                        width={150} 
-                        alt='profile' 
+                      <Image
+                        src={currentProfile.profileImage || '/empProfile.png'}
+                        className='rounded-lg w-full h-48 object-cover'
+                        height={70}
+                        width={150}
+                        alt='profile'
                       />
                       <div className='flex items-center justify-center gap-3'>
                         <RiHeart2Line className='text-white' />
@@ -279,7 +289,7 @@ const CreatorsPage = () => {
               </motion.div>
             )}
 
-            <button 
+            <button
               onClick={handleNext}
               className='hidden md:block text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= 1}
@@ -292,19 +302,19 @@ const CreatorsPage = () => {
 
       <AnimatePresence>
         {showSwipeModal && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 md:hidden"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
               className="bg-gray-800 p-8 rounded-xl relative max-w-md mx-4"
             >
-              <button 
+              <button
                 onClick={() => setShowSwipeModal(false)}
                 className="absolute top-2 right-2 text-white hover:text-white"
               >
@@ -362,9 +372,8 @@ const CreatorsPage = () => {
       </AnimatePresence>
 
       {toast.show && (
-        <div className={`fixed bottom-4 right-4 p-4 rounded-lg text-white ${
-          toast.type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-        }`}>
+        <div className={`fixed bottom-4 right-4 p-4 rounded-lg text-white ${toast.type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+          }`}>
           {toast.message}
         </div>
       )}
