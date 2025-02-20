@@ -459,7 +459,7 @@ const Page = () => {
                                 type='submit'
                                 className='bg-purple-600 text-white p-2 rounded-lg transition-colors hover:bg-purple-700'
                             >
-                                <IoSend size={24} />
+                                <IoSend size={20} />
                             </button>
                         </form>
                     </div>
