@@ -81,7 +81,7 @@ const App = () => {
                         <p>CreatorPass</p>
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4'>
-                        CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes.</p>
+                        CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint creators pass</p>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
                         <FcLinux />
                         <p className='leading-none'>For creators</p>
@@ -91,7 +91,7 @@ const App = () => {
                         <FcLike />
                         <p className='leading-none'>For fans</p>
                     </div>
-                    <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance.</p>
+                    <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance</p>
 
                 </div>
 
@@ -101,19 +101,21 @@ const App = () => {
                             <p>CreatorPass</p>
                         </div>
                         <p className='text-left lg:text-left mb-5 pl-4'>
-                            CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes.</p>
+                            CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint creators pass</p>
                     </div>
 
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
-                        <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                            <p className='leading-none'>For creators</p>
-                        </div>
-                        <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences.</p>
+                    <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                        <FcLinux />
+                        <p className='leading-none'>For creators</p>
+                    </div>
+                        <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences. </p>
                     </div>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
-                        <div className='text-[2.5rem] md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                            <p className='leading-none'>For fans</p>
-                        </div>
+                    <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                        <FcLike />
+                        <p className='leading-none'>For fans</p>
+                    </div>
                         <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance.</p>
                     </div>
                 </div>

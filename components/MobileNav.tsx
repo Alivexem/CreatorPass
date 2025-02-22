@@ -174,7 +174,7 @@ const MobileNav = () => {
                 personalChats.map((chat) => (
                   <Link
                     key={chat.id}
-                    href={`/chat/${chat.recipientAddress}`}
+                    href={`/creators?highlight=${chat.recipientAddress}`}
                     className='flex items-center gap-x-3 cursor-pointer hover:bg-purple-900/20 p-3 rounded-lg transition-all'
                     onClick={() => setShowMessages(false)}
                   >
