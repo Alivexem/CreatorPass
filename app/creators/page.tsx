@@ -201,8 +201,8 @@ const CreatorsPage = () => {
         >
           <div className='container mx-auto px-4 pt-20'>
             <div className='max-w-4xl mx-auto text-center space-y-6'>
-              <h1 className='text-4xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
-                Interact With Creators
+              <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
+                Find Creators
               </h1>
               <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
                 Chat creators, view their posts where you have access to like, comment, gift and interact in their private rooms.

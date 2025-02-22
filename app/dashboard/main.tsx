@@ -84,7 +84,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
             {/* Left Column - Creator Card */}
             <div className='lg:col-span-4 space-y-6'>
               {/* Creator Pass Preview */}
-              <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] to-[#75bde7] p-6 rounded-2xl shadow-xl'>
+              <div className='bg-gradient-to-r from-[#75bde7] via-[#22a1eb] md:to-[#75bde7] to-[#297aa8] p-6 rounded-2xl shadow-xl'>
                 <div className='bg-slate-800 rounded-xl p-4'>
                   <div className='flex justify-between items-center mb-4'>
                     <Image src='/sol.png' alt='sol' width={24} height={24} />
@@ -144,7 +144,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                     title: 'Top Pass',
                     description: 'Your best performing pass',
                     icon: <SiSolana className='text-blue-500 text-2xl' />,
-                    bgColor: 'bg-blue-500/20'
+                    bgColor: 'bg-blue-800/20'
                   }
                 ].map((stat, index) => (
                   <div key={index} className='bg-[#272B30] p-6 rounded-xl'>
