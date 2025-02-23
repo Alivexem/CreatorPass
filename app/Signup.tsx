@@ -47,7 +47,7 @@ const App = () => {
             )}
             <div className='flex flex-col items-center lg:items-start max-w-[600px] w-full'>
                 <div style={{
-                    backgroundImage: 'url(/aiwoman.png)',
+                    backgroundImage: 'url(/gifimage.gif)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     position: 'absolute',
@@ -80,18 +80,18 @@ const App = () => {
                     <div className='text-[2.5rem] mt-[500px] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
                         <p>CreatorPass</p>
                     </div>
-                    <p className='text-left lg:text-left mb-5 pl-4'>
+                    <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>
                         CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint creators pass</p>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                        <FcLinux />
+                        {/* <FcLinux /> */}
                         <p className='leading-none'>For creators</p>
                     </div>
-                    <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences.</p>
+                    <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Monetize content, manage fans, and offer special experiences.</p>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                        <FcLike />
+                        {/* <FcLike /> */}
                         <p className='leading-none'>For fans</p>
                     </div>
-                    <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance</p>
+                    <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance</p>
 
                 </div>
 
@@ -100,32 +100,26 @@ const App = () => {
                         <div className='text-[2.5rem] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
                             <p>CreatorPass</p>
                         </div>
-                        <p className='text-left lg:text-left mb-5 pl-4'>
+                        <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>
                             CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint creators pass</p>
                     </div>
 
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                        <FcLinux />
+                        {/* <FcLinux /> */}
                         <p className='leading-none'>For creators</p>
                     </div>
-                        <p className='text-left lg:text-left mb-5 pl-4'>Monetize content, manage fans, and offer special experiences. </p>
+                        <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Monetize content, manage fans, and offer special experiences. </p>
                     </div>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                        <FcLike />
+                        {/* <FcLike /> */}
                         <p className='leading-none'>For fans</p>
                     </div>
-                        <p className='text-left lg:text-left mb-5 pl-4'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance.</p>
+                        <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly to top-up balance.</p>
                     </div>
                 </div>
-                {!isConnected && (
-                    <div className='flex items-start justify-start gap-x-2 p-2 mt-2 text-red-500 font-mono'>
-                        <TiWarningOutline />
-                        <p className='text-[0.7rem]'>For the sake of testing: Please use a VPN if you are in a restricted region to avoid `App Configuration Error`</p>
-                    </div>
-                )}
-                <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg md:rounded-none md:ml-4 flex justify-center mb-14 md:mb-0 mt-6'>
+                <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg cursor-pointer md:ml-4 flex justify-center mb-14 md:mb-0 mt-6'>
                     <button className='w-full md:max-w-[250px] lg:max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
                         <Image src='/sol.png' alt='sol' height={20} width={20} /> {isConnected ? 'Go in' : 'Get started'}
                     </button>

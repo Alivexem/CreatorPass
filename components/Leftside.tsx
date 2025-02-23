@@ -30,7 +30,7 @@ const SideNav = () => {
 
     return (
     <div style={{
-        background: 'radial-gradient(circle, #8748c2 0%, #682E9E 98.22%)'
+        backgroundImage: 'url(/gifimage.gif)', objectFit: 'cover', backgroundPosition: 'center'
     }} className='md:h-[97vh] h-[100vh] w-[100%] px-10 pb-5 relative md:rounded-lg text-white box-border p-10 flex flex-col md:items-start'>
             <div className='flex items-center justify-between w-full space-x-4'>
                 <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
@@ -40,9 +40,9 @@ const SideNav = () => {
                 </button></Link>
             </div> 
 
-            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
+            {/* <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
                 <Image 
-                    src='/aiwoman.png' 
+                    src='/gifimage.gif' 
                     className='rounded-lg' 
                     alt='aiwoman' 
                     height={250} 
@@ -64,7 +64,7 @@ const SideNav = () => {
                         }
                     }
                 `}</style>
-            </div>
+            </div> */}
             <div className='flex justify-center flex-col items-center absolute bottom-10 md:bottom-5 left-1/2 transform -translate-x-1/2'>
             <div className='flex flex-col justify-center items-center relative h-[120px] overflow-hidden'>
                 <div className='relative w-full z-10'>
@@ -83,7 +83,7 @@ const SideNav = () => {
                     <div 
                         key={index}
                         className={`w-[40px] h-[6px] border-none transition-colors duration-500 rounded-sm ${
-                            index === currentTextIndex ? 'bg-white' : 'bg-[#1A1D1F]'
+                            index === currentTextIndex ? 'bg-white' : 'bg-black'
                         }`}
                     ></div>
                 ))}

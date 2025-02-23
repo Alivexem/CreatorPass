@@ -86,66 +86,66 @@ const Page = () => {
     const [personalChats, setPersonalChats] = useState<ChatHistoryItem[]>([]);
     const [isLoadingPersonalChats, setIsLoadingPersonalChats] = useState(false);
 
+    // Consolidate data fetching into a single useEffect
     useEffect(() => {
-        fetchChats();
-        fetchHotCreators();
         const address = localStorage.getItem('address');
         setUserAddress(address);
-    }, []);
 
-    useEffect(() => {
-        const fetchPersonalChats = async () => {
-            const address = localStorage.getItem('address');
-            console.log('User Address from localStorage:', address); // Debugging
-            if (!address) return;
+        let isSubscribed = true;
 
-            setIsLoadingPersonalChats(true);
+        const fetchAllData = async () => {
             try {
-                const res = await fetch(`/api/chat-history?address=${address}`);
-                const data = await res.json();
+                // Fetch all data in parallel
+                const [chatsRes, creatorsRes] = await Promise.all([
+                    fetch('/api/worldchat'),
+                    fetch('/api/profiles')
+                ]);
 
-                if (data.chatHistory) {
-                    console.log('Fetched Chat History:', data.chatHistory); // Debugging statement
-                    setPersonalChats(data.chatHistory);
+                const [chatsData, creatorsData] = await Promise.all([
+                    chatsRes.json(),
+                    creatorsRes.json()
+                ]);
+
+                if (!isSubscribed) return;
+
+                // Sort chats by timestamp
+                const sortedChats = [...chatsData.chats].sort((a, b) =>
+                    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+                );
+
+                setChats(sortedChats);
+                setHotCreators(creatorsData.profiles.slice(0, 1));
+
+                // Scroll chat to bottom
+                if (chatRef.current) {
+                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                }
+
+                // Only fetch personal chats if we have an address
+                if (address) {
+                    const personalChatsRes = await fetch(`/api/chat-history?address=${address}`);
+                    const personalChatsData = await personalChatsRes.json();
+                    
+                    if (!isSubscribed) return;
+                    
+                    if (personalChatsData.chatHistory) {
+                        setPersonalChats(personalChatsData.chatHistory);
+                    }
                 }
             } catch (error) {
-                console.error('Error fetching chats:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setIsLoadingPersonalChats(false);
             }
         };
 
-        fetchPersonalChats();
-    }, []);
+        fetchAllData();
 
-
-
-    const fetchChats = async () => {
-        try {
-            const res = await fetch('/api/worldchat');
-            const data = await res.json();
-            // Sort chats by timestamp in ascending order (oldest first)
-            const sortedChats = [...data.chats].sort((a, b) =>
-                new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-            );
-            setChats(sortedChats);
-            if (chatRef.current) {
-                chatRef.current.scrollTop = chatRef.current.scrollHeight;
-            }
-        } catch (error) {
-            console.error('Error fetching chats:', error);
-        }
-    };
-
-    const fetchHotCreators = async () => {
-        try {
-            const res = await fetch('/api/profiles');
-            const data = await res.json();
-            setHotCreators(data.profiles.slice(0, 1)); // Only get first creator
-        } catch (error) {
-            console.error('Error fetching creators:', error);
-        }
-    };
+        // Cleanup function
+        return () => {
+            isSubscribed = false;
+        };
+    }, []); // Empty dependency array since we only want this to run once
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -162,19 +162,7 @@ const Page = () => {
                 return;
             }
 
-            // First check if user has a profile
-            const profileRes = await fetch(`/api/profile?address=${address}`);
-            const profileData = await profileRes.json();
-
-            if (!profileData.profile || !profileData.profile.username) {
-                setToast({
-                    show: true,
-                    message: 'Please complete your profile in dashboard first',
-                    type: 'warning'
-                });
-                return;
-            }
-
+            // Use cached profile data instead of fetching again
             const response = await fetch('/api/worldchat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -40,7 +40,7 @@ export const modal = createAppKit({
   metadata,
   features: {
     email: true,
-    socials: ['google'],
+    // socials: ['google'],
     emailShowWallets: true,
     swaps: true, 
     onramp: true,
