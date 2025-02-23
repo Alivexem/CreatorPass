@@ -6,8 +6,7 @@
 
 ### The Obvious
 
-I'll like to take account for my numerous commits to this project in a short timeline. Due to hardware limitations, my laptop struggled to build the project's Next.js server locally because of it's size. To ensure smooth development, I relied on Vercel’s CI/CD pipeline for builds and debugging. After every push, Vercel automatically compiles the project, and I review the build logs to fix any errors. This approach ensured continuous progress despite local limitations. Balancing design and development within 20 days as a solo developer was no easy task, but I love that the challenge made the entire development experience great.
-
+I'll like to take account for my numerous commits to this project in a short timeline. Due to hardware limitations, my laptop struggled to build the project's Next.js server locally because of it's size. To ensure smooth development, I relied on Vercel’s CI/CD pipeline for builds and debugging. After every push, Vercel automatically compiles the project, and I review the build logs to fix any errors. This approach ensured continuous progress despite local limitations.
 
 ## Overview
 
@@ -61,8 +60,6 @@ Payment and platform restrictions prevent seamless access, limiting opportunitie
 -  **Mint NFT Passes**: Create tiered passes e.g. Bronze, Silver, Gold for premium content (Still in development - Check issues to contribute).
 -  **In-App chat**: Users will be able to have a personal chat with creators (Still in development - Check issues to contribute).
 - **A.I Integration**: A.I recommendation for content creation and Fans pass purchase, A.I powered NFT management system (Still in development -  Check issues to contribute).
-
-- 📊 On the bright side of it: Remember, for every pass a creator mints or a fan purchases/renews. CreatorPass makes profit
 
 ---
 
