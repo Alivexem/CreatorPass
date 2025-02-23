@@ -39,9 +39,9 @@ export const modal = createAppKit({
   networks: [ solanaTestnet, solanaDevnet],
   metadata,
   features: {
-    email: true,
+   // email: true,
     // socials: ['google'],
-    emailShowWallets: true,
+   // emailShowWallets: true,
     swaps: true, 
     onramp: true,
   },
