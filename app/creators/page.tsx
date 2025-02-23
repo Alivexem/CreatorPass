@@ -77,9 +77,12 @@ const CreatorsPage = () => {
 
     fetchProfiles();
 
-    // Show modal on mobile devices
+    // Show swipe toast on mobile devices
     if (window.innerWidth <= 768) {
       setShowSwipeModal(true);
+      setTimeout(() => {
+        setShowSwipeModal(false);
+      }, 8000);
     }
 
     const address = localStorage.getItem('address');
@@ -300,33 +303,12 @@ const CreatorsPage = () => {
         </div>
       )}
 
-      <AnimatePresence>
-        {showSwipeModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 md:hidden"
-          >
-            <motion.div
-              initial={{ scale: 0.8, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, y: 20 }}
-              className="bg-gray-800 p-8 rounded-xl relative max-w-md mx-4"
-            >
-              <button
-                onClick={() => setShowSwipeModal(false)}
-                className="absolute top-2 right-2 text-white hover:text-white"
-              >
-                <IoMdClose size={15} />
-              </button>
-              <p className="text-purple-300 text-center text-lg">
-                Swipe left to see more creators
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Remove the old Swipe Modal and replace with Toast */}
+      {showSwipeModal && (
+        <div className="fixed top-4 right-4 md:hidden bg-orange-600 text-white p-4 rounded-lg shadow-lg z-50">
+          <p className="text-sm">Swipe left to see more creators</p>
+        </div>
+      )}
 
       <div className='container mx-auto px-4 pb-32'>
         <div className='hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8'>

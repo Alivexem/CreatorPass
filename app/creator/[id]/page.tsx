@@ -133,27 +133,52 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
+    const [isProfileFetched, setIsProfileFetched] = useState(false);
+
+    // Consolidate profile fetching into a single useEffect
     useEffect(() => {
         const fetchCreatorData = async () => {
+            if (isProfileFetched) return; // Prevent duplicate fetches
+            
             try {
+                setLoading(true);
                 const myAddress = localStorage.getItem('address') || '';
 
-                const profileRes = await fetch(`/api/profile?address=${id}`);
+                // Fetch profiles in parallel
+                const [profileRes, userProfileRes] = await Promise.all([
+                    fetch(`/api/profile?address=${id}`),
+                    myAddress ? fetch(`/api/profile?address=${myAddress}`) : Promise.resolve(null)
+                ]);
+
                 const profileData = await profileRes.json();
 
                 if (profileData.profile) {
                     setProfile(profileData.profile);
                 }
 
-                // Fetch user's own profile
-                if (myAddress) {
-                    const userProfileRes = await fetch(`/api/profile?address=${myAddress}`);
+                // Only fetch user profile if we have an address
+                if (userProfileRes) {
                     const userProfileData = await userProfileRes.json();
                     if (userProfileData.profile) {
                         setUserProfile(userProfileData.profile);
                     }
                 }
 
+                setIsProfileFetched(true);
+            } catch (error) {
+                console.error('Error fetching creator data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCreatorData();
+    }, [id]); // Only depend on id
+
+    // Separate useEffect for posts
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
 
@@ -161,6 +186,7 @@ const CreatorPage = ({ params }: PageProps) => {
                     post.username === id
                 );
 
+                const myAddress = localStorage.getItem('address') || '';
                 const initialLikes: { [key: string]: number } = {};
                 const initialHasLiked: { [key: string]: boolean } = {};
 
@@ -173,36 +199,14 @@ const CreatorPage = ({ params }: PageProps) => {
                 setLikes(initialLikes);
                 setHasLiked(initialHasLiked);
             } catch (error) {
-                console.error('Error fetching creator data:', error);
-            } finally {
-                setLoading(false);
+                console.error('Error fetching posts:', error);
             }
         };
 
-        if (id) {
-            fetchCreatorData();
+        if (isProfileFetched) {
+            fetchPosts();
         }
-    }, [id]);
-
-    useEffect(() => {
-        const fetchFunChats = async () => {
-            try {
-                const res = await fetch(`/api/creator/${id}/funchat`);
-                const data = await res.json();
-                // Reverse the order of chats so recent ones appear at bottom
-                setFunChats([...data.chats].reverse());
-                if (chatRef.current) {
-                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
-                }
-            } catch (error) {
-                console.error('Error fetching fun chats:', error);
-            }
-        };
-
-        if (id) {
-            fetchFunChats();
-        }
-    }, [id]);
+    }, [id, isProfileFetched]);
 
     const handleLike = async (postId: string) => {
         try {

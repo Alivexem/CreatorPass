@@ -83,9 +83,12 @@ const PassesPage = () => {
 
     fetchProfiles();
 
-    // Show swipe modal on mobile devices
+    // Show swipe toast on mobile devices
     if (window.innerWidth <= 768) {
       setShowSwipeModal(true);
+      setTimeout(() => {
+        setShowSwipeModal(false);
+      }, 8000);
     }
   }, []);
 
@@ -463,34 +466,12 @@ const PassesPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Swipe Modal */}
-      <AnimatePresence>
-        {showSwipeModal && (
-          <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 md:hidden"
-                    >
-                      <motion.div 
-                        initial={{ scale: 0.8, y: 20 }}
-                        animate={{ scale: 1, y: 0 }}
-                        exit={{ scale: 0.8, y: 20 }}
-                        className="bg-gray-800 p-8 rounded-xl relative max-w-md mx-4"
-                      >
-                        <button 
-                          onClick={() => setShowSwipeModal(false)}
-                          className="absolute top-2 right-2 text-white hover:text-white"
-                        >
-                          <IoMdClose size={15} />
-                        </button>
-                        <p className="text-purple-300 text-center text-lg">
-                          Swipe left to see more passes
-                        </p>
-                      </motion.div>
-                    </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Remove the old Swipe Modal and replace with Toast */}
+      {showSwipeModal && (
+        <div className="fixed top-4 right-4 md:hidden bg-orange-600 text-white p-4 rounded-lg shadow-lg z-50">
+          <p className="text-sm">Swipe left to see more passes</p>
+        </div>
+      )}
 
       {/* Hidden card template for conversion */}
       <div style={{ position: 'absolute', left: '-9999px' }}>
