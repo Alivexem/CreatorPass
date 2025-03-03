@@ -83,7 +83,11 @@ const CreatorPage = ({ params }: PageProps) => {
         car: 100000000,
         house: 1000000000
     });
-    const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'error' | 'info'}>({
+    const [toast, setToast] = useState<{
+        show: boolean;
+        message: string;
+        type: 'success' | 'error' | 'info' | 'warning'
+    }>({
         show: false,
         message: '',
         type: 'info'
@@ -95,7 +99,7 @@ const CreatorPage = ({ params }: PageProps) => {
     const chatRef = useRef<HTMLDivElement>(null);
     const [userProfile, setUserProfile] = useState<Profile | null>(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
-    const [userAddress, setUserAddress] = useState('');
+    const [userAddress, setUserAddress] = useState<string>('');
     const [hasAccess, setHasAccess] = useState(false);
 
     const { isConnected, address } = useAppKitAccount();
@@ -227,34 +231,31 @@ const CreatorPage = ({ params }: PageProps) => {
 
     const handleLike = async (postId: string) => {
         try {
-            const address = localStorage.getItem('address');
-            if (!address) return;
-
-            const res = await fetch(`/api/posts/${postId}/like`, {
+            const res = await fetch(`/api/posts/${postId}/interactions`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: 'like',
+                    userAddress
+                })
             });
 
-            if (!res.ok) {
-                throw new Error('Failed to update like');
-            }
+            if (!res.ok) throw new Error('Failed to like post');
 
             const data = await res.json();
-
-            setPosts(prevPosts =>
-                prevPosts.map(post =>
-                    post._id === postId
-                        ? { ...post, likeCount: data.likeCount }
-                        : post
+            setPosts(prev => 
+                prev.map(post => 
+                    post._id === postId ? data.post : post
                 )
             );
-
-            setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
-            setHasLiked(prev => ({ ...prev, [postId]: data.hasLiked }));
-
         } catch (error) {
-            console.error('Error updating like:', error);
+            setToast({
+                show: true,
+                message: 'Failed to like post',
+                type: 'error'
+            });
         }
     };
 
@@ -265,40 +266,43 @@ const CreatorPage = ({ params }: PageProps) => {
         setIsCommenting(prev => ({ ...prev, [postId]: true }));
 
         try {
-            const address = localStorage.getItem('address');
-            if (!address) return;
-
-            const res = await fetch(`/api/posts/${postId}/comment`, {
+            const res = await fetch(`/api/posts/${postId}/interactions`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
-                    address,
-                    comment: newComment[postId].trim()
+                    type: 'comment',
+                    userAddress,
+                    data: {
+                        text: newComment[postId].trim()
+                    }
                 })
             });
 
+            if (!res.ok) throw new Error('Failed to add comment');
+
             const data = await res.json();
-            setPosts(prevPosts =>
-                prevPosts.map(post =>
-                    post._id === postId
-                        ? { ...post, comments: data.comments }
-                        : post
+            setPosts(prev => 
+                prev.map(post => 
+                    post._id === postId ? data.post : post
                 )
             );
-
             setNewComment(prev => ({ ...prev, [postId]: '' }));
         } catch (error) {
-            console.error('Error adding comment:', error);
+            setToast({
+                show: true,
+                message: 'Failed to add comment',
+                type: 'error'
+            });
         } finally {
             setIsCommenting(prev => ({ ...prev, [postId]: false }));
         }
     };
 
-    const censorAddress = (address: string) => {
+    const censorAddress = (address: string): string => {
         if (!address) return '';
-        const start = address.slice(0, 6);
-        const end = address.slice(-4);
-        return `${start}...${end}`;
+        return `${address.slice(0, 4)}...${address.slice(-4)}`;
     };
 
     const handleCopyAddress = async () => {
@@ -423,8 +427,12 @@ const CreatorPage = ({ params }: PageProps) => {
                                 gifts: post.gifts || []
                             }}
                             userAddress={userAddress}
+                            userProfile={null}
+                            hasLiked={post.likes.includes(userAddress)}
+                            likes={post.likes.length}
+                            showComments={false}
                             onLike={() => handleLike(post._id)}
-                            onComment={(e) => handleComment(e, post._id)}
+                            onComment={(e: React.FormEvent) => handleComment(e, post._id)}
                             newComment={newComment}
                             setNewComment={setNewComment}
                             isCommentLoading={isCommenting}
