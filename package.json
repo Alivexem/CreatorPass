@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --turbo",
+    "build": "next build --turbo",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
+    "@headlessui/react": "^2.2.0",
     "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
     "@reown/appkit": "^1.6.4",
     "@reown/appkit-adapter-solana": "^1.6.4",

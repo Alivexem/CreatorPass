@@ -26,6 +26,12 @@ interface Post {
     likeCount?: number;
 }
 
+interface PostData {
+  note: string;
+  image: string;
+  passTier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
+}
+
 const Content = ({ setToast }: ContentProps) => {
     const [showUploader, setShowUploader] = useState(false);
     const [note, setNote] = useState('');
@@ -45,6 +51,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [isCommentLoading, setIsCommentLoading] = useState<{ [key: string]: boolean }>({});
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImage, setModalImage] = useState('');
+    const [passTier, setPassTier] = useState<'Free' | 'Bronze' | 'Silver' | 'Gold'>('Free');
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -220,7 +227,8 @@ const Content = ({ setToast }: ContentProps) => {
             const fullData = {
                 username: myAddress,
                 note: note.trim(),
-                image: image || ''
+                image: image || '',
+                passTier
             };
 
             const res = await fetch('/api', {
@@ -581,6 +589,20 @@ const Content = ({ setToast }: ContentProps) => {
                                             Processing image...
                                         </div>
                                     )}
+
+                                    <div className="mb-4">
+                                        <label className="block text-gray-300 mb-2">Post Tier</label>
+                                        <select 
+                                            value={passTier}
+                                            onChange={(e) => setPassTier(e.target.value as 'Free' | 'Bronze' | 'Silver' | 'Gold')}
+                                            className="w-full bg-gray-700 rounded-lg p-3 text-white"
+                                        >
+                                            <option value="Free">Free</option>
+                                            <option value="Bronze">Bronze Pass</option>
+                                            <option value="Silver">Silver Pass</option>
+                                            <option value="Gold">Gold Pass</option>
+                                        </select>
+                                    </div>
 
                                     <textarea 
                                         value={note}

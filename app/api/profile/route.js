@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "../../../libs/mongodb";
 import Profile from "../../../models/profile";
+import mongoose from "mongoose";
 
 export async function POST(request) {
     try {
@@ -41,7 +42,37 @@ export async function GET(request) {
         }
 
         const profile = await Profile.findOne({ address });
-        return NextResponse.json({ profile });
+        
+        if (!profile) {
+            return NextResponse.json({ profile: null });
+        }
+
+        // Get pass statistics
+        const db = mongoose.connection.db;
+        const passes = await db.collection('passes').find({ address }).toArray();
+        const totalPasses = passes.length;
+
+        const earnings = await db.collection('earnings').findOne({ creatorAddress: address });
+        const totalRevenue = earnings?.totalEarned || 0;
+
+        let topPass = null;
+        if (passes.length > 0) {
+            const sortedPasses = passes.sort((a, b) => b.mintCount - a.mintCount);
+            topPass = {
+                category: sortedPasses[0].category,
+                mintCount: sortedPasses[0].mintCount
+            };
+        }
+
+        // Combine profile with stats
+        const profileWithStats = {
+            ...profile.toObject(),
+            totalPasses,
+            totalRevenue,
+            topPass
+        };
+
+        return NextResponse.json({ profile: profileWithStats });
     } catch (error) {
         console.error('Get profile error:', error);
         return NextResponse.json({ message: error.message }, { status: 500 });

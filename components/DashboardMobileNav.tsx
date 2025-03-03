@@ -5,7 +5,7 @@ import { RiProfileFill } from "react-icons/ri";
 import { GoHomeFill } from "react-icons/go";
 import Link from "next/link";
 import { MdLogout } from "react-icons/md";
-import { FaCircleDollarToSlot } from "react-icons/fa6";
+// import { FaCircleDollarToSlot } from "react-icons/fa6";
 import { useAppKit, useAppKitAccount, useDisconnect } from '../utils/reown';
 import { useRouter } from 'next/navigation';
 interface DashboardMobileNavProps {
@@ -52,12 +52,7 @@ const DashboardMobileNav = ({
         <RxDashboard className="text-xl" />
       </button>
 
-      <button
-        className='p-3 rounded-full bg-gray-700 text-gray-300 shadow-lg hover:scale-110 transition-all border-gray-300 border'
-      >
-        <FaCircleDollarToSlot className="text-xl" />
-      </button>
-
+    
 
 
       <button
