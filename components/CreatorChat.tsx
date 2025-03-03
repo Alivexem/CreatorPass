@@ -109,6 +109,23 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     }
   }, [messages]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        // Adjust container height when keyboard appears
+        window.visualViewport?.addEventListener('resize', () => {
+          if (chatContainerRef.current) {
+            chatContainerRef.current.style.height = `${window.visualViewport.height}px`;
+          }
+        });
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleMouseEnter = (messageId: string) => {
     setHoveredMessage(messageId);
     if (hoverTimeoutRef.current) {
@@ -181,6 +198,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
   const onEmojiSelect = (emoji: any) => {
     setNewMessage(prev => prev + emoji.native);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(e);
+    }
   };
 
   return (
@@ -281,8 +305,9 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Type a message..."
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
             />
             
             <button

@@ -7,10 +7,11 @@ export async function POST(request: Request) {
   try {
     await connectDB();
     const formData = await request.formData();
+    
     const note = formData.get('note') as string;
     const category = formData.get('category') as string;
     const username = formData.get('username') as string;
-    const mediaFile = formData.get('media') as File;
+    const mediaFile = formData.get('media') as File | null;
 
     let mediaType = 'none';
     let mediaUrl = '';
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
       const fileType = mediaFile.type.split('/')[0];
       if (fileType === 'image' || fileType === 'video') {
         mediaType = fileType;
+        // Upload to Cloudinary
         mediaUrl = await uploadToCloudinary(mediaFile);
       }
     }
@@ -28,7 +30,10 @@ export async function POST(request: Request) {
       note,
       category,
       mediaType,
-      mediaUrl
+      mediaUrl,
+      likes: [],
+      comments: [],
+      gifts: []
     });
 
     return NextResponse.json({ post });

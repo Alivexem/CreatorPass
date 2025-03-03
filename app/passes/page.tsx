@@ -65,6 +65,7 @@ const PassesPage = () => {
     message: '',
     type: null
   });
+  const [platformFee, setPlatformFee] = useState<string>('');
 
   const { connection } = useAppKitConnection();
   const { walletProvider } = useAppKitProvider<Provider>('solana');
@@ -97,6 +98,19 @@ const PassesPage = () => {
       setShowSwipeToast(true);
       setTimeout(() => setShowSwipeToast(false), 3000);
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchPlatformAddress = async () => {
+      try {
+        const res = await fetch('/api/monetization');
+        const data = await res.json();
+        setPlatformFee(data.account);
+      } catch (error) {
+        console.error('Error fetching platform fee address:', error);
+      }
+    };
+    fetchPlatformAddress();
   }, []);
 
   const handleTouchStart = (e: TouchEvent) => {
@@ -163,6 +177,11 @@ const PassesPage = () => {
             if (balance < estimatedCost) {
                 throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
             }
+
+            // Calculate fees
+            const totalAmount = pass.price * LAMPORTS_PER_SOL;
+            const creatorAmount = totalAmount * 0.8; // 80% to creator
+            const platformAmount = totalAmount * 0.2; // 20% to platform
 
             // Create mint account
             const mintKeypair = Keypair.generate();
@@ -242,6 +261,18 @@ const PassesPage = () => {
                 },
             );
 
+            const transferToCreatorIx = SystemProgram.transfer({
+                fromPubkey: walletPubkey,
+                toPubkey: new PublicKey(pass.address),
+                lamports: creatorAmount,
+            });
+
+            const transferToPlatformIx = SystemProgram.transfer({
+                fromPubkey: walletPubkey,
+                toPubkey: new PublicKey(platformFee),
+                lamports: platformAmount,
+            });
+
             const transaction = new Transaction({
                 feePayer: walletPubkey,
                 recentBlockhash: latestBlockhash.blockhash,
@@ -253,6 +284,8 @@ const PassesPage = () => {
                 createAssociatedTokenAccountIx,
                 mintToIx,
                 createMetadataIx,
+                transferToCreatorIx,
+                transferToPlatformIx,
             );
 
             transaction.sign(mintKeypair);
@@ -337,7 +370,7 @@ const PassesPage = () => {
       </AnimatePresence>
 
       {/* Pass Cards with Navigation */}
-      <div className="relative mb-[120px]  md:mb-0">
+      <div className="relative pb-[200px] md:pb-0">
         <div 
           className="flex overflow-x-hidden md:grid md:grid-cols-3 gap-8"
           onTouchStart={handleTouchStart}
@@ -346,7 +379,7 @@ const PassesPage = () => {
           {passes.map((pass, index) => (
             <div
               key={pass._id}
-              className={`w-full flex-shrink-0 transition-transform duration-300 ${
+              className={`w-full px-10 flex-shrink-0 transition-transform duration-300 ${
                 index === currentIndex ? 'block' : 'hidden md:block'
               }`}
             >
@@ -486,7 +519,7 @@ const AccessCard = ({ pass, onMint, isMinting }: {
   onMint: () => void;
   isMinting: boolean;
 }) => (
-  <div className='w-full bg-blue-700 rounded-2xl overflow-hidden shadow-2xl'>
+  <div className='w-full bg-gray-700 rounded-2xl overflow-hidden shadow-2xl'>
     <div className='p-6'>
       <div className='flex justify-between items-center mb-4'>
         <Image src='/sol.png' alt='sol' width={24} height={24} />

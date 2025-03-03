@@ -18,6 +18,7 @@ import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { RiGalleryFill } from "react-icons/ri";
 import CreatorChat from '@/components/CreatorChat';
 import { useRouter } from 'next/navigation';
+import { SwipeableCard } from '@/components/SwipeableCard';
 
 interface Profile {
   address: string;
@@ -38,7 +39,15 @@ const CreatorsPage = () => {
   const [highlightedCreator, setHighlightedCreator] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: string }>({ show: false, message: '', type: '' });
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -105,37 +114,11 @@ const CreatorsPage = () => {
     }
   };
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % profiles.length);
-  };
-
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + profiles.length) % profiles.length);
-  };
-
-  const handleTouchStart = (e: TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const minSwipeDistance = 50;
-
-    if (Math.abs(distance) < minSwipeDistance) return;
-
-    if (distance > 0) {
-      // Swiped left
-      handleNext();
-    } else {
-      // Swiped right
-      handlePrevious();
+  const handleSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && currentIndex < profiles.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else if (direction === 'right' && currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
     }
   };
 
@@ -190,6 +173,17 @@ const CreatorsPage = () => {
   // Add highlight effect to the creator card if it matches the highlighted address
   const isHighlighted = currentProfile && currentProfile.address === highlightedCreator;
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black">
+        <NavBar />
+        <div className="flex justify-center items-center h-[80vh]">
+          <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen bg-black'>
       <NavBar />
@@ -218,66 +212,34 @@ const CreatorsPage = () => {
         </motion.div>
       </div>
 
-      {loading ? (
-        <div className='flex justify-center items-center h-[500px]'>
-          <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
-        </div>
-      ) : (
-        <div className='relative max-w-6xl mx-auto px-4 py-20'>
-          <div className='flex items-center justify-center gap-8'>
+      {profiles.length > 0 && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center gap-4">
             <button
-              onClick={handlePrevious}
+              onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
               className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= 1}
+              disabled={currentIndex === 0}
             >
               <FaArrowAltCircleLeft className='text-3xl' />
             </button>
 
-            {currentProfile && (
-              <motion.div
-                className="flex flex-col items-center"
-                animate={{
-                  x: selectedChat ? -100 : 0
-                }}
-                transition={{ duration: 0.5 }}
-              >
-                <Link href={`/creator/${currentProfile.address}`}>
-                  <div
-                    onTouchStart={handleTouchStart}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl 
-                      bg-gradient-to-r from-blue-500 to-purple-600 
-                      transform hover:scale-105 transition-all duration-300
-                      ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
-                  >
-                    <div className='p-6 text-center'>
-                      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-                      <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
-                    </div>
-                    <div className='bg-[#080e0e] p-6 space-y-4'>
-                      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-                      <Image
-                        src={currentProfile.profileImage || '/empProfile.png'}
-                        className='rounded-lg w-full h-48 object-cover'
-                        height={70}
-                        width={150}
-                        alt='profile'
-                      />
-                      <div className='flex items-center justify-center gap-3'>
-                        <RiHeart2Line className='text-white' />
-                        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{currentProfile.username}</p>
-                        <RiHeart2Line className='text-white' />
-                      </div>
-                      <p className='text-gray-300 text-center text-sm'>{currentProfile.about}</p>
-                    </div>
-                  </div>
-                </Link>
+            <SwipeableCard
+              onSwipe={handleSwipe}
+              isMobile={isMobile}
+            >
+              <div className="w-full max-w-md bg-gray-800 rounded-xl p-6 shadow-xl">
+                <div className="relative h-64 w-full mb-4">
+                  <Image
+                    src={currentProfile.profileImage || '/empProfile.png'}
+                    fill
+                    className="rounded-xl object-cover"
+                    alt={currentProfile.username}
+                  />
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">{currentProfile.username}</h2>
+                <p className="text-gray-300 mb-4">{currentProfile.about}</p>
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleChatClick(currentProfile.address);
-                  }}
+                  onClick={() => handleChatClick(currentProfile.address)}
                   className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
                 >
                   <IoChatbubbleEllipsesOutline className="text-xl" />
@@ -289,13 +251,13 @@ const CreatorsPage = () => {
                     <span>View Posts</span>
                   </button>
                 </Link>
-              </motion.div>
-            )}
+              </div>
+            </SwipeableCard>
 
             <button
-              onClick={handleNext}
+              onClick={() => setCurrentIndex(Math.min(profiles.length - 1, currentIndex + 1))}
               className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= 1}
+              disabled={currentIndex === profiles.length - 1}
             >
               <FaArrowAltCircleRight className='text-3xl' />
             </button>

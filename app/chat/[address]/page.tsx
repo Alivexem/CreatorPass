@@ -36,16 +36,16 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
     return <div className='flex justify-center items-center h-[100vh] w-[100vw] bg-gray-900'><p className='text-white text-2xl font-bold animate-pulse'>Loading chat</p></div>;
   }
 
-
-
   return (
-    <div className="h-full w-full bg-black">
-      <CreatorChat
-        creatorAddress={params.address}
-        userAddress={userAddress}
-        creatorProfile={creatorProfile}
-        onClose={() => router.back()}
-      />
+    <div className="h-screen w-full bg-black flex flex-col">
+      <div className="flex-1 overflow-hidden">
+        <CreatorChat
+          creatorAddress={params.address}
+          userAddress={userAddress}
+          creatorProfile={creatorProfile}
+          onClose={() => router.back()}
+        />
+      </div>
     </div>
   );
 };
