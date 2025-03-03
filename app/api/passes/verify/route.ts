@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
 import Pass from '@/models/Pass';
 
+interface PassOwner {
+  address: string;
+  mintedAt: Date;
+}
+
 export async function GET(request: Request) {
   try {
     await connectDB();
@@ -29,7 +34,7 @@ export async function GET(request: Request) {
       hasPass: passes.length > 0,
       passes: passes.map(pass => ({
         category: pass.category,
-        mintedAt: pass.owners.find(owner => owner.address === userAddress)?.mintedAt
+        mintedAt: pass.owners.find((owner: PassOwner) => owner.address === userAddress)?.mintedAt
       }))
     });
   } catch (error) {
