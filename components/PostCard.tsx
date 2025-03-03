@@ -16,6 +16,16 @@ interface PostCardProps {
         mediaType: 'none' | 'image' | 'video';
         mediaUrl?: string;
         likes: string[];
+        comments?: Array<{
+            address: string;
+            text: string;
+            timestamp: Date;
+        }>;
+        gifts?: Array<{
+            from: string;
+            amount: number;
+            timestamp: Date;
+        }>;
     };
     userProfile: any;
     userAddress: string;
@@ -23,14 +33,14 @@ interface PostCardProps {
     likes: number;
     showComments: boolean;
     onLike: (postId: string) => void;
-    onDelete: () => void;
-    onToggleComments: () => void;
-    handleComment: (e: React.FormEvent) => void;
-    newComment: string;
-    setNewComment: (value: string) => void;
-    isCommentLoading: boolean;
-    censorAddress: (address: string) => string;
-    onImageClick: (imageUrl: string) => void;
+    onDelete?: () => void;
+    onToggleComments?: () => void;
+    handleComment?: (e: React.FormEvent) => void;
+    newComment?: string;
+    setNewComment?: (value: string) => void;
+    isCommentLoading?: boolean;
+    censorAddress?: (address: string) => string;
+    onImageClick?: (imageUrl: string) => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({

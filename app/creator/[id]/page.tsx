@@ -27,16 +27,21 @@ interface Post {
     note: string;
     image: string;
     createdAt: string;
-    comments?: Array<{
+    comments: Array<{
         address: string;
-        comment: string;
-        timestamp?: Date;
+        text: string;
+        timestamp: Date;
     }>;
-    likes?: string[];
+    likes: string[];
     likeCount?: number;
     category: string;
     mediaType: 'none' | 'image' | 'video';
     mediaUrl?: string;
+    gifts: Array<{
+        from: string;
+        amount: number;
+        timestamp: Date;
+    }>;
 }
 
 interface Profile {
@@ -406,10 +411,24 @@ const CreatorPage = ({ params }: PageProps) => {
                     {posts.map((post) => (
                         <PostCard
                             key={post._id}
-                            post={post}
+                            post={{
+                                _id: post._id,
+                                username: post.username,
+                                note: post.note,
+                                category: post.category,
+                                mediaType: post.mediaType,
+                                mediaUrl: post.mediaUrl,
+                                likes: post.likes || [],
+                                comments: post.comments || [],
+                                gifts: post.gifts || []
+                            }}
                             userAddress={userAddress}
                             onLike={() => handleLike(post._id)}
                             onComment={(e) => handleComment(e, post._id)}
+                            newComment={newComment}
+                            setNewComment={setNewComment}
+                            isCommentLoading={isCommenting}
+                            censorAddress={censorAddress}
                         />
                     ))}
                 </div>
