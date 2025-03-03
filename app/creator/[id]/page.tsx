@@ -17,7 +17,7 @@ import { FaCar } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import { IoFlash } from "react-icons/io5";
 import { IoSend } from "react-icons/io5";
-import { PostCard } from '@/components/PostCard';
+import PostCard from '@/components/PostCard';
 import { PassGateCheck } from '@/components/PassGateCheck';
 import Toast from '@/components/Toast';
 

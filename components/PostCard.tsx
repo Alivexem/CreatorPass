@@ -33,7 +33,7 @@ interface PostCardProps {
     onImageClick: (imageUrl: string) => void;
 }
 
-const PostCard = ({
+const PostCard: React.FC<PostCardProps> = ({
     post,
     userProfile,
     userAddress,
@@ -49,7 +49,7 @@ const PostCard = ({
     isCommentLoading,
     censorAddress,
     onImageClick
-}: PostCardProps) => {
+}) => {
     const [toast, setToast] = useState({ show: false, message: '', type: 'info' as const });
 
     const handleCopy = async () => {
