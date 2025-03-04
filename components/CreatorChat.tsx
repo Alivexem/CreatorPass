@@ -115,16 +115,32 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   }, [messages]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.visualViewport) {
-      const handleResize = () => {
-        if (chatContainerRef.current && window.visualViewport) {
-          chatContainerRef.current.style.height = `${window.visualViewport.height}px`;
+    const handleResize = () => {
+      if (chatContainerRef.current && window.visualViewport) {
+        // Calculate the visible height
+        const visibleHeight = window.visualViewport.height;
+        const keyboardHeight = window.innerHeight - visibleHeight;
+        
+        // Adjust the chat container height and scroll position
+        chatContainerRef.current.style.height = `${visibleHeight - 140}px`; // Account for header and input
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        
+        // Move the form up when keyboard is visible
+        const form = document.querySelector('.chat-input-form') as HTMLElement;
+        if (form) {
+          form.style.transform = `translateY(-${keyboardHeight}px)`;
         }
-      };
+      }
+    };
 
-      window.visualViewport.addEventListener('resize', handleResize);
-      return () => window.visualViewport?.removeEventListener('resize', handleResize);
-    }
+    // Add listeners for both resize and scroll
+    window.visualViewport?.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('scroll', handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
   }, []);
 
   const handleMouseEnter = (messageId: string) => {
@@ -149,7 +165,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     if (!userProfile?.username) {
       setToast({
         show: true,
-        message: 'Please create a profile first',
+        message: 'Please create a profile before sending messages',
         type: 'warning'
       });
       return;
@@ -158,18 +174,31 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     const chatId = [creatorAddress, userAddress].sort().join('-');
     const messagesRef = ref(database, `chats/${chatId}/messages`);
 
-    // Store complete user info with the message
-    const messageData = {
-      text: newMessage,
-      sender: {
-        address: userAddress,
-        username: userProfile.username,
-        profileImage: userProfile.profileImage || '/empProfile.png'
-      },
-      timestamp: Date.now()
-    };
-
     try {
+      // First check if user profile exists
+      const profileRes = await fetch(`/api/profile?address=${userAddress}`);
+      const profileData = await profileRes.json();
+
+      if (!profileData.profile) {
+        setToast({
+          show: true,
+          message: 'Please create a profile first',
+          type: 'warning'
+        });
+        return;
+      }
+
+      // Store complete user info with the message
+      const messageData = {
+        text: newMessage,
+        sender: {
+          address: userAddress,
+          username: userProfile.username,
+          profileImage: userProfile.profileImage || '/empProfile.png'
+        },
+        timestamp: Date.now()
+      };
+
       await push(messagesRef, messageData);
 
       // Create notification for the recipient
@@ -188,10 +217,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
       setNewMessage('');
     } catch (error) {
-      console.error('Failed to send message or create notification:', error);
+      console.error('Failed to send message:', error);
       setToast({
         show: true,
-        message: 'Failed to send message',
+        message: 'Failed to send message. Please try again.',
         type: 'error'
       });
     }
@@ -291,8 +320,11 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         </div>
 
         {/* Input */}
-        <form onSubmit={sendMessage} className="p-4 bg-[#232629]">
-          <div className="flex gap-2 items-center">
+        <form 
+          onSubmit={sendMessage} 
+          className="p-4 bg-[#232629] chat-input-form fixed bottom-0 left-0 right-0 md:relative transition-transform"
+        >
+          <div className="flex gap-2 items-center max-w-[500px] mx-auto">
             <button
               ref={emojiButtonRef}
               type="button"
@@ -313,7 +345,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             
             <button
               type="submit"
-              className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors"
+              disabled={!userProfile?.username}
+              className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
             >
               <IoSend size={20} />
             </button>

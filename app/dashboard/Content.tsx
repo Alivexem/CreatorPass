@@ -7,6 +7,7 @@ import { MdAddCircle } from "react-icons/md";
 import { FaImages } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import PostCard from '@/components/PostCard';
+import { IoMdClose } from "react-icons/io";
 
 interface ContentProps {
   setToast: (toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
@@ -25,11 +26,6 @@ interface Post {
         timestamp: Date;
     }>;
     likes: string[];
-    gifts?: Array<{
-        from: string;
-        amount: number;
-        timestamp: Date;
-    }>;
     likeCount?: number;
 }
 
@@ -60,6 +56,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [modalImage, setModalImage] = useState('');
     const [passTier, setPassTier] = useState<'Free' | 'Bronze' | 'Silver' | 'Gold'>('Free');
     const [userAddress, setUserAddress] = useState('');
+    const [showCommentModal, setShowCommentModal] = useState<string | null>(null);
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -129,13 +126,8 @@ const Content = ({ setToast }: ContentProps) => {
     }, []);
 
     const handleDelete = async (postId: string) => {
-        setPostToDelete(postId);
-        setShowDeleteModal(true);
-    };
-
-    const confirmDelete = async () => {
         try {
-            const res = await fetch(`/api/${postToDelete}`, {
+            const res = await fetch(`/api/posts/${postId}`, {
                 method: 'DELETE'
             });
 
@@ -444,10 +436,7 @@ const Content = ({ setToast }: ContentProps) => {
                                 showComments={showComments[post._id]}
                                 onLike={() => handleLike(post._id)}
                                 onDelete={() => handleDelete(post._id)}
-                                onToggleComments={() => setShowComments(prev => ({ 
-                                    ...prev, 
-                                    [post._id]: !prev[post._id] 
-                                }))}
+                                onToggleComments={() => setShowCommentModal(post._id)}
                                 onComment={(e: React.FormEvent) => handleComment(e, post._id)}
                                 newComment={newComment[post._id] || ''}
                                 setNewComment={(value: string) => setNewComment(prev => ({
@@ -473,7 +462,7 @@ const Content = ({ setToast }: ContentProps) => {
                             <p className='text-gray-300 mb-6'>Are you sure you want to delete this post? This action cannot be undone.</p>
                             <div className='flex gap-4'>
                                 <button
-                                    onClick={confirmDelete}
+                                    onClick={() => handleDelete(postToDelete!)}
                                     className='flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors'
                                 >
                                     Delete
@@ -635,6 +624,55 @@ const Content = ({ setToast }: ContentProps) => {
                                         ) : postText}
                                     </button>
                                 </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Comment Modal */}
+                {showCommentModal && (
+                    <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
+                        <div className='bg-[#2A2D2F] p-6 rounded-xl max-w-lg w-full mx-4'>
+                            <div className='flex justify-between items-center mb-4'>
+                                <h3 className='text-xl text-white font-semibold'>Comments</h3>
+                                <button 
+                                    onClick={() => setShowCommentModal(null)}
+                                    className='text-gray-400 hover:text-white'
+                                >
+                                    <IoMdClose size={24} />
+                                </button>
+                            </div>
+                            
+                            <div className='max-h-[60vh] overflow-y-auto mb-4'>
+                                {posts.find(p => p._id === showCommentModal)?.comments?.map((comment, index) => (
+                                    <div key={index} className='bg-gray-800 rounded-lg p-3 mb-2'>
+                                        <p className='text-gray-400 text-sm'>{censorAddress(comment.address)}</p>
+                                        <p className='text-white'>{comment.text}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                handleComment(e, showCommentModal);
+                            }} className='flex gap-2'>
+                                <input
+                                    type='text'
+                                    value={newComment[showCommentModal] || ''}
+                                    onChange={(e) => setNewComment(prev => ({
+                                        ...prev,
+                                        [showCommentModal]: e.target.value
+                                    }))}
+                                    placeholder='Add a comment...'
+                                    className='flex-1 bg-gray-800 text-white rounded-lg px-4 py-2'
+                                />
+                                <button 
+                                    type='submit'
+                                    className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700'
+                                    disabled={isCommentLoading[showCommentModal]}
+                                >
+                                    {isCommentLoading[showCommentModal] ? 'Sending...' : 'Send'}
+                                </button>
                             </form>
                         </div>
                     </div>

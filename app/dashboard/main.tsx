@@ -11,6 +11,7 @@ import Content from './Content';
 import ProfileUpdate from './ProfileUpdate';
 import { Switch } from '@headlessui/react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { PassRules, DEFAULT_RULES } from '@/types/pass';
 
 interface MainbarProps {
   showContent: boolean;
@@ -42,12 +43,17 @@ interface Pass {
   address: string;
   ownerUsername: string;
   ownerImage: string;
+  cardTag: string;
+  rules: PassRules;
+  owners: string[]; // List of addresses that own this pass
 }
 
 interface PassFormData {
   category: 'Bronze' | 'Silver' | 'Gold';
   price: number;
   cardTag: string;
+  rules: PassRules;
+  useDefaultRules: boolean;
 }
 
 const CreatePassModal = ({ isOpen, onClose, onSubmit }: {
@@ -60,7 +66,49 @@ const CreatePassModal = ({ isOpen, onClose, onSubmit }: {
     category: 'Bronze',
     price: 0,
     cardTag: '',
+    rules: DEFAULT_RULES,
+    useDefaultRules: true
   });
+
+  const renderRulesConfig = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-white">Use Default Rules</span>
+        <Switch
+          checked={formData.useDefaultRules}
+          onChange={(checked) => {
+            setFormData(prev => ({
+              ...prev,
+              useDefaultRules: checked,
+              rules: checked ? DEFAULT_RULES : prev.rules
+            }));
+          }}
+          className="bg-gray-600"
+        />
+      </div>
+
+      {!formData.useDefaultRules && (
+        <div className="space-y-4 mt-4">
+          <div>
+            <label className="text-gray-300 block mb-2">Chat Access</label>
+            <select
+              value={formData.rules.allowChat}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                rules: { ...prev.rules, allowChat: e.target.value as 'silver' | 'all' | 'none' }
+              }))}
+              className="w-full bg-gray-700 rounded-lg p-3 text-white"
+            >
+              <option value="silver">Silver & Above</option>
+              <option value="all">All Pass Holders</option>
+              <option value="none">No Chat Access</option>
+            </select>
+          </div>
+          {/* Add similar selects for other rules */}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <AnimatePresence>
@@ -106,7 +154,7 @@ const CreatePassModal = ({ isOpen, onClose, onSubmit }: {
                   ))}
                 </div>
               </div>
-            ) : (
+            ) : step === 2 ? (
               <div className="space-y-6">
                 <h3 className="text-xl font-bold text-white">Configure Pass Details</h3>
                 
@@ -148,6 +196,25 @@ const CreatePassModal = ({ isOpen, onClose, onSubmit }: {
                     Back
                   </button>
                   <button
+                    onClick={() => setStep(3)}
+                    className="flex-1 bg-purple-600 text-white py-3 rounded-lg"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            ) : step === 3 ? (
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-white">Pass Rules</h3>
+                {renderRulesConfig()}
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="flex-1 bg-gray-700 text-white py-3 rounded-lg"
+                  >
+                    Back
+                  </button>
+                  <button
                     onClick={() => onSubmit(formData)}
                     className="flex-1 bg-purple-600 text-white py-3 rounded-lg"
                   >
@@ -155,7 +222,7 @@ const CreatePassModal = ({ isOpen, onClose, onSubmit }: {
                   </button>
                 </div>
               </div>
-            )}
+            ) : null}
           </motion.div>
         </motion.div>
       )}

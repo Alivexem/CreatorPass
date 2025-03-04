@@ -20,6 +20,7 @@ import { IoSend } from "react-icons/io5";
 import PostCard from '@/components/PostCard';
 import { PassGateCheck } from '@/components/PassGateCheck';
 import Toast from '@/components/Toast';
+import { Pass } from "@/types/pass";
 
 interface Post {
     _id: string;
@@ -42,6 +43,7 @@ interface Post {
         amount: number;
         timestamp: Date;
     }>;
+    tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
 }
 
 interface Profile {
@@ -101,6 +103,10 @@ const CreatorPage = ({ params }: PageProps) => {
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [userAddress, setUserAddress] = useState<string>('');
     const [hasAccess, setHasAccess] = useState(false);
+    const [freePosts, setFreePosts] = useState<Post[]>([]);
+    const [hasFreePosts, setHasFreePosts] = useState<boolean | null>(null);
+    const [userPasses, setUserPasses] = useState<Pass[]>([]);
+    const [showPassModal, setShowPassModal] = useState(false);
 
     const { isConnected, address } = useAppKitAccount();
     const { connection } = useAppKitConnection();
@@ -192,35 +198,33 @@ const CreatorPage = ({ params }: PageProps) => {
         fetchCreatorData();
     }, [id]); // Only depend on id
 
-    // Separate useEffect for posts
+    // Modify the useEffect that fetches posts
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const res = await fetch(`/api/posts/creator/${id}`);
                 const data = await res.json();
+                
                 if (data.posts) {
-                    // Filter posts based on access level
-                    const filteredPosts = data.posts.filter((post: Post) => 
-                        post.category === 'free' || hasAccess
-                    );
-                    setPosts(filteredPosts);
+                    // Filter free posts
+                    const freeContent = data.posts.filter((post: Post) => post.tier === 'Free');
+                    setFreePosts(freeContent);
+                    setHasFreePosts(freeContent.length > 0);
+                    
+                    // If user has access, set all posts
+                    if (hasAccess) {
+                        setPosts(data.posts);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching posts:', error);
-                setToast({
-                    show: true,
-                    message: 'Failed to load posts',
-                    type: 'error'
-                });
             } finally {
                 setLoading(false);
             }
         };
 
-        if (isProfileFetched) {
-            fetchPosts();
-        }
-    }, [id, isProfileFetched, hasAccess]);
+        fetchPosts();
+    }, [id, hasAccess]);
 
     useEffect(() => {
         const address = localStorage.getItem('address');
@@ -368,6 +372,18 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
+    const checkAccess = (requiredTier: 'bronze' | 'silver' | 'gold', userPasses: Pass[]) => {
+        const tierValues: Record<string, number> = { bronze: 1, silver: 2, gold: 3 };
+        const userHighestTier = Math.max(
+            ...userPasses.map(pass => tierValues[pass.category.toLowerCase() as keyof typeof tierValues] || 0)
+        );
+        return userHighestTier >= tierValues[requiredTier];
+    };
+
+    const canChat = checkAccess('silver', userPasses);
+    const canInteract = checkAccess('bronze', userPasses);
+    const canDownload = checkAccess('bronze', userPasses);
+
     if (!userAddress) {
         return (
             <div className="min-h-screen bg-black">
@@ -381,16 +397,23 @@ const CreatorPage = ({ params }: PageProps) => {
         );
     }
 
-    if (!hasAccess) {
+    if (!hasAccess && hasFreePosts === false) {
         return (
             <div className="min-h-screen bg-black">
                 <NavBar />
                 <div className="container mx-auto px-4 py-8">
-                    <PassGateCheck
-                        creatorAddress={id}
-                        userAddress={userAddress}
-                        onAccessGranted={() => setHasAccess(true)}
-                    />
+                    <div className="bg-gray-800 p-6 rounded-lg text-center">
+                        <h2 className="text-2xl font-bold text-white mb-4">Content Locked</h2>
+                        <p className="text-gray-300 mb-6">
+                            This creator doesn't have any free content available. 
+                            Mint a pass to access their premium content.
+                        </p>
+                        <PassGateCheck
+                            creatorAddress={id}
+                            userAddress={userAddress}
+                            onAccessGranted={() => setHasAccess(true)}
+                        />
+                    </div>
                 </div>
             </div>
         );
@@ -410,30 +433,6 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className="min-h-screen bg-black">
             <NavBar />
-            <div className="container mx-auto px-4 py-8">
-                <div className="grid gap-8">
-                    {posts.map((post) => (
-                        <PostCard
-                            key={post._id}
-                            post={post}
-                            userAddress={userAddress}
-                            userProfile={null}
-                            hasLiked={post.likes.includes(userAddress)}
-                            likes={post.likes.length}
-                            showComments={!!showComments[post._id]}
-                            onLike={() => handleLike(post._id)}
-                            onComment={(e: React.FormEvent) => handleComment(e, post._id)}
-                            newComment={newComment[post._id] || ''}
-                            setNewComment={(value: string) => setNewComment(prev => ({
-                                ...prev,
-                                [post._id]: value
-                            }))}
-                            isCommentLoading={!!isCommenting[post._id]}
-                            censorAddress={censorAddress}
-                        />
-                    ))}
-                </div>
-            </div>
             {toast.show && (
                 <Toast
                     message={toast.message}
@@ -441,6 +440,60 @@ const CreatorPage = ({ params }: PageProps) => {
                     onClose={() => setToast({ ...toast, show: false })}
                 />
             )}
+            <div className="container mx-auto px-4 py-8">
+                {!hasAccess && hasFreePosts && (
+                    <div className="bg-blue-900/50 border border-blue-500 p-4 rounded-lg mb-8">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-xl font-semibold text-white mb-2">
+                                    Viewing Free Content
+                                </h3>
+                                <p className="text-gray-300">
+                                    You're currently viewing free content. Mint a pass to access premium content.
+                                </p>
+                            </div>
+                            <button 
+                                onClick={() => setShowPassModal(true)}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                            >
+                                Mint Pass
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                <div className="grid gap-8">
+                    {(hasAccess ? posts : freePosts).map((post) => (
+                        <div key={post._id} className="relative">
+                            {/* Tier Badge */}
+                            <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium z-10
+                                ${post.tier === 'Free' ? 'bg-green-600' :
+                                  post.tier === 'Bronze' ? 'bg-yellow-700' :
+                                  post.tier === 'Silver' ? 'bg-gray-400' :
+                                  'bg-yellow-500'} text-white`}>
+                                {post.tier}
+                            </div>
+                            <PostCard
+                                post={post}
+                                userAddress={userAddress}
+                                userProfile={userProfile}
+                                hasLiked={post.likes.includes(userAddress)}
+                                likes={post.likes.length}
+                                showComments={!!showComments[post._id]}
+                                onLike={() => handleLike(post._id)}
+                                onComment={(e: React.FormEvent) => handleComment(e, post._id)}
+                                newComment={newComment[post._id] || ''}
+                                setNewComment={(value: string) => setNewComment(prev => ({
+                                    ...prev,
+                                    [post._id]: value
+                                }))}
+                                isCommentLoading={!!isCommenting[post._id]}
+                                censorAddress={censorAddress}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };

@@ -78,18 +78,19 @@ const App = () => {
                 </div>
                 <div className='hidden md:block'>
                     <div className='text-[2.5rem] mt-[500px] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
-                        <p>CreatorPass</p>
+                        <p className='text-purple-500'>Cre<span className='text-blue-500'>ator</span><span className='text-pink-500'>pass</span></p>
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>
                         CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint NFT passes</p>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
                         {/* <FcLinux /> */}
-                        <p className='leading-none'>For creators</p>
+                        {/* <p className='leading-none'>For creators</p> */}
+                        <p className='text-pink-500'>For <span className='text-purple-500'>Crea</span><span className='text-blue-500'>tors</span></p>
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Monetize content, manage fans, and offer special experiences.</p>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
                         {/* <FcLike /> */}
-                        <p className='leading-none'>For fans</p>
+                        <p className='text-blue-500'>For <span className='text-pink-500'>Fans</span></p>
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly in-app to top-up balance</p>
 
@@ -98,7 +99,7 @@ const App = () => {
                 <div className='md:hidden mt-[500px] bg-black'>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4'>
                         <div className='text-[2.5rem] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
-                            <p>CreatorPass</p>
+                        <p className='text-purple-500'>Cre<span className='text-blue-500'>ator</span><span className='text-pink-500'>pass</span></p>
                         </div>
                         <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>
                             CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint NFT passes</p>
@@ -107,14 +108,14 @@ const App = () => {
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
                         {/* <FcLinux /> */}
-                        <p className='leading-none'>For creators</p>
+                        <p className='text-pink-500'>For <span className='text-purple-500'>Crea</span><span className='text-blue-500'>tors</span></p>
                     </div>
                         <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Monetize content, manage fans, and offer special experiences. </p>
                     </div>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
                         {/* <FcLike /> */}
-                        <p className='leading-none'>For fans</p>
+                        <p className='text-blue-500'>For <span className='text-pink-500'>Fans</span></p>
                     </div>
                         <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly in-app to top-up balance.</p>
                     </div>

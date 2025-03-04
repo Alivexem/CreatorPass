@@ -111,9 +111,12 @@ const NavBar = () => {
       );
 
       if (foundUser) {
-        router.push(`/creators?highlight=${foundUser.address}`);
-        setShowMobileSearch(false);
         setSearchTerm('');
+        setShowMobileSearch(false);
+        
+        setTimeout(() => {
+          router.push(`/creators?highlight=${foundUser.address}`);
+        }, 100);
       } else {
         setToast({ show: true, message: 'User not found' });
       }
