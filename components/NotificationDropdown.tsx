@@ -9,6 +9,13 @@ import { RxDotFilled } from "react-icons/rx";
 import { getDatabase, ref, onValue, remove, query, orderByChild, update } from 'firebase/database';
 import { app } from '@/utils/firebase';
 
+interface NotificationData {
+    senderAddress: string;
+    message: string;
+    timestamp: number;
+    read: boolean;
+}
+
 interface Notification {
     _id: string;
     senderAddress: string;
@@ -38,7 +45,7 @@ export default function NotificationDropdown() {
             const notificationsData = snapshot.val();
             if (notificationsData) {
                 const notificationsList = await Promise.all(
-                    Object.entries(notificationsData).map(async ([id, data]: [string, any]) => {
+                    Object.entries(notificationsData).map(async ([id, data]: [string, NotificationData]) => {
                         // Fetch sender's profile for each notification
                         try {
                             const profileRes = await fetch(`/api/profile?address=${data.senderAddress}`);

@@ -78,9 +78,9 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     const unsubscribe = onValue(messagesQuery, (snapshot) => {
       const messagesData = snapshot.val();
       if (messagesData) {
-        const messagesList = Object.entries(messagesData).map(([id, data]: [string, any]) => ({
+        const messagesList = Object.entries(messagesData).map(([id, data]) => ({
           id,
-          ...data,
+          ...(data as Omit<Message, 'id'>)
         }));
         setMessages(messagesList);
 
@@ -110,20 +110,16 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   }, [messages]);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        // Adjust container height when keyboard appears
-        window.visualViewport?.addEventListener('resize', () => {
-          if (chatContainerRef.current) {
-            chatContainerRef.current.style.height = `${window.visualViewport.height}px`;
-          }
-        });
-      }
-    };
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      const handleResize = () => {
+        if (chatContainerRef.current && window.visualViewport) {
+          chatContainerRef.current.style.height = `${window.visualViewport.height}px`;
+        }
+      };
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+      window.visualViewport.addEventListener('resize', handleResize);
+      return () => window.visualViewport?.removeEventListener('resize', handleResize);
+    }
   }, []);
 
   const handleMouseEnter = (messageId: string) => {

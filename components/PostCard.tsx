@@ -32,7 +32,7 @@ interface PostCardProps {
     hasLiked: boolean;
     likes: number;
     showComments: boolean;
-    onLike: (postId: string) => void;
+    onLike: () => void;
     onComment: (e: React.FormEvent) => void;
     newComment: string;
     setNewComment: (value: string) => void;
@@ -150,7 +150,7 @@ const PostCard: React.FC<PostCardProps> = ({
             {/* Action Buttons */}
             <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center flex-wrap gap-y-4'>
                 <button 
-                    onClick={() => onLike(post._id)}
+                    onClick={() => onLike()}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                 >
                     {post.likes.includes(userAddress) ? (
@@ -185,7 +185,7 @@ const PostCard: React.FC<PostCardProps> = ({
                     <FaGift />
                 </button>
                 <button 
-                    onClick={() => onLike(post._id)}
+                    onClick={() => onLike()}
                     className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
                 >
                     <MdDeleteForever className='text-[1.7rem]' />

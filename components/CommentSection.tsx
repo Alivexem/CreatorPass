@@ -1,8 +1,19 @@
 'use client'
 import React from 'react';
 
+interface Comment {
+    address: string;
+    text: string;
+    timestamp: Date;
+}
+
+interface Post {
+    _id: string;
+    comments?: Comment[];
+}
+
 interface CommentSectionProps {
-    post: any;
+    post: Post;
     handleComment: (e: React.FormEvent) => void;
     newComment: string;
     setNewComment: (value: string) => void;
