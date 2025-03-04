@@ -423,9 +423,12 @@ const CreatorPage = ({ params }: PageProps) => {
                             showComments={!!showComments[post._id]}
                             onLike={() => handleLike(post._id)}
                             onComment={(e: React.FormEvent) => handleComment(e, post._id)}
-                            newComment={newComment}
-                            setNewComment={setNewComment}
-                            isCommentLoading={isCommenting}
+                            newComment={newComment[post._id] || ''}
+                            setNewComment={(value: string) => setNewComment(prev => ({
+                                ...prev,
+                                [post._id]: value
+                            }))}
+                            isCommentLoading={!!isCommenting[post._id]}
                             censorAddress={censorAddress}
                         />
                     ))}

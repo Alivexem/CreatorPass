@@ -34,11 +34,13 @@ interface PostCardProps {
     showComments: boolean;
     onLike: (postId: string) => void;
     onComment: (e: React.FormEvent) => void;
-    newComment: { [key: string]: string };
-    setNewComment: (value: { [key: string]: string }) => void;
-    isCommentLoading: { [key: string]: boolean };
+    newComment: string;
+    setNewComment: (value: string) => void;
+    isCommentLoading: boolean;
     censorAddress?: (address: string) => string;
     onImageClick?: (imageUrl: string) => void;
+    onDelete?: () => void;
+    onToggleComments?: () => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -54,12 +56,14 @@ const PostCard: React.FC<PostCardProps> = ({
     setNewComment,
     isCommentLoading,
     censorAddress,
-    onImageClick
+    onImageClick,
+    onDelete,
+    onToggleComments
 }) => {
     const [toast, setToast] = useState({ show: false, message: '', type: 'info' as const });
 
-    const commentText = newComment[post._id] || '';
-    const isLoading = isCommentLoading[post._id] || false;
+    const commentText = newComment || '';
+    const isLoading = isCommentLoading;
 
     const handleCopy = async () => {
         try {
@@ -204,7 +208,7 @@ const PostCard: React.FC<PostCardProps> = ({
             <input
                 type="text"
                 value={commentText}
-                onChange={(e) => setNewComment({ ...newComment, [post._id]: e.target.value })}
+                onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
                 disabled={isLoading}
             />
