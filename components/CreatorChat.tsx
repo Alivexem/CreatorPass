@@ -22,6 +22,10 @@ interface MessageData {
   };
 }
 
+interface Message extends MessageData {
+  id: string;
+}
+
 interface CreatorChatProps {
   creatorAddress: string;
   userAddress: string;
@@ -40,7 +44,7 @@ interface CreatorChatProps {
 const database = getDatabase(app);
 
 const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile, onClose }: CreatorChatProps) => {
-  const [messages, setMessages] = useState<MessageData[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showEmoji, setShowEmoji] = useState(false);
