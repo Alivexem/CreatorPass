@@ -14,6 +14,7 @@ interface NotificationData {
     message: string;
     timestamp: number;
     read: boolean;
+    type?: string;
 }
 
 interface Notification {
@@ -45,8 +46,8 @@ export default function NotificationDropdown() {
             const notificationsData = snapshot.val();
             if (notificationsData) {
                 const notificationsList = await Promise.all(
-                    Object.entries(notificationsData).map(async ([id, data]: [string, NotificationData]) => {
-                        // Fetch sender's profile for each notification
+                    Object.entries(notificationsData).map(async ([id, rawData]) => {
+                        const data = rawData as NotificationData;
                         try {
                             const profileRes = await fetch(`/api/profile?address=${data.senderAddress}`);
                             const profileData = await profileRes.json();
