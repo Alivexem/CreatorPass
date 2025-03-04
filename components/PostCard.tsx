@@ -125,7 +125,9 @@ const PostCard: React.FC<PostCardProps> = ({
                 </div>
                 <div className='flex items-center gap-x-2'>
                     <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                    <p className='hidden md:block'>{censorAddress(post.username)}</p>
+                    <p className='hidden md:block'>
+                        {censorAddress ? censorAddress(post.username) : post.username}
+                    </p>
                 </div>
             </div>
 
