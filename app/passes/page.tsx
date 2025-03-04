@@ -132,6 +132,26 @@ const PassesPage = () => {
     }
   };
 
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => {
+      // If at the beginning, go to the last pass
+      if (prev === 0) {
+        return passes.length - 1;
+      }
+      return prev - 1;
+    });
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => {
+      // If at the end, go back to the first pass
+      if (prev === passes.length - 1) {
+        return 0;
+      }
+      return prev + 1;
+    });
+  };
+
   const mintNFT = async (pass: Pass) => {
     if (!cardRef.current || !connection || !walletProvider || !address) return;
     setIsConfirming(true);
@@ -147,7 +167,7 @@ const PassesPage = () => {
         const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
         
         if (profileImage && username) {
-            profileImage.src = pass.imageUrl || '/empProfile.png';
+            profileImage.src = pass.ownerImage || '/empProfile.png';
             username.textContent = pass.ownerUsername;
             
             await new Promise((resolve) => {
@@ -167,6 +187,7 @@ const PassesPage = () => {
             const imageUrl = await uploadToIPFS(file);
             const metadataUrl = await uploadMetadataToIPFS(imageUrl, pass.ownerUsername);
             
+            // Create PublicKey from the wallet address string
             const walletPubkey = new PublicKey(address);
 
             // Check wallet balance
@@ -207,6 +228,7 @@ const PassesPage = () => {
                 TOKEN_METADATA_PROGRAM_ID
             );
 
+            // Create transaction instructions
             const createMintAccountIx = SystemProgram.createAccount({
                 fromPubkey: walletPubkey,
                 newAccountPubkey: mintKeypair.publicKey,
@@ -288,8 +310,10 @@ const PassesPage = () => {
                 transferToPlatformIx,
             );
 
+            // Sign with the mint keypair
             transaction.sign(mintKeypair);
 
+            // Send and confirm transaction
             const signature = await walletProvider.sendTransaction(transaction, connection);
             await connection.confirmTransaction(signature);
 
@@ -395,18 +419,16 @@ const PassesPage = () => {
         {/* Navigation Arrows (Mobile Only) */}
         <div className="md:hidden">
           <button
-            onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-30"
-            disabled={currentIndex === 0}
+            onClick={handlePrevious}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
           >
-            <FaArrowAltCircleLeft size={32} />
+            <FaArrowAltCircleLeft className="text-3xl" />
           </button>
           <button
-            onClick={() => setCurrentIndex(Math.min(passes.length - 1, currentIndex + 1))}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-30"
-            disabled={currentIndex === passes.length - 1}
+            onClick={handleNext}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
           >
-            <FaArrowAltCircleRight size={32} />
+            <FaArrowAltCircleRight className="text-3xl" />
           </button>
         </div>
       </div>

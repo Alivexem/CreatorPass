@@ -173,6 +173,29 @@ const CreatorsPage = () => {
   // Add highlight effect to the creator card if it matches the highlighted address
   const isHighlighted = currentProfile && currentProfile.address === highlightedCreator;
 
+  const handleTouchStart = (e: TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!touchStart) return;
+
+    const currentTouch = e.touches[0].clientX;
+    const diff = touchStart - currentTouch;
+
+    if (diff > 50 && currentIndex < profiles.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setTouchStart(0);
+    } else if (diff < -50 && currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+      setTouchStart(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStart(0);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black">
@@ -213,62 +236,71 @@ const CreatorsPage = () => {
       </div>
 
       {profiles.length > 0 && (
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center gap-4">
-            <button
-              onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={currentIndex === 0}
-            >
-              <FaArrowAltCircleLeft className='text-3xl' />
-            </button>
-
-            <SwipeableCard
-              onSwipe={handleSwipe}
-              isMobile={isMobile}
-            >
-              <div className="w-full max-w-md bg-gray-800 rounded-xl p-6 shadow-xl">
-                <div className="relative h-64 w-full mb-4">
-                  <Image
-                    src={currentProfile.profileImage || '/empProfile.png'}
-                    fill
-                    className="rounded-xl object-cover"
-                    alt={currentProfile.username}
-                  />
+        <div className="relative pb-[100px] md:pb-0">
+          <div 
+            className="flex overflow-x-hidden"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {profiles.map((profile, index) => (
+              <div
+                key={profile.address}
+                className={`w-full px-4 md:px-10 flex-shrink-0 transition-transform duration-300 ${
+                  index === currentIndex ? 'block' : 'hidden md:block'
+                }`}
+              >
+                <div className="max-w-[500px] mx-auto">
+                  <SwipeableCard
+                    onSwipe={handleSwipe}
+                    isMobile={isMobile}
+                  >
+                    <div className="w-full bg-gray-800 rounded-xl p-6 shadow-xl">
+                      <div className="relative h-72 w-full mb-4">
+                        <Image
+                          src={profile.profileImage || '/empProfile.png'}
+                          fill
+                          className="rounded-xl object-cover"
+                          alt={profile.username}
+                        />
+                      </div>
+                      <h2 className="text-2xl font-bold text-white mb-2">{profile.username}</h2>
+                      <p className="text-gray-300 mb-4">{profile.about}</p>
+                      <button
+                        onClick={() => handleChatClick(profile.address)}
+                        className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 w-full justify-center"
+                      >
+                        <IoChatbubbleEllipsesOutline className="text-xl" />
+                        <span>Chat {profile.username}</span>
+                      </button>
+                      <Link href={`/creator/${profile.address}`}>
+                        <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
+                          <RiGalleryFill className="text-xl" />
+                          <span>View Posts</span>
+                        </button>
+                      </Link>
+                    </div>
+                  </SwipeableCard>
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">{currentProfile.username}</h2>
-                <p className="text-gray-300 mb-4">{currentProfile.about}</p>
-                <button
-                  onClick={() => handleChatClick(currentProfile.address)}
-                  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
-                >
-                  <IoChatbubbleEllipsesOutline className="text-xl" />
-                  <span>Chat {currentProfile.username}</span>
-                </button>
-                <Link href={`/creator/${currentProfile.address}`}>
-                  <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
-                    <RiGalleryFill className="text-xl" />
-                    <span>View Posts</span>
-                  </button>
-                </Link>
               </div>
-            </SwipeableCard>
-
-            <button
-              onClick={() => setCurrentIndex(Math.min(profiles.length - 1, currentIndex + 1))}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={currentIndex === profiles.length - 1}
-            >
-              <FaArrowAltCircleRight className='text-3xl' />
-            </button>
+            ))}
           </div>
-        </div>
-      )}
 
-      {/* Remove the old Swipe Modal and replace with Toast */}
-      {showSwipeModal && (
-        <div className="fixed top-4 right-4 md:hidden bg-orange-600 text-white p-4 rounded-lg shadow-lg z-50">
-          <p className="text-sm">Swipe left to see more creators</p>
+          {/* Navigation Arrows (Visible on both mobile and desktop) */}
+          <button
+            onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
+            className="absolute left-2 md:left-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-30"
+            disabled={currentIndex === 0}
+          >
+            <FaArrowAltCircleLeft size={32} />
+          </button>
+          <button
+            onClick={() => setCurrentIndex(Math.min(profiles.length - 1, currentIndex + 1))}
+            className="absolute right-2 md:right-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-30"
+            disabled={currentIndex === profiles.length - 1}
+          >
+            <FaArrowAltCircleRight size={32} />
+          </button>
         </div>
       )}
 
