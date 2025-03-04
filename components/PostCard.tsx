@@ -1,46 +1,114 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
-import { FaCommentMedical } from "react-icons/fa6";
+import { FaCommentMedical, FaHeart, FaRegHeart, FaComment, FaCopy, FaDownload, FaGift } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
 import CommentSection from './CommentSection';
+import Toast from './Toast';
 
 interface PostCardProps {
-    post: any;
+    post: {
+        _id: string;
+        username: string;
+        note: string;
+        category: string;
+        mediaType: 'none' | 'image' | 'video';
+        mediaUrl?: string;
+        likes: string[];
+        comments?: Array<{
+            address: string;
+            text: string;
+            timestamp: Date;
+        }>;
+        gifts?: Array<{
+            from: string;
+            amount: number;
+            timestamp: Date;
+        }>;
+    };
+    userAddress: string;
     userProfile: any;
     hasLiked: boolean;
     likes: number;
     showComments: boolean;
     onLike: () => void;
-    onDelete: () => void;
-    onToggleComments: () => void;
-    handleComment: (e: React.FormEvent) => void;
+    onComment: (e: React.FormEvent) => void;
     newComment: string;
     setNewComment: (value: string) => void;
     isCommentLoading: boolean;
-    censorAddress: (address: string) => string;
-    onImageClick: (imageUrl: string) => void;
+    censorAddress?: (address: string) => string;
+    onImageClick?: (imageUrl: string) => void;
+    onDelete?: () => void;
+    onToggleComments?: () => void;
 }
 
-const PostCard = ({
+// Or alternatively, create a ToastType type
+type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+const PostCard: React.FC<PostCardProps> = ({
     post,
     userProfile,
+    userAddress,
     hasLiked,
     likes,
     showComments,
     onLike,
-    onDelete,
-    onToggleComments,
-    handleComment,
+    onComment,
     newComment,
     setNewComment,
     isCommentLoading,
     censorAddress,
-    onImageClick
-}: PostCardProps) => {
+    onImageClick,
+    onDelete,
+    onToggleComments
+}) => {
+    const [toast, setToast] = useState<{
+        show: boolean;
+        message: string;
+        type: ToastType;
+    }>({ show: false, message: '', type: 'info' });
+
+    const commentText = newComment || '';
+    const isLoading = isCommentLoading;
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(post.note);
+            setToast({ show: true, message: 'Text copied to clipboard!', type: 'success' });
+        } catch (err) {
+            setToast({ show: true, message: 'Failed to copy text', type: 'error' });
+        }
+    };
+
+    const handleDownload = async () => {
+        if (!post.mediaUrl) return;
+        
+        try {
+            const response = await fetch(post.mediaUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `post-media-${post._id}${post.mediaType === 'video' ? '.mp4' : '.jpg'}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            setToast({ show: true, message: 'Failed to download media', type: 'error' });
+        }
+    };
+
     return (
         <div className='w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
+            {toast.show && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast({ ...toast, show: false })}
+                />
+            )}
             <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                 {/* Profile Section */}
                 <div className='flex items-center gap-x-3'>
@@ -57,7 +125,9 @@ const PostCard = ({
                 </div>
                 <div className='flex items-center gap-x-2'>
                     <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                    <p className='hidden md:block'>{censorAddress(post.username)}</p>
+                    <p className='hidden md:block'>
+                        {censorAddress ? censorAddress(post.username) : post.username}
+                    </p>
                 </div>
             </div>
 
@@ -67,42 +137,64 @@ const PostCard = ({
             </div>
 
             {/* Post Image */}
-            {post.image && (
-                <div 
-                    className='relative cursor-pointer w-full aspect-video rounded-xl overflow-hidden'
-                    onClick={() => onImageClick(post.image!)}
-                >
-                    <Image
-                        src={post.image}
-                        alt="Post image"
-                        fill
-                        className='object-cover'
-                    />
+            {post.mediaUrl && (
+                <div className="relative w-full h-64 mb-4">
+                    {post.mediaType === 'video' ? (
+                        <video
+                            src={post.mediaUrl}
+                            controls
+                            className="w-full h-full rounded-lg object-cover"
+                        />
+                    ) : (
+                        <Image
+                            src={post.mediaUrl}
+                            fill
+                            className="rounded-lg object-cover"
+                            alt="Post media"
+                        />
+                    )}
                 </div>
             )}
 
             {/* Action Buttons */}
             <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center flex-wrap gap-y-4'>
                 <button 
-                    onClick={onLike}
+                    onClick={() => onLike()}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                 >
-                    <IoHeartHalf 
-                        className={`text-[1.7rem] transition-colors ${
-                            hasLiked ? 'text-purple-500' : 'text-white'
-                        }`} 
-                    />
+                    {post.likes.includes(userAddress) ? (
+                        <FaHeart className="text-red-500" />
+                    ) : (
+                        <FaRegHeart />
+                    )}
                     <p>{likes} likes</p>
                 </button>
                 <button 
-                    onClick={onToggleComments}
+                    onClick={onComment}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                 >
-                    <FaCommentMedical className='text-[1.7rem]' />
+                    <FaComment />
                     <p>{post.comments?.length || 0} comments</p>
                 </button>
                 <button 
-                    onClick={onDelete}
+                    onClick={handleCopy}
+                    className='text-white hover:text-green-500 transition-colors'
+                >
+                    <FaCopy />
+                </button>
+                {post.mediaUrl && (
+                    <button
+                        onClick={handleDownload}
+                        className='text-white hover:text-yellow-500 transition-colors'
+                    >
+                        <FaDownload />
+                    </button>
+                )}
+                <button className="text-white hover:text-purple-500 transition-colors">
+                    <FaGift />
+                </button>
+                <button 
+                    onClick={() => onLike()}
                     className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
                 >
                     <MdDeleteForever className='text-[1.7rem]' />
@@ -114,13 +206,21 @@ const PostCard = ({
             {showComments && (
                 <CommentSection 
                     post={post}
-                    handleComment={handleComment}
+                    handleComment={onComment}
                     newComment={newComment}
                     setNewComment={setNewComment}
                     isCommentLoading={isCommentLoading}
                     censorAddress={censorAddress}
                 />
             )}
+
+            <input
+                type="text"
+                value={commentText}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Write a comment..."
+                disabled={isLoading}
+            />
         </div>
     );
 };

@@ -24,7 +24,7 @@ const Toast = ({ message, type, onClose }: ToastProps) => {
   }[type];
 
   return (
-    <div className={`fixed top-5 right-5 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-x-3 z-50`}>
+    <div className={`fixed top-[20%] right-5 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-x-3 z-50`}>
       <p>{message}</p>
       <button onClick={onClose} className="hover:opacity-80">
         <IoMdClose size={20} />

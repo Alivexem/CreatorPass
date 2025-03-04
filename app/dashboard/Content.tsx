@@ -16,14 +16,27 @@ interface Post {
     _id: string;
     username: string;
     note: string;
-    image?: string;
+    category: string;
+    mediaType: 'none' | 'image' | 'video';
+    mediaUrl?: string;
     comments?: Array<{
         address: string;
-        comment: string;
-        timestamp?: Date;
+        text: string;
+        timestamp: Date;
     }>;
-    likes?: string[];
+    likes: string[];
+    gifts?: Array<{
+        from: string;
+        amount: number;
+        timestamp: Date;
+    }>;
     likeCount?: number;
+}
+
+interface PostData {
+  note: string;
+  image: string;
+  passTier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
 }
 
 const Content = ({ setToast }: ContentProps) => {
@@ -45,6 +58,8 @@ const Content = ({ setToast }: ContentProps) => {
     const [isCommentLoading, setIsCommentLoading] = useState<{ [key: string]: boolean }>({});
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImage, setModalImage] = useState('');
+    const [passTier, setPassTier] = useState<'Free' | 'Bronze' | 'Silver' | 'Gold'>('Free');
+    const [userAddress, setUserAddress] = useState('');
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -220,7 +235,8 @@ const Content = ({ setToast }: ContentProps) => {
             const fullData = {
                 username: myAddress,
                 note: note.trim(),
-                image: image || ''
+                image: image || '',
+                passTier
             };
 
             const res = await fetch('/api', {
@@ -421,6 +437,7 @@ const Content = ({ setToast }: ContentProps) => {
                             <PostCard
                                 key={post._id}
                                 post={post}
+                                userAddress={userAddress}
                                 userProfile={userProfile}
                                 hasLiked={hasLiked[post._id]}
                                 likes={likes[post._id] || post.likeCount || 0}
@@ -431,13 +448,13 @@ const Content = ({ setToast }: ContentProps) => {
                                     ...prev, 
                                     [post._id]: !prev[post._id] 
                                 }))}
-                                handleComment={(e) => handleComment(e, post._id)}
+                                onComment={(e: React.FormEvent) => handleComment(e, post._id)}
                                 newComment={newComment[post._id] || ''}
-                                setNewComment={(value) => setNewComment(prev => ({
+                                setNewComment={(value: string) => setNewComment(prev => ({
                                     ...prev,
                                     [post._id]: value
                                 }))}
-                                isCommentLoading={isCommentLoading[post._id]}
+                                isCommentLoading={!!isCommentLoading[post._id]}
                                 censorAddress={censorAddress}
                                 onImageClick={(imageUrl) => {
                                     setModalImage(imageUrl);
@@ -581,6 +598,20 @@ const Content = ({ setToast }: ContentProps) => {
                                             Processing image...
                                         </div>
                                     )}
+
+                                    <div className="mb-4">
+                                        <label className="block text-gray-300 mb-2">Post Tier</label>
+                                        <select 
+                                            value={passTier}
+                                            onChange={(e) => setPassTier(e.target.value as 'Free' | 'Bronze' | 'Silver' | 'Gold')}
+                                            className="w-full bg-gray-700 rounded-lg p-3 text-white"
+                                        >
+                                            <option value="Free">Free</option>
+                                            <option value="Bronze">Bronze Pass</option>
+                                            <option value="Silver">Silver Pass</option>
+                                            <option value="Gold">Gold Pass</option>
+                                        </select>
+                                    </div>
 
                                     <textarea 
                                         value={note}

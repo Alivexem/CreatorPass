@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/libs/mongodb";
 import Notification from "@/models/notification";
+import { getDatabase, ref, push } from 'firebase/database';
+import { app } from '@/utils/firebase';
+
+const database = getDatabase(app);
 
 export const dynamic = 'force-dynamic';
 
@@ -37,5 +41,24 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ message: 'Notification deleted' });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete notification' }, { status: 500 });
+    }
+}
+
+export async function POST(request: Request) {
+    try {
+        const { recipientAddress, type, data } = await request.json();
+        
+        const notificationsRef = ref(database, `notifications/${recipientAddress}`);
+        
+        await push(notificationsRef, {
+            type,
+            data,
+            timestamp: Date.now(),
+            read: false
+        });
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed to create notification' }, { status: 500 });
     }
 } 

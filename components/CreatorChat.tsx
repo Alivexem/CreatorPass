@@ -11,15 +11,19 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import Toast from '@/components/Toast';
 
-interface Message {
-  id: string;
+interface MessageData {
   text: string;
+  timestamp: number;
+  read?: boolean;
   sender: {
     address: string;
     username: string;
     profileImage: string;
   };
-  timestamp: number;
+}
+
+interface Message extends MessageData {
+  id: string;
 }
 
 interface CreatorChatProps {
@@ -78,9 +82,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     const unsubscribe = onValue(messagesQuery, (snapshot) => {
       const messagesData = snapshot.val();
       if (messagesData) {
-        const messagesList = Object.entries(messagesData).map(([id, data]: [string, any]) => ({
+        const messagesList = Object.entries(messagesData).map(([id, data]) => ({
           id,
-          ...data,
+          ...(data as MessageData),
+          read: (data as MessageData).read || false
         }));
         setMessages(messagesList);
 
@@ -108,6 +113,19 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      const handleResize = () => {
+        if (chatContainerRef.current && window.visualViewport) {
+          chatContainerRef.current.style.height = `${window.visualViewport.height}px`;
+        }
+      };
+
+      window.visualViewport.addEventListener('resize', handleResize);
+      return () => window.visualViewport?.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   const handleMouseEnter = (messageId: string) => {
     setHoveredMessage(messageId);
@@ -181,6 +199,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
   const onEmojiSelect = (emoji: any) => {
     setNewMessage(prev => prev + emoji.native);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(e);
+    }
   };
 
   return (
@@ -281,8 +306,9 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Type a message..."
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
             />
             
             <button
