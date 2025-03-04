@@ -288,7 +288,7 @@ const CreatorPage = ({ params }: PageProps) => {
                     post._id === postId ? data.post : post
                 )
             );
-            setNewComment(prev => ({ ...prev, [postId]: '' }));
+            setNewComment({ ...newComment, [postId]: '' });
         } catch (error) {
             setToast({
                 show: true,
@@ -415,22 +415,12 @@ const CreatorPage = ({ params }: PageProps) => {
                     {posts.map((post) => (
                         <PostCard
                             key={post._id}
-                            post={{
-                                _id: post._id,
-                                username: post.username,
-                                note: post.note,
-                                category: post.category,
-                                mediaType: post.mediaType,
-                                mediaUrl: post.mediaUrl,
-                                likes: post.likes || [],
-                                comments: post.comments || [],
-                                gifts: post.gifts || []
-                            }}
+                            post={post}
                             userAddress={userAddress}
                             userProfile={null}
                             hasLiked={post.likes.includes(userAddress)}
                             likes={post.likes.length}
-                            showComments={false}
+                            showComments={!!showComments[post._id]}
                             onLike={() => handleLike(post._id)}
                             onComment={(e: React.FormEvent) => handleComment(e, post._id)}
                             newComment={newComment}

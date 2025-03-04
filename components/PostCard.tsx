@@ -27,18 +27,16 @@ interface PostCardProps {
             timestamp: Date;
         }>;
     };
-    userProfile: any;
     userAddress: string;
+    userProfile: any;
     hasLiked: boolean;
     likes: number;
     showComments: boolean;
     onLike: (postId: string) => void;
-    onDelete?: () => void;
-    onToggleComments?: () => void;
-    handleComment?: (e: React.FormEvent) => void;
-    newComment?: string;
-    setNewComment?: (value: string) => void;
-    isCommentLoading?: boolean;
+    onComment: (e: React.FormEvent) => void;
+    newComment: { [key: string]: string };
+    setNewComment: (value: { [key: string]: string }) => void;
+    isCommentLoading: { [key: string]: boolean };
     censorAddress?: (address: string) => string;
     onImageClick?: (imageUrl: string) => void;
 }
@@ -51,9 +49,7 @@ const PostCard: React.FC<PostCardProps> = ({
     likes,
     showComments,
     onLike,
-    onDelete,
-    onToggleComments,
-    handleComment,
+    onComment,
     newComment,
     setNewComment,
     isCommentLoading,
@@ -61,6 +57,9 @@ const PostCard: React.FC<PostCardProps> = ({
     onImageClick
 }) => {
     const [toast, setToast] = useState({ show: false, message: '', type: 'info' as const });
+
+    const commentText = newComment[post._id] || '';
+    const isLoading = isCommentLoading[post._id] || false;
 
     const handleCopy = async () => {
         try {
@@ -158,7 +157,7 @@ const PostCard: React.FC<PostCardProps> = ({
                     <p>{likes} likes</p>
                 </button>
                 <button 
-                    onClick={onToggleComments}
+                    onClick={onComment}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                 >
                     <FaComment />
@@ -182,7 +181,7 @@ const PostCard: React.FC<PostCardProps> = ({
                     <FaGift />
                 </button>
                 <button 
-                    onClick={onDelete}
+                    onClick={() => onLike(post._id)}
                     className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
                 >
                     <MdDeleteForever className='text-[1.7rem]' />
@@ -194,13 +193,21 @@ const PostCard: React.FC<PostCardProps> = ({
             {showComments && (
                 <CommentSection 
                     post={post}
-                    handleComment={handleComment}
+                    handleComment={onComment}
                     newComment={newComment}
                     setNewComment={setNewComment}
                     isCommentLoading={isCommentLoading}
                     censorAddress={censorAddress}
                 />
             )}
+
+            <input
+                type="text"
+                value={commentText}
+                onChange={(e) => setNewComment({ ...newComment, [post._id]: e.target.value })}
+                placeholder="Write a comment..."
+                disabled={isLoading}
+            />
         </div>
     );
 };
