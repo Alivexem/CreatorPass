@@ -43,6 +43,9 @@ interface PostCardProps {
     onToggleComments?: () => void;
 }
 
+// Or alternatively, create a ToastType type
+type ToastType = 'success' | 'error' | 'info' | 'warning';
+
 const PostCard: React.FC<PostCardProps> = ({
     post,
     userProfile,
@@ -60,7 +63,11 @@ const PostCard: React.FC<PostCardProps> = ({
     onDelete,
     onToggleComments
 }) => {
-    const [toast, setToast] = useState({ show: false, message: '', type: 'info' as const });
+    const [toast, setToast] = useState<{
+        show: boolean;
+        message: string;
+        type: ToastType;
+    }>({ show: false, message: '', type: 'info' });
 
     const commentText = newComment || '';
     const isLoading = isCommentLoading;
