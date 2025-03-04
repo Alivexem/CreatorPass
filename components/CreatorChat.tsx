@@ -14,12 +14,13 @@ import Toast from '@/components/Toast';
 interface Message {
   id: string;
   text: string;
+  timestamp: number;
+  read?: boolean;
   sender: {
     address: string;
     username: string;
     profileImage: string;
   };
-  timestamp: number;
 }
 
 interface CreatorChatProps {
@@ -80,7 +81,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
       if (messagesData) {
         const messagesList = Object.entries(messagesData).map(([id, data]) => ({
           id,
-          ...(data as Omit<Message, 'id'>)
+          ...(data as Omit<Message, 'id'>),
+          read: data.read || false
         }));
         setMessages(messagesList);
 
