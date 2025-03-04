@@ -11,8 +11,7 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import Toast from '@/components/Toast';
 
-interface Message {
-  id: string;
+interface MessageData {
   text: string;
   timestamp: number;
   read?: boolean;
@@ -41,7 +40,7 @@ interface CreatorChatProps {
 const database = getDatabase(app);
 
 const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile, onClose }: CreatorChatProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageData[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showEmoji, setShowEmoji] = useState(false);
@@ -81,8 +80,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
       if (messagesData) {
         const messagesList = Object.entries(messagesData).map(([id, data]) => ({
           id,
-          ...(data as Omit<Message, 'id'>),
-          read: data.read || false
+          ...(data as MessageData),
+          read: (data as MessageData).read || false
         }));
         setMessages(messagesList);
 
