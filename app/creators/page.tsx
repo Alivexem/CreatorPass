@@ -243,7 +243,7 @@ const CreatorsPage = () => {
               <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
                 Chat creators, view their posts where you have access to like, comment, gift and interact in their private rooms.
               </p>
-              <div className='bg-purple-500/20 text-purple-400 px-6 py-3 rounded-xl inline-block'>
+              <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
                 Access your favourite creators
               </div>
             </div>
@@ -252,7 +252,7 @@ const CreatorsPage = () => {
       </div>
 
       {profiles.length > 0 && (
-        <div className="relative pb-[100px] mt-14 md:pb-0">
+        <div className="relative pb-[100px] md:mb-10 mt-14 md:pb-0">
           <div 
             className="flex overflow-x-hidden"
             onTouchStart={handleTouchStart}
