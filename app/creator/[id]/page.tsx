@@ -28,21 +28,16 @@ interface Post {
     note: string;
     image: string;
     createdAt: string;
-    comments: Array<{
+    category: string;
+    comments?: Array<{
         address: string;
         text: string;
         timestamp: Date;
     }>;
     likes: string[];
     likeCount?: number;
-    category: string;
     mediaType: 'none' | 'image' | 'video';
     mediaUrl?: string;
-    gifts: Array<{
-        from: string;
-        amount: number;
-        timestamp: Date;
-    }>;
     tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
 }
 
@@ -228,41 +223,52 @@ const CreatorPage = ({ params }: PageProps) => {
         fetchCreatorData();
     }, [id]); // Only depend on id
 
-    // Modify the useEffect that fetches posts
+    // Update the posts fetching useEffect
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const [postsRes, passesRes] = await Promise.all([
-                    fetch(`/api/posts/creator/${id}`),
-                    fetch(`/api/passes/creator/${id}`)
-                ]);
+                const postsRes = await fetch('/api');
+                const postsData = await postsRes.json();
 
-                const [postsData, passesData] = await Promise.all([
-                    postsRes.json(),
-                    passesRes.json()
-                ]);
+                // Filter posts by creator username
+                const creatorPosts = postsData.posts.filter((post: Post) =>
+                    post.username === id
+                );
+
+                // Initialize likes and comments state
+                const myAddress = localStorage.getItem('address') || '';
+                const initialLikes: { [key: string]: number } = {};
+                const initialHasLiked: { [key: string]: boolean } = {};
+
+                creatorPosts.forEach((post: Post) => {
+                    initialLikes[post._id] = post.likes?.length || 0;
+                    initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
+                });
 
                 // Split posts by tier
-                const free = postsData.posts.filter((post: Post) => post.tier === 'Free');
-                const paid = postsData.posts.filter((post: Post) => post.tier !== 'Free');
+                const free = creatorPosts.filter((post: Post) => post.tier === 'Free');
+                const paid = creatorPosts.filter((post: Post) => post.tier !== 'Free');
 
                 setFreePosts(free);
                 setPaidPosts(paid);
+                setLikes(initialLikes);
+                setHasLiked(initialHasLiked);
+                setHasFreePosts(free.length > 0);
 
-                // Check user's passes
-                const address = localStorage.getItem('address');
-                if (address) {
-                    const userPassesRes = await fetch(`/api/passes/user/${address}`);
-                    const userPassesData = await userPassesRes.json();
-                    setUserPasses(userPassesData.passes);
-                }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching posts:', error);
+                setToast({
+                    show: true,
+                    message: 'Failed to fetch posts',
+                    type: 'error'
+                });
             }
         };
 
-        fetchPosts();
-    }, [id]);
+        if (isProfileFetched) {
+            fetchPosts();
+        }
+    }, [id, isProfileFetched]);
 
     useEffect(() => {
         const address = localStorage.getItem('address');
@@ -273,31 +279,34 @@ const CreatorPage = ({ params }: PageProps) => {
 
     const handleLike = async (postId: string) => {
         try {
-            const res = await fetch(`/api/posts/${postId}/interactions`, {
+            const address = localStorage.getItem('address');
+            if (!address) return;
+
+            const res = await fetch(`/api/posts/${postId}/like`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    type: 'like',
-                    userAddress
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address })
             });
 
-            if (!res.ok) throw new Error('Failed to like post');
+            if (!res.ok) throw new Error('Failed to update like');
 
             const data = await res.json();
-            setPosts(prev => 
-                prev.map(post => 
-                    post._id === postId ? data.post : post
-                )
-            );
+            
+            // Update both free and paid posts
+            const updatePosts = (posts: Post[]) => 
+                posts.map(post =>
+                    post._id === postId
+                        ? { ...post, likes: data.likes }
+                        : post
+                );
+
+            setFreePosts(prev => updatePosts(prev));
+            setPaidPosts(prev => updatePosts(prev));
+            setLikes(prev => ({ ...prev, [postId]: data.likes.length }));
+            setHasLiked(prev => ({ ...prev, [postId]: data.likes.includes(address) }));
+
         } catch (error) {
-            setToast({
-                show: true,
-                message: 'Failed to like post',
-                type: 'error'
-            });
+            console.error('Error updating like:', error);
         }
     };
 
@@ -308,35 +317,34 @@ const CreatorPage = ({ params }: PageProps) => {
         setIsCommenting(prev => ({ ...prev, [postId]: true }));
 
         try {
-            const res = await fetch(`/api/posts/${postId}/interactions`, {
+            const address = localStorage.getItem('address');
+            if (!address) return;
+
+            const res = await fetch(`/api/posts/${postId}/comment`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'comment',
-                    userAddress,
-                    data: {
-                        text: newComment[postId].trim()
-                    }
+                    address,
+                    text: newComment[postId].trim()
                 })
             });
 
-            if (!res.ok) throw new Error('Failed to add comment');
-
             const data = await res.json();
-            setPosts(prev => 
-                prev.map(post => 
-                    post._id === postId ? data.post : post
-                )
-            );
-            setNewComment({ ...newComment, [postId]: '' });
+            
+            // Update both free and paid posts
+            const updatePosts = (posts: Post[]) => 
+                posts.map(post =>
+                    post._id === postId
+                        ? { ...post, comments: data.comments }
+                        : post
+                );
+
+            setFreePosts(prev => updatePosts(prev));
+            setPaidPosts(prev => updatePosts(prev));
+            setNewComment(prev => ({ ...prev, [postId]: '' }));
+
         } catch (error) {
-            setToast({
-                show: true,
-                message: 'Failed to add comment',
-                type: 'error'
-            });
+            console.error('Error adding comment:', error);
         } finally {
             setIsCommenting(prev => ({ ...prev, [postId]: false }));
         }

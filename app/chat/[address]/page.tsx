@@ -38,12 +38,13 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
 
   return (
     <div className="h-screen w-full bg-black flex flex-col">
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden relative">
         <CreatorChat
           creatorAddress={params.address}
           userAddress={userAddress}
           creatorProfile={creatorProfile}
           onClose={() => router.back()}
+          className="pb-[100px] md:pb-0"
         />
       </div>
     </div>

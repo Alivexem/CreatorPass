@@ -19,7 +19,6 @@ import { RiGalleryFill } from "react-icons/ri";
 import CreatorChat from '@/components/CreatorChat';
 import { useRouter, usePathname } from 'next/navigation';
 import { SwipeableCard } from '@/components/SwipeableCard';
-import { FiSearch } from "react-icons/fi";
 
 interface Profile {
   address: string;
@@ -43,10 +42,6 @@ const CreatorsPage = () => {
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const searchRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMobile(window.innerWidth <= 768);
@@ -202,39 +197,6 @@ const CreatorsPage = () => {
     setTouchStart(0);
   };
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    if (e) {
-      e.preventDefault();
-    }
-
-    const trimmedSearch = searchTerm.trim();
-    if (!trimmedSearch) return;
-
-    try {
-      const res = await fetch('/api/profiles');
-      const data = await res.json();
-
-      const foundUser = data.profiles.find((profile: any) =>
-        profile.username.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
-        profile.address.toLowerCase().includes(trimmedSearch.toLowerCase())
-      );
-
-      if (foundUser) {
-        setSearchTerm('');
-        setShowMobileSearch(false);
-        setSearchError(null);
-        router.push(`/creators?highlight=${foundUser.address}`);
-      } else {
-        setSearchError('User not found');
-        setTimeout(() => setSearchError(null), 3000);
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-      setSearchError('Search failed');
-      setTimeout(() => setSearchError(null), 3000);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-black">
@@ -294,7 +256,7 @@ const CreatorsPage = () => {
                     onSwipe={handleSwipe}
                     isMobile={isMobile}
                   >
-                    <div className="w-full bg-gray-800 rounded-xl p-6 shadow-xl">
+                    <div className="w-full bg-gray-800 rounded-xl p-6 shadow-xl relative">
                       <div className="relative h-72 w-full mb-4">
                         <Image
                           src={profile.profileImage || '/empProfile.png'}
@@ -306,13 +268,16 @@ const CreatorsPage = () => {
                       <h2 className="text-2xl font-bold text-white mb-2">{profile.username}</h2>
                       <p className="text-gray-300 mb-4">{profile.about}</p>
                       <button
-                        onClick={() => handleChatClick(profile.address)}
-                        className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 w-full justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleChatClick(profile.address);
+                        }}
+                        className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 w-full justify-center z-20 relative"
                       >
                         <IoChatbubbleEllipsesOutline className="text-xl" />
                         <span>Chat {profile.username}</span>
                       </button>
-                      <Link href={`/creator/${profile.address}`}>
+                      <Link href={`/creator/${profile.address}`} className="block relative z-20">
                         <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
                           <RiGalleryFill className="text-xl" />
                           <span>View Posts</span>
@@ -325,28 +290,30 @@ const CreatorsPage = () => {
             ))}
           </div>
 
-          {/* Navigation Arrows (Visible on both mobile and desktop) */}
+          {/* Update navigation arrows to work on all devices */}
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               if (currentIndex === 0) {
-                setCurrentIndex(profiles.length - 1); // Go to last profile if at start
+                setCurrentIndex(profiles.length - 1);
               } else {
                 setCurrentIndex(currentIndex - 1);
               }
             }}
-            className="absolute left-2 md:left-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+            className="absolute left-2 md:left-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors z-30"
           >
             <FaArrowAltCircleLeft size={32} />
           </button>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               if (currentIndex === profiles.length - 1) {
-                setCurrentIndex(0); // Go to first profile if at end
+                setCurrentIndex(0);
               } else {
                 setCurrentIndex(currentIndex + 1);
               }
             }}
-            className="absolute right-2 md:right-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+            className="absolute right-2 md:right-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors z-30"
           >
             <FaArrowAltCircleRight size={32} />
           </button>
@@ -404,32 +371,6 @@ const CreatorsPage = () => {
       )}
 
       <Footer />
-
-      <div ref={searchRef} className='absolute bottom-[80px] right-[5vw] bg-white p-4 rounded-lg shadow-lg w-[300px]' onClick={(e) => e.stopPropagation()}>
-        <div className='flex gap-2'>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search creators..."
-            className="flex-1 p-2 border rounded-lg text-black"
-          />
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSearch();
-            }}
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg"
-          >
-            <FiSearch />
-          </button>
-        </div>
-        {searchError && (
-          <p className="text-red-500 text-sm mt-2 text-center">
-            {searchError}
-          </p>
-        )}
-      </div>
     </div>
   );
 };
