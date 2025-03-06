@@ -107,10 +107,23 @@ const CreatorPage = ({ params }: PageProps) => {
 
                 // Fetch profiles and posts in parallel
                 const [profileRes, userProfileRes, postsRes] = await Promise.all([
-                    fetch(`/api/profile?address=${id}`),
-                    fetch(`/api/profile?address=${address}`),
-                    fetch('/api/posts')
+                    fetch(`/api/profile?address=${id}`, {
+                        cache: 'no-store',
+                        headers: { 'Content-Type': 'application/json' }
+                    }),
+                    fetch(`/api/profile?address=${address}`, {
+                        cache: 'no-store',
+                        headers: { 'Content-Type': 'application/json' }
+                    }),
+                    fetch('/api/posts', {
+                        cache: 'no-store',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
                 ]);
+
+                if (!profileRes.ok || !userProfileRes.ok || !postsRes.ok) {
+                    throw new Error('One or more API requests failed');
+                }
 
                 const [profileData, userProfileData, postsData] = await Promise.all([
                     profileRes.json(),
@@ -121,14 +134,21 @@ const CreatorPage = ({ params }: PageProps) => {
                 if (profileData.profile) setProfile(profileData.profile);
                 if (userProfileData.profile) setUserProfile(userProfileData.profile);
 
-                // Filter posts for this creator
-                const creatorPosts = postsData.posts.filter((post: Post) => 
-                    post.username === id
-                );
-                setPosts(creatorPosts);
+                if (postsData.posts && Array.isArray(postsData.posts)) {
+                    // Filter posts for this creator
+                    const creatorPosts = postsData.posts.filter((post: Post) => 
+                        post.username === id
+                    );
+                    setPosts(creatorPosts);
+                }
 
             } catch (error) {
                 console.error('Error fetching data:', error);
+                setToast({
+                    show: true,
+                    message: 'Failed to load content',
+                    type: 'error'
+                });
             } finally {
                 setLoading(false);
             }
