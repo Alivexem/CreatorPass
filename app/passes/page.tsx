@@ -27,6 +27,7 @@ import {
 import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { createCreateMetadataAccountV3Instruction } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, Signer, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { useRouter } from 'next/navigation';
 
 interface Pass {
   _id: string;
@@ -42,7 +43,10 @@ interface Pass {
 }
 
 const PassesPage = () => {
-  const [passes, setPasses] = useState<Pass[]>([]);
+  const router = useRouter();
+  const [creatorPasses, setCreatorPasses] = useState<Pass[]>([]);
+  const [otherPasses, setOtherPasses] = useState<Pass[]>([]);
+  const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mintingStates, setMintingStates] = useState<{[key: string]: boolean}>({});
   const [selectedPass, setSelectedPass] = useState<Pass | null>(null);
@@ -74,15 +78,22 @@ const PassesPage = () => {
   useEffect(() => {
     const fetchPasses = async () => {
       try {
+        // Get creator parameter from URL
+        const params = new URLSearchParams(window.location.search);
+        const creatorAddress = params.get('creator');
+        setSelectedCreator(creatorAddress);
+
         const res = await fetch('/api/passes');
         const data = await res.json();
-        if (data.passes) {
-          setPasses(data.passes);
-          const states = data.passes.reduce((acc: any, pass: Pass) => {
-            acc[pass._id] = false;
-            return acc;
-          }, {});
-          setMintingStates(states);
+
+        if (creatorAddress) {
+          // Split passes into creator's and others
+          const creator = data.passes.filter((pass: Pass) => pass.address === creatorAddress);
+          const others = data.passes.filter((pass: Pass) => pass.address !== creatorAddress);
+          setCreatorPasses(creator);
+          setOtherPasses(others);
+        } else {
+          setOtherPasses(data.passes);
         }
       } catch (error) {
         console.error('Error fetching passes:', error);
@@ -123,7 +134,7 @@ const PassesPage = () => {
     const currentTouch = e.touches[0].clientX;
     const diff = touchStart - currentTouch;
 
-    if (diff > 50 && currentIndex < passes.length - 1) {
+    if (diff > 50 && currentIndex < otherPasses.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setTouchStart(0);
     } else if (diff < -50 && currentIndex > 0) {
@@ -136,7 +147,7 @@ const PassesPage = () => {
     setCurrentIndex((prev) => {
       // If at the beginning, go to the last pass
       if (prev === 0) {
-        return passes.length - 1;
+        return otherPasses.length - 1;
       }
       return prev - 1;
     });
@@ -145,7 +156,7 @@ const PassesPage = () => {
   const handleNext = () => {
     setCurrentIndex((prev) => {
       // If at the end, go back to the first pass
-      if (prev === passes.length - 1) {
+      if (prev === otherPasses.length - 1) {
         return 0;
       }
       return prev + 1;
@@ -400,7 +411,7 @@ const PassesPage = () => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
         >
-          {passes.map((pass, index) => (
+          {otherPasses.map((pass, index) => (
             <div
               key={pass._id}
               className={`w-full px-10 flex-shrink-0 transition-transform duration-300 ${

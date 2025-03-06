@@ -27,12 +27,14 @@ interface Post {
     }>;
     likes: string[];
     likeCount?: number;
+    tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
 }
 
 interface PostData {
   note: string;
-  image: string;
-  passTier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
+  mediaType: 'none' | 'image' | 'video';
+  mediaUrl?: string;
+  tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
 }
 
 const Content = ({ setToast }: ContentProps) => {
@@ -57,6 +59,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [passTier, setPassTier] = useState<'Free' | 'Bronze' | 'Silver' | 'Gold'>('Free');
     const [userAddress, setUserAddress] = useState('');
     const [showCommentModal, setShowCommentModal] = useState<string | null>(null);
+    const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -153,10 +156,11 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const isVideo = file.type.startsWith('video/');
         const reader = new FileReader();
         reader.readAsDataURL(file);
         setLoading(true);
@@ -165,7 +169,7 @@ const Content = ({ setToast }: ContentProps) => {
             const base64data = reader.result;
 
             try {
-                const res = await fetch("/api/imageApi", {
+                const res = await fetch(isVideo ? "/api/videoApi" : "/api/imageApi", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -180,94 +184,80 @@ const Content = ({ setToast }: ContentProps) => {
                 const data = await res.json();
                 setimage(data.url);
                 setSelectedImage(URL.createObjectURL(file));
+                setMediaType(isVideo ? 'video' : 'image');
             } catch (error) {
-                console.error('Error uploading image:', error);
+                console.error('Error uploading media:', error);
                 setToast({
                     show: true,
-                    message: 'Failed to upload image. Please try again.',
+                    message: 'Failed to upload media. Please try again.',
                     type: 'error'
                 });
             } finally {
                 setLoading(false);
             }
         };
-
-        reader.onerror = () => {
-            setToast({
-                show: true,
-                message: 'Error reading file. Please try again.',
-                type: 'error'
-            });
-            setLoading(false);
-        };
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!note) {
-            setToast({
-                show: true,
-                message: 'Type a post before submitting!',
-                type: 'warning'
-            });
-            return;
-        }
+        if (!note.trim()) return;
 
-        setPostText('Loading...');
-        const myAddress = localStorage.getItem('address');
+        setLoading(true);
+        setPostText('Processing...');
 
         try {
-            const profileRes = await fetch(`/api/profile?address=${myAddress}`);
-            const profileData = await profileRes.json();
-
-            if (!profileData.profile) {
-                throw new Error('Profile not found, setup your profile');
+            const address = localStorage.getItem('address');
+            if (!address) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'warning'
+                });
+                return;
             }
 
-            const fullData = {
-                username: myAddress,
-                note: note.trim(),
-                image: image || '',
-                passTier
+            const postData = {
+                note,
+                mediaType: mediaType,
+                mediaUrl: image,
+                address,
+                tier: passTier,
+                username: userProfile?.username,
+                category: 'post'
             };
 
-            const res = await fetch('/api', {
+            const res = await fetch('/api/posts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
                 },
-                body: JSON.stringify(fullData)
+                body: JSON.stringify(postData),
             });
 
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
+            if (!res.ok) throw new Error('Failed to create post');
 
-            const data = await res.json();
-
-            if (data.message === 'Post uploaded') {
-                setToast({
-                    show: true,
-                    message: 'Posted successfully!',
-                    type: 'success'
-                });
-                setNote('');
-                setimage('');
-                setSelectedImage('');
-                setShowUploader(false);
-                fetchPosts();
-            } else {
-                throw new Error(data.message || 'Failed to upload post');
-            }
-        } catch (error: any) {
-            console.error('Submission error:', error);
+            // Reset form and fetch updated posts
+            setNote('');
+            setimage('');
+            setSelectedImage('');
+            setShowUploader(false);
+            setPassTier('Free');
+            await fetchPosts();
+            
             setToast({
                 show: true,
-                message: error.message || 'Failed to upload post, please try again',
+                message: 'Post created successfully!',
+                type: 'success'
+            });
+        } catch (error) {
+            console.error('Error creating post:', error);
+            setToast({
+                show: true,
+                message: 'Failed to create post',
                 type: 'error'
             });
         } finally {
+            setLoading(false);
             setPostText('Post');
         }
     };
@@ -534,7 +524,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 const input = document.createElement('input');
                                                 input.type = 'file';
                                                 input.files = e.dataTransfer.files;
-                                                handleImageChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
+                                                handleMediaChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
                                             }
                                         }}
                                     >
@@ -552,7 +542,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                         type="button"
                                                         onClick={() => {
                                                             setSelectedImage('');
-                                                            const input = document.getElementById('image-upload') as HTMLInputElement;
+                                                            const input = document.getElementById('media-upload') as HTMLInputElement;
                                                             if (input) {
                                                                 input.value = '';
                                                                 input.click();
@@ -560,22 +550,22 @@ const Content = ({ setToast }: ContentProps) => {
                                                         }}
                                                         className='bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors'
                                                     >
-                                                        Change Image
+                                                        Change Media
                                                     </button>
                                                 </div>
                                             </div>
                                         ) : (
-                                            <label htmlFor="image-upload" className='block h-full'>
+                                            <label htmlFor="media-upload" className='block h-full'>
                                                 <div className='h-full border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
                                                     <FaImages className="text-4xl text-gray-400" />
-                                                    <p className='text-gray-400 text-center'>Click or drag image to upload</p>
+                                                    <p className='text-gray-400 text-center'>Click or drag media to upload</p>
                                                 </div>
                                                 <input 
                                                     type="file"
-                                                    id="image-upload"
+                                                    id="media-upload"
                                                     className='hidden'
-                                                    accept="image/*"
-                                                    onChange={handleImageChange}
+                                                    accept="image/*,video/*"
+                                                    onChange={handleMediaChange}
                                                 />
                                             </label>
                                         )}
@@ -584,7 +574,7 @@ const Content = ({ setToast }: ContentProps) => {
                                     {loading && (
                                         <div className='text-green-500 flex items-center gap-2'>
                                             <div className='animate-spin h-4 w-4 border-2 border-green-500 border-t-transparent rounded-full'></div>
-                                            Processing image...
+                                            Processing media...
                                         </div>
                                     )}
 

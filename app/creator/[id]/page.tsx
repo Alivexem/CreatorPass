@@ -65,6 +65,35 @@ interface PageProps {
     }
 }
 
+const PassModal = ({ onClose, creatorAddress }: { onClose: () => void, creatorAddress: string }) => {
+    const router = useRouter();
+
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 p-6 rounded-xl max-w-md w-full mx-4">
+                <h3 className="text-xl font-bold text-white mb-4">Premium Content</h3>
+                <p className="text-gray-300 mb-6">
+                    This creator has premium content available. Mint a pass to access exclusive posts and features.
+                </p>
+                <div className="space-y-4">
+                    <button
+                        onClick={() => router.push(`/passes?creator=${creatorAddress}`)}
+                        className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700"
+                    >
+                        View Available Passes
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="w-full bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-600"
+                    >
+                        View Free Content
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const CreatorPage = ({ params }: PageProps) => {
     const { id } = params;
     const router = useRouter();
@@ -104,6 +133,7 @@ const CreatorPage = ({ params }: PageProps) => {
     const [userAddress, setUserAddress] = useState<string>('');
     const [hasAccess, setHasAccess] = useState(false);
     const [freePosts, setFreePosts] = useState<Post[]>([]);
+    const [paidPosts, setPaidPosts] = useState<Post[]>([]);
     const [hasFreePosts, setHasFreePosts] = useState<boolean | null>(null);
     const [userPasses, setUserPasses] = useState<Pass[]>([]);
     const [showPassModal, setShowPassModal] = useState(false);
@@ -202,29 +232,37 @@ const CreatorPage = ({ params }: PageProps) => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await fetch(`/api/posts/creator/${id}`);
-                const data = await res.json();
-                
-                if (data.posts) {
-                    // Filter free posts
-                    const freeContent = data.posts.filter((post: Post) => post.tier === 'Free');
-                    setFreePosts(freeContent);
-                    setHasFreePosts(freeContent.length > 0);
-                    
-                    // If user has access, set all posts
-                    if (hasAccess) {
-                        setPosts(data.posts);
-                    }
+                const [postsRes, passesRes] = await Promise.all([
+                    fetch(`/api/posts/creator/${id}`),
+                    fetch(`/api/passes/creator/${id}`)
+                ]);
+
+                const [postsData, passesData] = await Promise.all([
+                    postsRes.json(),
+                    passesRes.json()
+                ]);
+
+                // Split posts by tier
+                const free = postsData.posts.filter((post: Post) => post.tier === 'Free');
+                const paid = postsData.posts.filter((post: Post) => post.tier !== 'Free');
+
+                setFreePosts(free);
+                setPaidPosts(paid);
+
+                // Check user's passes
+                const address = localStorage.getItem('address');
+                if (address) {
+                    const userPassesRes = await fetch(`/api/passes/user/${address}`);
+                    const userPassesData = await userPassesRes.json();
+                    setUserPasses(userPassesData.passes);
                 }
             } catch (error) {
-                console.error('Error fetching posts:', error);
-            } finally {
-                setLoading(false);
+                console.error('Error fetching data:', error);
             }
         };
 
         fetchPosts();
-    }, [id, hasAccess]);
+    }, [id]);
 
     useEffect(() => {
         const address = localStorage.getItem('address');
@@ -372,17 +410,16 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
-    const checkAccess = (requiredTier: 'bronze' | 'silver' | 'gold', userPasses: Pass[]) => {
-        const tierValues: Record<string, number> = { bronze: 1, silver: 2, gold: 3 };
-        const userHighestTier = Math.max(
-            ...userPasses.map(pass => tierValues[pass.category.toLowerCase() as keyof typeof tierValues] || 0)
+    const checkPassAccess = (requiredTier: string) => {
+        return userPasses.some(pass => 
+            ['Gold', 'Silver', 'Bronze'].indexOf(pass.category) >= 
+            ['Gold', 'Silver', 'Bronze'].indexOf(requiredTier)
         );
-        return userHighestTier >= tierValues[requiredTier];
     };
 
-    const canChat = checkAccess('silver', userPasses);
-    const canInteract = checkAccess('bronze', userPasses);
-    const canDownload = checkAccess('bronze', userPasses);
+    const canChat = checkPassAccess('Silver');
+    const canInteract = checkPassAccess('Bronze');
+    const canDownload = checkPassAccess('Bronze');
 
     if (!userAddress) {
         return (
@@ -441,29 +478,16 @@ const CreatorPage = ({ params }: PageProps) => {
                 />
             )}
             <div className="container mx-auto px-4 py-8">
-                {!hasAccess && hasFreePosts && (
-                    <div className="bg-blue-900/50 border border-blue-500 p-4 rounded-lg mb-8">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-xl font-semibold text-white mb-2">
-                                    Viewing Free Content
-                                </h3>
-                                <p className="text-gray-300">
-                                    You're currently viewing free content. Mint a pass to access premium content.
-                                </p>
-                            </div>
-                            <button 
-                                onClick={() => setShowPassModal(true)}
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                            >
-                                Mint Pass
-                            </button>
-                        </div>
-                    </div>
+                {/* Show pass modal if there's premium content and user has no access */}
+                {!hasAccess && paidPosts.length > 0 && showPassModal && (
+                    <PassModal 
+                        onClose={() => setShowPassModal(false)}
+                        creatorAddress={id}
+                    />
                 )}
 
                 <div className="grid gap-8">
-                    {(hasAccess ? posts : freePosts).map((post) => (
+                    {(hasAccess ? [...freePosts, ...paidPosts] : freePosts).map((post) => (
                         <div key={post._id} className="relative">
                             {/* Tier Badge */}
                             <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium z-10
@@ -493,6 +517,24 @@ const CreatorPage = ({ params }: PageProps) => {
                         </div>
                     ))}
                 </div>
+
+                {/* Show CTA if there's premium content */}
+                {!hasAccess && paidPosts.length > 0 && (
+                    <div className="mt-8 bg-gray-800 p-6 rounded-lg text-center">
+                        <h3 className="text-xl font-bold text-white mb-2">
+                            Want to see more?
+                        </h3>
+                        <p className="text-gray-300">
+                            You're currently viewing free content. Mint a pass to access premium content.
+                        </p>
+                        <button 
+                            onClick={() => setShowPassModal(true)}
+                            className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
+                        >
+                            View Passes
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
