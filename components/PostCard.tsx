@@ -1,47 +1,116 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
-import { FaCommentMedical } from "react-icons/fa6";
+import { FaCommentMedical, FaHeart, FaRegHeart, FaComment, FaCopy, FaDownload, FaGift } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
 import CommentSection from './CommentSection';
+import Toast from './Toast';
 
 interface PostCardProps {
-    post: any;
+    post: {
+        _id: string;
+        username: string;
+        note: string;
+        category: string;
+        mediaType: 'none' | 'image' | 'video';
+        mediaUrl?: string;
+        tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
+        likes: string[];
+        comments?: Array<{
+            address: string;
+            text: string;
+            timestamp: Date;
+        }>;
+        gifts?: Array<{
+            from: string;
+            amount: number;
+            timestamp: Date;
+        }>;
+    };
+    userAddress: string;
     userProfile: any;
     hasLiked: boolean;
     likes: number;
     showComments: boolean;
     onLike: () => void;
-    onDelete: () => void;
-    onToggleComments: () => void;
-    handleComment: (e: React.FormEvent) => void;
+    onComment: (e: React.FormEvent) => void;
     newComment: string;
     setNewComment: (value: string) => void;
     isCommentLoading: boolean;
-    censorAddress: (address: string) => string;
-    onImageClick: (imageUrl: string) => void;
+    censorAddress?: (address: string) => string;
+    onImageClick?: (imageUrl: string) => void;
+    onDelete?: () => void;
+    onToggleComments?: () => void;
+    onDownload?: () => void;
+    onGift?: () => void;
+    children?: React.ReactNode;
 }
 
-const PostCard = ({
+// Or alternatively, create a ToastType type
+type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+const PostCard: React.FC<PostCardProps> = ({
     post,
     userProfile,
+    userAddress,
     hasLiked,
     likes,
     showComments,
     onLike,
-    onDelete,
-    onToggleComments,
-    handleComment,
+    onComment,
     newComment,
     setNewComment,
     isCommentLoading,
     censorAddress,
-    onImageClick
-}: PostCardProps) => {
+    onImageClick,
+    onDelete,
+    onToggleComments,
+    onDownload,
+    onGift,
+    children
+}) => {
+    const [toast, setToast] = useState<{
+        show: boolean;
+        message: string;
+        type: ToastType;
+    }>({ show: false, message: '', type: 'info' });
+
+    const commentText = newComment || '';
+    const isLoading = isCommentLoading;
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(post.note);
+            setToast({ show: true, message: 'Text copied to clipboard!', type: 'success' });
+        } catch (err) {
+            setToast({ show: true, message: 'Failed to copy text', type: 'error' });
+        }
+    };
+
+    const handleDownload = async () => {
+        if (!post.mediaUrl) return;
+        
+        try {
+            const response = await fetch(post.mediaUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `post-media-${post._id}${post.mediaType === 'video' ? '.mp4' : '.jpg'}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            setToast({ show: true, message: 'Failed to download media', type: 'error' });
+        }
+    };
+
     return (
-        <div className='w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
-            <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
+        <div className="bg-gray-800 rounded-lg overflow-hidden">
+            {/* Post Header */}
+            <div className="p-4 flex justify-between items-center">
                 {/* Profile Section */}
                 <div className='flex items-center gap-x-3'>
                     <div className='h-[60px] w-[60px] relative'>
@@ -57,69 +126,110 @@ const PostCard = ({
                 </div>
                 <div className='flex items-center gap-x-2'>
                     <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                    <p className='hidden md:block'>{censorAddress(post.username)}</p>
+                    <p className='hidden md:block'>
+                        {censorAddress ? censorAddress(post.username) : post.username}
+                    </p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded text-sm ${
+                        post.tier === 'Free' ? 'bg-green-600' :
+                        post.tier === 'Bronze' ? 'bg-yellow-700' :
+                        post.tier === 'Silver' ? 'bg-gray-400' :
+                        'bg-yellow-500'
+                    }`}>
+                        {post.tier}
+                    </span>
                 </div>
             </div>
 
             {/* Post Content */}
-            <div className='flex-start px-10 mt-5 text-white'>
-                <p className='text-left'>{post.note}</p>
+            <div className="p-4">
+                <p className="text-white mb-4">{post.note}</p>
+                
+                {post.mediaUrl && (
+                    <div className="relative aspect-video rounded-lg overflow-hidden">
+                        {post.mediaType === 'video' ? (
+                            <video
+                                src={post.mediaUrl}
+                                controls
+                                className="w-full h-full object-contain bg-black"
+                            />
+                        ) : (
+                            <Image
+                                src={post.mediaUrl}
+                                alt="Post media"
+                                fill
+                                className="object-contain"
+                            />
+                        )}
+                    </div>
+                )}
             </div>
 
-            {/* Post Image */}
-            {post.image && (
-                <div 
-                    className='relative cursor-pointer w-full aspect-video rounded-xl overflow-hidden'
-                    onClick={() => onImageClick(post.image!)}
-                >
-                    <Image
-                        src={post.image}
-                        alt="Post image"
-                        fill
-                        className='object-cover'
-                    />
+            {/* Interaction Buttons */}
+            <div className="p-4 border-t border-gray-700 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => onLike()}
+                        className={`flex items-center gap-2 ${
+                            hasLiked ? 'text-purple-500' : 'text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        {hasLiked ? <FaHeart /> : <FaRegHeart />}
+                        <span>{likes} likes</span>
+                    </button>
+                    
+                    <button
+                        onClick={() => onToggleComments?.()}
+                        className="flex items-center gap-2 text-gray-400 hover:text-white"
+                    >
+                        <FaComment />
+                        <span>{post.comments?.length || 0} comments</span>
+                    </button>
                 </div>
-            )}
 
-            {/* Action Buttons */}
-            <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center flex-wrap gap-y-4'>
-                <button 
-                    onClick={onLike}
-                    className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
-                >
-                    <IoHeartHalf 
-                        className={`text-[1.7rem] transition-colors ${
-                            hasLiked ? 'text-purple-500' : 'text-white'
-                        }`} 
-                    />
-                    <p>{likes} likes</p>
-                </button>
-                <button 
-                    onClick={onToggleComments}
-                    className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
-                >
-                    <FaCommentMedical className='text-[1.7rem]' />
-                    <p>{post.comments?.length || 0} comments</p>
-                </button>
-                <button 
-                    onClick={onDelete}
-                    className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
-                >
-                    <MdDeleteForever className='text-[1.7rem]' />
-                    <p className='hidden md:block'>Delete</p>
-                </button>
+                <div className="flex items-center gap-2">
+                    {post.mediaUrl && (
+                        <button
+                            className="text-gray-400 hover:text-white"
+                            title="Download media"
+                        >
+                            <FaDownload />
+                        </button>
+                    )}
+                    <button
+                        className="text-gray-400 hover:text-white"
+                        title="Send gift"
+                    >
+                        <FaGift />
+                    </button>
+                </div>
             </div>
 
             {/* Comments Section */}
             {showComments && (
-                <CommentSection 
-                    post={post}
-                    handleComment={handleComment}
-                    newComment={newComment}
-                    setNewComment={setNewComment}
-                    isCommentLoading={isCommentLoading}
-                    censorAddress={censorAddress}
-                />
+                <div className="p-4 border-t border-gray-700">
+                    <form onSubmit={onComment} className="mb-4">
+                        <input
+                            type="text"
+                            value={commentText}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Add a comment..."
+                            className="w-full bg-gray-700 text-white rounded px-4 py-2"
+                        />
+                    </form>
+
+                    <div className="space-y-2">
+                        {post.comments?.map((comment, index) => (
+                            <div key={index} className="bg-gray-700 rounded p-2">
+                                <p className="text-sm text-gray-400">
+                                    {censorAddress?.(comment.address)}
+                                </p>
+                                <p className="text-white">{comment.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
         </div>
     );

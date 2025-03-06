@@ -11,15 +11,19 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import Toast from '@/components/Toast';
 
-interface Message {
-  id: string;
+interface MessageData {
   text: string;
+  timestamp: number;
+  read?: boolean;
   sender: {
     address: string;
     username: string;
     profileImage: string;
   };
-  timestamp: number;
+}
+
+interface Message extends MessageData {
+  id: string;
 }
 
 interface CreatorChatProps {
@@ -78,9 +82,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     const unsubscribe = onValue(messagesQuery, (snapshot) => {
       const messagesData = snapshot.val();
       if (messagesData) {
-        const messagesList = Object.entries(messagesData).map(([id, data]: [string, any]) => ({
+        const messagesList = Object.entries(messagesData).map(([id, data]) => ({
           id,
-          ...data,
+          ...(data as MessageData),
+          read: (data as MessageData).read || false
         }));
         setMessages(messagesList);
 
@@ -109,6 +114,35 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     }
   }, [messages]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (chatContainerRef.current && window.visualViewport) {
+        // Calculate the visible height
+        const visibleHeight = window.visualViewport.height;
+        const keyboardHeight = window.innerHeight - visibleHeight;
+        
+        // Adjust the chat container height and scroll position
+        chatContainerRef.current.style.height = `${visibleHeight - 140}px`; // Account for header and input
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        
+        // Move the form up when keyboard is visible
+        const form = document.querySelector('.chat-input-form') as HTMLElement;
+        if (form) {
+          form.style.transform = `translateY(-${keyboardHeight}px)`;
+        }
+      }
+    };
+
+    // Add listeners for both resize and scroll
+    window.visualViewport?.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('scroll', handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
+  }, []);
+
   const handleMouseEnter = (messageId: string) => {
     setHoveredMessage(messageId);
     if (hoverTimeoutRef.current) {
@@ -131,7 +165,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     if (!userProfile?.username) {
       setToast({
         show: true,
-        message: 'Please create a profile first',
+        message: 'Please create a profile before sending messages',
         type: 'warning'
       });
       return;
@@ -140,18 +174,31 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     const chatId = [creatorAddress, userAddress].sort().join('-');
     const messagesRef = ref(database, `chats/${chatId}/messages`);
 
-    // Store complete user info with the message
-    const messageData = {
-      text: newMessage,
-      sender: {
-        address: userAddress,
-        username: userProfile.username,
-        profileImage: userProfile.profileImage || '/empProfile.png'
-      },
-      timestamp: Date.now()
-    };
-
     try {
+      // First check if user profile exists
+      const profileRes = await fetch(`/api/profile?address=${userAddress}`);
+      const profileData = await profileRes.json();
+
+      if (!profileData.profile) {
+        setToast({
+          show: true,
+          message: 'Please create a profile first',
+          type: 'warning'
+        });
+        return;
+      }
+
+      // Store complete user info with the message
+      const messageData = {
+        text: newMessage,
+        sender: {
+          address: userAddress,
+          username: userProfile.username,
+          profileImage: userProfile.profileImage || '/empProfile.png'
+        },
+        timestamp: Date.now()
+      };
+
       await push(messagesRef, messageData);
 
       // Create notification for the recipient
@@ -170,10 +217,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
       setNewMessage('');
     } catch (error) {
-      console.error('Failed to send message or create notification:', error);
+      console.error('Failed to send message:', error);
       setToast({
         show: true,
-        message: 'Failed to send message',
+        message: 'Failed to send message. Please try again.',
         type: 'error'
       });
     }
@@ -181,6 +228,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
   const onEmojiSelect = (emoji: any) => {
     setNewMessage(prev => prev + emoji.native);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(e);
+    }
   };
 
   return (
@@ -196,10 +250,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
-        className="md:fixed md:right-0 md:top-0 h-[89vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
+        className="md:fixed md:right-0 md:top-0 h-[calc(100vh-80px)] md:h-[89vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
       >
         {/* Header */}
-        <div className="bg-purple-900 p-4 mb-5 flex items-center justify-between">
+        <div className="bg-purple-900 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
               src={creatorProfile.profileImage || '/empProfile.png'}
@@ -218,11 +272,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           </button>
         </div>
 
-        {/* Messages */}
-        <div
-          ref={chatContainerRef}
-          className="flex-1 overflow-y-auto p-4 space-y-4"
-        >
+        {/* Messages Container - Adjust padding to account for input and mobile nav */}
+        <div className="flex-1 overflow-y-auto pb-[140px] md:pb-[70px]">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -265,9 +316,12 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           ))}
         </div>
 
-        {/* Input */}
-        <form onSubmit={sendMessage} className="p-4 bg-[#232629]">
-          <div className="flex gap-2 items-center">
+        {/* Input Section - Position above mobile nav */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gray-900 p-4 mb-[80px] md:mb-0">
+          <form 
+            onSubmit={sendMessage} 
+            className="flex gap-2 items-center max-w-[500px] mx-auto"
+          >
             <button
               ref={emojiButtonRef}
               type="button"
@@ -281,17 +335,19 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Type a message..."
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
             />
             
             <button
               type="submit"
-              className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors"
+              disabled={!userProfile?.username}
+              className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
             >
               <IoSend size={20} />
             </button>
-          </div>
+          </form>
 
           {showEmoji && (
             <div ref={emojiRef} className="absolute bottom-20 right-4">
@@ -302,7 +358,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               />
             </div>
           )}
-        </form>
+        </div>
       </motion.div>
     </>
   );

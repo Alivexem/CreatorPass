@@ -7,7 +7,7 @@ interface ToastProps {
   onClose: () => void;
 }
 
-const Toast = ({ message, type, onClose }: ToastProps) => {
+export const Toast = ({ message, type = 'info', onClose }: ToastProps) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -24,11 +24,13 @@ const Toast = ({ message, type, onClose }: ToastProps) => {
   }[type];
 
   return (
-    <div className={`fixed top-5 right-5 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-x-3 z-50`}>
-      <p>{message}</p>
-      <button onClick={onClose} className="hover:opacity-80">
-        <IoMdClose size={20} />
-      </button>
+    <div className="fixed left-1/2 transform -translate-x-1/2 top-20 z-50">
+      <div className={`${bgColor} px-6 py-3 rounded-lg shadow-lg flex items-center gap-3`}>
+        <p>{message}</p>
+        <button onClick={onClose} className="hover:opacity-80">
+          <IoMdClose size={20} />
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,6 @@
 'use client'
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
-// import { Pass, PassRules } from '@/types/pass';
 
 interface PassRule {
   canComment: boolean;

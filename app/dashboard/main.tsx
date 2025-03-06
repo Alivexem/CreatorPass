@@ -6,8 +6,12 @@ import { SiThefinals, SiSolana } from "react-icons/si";
 import { MdDeleteForever } from "react-icons/md";
 import { RiHeart2Line } from "react-icons/ri";
 import { IoTicketSharp } from "react-icons/io5";
+import { IoMdClose } from "react-icons/io";
 import Content from './Content';
 import ProfileUpdate from './ProfileUpdate';
+import { Switch } from '@headlessui/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { PassRules, DEFAULT_RULES } from '@/types/pass';
 
 interface MainbarProps {
   showContent: boolean;
@@ -19,12 +23,219 @@ interface Profile {
   username: string;
   profileImage: string;
   address: string;
+  about: string;
+  totalPasses: number;
+  totalRevenue: number;
+  topPass?: {
+    category: 'Bronze' | 'Silver' | 'Gold';
+    mintCount: number;
+  };
 }
+
+interface Pass {
+  _id: string;
+  category: 'Bronze' | 'Silver' | 'Gold' | 'Free';
+  price: number;
+  expirationDays: number | null;
+  imageUrl: string;
+  mintCount: number;
+  createdAt: string;
+  address: string;
+  ownerUsername: string;
+  ownerImage: string;
+  cardTag: string;
+  rules: PassRules;
+  owners: string[]; // List of addresses that own this pass
+}
+
+interface PassFormData {
+  category: 'Bronze' | 'Silver' | 'Gold';
+  price: number;
+  cardTag: string;
+  rules: PassRules;
+  useDefaultRules: boolean;
+}
+
+const CreatePassModal = ({ isOpen, onClose, onSubmit }: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: PassFormData) => void;
+}) => {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<PassFormData>({
+    category: 'Bronze',
+    price: 0,
+    cardTag: '',
+    rules: DEFAULT_RULES,
+    useDefaultRules: true
+  });
+
+  const renderRulesConfig = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-white">Use Default Rules</span>
+        <Switch
+          checked={formData.useDefaultRules}
+          onChange={(checked) => {
+            setFormData(prev => ({
+              ...prev,
+              useDefaultRules: checked,
+              rules: checked ? DEFAULT_RULES : prev.rules
+            }));
+          }}
+          className="bg-gray-600"
+        />
+      </div>
+
+      {!formData.useDefaultRules && (
+        <div className="space-y-4 mt-4">
+          <div>
+            <label className="text-gray-300 block mb-2">Chat Access</label>
+            <select
+              value={formData.rules.allowChat}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                rules: { ...prev.rules, allowChat: e.target.value as 'silver' | 'all' | 'none' }
+              }))}
+              className="w-full bg-gray-700 rounded-lg p-3 text-white"
+            >
+              <option value="silver">Silver & Above</option>
+              <option value="all">All Pass Holders</option>
+              <option value="none">No Chat Access</option>
+            </select>
+          </div>
+          {/* Add similar selects for other rules */}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-[#1A1D1F] p-6 rounded-xl w-full max-w-md mx-4 relative"
+            initial={{ scale: 0.95, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 20 }}
+          >
+            <button 
+              onClick={onClose}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+            >
+              <IoMdClose size={24} />
+            </button>
+
+            {step === 1 ? (
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-white">Select Pass Category</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {['Bronze', 'Silver', 'Gold'].map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, category: category as 'Bronze' | 'Silver' | 'Gold' }));
+                        setStep(2);
+                      }}
+                      className={`p-4 rounded-lg ${
+                        formData.category === category 
+                          ? 'bg-purple-600' 
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      } text-white`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : step === 2 ? (
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-white">Configure Pass Details</h3>
+                
+                <div>
+                  <label className="text-gray-300 block mb-2">Price (SOL)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+                    className="w-full bg-gray-700 rounded-lg p-3 text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-300 block mb-2">Card Tag (max 20 words)</label>
+                  <textarea
+                    value={formData.cardTag}
+                    onChange={(e) => {
+                      const words = e.target.value.trim().split(/\s+/);
+                      if (words.length <= 20) {
+                        setFormData(prev => ({ ...prev, cardTag: e.target.value }));
+                      }
+                    }}
+                    placeholder="Add a message for your fans (e.g., 'Exclusive access to weekly live sessions and premium content')"
+                    className="w-full bg-gray-700 rounded-lg p-3 text-white h-24 resize-none"
+                  />
+                  <p className="text-sm text-gray-400 mt-1">
+                    {formData.cardTag.trim().split(/\s+/).length}/20 words
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="flex-1 bg-gray-700 text-white py-3 rounded-lg"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => setStep(3)}
+                    className="flex-1 bg-purple-600 text-white py-3 rounded-lg"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            ) : step === 3 ? (
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-white">Pass Rules</h3>
+                {renderRulesConfig()}
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="flex-1 bg-gray-700 text-white py-3 rounded-lg"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => onSubmit(formData)}
+                    className="flex-1 bg-purple-600 text-white py-3 rounded-lg"
+                  >
+                    Create Pass
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showNftToast, setShowNftToast] = useState(false);
+  const [showCreatePass, setShowCreatePass] = useState(false);
+  const [passes, setPasses] = useState<Pass[]>([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -32,25 +243,108 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
         const address = localStorage.getItem('address');
         if (!address) return;
 
-        const res = await fetch(`/api/profile?address=${address}`);
-        const data = await res.json();
-
-        if (data.profile) {
-          setProfile(data.profile);
+        const profileRes = await fetch(`/api/profile?address=${address}`);
+        const { profile } = await profileRes.json();
+        
+        if (profile) {
+          setProfile(profile);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    const fetchPasses = async () => {
+      try {
+        const address = localStorage.getItem('address');
+        if (!address) return;
+
+        const res = await fetch(`/api/passes?address=${address}`);
+        const data = await res.json();
+        setPasses(data.passes || []);
+      } catch (error) {
+        console.error('Error fetching passes:', error);
+      }
+    };
+
+    fetchPasses();
+  }, []);
+
   const handleNftClick = () => {
     setShowNftToast(true);
     setTimeout(() => setShowNftToast(false), 3000);
+  };
+
+  const handleCreatePass = async (formData: PassFormData) => {
+    try {
+      const address = localStorage.getItem('address');
+      if (!profile) throw new Error('Profile not found');
+      
+      // Check if user already has this category of pass
+      const existingPass = passes.find(p => p.category === formData.category);
+      if (existingPass) {
+        setToast({
+          show: true,
+          message: `You already have a ${formData.category} pass`,
+          type: 'error',
+        });
+        return;
+      }
+
+      const res = await fetch('/api/passes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          address,
+          ownerUsername: profile.username,
+          ownerImage: profile.profileImage,
+          imageUrl: profile.profileImage,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create pass');
+      
+      // Refresh passes
+      const newRes = await fetch(`/api/passes?address=${address}`);
+      const data = await newRes.json();
+      setPasses(data.passes || []);
+      setShowCreatePass(false);
+    } catch (error) {
+      console.error('Error creating pass:', error);
+      setToast({
+        show: true,
+        message: 'Failed to create pass',
+        type: 'error'
+      });
+    }
+  };
+
+  const handleDeletePass = async (passId: string) => {
+    try {
+      const res = await fetch(`/api/passes/${passId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error('Failed to delete pass');
+
+      setPasses(prev => prev.filter(pass => pass._id !== passId));
+      setToast({
+        show: true,
+        message: 'Pass deleted successfully!',
+        type: 'success',
+      });
+    } catch (error) {
+      setToast({
+        show: true,
+        message: 'Failed to delete pass',
+        type: 'error',
+      });
+    }
   };
 
   return (
@@ -108,17 +402,12 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
               {/* Action Buttons */}
               <div className='flex gap-4'>
                 <button
-                  onClick={handleNftClick}
-                  className='flex-1 bg-purple-600 hover:bg-purple-700 transition-all py-3 px-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2'
+                  onClick={() => setShowCreatePass(true)}
+                  disabled={passes.length >= 3}
+                  className='flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 transition-all py-3 px-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2'
                 >
                   <IoTicketSharp size={20} />
-                  Create Pass
-                </button>
-                <button
-                  className='flex-1 bg-gray-700 py-3 px-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2 cursor-not-allowed opacity-60'
-                >
-                  <MdDeleteForever size={20} />
-                  Delete Pass
+                  {passes.length >= 3 ? 'Max Passes (3)' : 'Create Pass'}
                 </button>
               </div>
             </div>
@@ -130,18 +419,21 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                 {[
                   {
                     title: 'Total Passes',
+                    value: profile?.totalPasses || 0,
                     description: 'Track your NFT pass sales',
                     icon: <SiSolana className='text-purple-500 text-2xl' />,
                     bgColor: 'bg-purple-500/20'
                   },
                   {
                     title: 'Revenue',
+                    value: `${profile?.totalRevenue || 0} SOL`,
                     description: 'Monitor your earnings',
                     icon: <SiSolana className='text-green-500 text-2xl' />,
                     bgColor: 'bg-green-500/20'
                   },
                   {
                     title: 'Top Pass',
+                    value: profile?.topPass ? `${profile.topPass.category} (${profile.topPass.mintCount})` : 'None',
                     description: 'Your best performing pass',
                     icon: <SiSolana className='text-blue-500 text-2xl' />,
                     bgColor: 'bg-blue-800/20'
@@ -197,6 +489,46 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
               </div> */}
             </div>
           </div>
+
+          {/* Passes Grid */}
+          <div className='mt-8 grid grid-cols-1 md:grid-cols-3 gap-6'>
+            {passes.map((pass) => (
+              <div key={pass._id} className='bg-gray-800 rounded-xl p-4'>
+                <div className='relative h-32 w-full mb-4'>
+                  <Image
+                    src={pass.imageUrl}
+                    fill
+                    className='rounded-lg object-cover'
+                    alt='pass'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-white font-bold'>{pass.category}</span>
+                    <span className='text-purple-400'>{pass.price} SOL</span>
+                  </div>
+                  <div className='flex justify-between items-center text-sm text-gray-400'>
+                    <span>Mints: {pass.mintCount}</span>
+                    {pass.expirationDays && (
+                      <span>Expires: {pass.expirationDays} days</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDeletePass(pass._id)}
+                    className='w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg mt-4'
+                  >
+                    Delete Pass
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <CreatePassModal
+            isOpen={showCreatePass}
+            onClose={() => setShowCreatePass(false)}
+            onSubmit={handleCreatePass}
+          />
         </div>
       )}
     </div>

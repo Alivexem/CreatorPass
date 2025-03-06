@@ -1,13 +1,24 @@
 'use client'
 import React from 'react';
 
+interface Comment {
+    address: string;
+    text: string;
+    timestamp: Date;
+}
+
+interface Post {
+    _id: string;
+    comments?: Comment[];
+}
+
 interface CommentSectionProps {
-    post: any;
+    post: Post;
     handleComment: (e: React.FormEvent) => void;
     newComment: string;
     setNewComment: (value: string) => void;
     isCommentLoading: boolean;
-    censorAddress: (address: string) => string;
+    censorAddress?: (address: string) => string;
 }
 
 const CommentSection = ({
@@ -46,7 +57,7 @@ const CommentSection = ({
                     .map((comment: any, idx: number) => (
                         <div key={idx} className='bg-[#272B30] p-3 rounded-lg'>
                             <p className='text-gray-400 text-sm font-mono mb-1'>
-                                {censorAddress(comment.address)}
+                                {censorAddress ? censorAddress(comment.address) : comment.address}
                             </p>
                             <p className='text-white text-sm'>{comment.comment}</p>
                         </div>

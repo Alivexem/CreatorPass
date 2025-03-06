@@ -17,12 +17,16 @@ interface Post {
     username: string;
     note: string;
     image?: string;
+    category: string;
+    mediaType: "image" | "video" | "none";
+    mediaUrl?: string;
+    tier: "Free" | "Bronze" | "Silver" | "Gold";
     comments?: Array<{
         address: string;
-        comment: string;
-        timestamp?: Date;
+        text: string;
+        timestamp: Date;
     }>;
-    likes?: string[];
+    likes: string[];
     likeCount?: number;
 }
 
@@ -331,7 +335,8 @@ const Content = ({ setToast }: ContentProps) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     address, 
-                    comment: newComment[postId].trim() 
+                    text: newComment[postId].trim(),
+                    timestamp: new Date()
                 })
             });
 
@@ -422,6 +427,7 @@ const Content = ({ setToast }: ContentProps) => {
                                 key={post._id}
                                 post={post}
                                 userProfile={userProfile}
+                                userAddress={localStorage.getItem('address') || ''}
                                 hasLiked={hasLiked[post._id]}
                                 likes={likes[post._id] || post.likeCount || 0}
                                 showComments={showComments[post._id]}
@@ -431,7 +437,7 @@ const Content = ({ setToast }: ContentProps) => {
                                     ...prev, 
                                     [post._id]: !prev[post._id] 
                                 }))}
-                                handleComment={(e) => handleComment(e, post._id)}
+                                onComment={(e: React.FormEvent) => handleComment(e, post._id)}
                                 newComment={newComment[post._id] || ''}
                                 setNewComment={(value) => setNewComment(prev => ({
                                     ...prev,

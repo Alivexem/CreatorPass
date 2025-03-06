@@ -17,7 +17,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { RiGalleryFill } from "react-icons/ri";
 import CreatorChat from '@/components/CreatorChat';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { SwipeableCard } from '@/components/SwipeableCard';
 
 interface Profile {
   address: string;
@@ -38,38 +39,58 @@ const CreatorsPage = () => {
   const [highlightedCreator, setHighlightedCreator] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: string }>({ show: false, message: '', type: '' });
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const res = await fetch('/api/profiles');
+        const res = await fetch('/api/profiles', {
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const data = await res.json();
-        if (data.profiles) {
+        if (data.profiles && Array.isArray(data.profiles)) {
           // Get the highlight parameter from URL
           const params = new URLSearchParams(window.location.search);
           const highlightAddress = params.get('highlight');
 
           if (highlightAddress) {
-            // Find the highlighted creator
-            const highlightedProfile = data.profiles.find(
+            const index = data.profiles.findIndex(
               (profile: Profile) => profile.address === highlightAddress
             );
-
-            if (highlightedProfile) {
-              // Set the current index to show the highlighted creator
-              const index = data.profiles.findIndex(
-                (profile: Profile) => profile.address === highlightAddress
-              );
-              setCurrentIndex(index >= 0 ? index : 0);
+            if (index >= 0) {
+              setCurrentIndex(index);
               setHighlightedCreator(highlightAddress);
             }
           }
 
           setProfiles(data.profiles);
+        } else {
+          throw new Error('Invalid profiles data format');
         }
       } catch (error) {
         console.error('Error fetching profiles:', error);
+        setToast({
+          show: true,
+          message: 'Failed to load creators',
+          type: 'error'
+        });
       } finally {
         setLoading(false);
       }
@@ -91,7 +112,7 @@ const CreatorsPage = () => {
       // Fetch user profile when address is available
       fetchUserProfile(address);
     }
-  }, []);
+  }, [pathname]);
 
   const fetchUserProfile = async (address: string) => {
     try {
@@ -105,37 +126,15 @@ const CreatorsPage = () => {
     }
   };
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % profiles.length);
-  };
-
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + profiles.length) % profiles.length);
-  };
-
-  const handleTouchStart = (e: TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const minSwipeDistance = 50;
-
-    if (Math.abs(distance) < minSwipeDistance) return;
-
-    if (distance > 0) {
-      // Swiped left
-      handleNext();
-    } else {
-      // Swiped right
-      handlePrevious();
+  const handleSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && currentIndex < profiles.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      // Reset states for new creator
+      setSelectedChat(null);
+    } else if (direction === 'right' && currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+      // Reset states for new creator
+      setSelectedChat(null);
     }
   };
 
@@ -190,6 +189,40 @@ const CreatorsPage = () => {
   // Add highlight effect to the creator card if it matches the highlighted address
   const isHighlighted = currentProfile && currentProfile.address === highlightedCreator;
 
+  const handleTouchStart = (e: TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!touchStart) return;
+
+    const currentTouch = e.touches[0].clientX;
+    const diff = touchStart - currentTouch;
+
+    if (diff > 50 && currentIndex < profiles.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setTouchStart(0);
+    } else if (diff < -50 && currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+      setTouchStart(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStart(0);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black">
+        <NavBar />
+        <div className="flex justify-center items-center h-[80vh]">
+          <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen bg-black'>
       <NavBar />
@@ -210,7 +243,7 @@ const CreatorsPage = () => {
               <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
                 Chat creators, view their posts where you have access to like, comment, gift and interact in their private rooms.
               </p>
-              <div className='bg-purple-500/20 text-purple-400 px-6 py-3 rounded-xl inline-block'>
+              <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
                 Access your favourite creators
               </div>
             </div>
@@ -218,95 +251,87 @@ const CreatorsPage = () => {
         </motion.div>
       </div>
 
-      {loading ? (
-        <div className='flex justify-center items-center h-[500px]'>
-          <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
-        </div>
-      ) : (
-        <div className='relative max-w-6xl mx-auto px-4 py-20'>
-          <div className='flex items-center justify-center gap-8'>
-            <button
-              onClick={handlePrevious}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= 1}
-            >
-              <FaArrowAltCircleLeft className='text-3xl' />
-            </button>
-
-            {currentProfile && (
-              <motion.div
-                className="flex flex-col items-center"
-                animate={{
-                  x: selectedChat ? -100 : 0
-                }}
-                transition={{ duration: 0.5 }}
+      {profiles.length > 0 && (
+        <div className="relative pb-[100px] md:mb-10 mt-14 md:pb-0">
+          <div 
+            className="flex overflow-x-hidden"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {profiles.map((profile, index) => (
+              <div
+                key={profile.address}
+                className={`w-full px-4 md:px-10 flex-shrink-0 transition-transform duration-300 ${
+                  index === currentIndex ? 'block' : 'hidden'
+                }`}
               >
-                <Link href={`/creator/${currentProfile.address}`}>
-                  <div
-                    onTouchStart={handleTouchStart}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl 
-                      bg-gradient-to-r from-blue-500 to-purple-600 
-                      transform hover:scale-105 transition-all duration-300
-                      ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
+                <div className="max-w-[500px] mx-auto">
+                  <SwipeableCard
+                    onSwipe={handleSwipe}
+                    isMobile={isMobile}
                   >
-                    <div className='p-6 text-center'>
-                      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-                      <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
-                    </div>
-                    <div className='bg-[#080e0e] p-6 space-y-4'>
-                      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-                      <Image
-                        src={currentProfile.profileImage || '/empProfile.png'}
-                        className='rounded-lg w-full h-48 object-cover'
-                        height={70}
-                        width={150}
-                        alt='profile'
-                      />
-                      <div className='flex items-center justify-center gap-3'>
-                        <RiHeart2Line className='text-white' />
-                        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{currentProfile.username}</p>
-                        <RiHeart2Line className='text-white' />
+                    <div className="w-full bg-gray-800 rounded-xl p-6 shadow-xl relative">
+                      <div className="relative h-72 w-full mb-4">
+                        <Image
+                          src={profile.profileImage || '/empProfile.png'}
+                          fill
+                          className="rounded-xl object-cover"
+                          alt={profile.username}
+                        />
                       </div>
-                      <p className='text-gray-300 text-center text-sm'>{currentProfile.about}</p>
+                      <h2 className="text-2xl font-bold text-white mb-2">{profile.username}</h2>
+                      <p className="text-gray-300 mb-4">{profile.about}</p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleChatClick(profile.address);
+                        }}
+                        className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 w-full justify-center z-20 relative"
+                      >
+                        <IoChatbubbleEllipsesOutline className="text-xl" />
+                        <span>Chat {profile.username}</span>
+                      </button>
+                      <Link href={`/creator/${profile.address}`} className="block relative z-20">
+                        <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
+                          <RiGalleryFill className="text-xl" />
+                          <span>View Posts</span>
+                        </button>
+                      </Link>
                     </div>
-                  </div>
-                </Link>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleChatClick(currentProfile.address);
-                  }}
-                  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
-                >
-                  <IoChatbubbleEllipsesOutline className="text-xl" />
-                  <span>Chat {currentProfile.username}</span>
-                </button>
-                <Link href={`/creator/${currentProfile.address}`}>
-                  <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
-                    <RiGalleryFill className="text-xl" />
-                    <span>View Posts</span>
-                  </button>
-                </Link>
-              </motion.div>
-            )}
-
-            <button
-              onClick={handleNext}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= 1}
-            >
-              <FaArrowAltCircleRight className='text-3xl' />
-            </button>
+                  </SwipeableCard>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      )}
 
-      {/* Remove the old Swipe Modal and replace with Toast */}
-      {showSwipeModal && (
-        <div className="fixed top-4 right-4 md:hidden bg-orange-600 text-white p-4 rounded-lg shadow-lg z-50">
-          <p className="text-sm">Swipe left to see more creators</p>
+          {/* Update navigation arrows to work on all devices */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (currentIndex === 0) {
+                setCurrentIndex(profiles.length - 1);
+              } else {
+                setCurrentIndex(currentIndex - 1);
+              }
+            }}
+            className="absolute left-2 md:left-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors z-30"
+          >
+            <FaArrowAltCircleLeft size={32} />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (currentIndex === profiles.length - 1) {
+                setCurrentIndex(0);
+              } else {
+                setCurrentIndex(currentIndex + 1);
+              }
+            }}
+            className="absolute right-2 md:right-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors z-30"
+          >
+            <FaArrowAltCircleRight size={32} />
+          </button>
         </div>
       )}
 
