@@ -322,7 +322,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         {/* Input */}
         <form 
           onSubmit={sendMessage} 
-          className="p-4 bg-[#232629] chat-input-form fixed bottom-0 left-0 right-0 md:relative transition-transform"
+          className="p-4 bg-[#232629] chat-input-form fixed bottom-[80px] md:bottom-0 left-0 right-0 md:relative transition-transform"
         >
           <div className="flex gap-2 items-center max-w-[500px] mx-auto">
             <button

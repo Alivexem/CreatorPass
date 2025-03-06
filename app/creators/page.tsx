@@ -17,8 +17,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { RiGalleryFill } from "react-icons/ri";
 import CreatorChat from '@/components/CreatorChat';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { SwipeableCard } from '@/components/SwipeableCard';
+import { FiSearch } from "react-icons/fi";
 
 interface Profile {
   address: string;
@@ -41,6 +42,11 @@ const CreatorsPage = () => {
   const [toast, setToast] = useState<{ show: boolean; message: string; type: string }>({ show: false, message: '', type: '' });
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const searchRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMobile(window.innerWidth <= 768);
@@ -100,7 +106,7 @@ const CreatorsPage = () => {
       // Fetch user profile when address is available
       fetchUserProfile(address);
     }
-  }, []);
+  }, [pathname]);
 
   const fetchUserProfile = async (address: string) => {
     try {
@@ -196,6 +202,39 @@ const CreatorsPage = () => {
     setTouchStart(0);
   };
 
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const trimmedSearch = searchTerm.trim();
+    if (!trimmedSearch) return;
+
+    try {
+      const res = await fetch('/api/profiles');
+      const data = await res.json();
+
+      const foundUser = data.profiles.find((profile: any) =>
+        profile.username.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+        profile.address.toLowerCase().includes(trimmedSearch.toLowerCase())
+      );
+
+      if (foundUser) {
+        setSearchTerm('');
+        setShowMobileSearch(false);
+        setSearchError(null);
+        router.push(`/creators?highlight=${foundUser.address}`);
+      } else {
+        setSearchError('User not found');
+        setTimeout(() => setSearchError(null), 3000);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchError('Search failed');
+      setTimeout(() => setSearchError(null), 3000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black">
@@ -236,7 +275,7 @@ const CreatorsPage = () => {
       </div>
 
       {profiles.length > 0 && (
-        <div className="relative pb-[100px] md:pb-0">
+        <div className="relative pb-[100px] mt-14 md:pb-0">
           <div 
             className="flex overflow-x-hidden"
             onTouchStart={handleTouchStart}
@@ -288,16 +327,26 @@ const CreatorsPage = () => {
 
           {/* Navigation Arrows (Visible on both mobile and desktop) */}
           <button
-            onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-            className="absolute left-2 md:left-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-30"
-            disabled={currentIndex === 0}
+            onClick={() => {
+              if (currentIndex === 0) {
+                setCurrentIndex(profiles.length - 1); // Go to last profile if at start
+              } else {
+                setCurrentIndex(currentIndex - 1);
+              }
+            }}
+            className="absolute left-2 md:left-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
           >
             <FaArrowAltCircleLeft size={32} />
           </button>
           <button
-            onClick={() => setCurrentIndex(Math.min(profiles.length - 1, currentIndex + 1))}
-            className="absolute right-2 md:right-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-30"
-            disabled={currentIndex === profiles.length - 1}
+            onClick={() => {
+              if (currentIndex === profiles.length - 1) {
+                setCurrentIndex(0); // Go to first profile if at end
+              } else {
+                setCurrentIndex(currentIndex + 1);
+              }
+            }}
+            className="absolute right-2 md:right-10 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
           >
             <FaArrowAltCircleRight size={32} />
           </button>
@@ -355,6 +404,32 @@ const CreatorsPage = () => {
       )}
 
       <Footer />
+
+      <div ref={searchRef} className='absolute bottom-[80px] right-[5vw] bg-white p-4 rounded-lg shadow-lg w-[300px]' onClick={(e) => e.stopPropagation()}>
+        <div className='flex gap-2'>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search creators..."
+            className="flex-1 p-2 border rounded-lg text-black"
+          />
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSearch();
+            }}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg"
+          >
+            <FiSearch />
+          </button>
+        </div>
+        {searchError && (
+          <p className="text-red-500 text-sm mt-2 text-center">
+            {searchError}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
