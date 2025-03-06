@@ -7,7 +7,6 @@ import { MdAddCircle } from "react-icons/md";
 import { FaImages } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import PostCard from '@/components/PostCard';
-import { IoMdClose } from "react-icons/io";
 
 interface ContentProps {
   setToast: (toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
@@ -17,9 +16,11 @@ interface Post {
     _id: string;
     username: string;
     note: string;
+    image?: string;
     category: string;
-    mediaType: 'none' | 'image' | 'video';
+    mediaType: "image" | "video" | "none";
     mediaUrl?: string;
+    tier: "Free" | "Bronze" | "Silver" | "Gold";
     comments?: Array<{
         address: string;
         text: string;
@@ -27,14 +28,6 @@ interface Post {
     }>;
     likes: string[];
     likeCount?: number;
-    tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
-}
-
-interface PostData {
-  note: string;
-  mediaType: 'none' | 'image' | 'video';
-  mediaUrl?: string;
-  tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
 }
 
 const Content = ({ setToast }: ContentProps) => {
@@ -56,10 +49,6 @@ const Content = ({ setToast }: ContentProps) => {
     const [isCommentLoading, setIsCommentLoading] = useState<{ [key: string]: boolean }>({});
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImage, setModalImage] = useState('');
-    const [passTier, setPassTier] = useState<'Free' | 'Bronze' | 'Silver' | 'Gold'>('Free');
-    const [userAddress, setUserAddress] = useState('');
-    const [showCommentModal, setShowCommentModal] = useState<string | null>(null);
-    const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -129,8 +118,13 @@ const Content = ({ setToast }: ContentProps) => {
     }, []);
 
     const handleDelete = async (postId: string) => {
+        setPostToDelete(postId);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
         try {
-            const res = await fetch(`/api/posts/${postId}`, {
+            const res = await fetch(`/api/${postToDelete}`, {
                 method: 'DELETE'
             });
 
@@ -156,11 +150,10 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
-    const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const isVideo = file.type.startsWith('video/');
         const reader = new FileReader();
         reader.readAsDataURL(file);
         setLoading(true);
@@ -169,7 +162,7 @@ const Content = ({ setToast }: ContentProps) => {
             const base64data = reader.result;
 
             try {
-                const res = await fetch(isVideo ? "/api/videoApi" : "/api/imageApi", {
+                const res = await fetch("/api/imageApi", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -184,80 +177,93 @@ const Content = ({ setToast }: ContentProps) => {
                 const data = await res.json();
                 setimage(data.url);
                 setSelectedImage(URL.createObjectURL(file));
-                setMediaType(isVideo ? 'video' : 'image');
             } catch (error) {
-                console.error('Error uploading media:', error);
+                console.error('Error uploading image:', error);
                 setToast({
                     show: true,
-                    message: 'Failed to upload media. Please try again.',
+                    message: 'Failed to upload image. Please try again.',
                     type: 'error'
                 });
             } finally {
                 setLoading(false);
             }
         };
+
+        reader.onerror = () => {
+            setToast({
+                show: true,
+                message: 'Error reading file. Please try again.',
+                type: 'error'
+            });
+            setLoading(false);
+        };
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!note.trim()) return;
+        if (!note) {
+            setToast({
+                show: true,
+                message: 'Type a post before submitting!',
+                type: 'warning'
+            });
+            return;
+        }
 
-        setLoading(true);
-        setPostText('Processing...');
+        setPostText('Loading...');
+        const myAddress = localStorage.getItem('address');
 
         try {
-            const address = localStorage.getItem('address');
-            if (!address) {
-                setToast({
-                    show: true,
-                    message: 'Please connect your wallet first',
-                    type: 'warning'
-                });
-                return;
+            const profileRes = await fetch(`/api/profile?address=${myAddress}`);
+            const profileData = await profileRes.json();
+
+            if (!profileData.profile) {
+                throw new Error('Profile not found, setup your profile');
             }
 
-            const postData = {
-                note,
-                mediaType: mediaType,
-                mediaUrl: image,
-                address,
-                tier: passTier,
-                username: userProfile?.username,
-                category: 'post'
+            const fullData = {
+                username: myAddress,
+                note: note.trim(),
+                image: image || ''
             };
 
-            const res = await fetch('/api/posts', {
+            const res = await fetch('/api', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify(postData),
+                body: JSON.stringify(fullData)
             });
 
-            if (!res.ok) throw new Error('Failed to create post');
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
 
-            // Reset form and fetch updated posts
-            setNote('');
-            setimage('');
-            setSelectedImage('');
-            setShowUploader(false);
-            setPassTier('Free');
-            await fetchPosts();
-            
+            const data = await res.json();
+
+            if (data.message === 'Post uploaded') {
+                setToast({
+                    show: true,
+                    message: 'Posted successfully!',
+                    type: 'success'
+                });
+                setNote('');
+                setimage('');
+                setSelectedImage('');
+                setShowUploader(false);
+                fetchPosts();
+            } else {
+                throw new Error(data.message || 'Failed to upload post');
+            }
+        } catch (error: any) {
+            console.error('Submission error:', error);
             setToast({
                 show: true,
-                message: 'Post created successfully!',
-                type: 'success'
-            });
-        } catch (error) {
-            console.error('Error creating post:', error);
-            setToast({
-                show: true,
-                message: 'Failed to create post',
+                message: error.message || 'Failed to upload post, please try again',
                 type: 'error'
             });
         } finally {
-            setLoading(false);
             setPostText('Post');
         }
     };
@@ -329,7 +335,8 @@ const Content = ({ setToast }: ContentProps) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     address, 
-                    comment: newComment[postId].trim() 
+                    text: newComment[postId].trim(),
+                    timestamp: new Date()
                 })
             });
 
@@ -419,21 +426,24 @@ const Content = ({ setToast }: ContentProps) => {
                             <PostCard
                                 key={post._id}
                                 post={post}
-                                userAddress={userAddress}
                                 userProfile={userProfile}
+                                userAddress={localStorage.getItem('address') || ''}
                                 hasLiked={hasLiked[post._id]}
                                 likes={likes[post._id] || post.likeCount || 0}
                                 showComments={showComments[post._id]}
                                 onLike={() => handleLike(post._id)}
                                 onDelete={() => handleDelete(post._id)}
-                                onToggleComments={() => setShowCommentModal(post._id)}
+                                onToggleComments={() => setShowComments(prev => ({ 
+                                    ...prev, 
+                                    [post._id]: !prev[post._id] 
+                                }))}
                                 onComment={(e: React.FormEvent) => handleComment(e, post._id)}
                                 newComment={newComment[post._id] || ''}
-                                setNewComment={(value: string) => setNewComment(prev => ({
+                                setNewComment={(value) => setNewComment(prev => ({
                                     ...prev,
                                     [post._id]: value
                                 }))}
-                                isCommentLoading={!!isCommentLoading[post._id]}
+                                isCommentLoading={isCommentLoading[post._id]}
                                 censorAddress={censorAddress}
                                 onImageClick={(imageUrl) => {
                                     setModalImage(imageUrl);
@@ -452,7 +462,7 @@ const Content = ({ setToast }: ContentProps) => {
                             <p className='text-gray-300 mb-6'>Are you sure you want to delete this post? This action cannot be undone.</p>
                             <div className='flex gap-4'>
                                 <button
-                                    onClick={() => handleDelete(postToDelete!)}
+                                    onClick={confirmDelete}
                                     className='flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors'
                                 >
                                     Delete
@@ -524,7 +534,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 const input = document.createElement('input');
                                                 input.type = 'file';
                                                 input.files = e.dataTransfer.files;
-                                                handleMediaChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
+                                                handleImageChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
                                             }
                                         }}
                                     >
@@ -542,7 +552,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                         type="button"
                                                         onClick={() => {
                                                             setSelectedImage('');
-                                                            const input = document.getElementById('media-upload') as HTMLInputElement;
+                                                            const input = document.getElementById('image-upload') as HTMLInputElement;
                                                             if (input) {
                                                                 input.value = '';
                                                                 input.click();
@@ -550,22 +560,22 @@ const Content = ({ setToast }: ContentProps) => {
                                                         }}
                                                         className='bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors'
                                                     >
-                                                        Change Media
+                                                        Change Image
                                                     </button>
                                                 </div>
                                             </div>
                                         ) : (
-                                            <label htmlFor="media-upload" className='block h-full'>
+                                            <label htmlFor="image-upload" className='block h-full'>
                                                 <div className='h-full border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
                                                     <FaImages className="text-4xl text-gray-400" />
-                                                    <p className='text-gray-400 text-center'>Click or drag media to upload</p>
+                                                    <p className='text-gray-400 text-center'>Click or drag image to upload</p>
                                                 </div>
                                                 <input 
                                                     type="file"
-                                                    id="media-upload"
+                                                    id="image-upload"
                                                     className='hidden'
-                                                    accept="image/*,video/*"
-                                                    onChange={handleMediaChange}
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
                                                 />
                                             </label>
                                         )}
@@ -574,23 +584,9 @@ const Content = ({ setToast }: ContentProps) => {
                                     {loading && (
                                         <div className='text-green-500 flex items-center gap-2'>
                                             <div className='animate-spin h-4 w-4 border-2 border-green-500 border-t-transparent rounded-full'></div>
-                                            Processing media...
+                                            Processing image...
                                         </div>
                                     )}
-
-                                    <div className="mb-4">
-                                        <label className="block text-gray-300 mb-2">Post Tier</label>
-                                        <select 
-                                            value={passTier}
-                                            onChange={(e) => setPassTier(e.target.value as 'Free' | 'Bronze' | 'Silver' | 'Gold')}
-                                            className="w-full bg-gray-700 rounded-lg p-3 text-white"
-                                        >
-                                            <option value="Free">Free</option>
-                                            <option value="Bronze">Bronze Pass</option>
-                                            <option value="Silver">Silver Pass</option>
-                                            <option value="Gold">Gold Pass</option>
-                                        </select>
-                                    </div>
 
                                     <textarea 
                                         value={note}
@@ -614,55 +610,6 @@ const Content = ({ setToast }: ContentProps) => {
                                         ) : postText}
                                     </button>
                                 </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-
-                {/* Comment Modal */}
-                {showCommentModal && (
-                    <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
-                        <div className='bg-[#2A2D2F] p-6 rounded-xl max-w-lg w-full mx-4'>
-                            <div className='flex justify-between items-center mb-4'>
-                                <h3 className='text-xl text-white font-semibold'>Comments</h3>
-                                <button 
-                                    onClick={() => setShowCommentModal(null)}
-                                    className='text-gray-400 hover:text-white'
-                                >
-                                    <IoMdClose size={24} />
-                                </button>
-                            </div>
-                            
-                            <div className='max-h-[60vh] overflow-y-auto mb-4'>
-                                {posts.find(p => p._id === showCommentModal)?.comments?.map((comment, index) => (
-                                    <div key={index} className='bg-gray-800 rounded-lg p-3 mb-2'>
-                                        <p className='text-gray-400 text-sm'>{censorAddress(comment.address)}</p>
-                                        <p className='text-white'>{comment.text}</p>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                handleComment(e, showCommentModal);
-                            }} className='flex gap-2'>
-                                <input
-                                    type='text'
-                                    value={newComment[showCommentModal] || ''}
-                                    onChange={(e) => setNewComment(prev => ({
-                                        ...prev,
-                                        [showCommentModal]: e.target.value
-                                    }))}
-                                    placeholder='Add a comment...'
-                                    className='flex-1 bg-gray-800 text-white rounded-lg px-4 py-2'
-                                />
-                                <button 
-                                    type='submit'
-                                    className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700'
-                                    disabled={isCommentLoading[showCommentModal]}
-                                >
-                                    {isCommentLoading[showCommentModal] ? 'Sending...' : 'Send'}
-                                </button>
                             </form>
                         </div>
                     </div>
