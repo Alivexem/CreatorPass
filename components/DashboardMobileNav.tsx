@@ -35,7 +35,7 @@ const DashboardMobileNav = ({
     <div className='h-[80px] px-4 border-purple-600 border-t pt-3 box-border flex items-center justify-between w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
       <Link href='/welcome'>
         <div className='flex flex-col cursor-pointer items-center space-y-2'>
-          <GoHomeFill className="text-xl" />
+          <GoHomeFill className="text-lg" />
           <p className='text-[0.7rem]'>Home</p>
         </div>
       </Link>
@@ -44,7 +44,7 @@ const DashboardMobileNav = ({
         onClick={onShowDashboard}
         className='flex flex-col items-center space-y-2'
       >
-        <RxDashboard className={`text-xl ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`} />
+        <RxDashboard className={`text-lg ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`} />
         <p className={`text-[0.7rem] ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
       </button>
 
@@ -52,7 +52,7 @@ const DashboardMobileNav = ({
         onClick={onShowContent}
         className='flex flex-col items-center space-y-2'
       >
-        <FaDatabase className={`text-xl ${activeSection === 'content' ? 'text-purple-500' : ''}`} />
+        <FaDatabase className={`text-lg ${activeSection === 'content' ? 'text-purple-500' : ''}`} />
         <p className={`text-[0.7rem] ${activeSection === 'content' ? 'text-purple-500' : ''}`}>Content</p>
       </button>
 
@@ -60,7 +60,7 @@ const DashboardMobileNav = ({
         onClick={onShowProfile}
         className='flex flex-col items-center space-y-2'
       >
-        <RiProfileFill className={`text-xl ${activeSection === 'profile' ? 'text-purple-500' : ''}`} />
+        <RiProfileFill className={`text-lg ${activeSection === 'profile' ? 'text-purple-500' : ''}`} />
         <p className={`text-[0.7rem] ${activeSection === 'profile' ? 'text-purple-500' : ''}`}>Profile</p>
       </button>
 
@@ -68,7 +68,7 @@ const DashboardMobileNav = ({
         onClick={handleDisconnect}
         className='flex flex-col items-center space-y-2'
       >
-        <MdLogout className="text-xl" />
+        <MdLogout className="text-lg" />
         <p className='text-[0.7rem]'>Logout</p>
       </button>
     </div>

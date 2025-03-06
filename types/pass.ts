@@ -17,7 +17,14 @@ export interface Pass {
   ownerUsername: string;
   ownerImage: string;
   cardTag: string;
-  rules: PassRules;
+  rules: {
+    canComment: boolean;
+    canLike: boolean;
+    canDownload: boolean;
+    canChat: boolean;
+    canViewExclusive: boolean;
+    canGift: boolean;
+  };
   owners: string[]; // List of addresses that own this pass
 }
 

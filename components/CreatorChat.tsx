@@ -250,7 +250,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
-        className="md:fixed md:right-0 md:top-0 h-[89vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
+        className="md:fixed md:right-0 md:top-0 h-[89vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50 pb-[100px] md:pb-0"
       >
         {/* Header */}
         <div className="bg-purple-900 p-4 mb-5 flex items-center justify-between">
@@ -273,95 +273,95 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         </div>
 
         {/* Messages */}
-        <div
-          ref={chatContainerRef}
-          className="flex-1 overflow-y-auto p-4 space-y-4"
-        >
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              onMouseEnter={() => handleMouseEnter(message.id)}
-              onMouseLeave={handleMouseLeave}
-              className={`flex ${message.sender.address === userAddress ? 'justify-end' : 'justify-start'} group`}
-            >
-              <div className={`max-w-[70%] break-words ${
-                message.sender.address === userAddress ? 'items-end' : 'items-start'
-              }`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Image
-                    src={message.sender.profileImage || '/empProfile.png'}
-                    alt={message.sender.username}
-                    width={24}
-                    height={24}
-                    className="rounded-full h-[24px] w-[24px] object-cover"
-                  />
-                  <span className="text-xs text-gray-400">{message.sender.username}</span>
-                </div>
-                <div className={`rounded-2xl px-4 py-2 ${
-                  message.sender.address === userAddress
-                    ? 'bg-blue-600 rounded-tr-none'
-                    : 'bg-gray-700 rounded-tl-none'
+        <div className="flex flex-col h-full">
+          {/* Chat messages container */}
+          <div className="flex-1 overflow-y-auto pb-[70px] md:pb-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                onMouseEnter={() => handleMouseEnter(message.id)}
+                onMouseLeave={handleMouseLeave}
+                className={`flex ${message.sender.address === userAddress ? 'justify-end' : 'justify-start'} group`}
+              >
+                <div className={`max-w-[70%] break-words ${
+                  message.sender.address === userAddress ? 'items-end' : 'items-start'
                 }`}>
-                  <p className="text-white text-sm whitespace-pre-wrap break-words">
-                    {message.text}
-                  </p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Image
+                      src={message.sender.profileImage || '/empProfile.png'}
+                      alt={message.sender.username}
+                      width={24}
+                      height={24}
+                      className="rounded-full h-[24px] w-[24px] object-cover"
+                    />
+                    <span className="text-xs text-gray-400">{message.sender.username}</span>
+                  </div>
+                  <div className={`rounded-2xl px-4 py-2 ${
+                    message.sender.address === userAddress
+                      ? 'bg-blue-600 rounded-tr-none'
+                      : 'bg-gray-700 rounded-tl-none'
+                  }`}>
+                    <p className="text-white text-sm whitespace-pre-wrap break-words">
+                      {message.text}
+                    </p>
+                  </div>
+                  <span className={`text-xs text-gray-400 mt-1 block ${
+                    message.sender.address === userAddress ? 'text-right' : 'text-left'
+                  }`}>
+                    {new Date(message.timestamp).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
                 </div>
-                <span className={`text-xs text-gray-400 mt-1 block ${
-                  message.sender.address === userAddress ? 'text-right' : 'text-left'
-                }`}>
-                  {new Date(message.timestamp).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Input */}
-        <form 
-          onSubmit={sendMessage} 
-          className="p-4 bg-[#232629] chat-input-form fixed bottom-[80px] md:bottom-0 left-0 right-0 md:relative transition-transform"
-        >
-          <div className="flex gap-2 items-center max-w-[500px] mx-auto">
-            <button
-              ref={emojiButtonRef}
-              type="button"
-              onClick={() => setShowEmoji(!showEmoji)}
-              className="text-gray-400 hover:text-white"
-            >
-              <BsEmojiSmile size={20} />
-            </button>
-            
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
-              className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
-            />
-            
-            <button
-              type="submit"
-              disabled={!userProfile?.username}
-              className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-            >
-              <IoSend size={20} />
-            </button>
+            ))}
           </div>
 
-          {showEmoji && (
-            <div ref={emojiRef} className="absolute bottom-20 right-4">
-              <Picker
-                data={data}
-                onEmojiSelect={onEmojiSelect}
-                theme="dark"
+          {/* Input section - fixed at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gray-900 p-4">
+            <form 
+              onSubmit={sendMessage} 
+              className="flex gap-2 items-center max-w-[500px] mx-auto"
+            >
+              <button
+                ref={emojiButtonRef}
+                type="button"
+                onClick={() => setShowEmoji(!showEmoji)}
+                className="text-gray-400 hover:text-white"
+              >
+                <BsEmojiSmile size={20} />
+              </button>
+              
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your message..."
+                className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
               />
-            </div>
-          )}
-        </form>
+              
+              <button
+                type="submit"
+                disabled={!userProfile?.username}
+                className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+              >
+                <IoSend size={20} />
+              </button>
+            </form>
+
+            {showEmoji && (
+              <div ref={emojiRef} className="absolute bottom-20 right-4">
+                <Picker
+                  data={data}
+                  onEmojiSelect={onEmojiSelect}
+                  theme="dark"
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </motion.div>
     </>
   );
