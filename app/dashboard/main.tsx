@@ -161,7 +161,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
               </div>
 
               {/* Quick Stats */}
-              <div className='grid md:grid-cols-3 gap-6'>
+              {/* <div className='grid md:grid-cols-3 gap-6'>
                 {[
                   {
                     title: 'Total Followers',
@@ -194,7 +194,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                     </div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
