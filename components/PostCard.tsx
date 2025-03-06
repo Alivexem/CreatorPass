@@ -42,6 +42,9 @@ interface PostCardProps {
     onImageClick?: (imageUrl: string) => void;
     onDelete?: () => void;
     onToggleComments?: () => void;
+    onDownload?: () => void;
+    onGift?: () => void;
+    children?: React.ReactNode;
 }
 
 // Or alternatively, create a ToastType type
@@ -62,7 +65,10 @@ const PostCard: React.FC<PostCardProps> = ({
     censorAddress,
     onImageClick,
     onDelete,
-    onToggleComments
+    onToggleComments,
+    onDownload,
+    onGift,
+    children
 }) => {
     const [toast, setToast] = useState<{
         show: boolean;

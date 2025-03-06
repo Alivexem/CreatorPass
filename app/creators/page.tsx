@@ -118,8 +118,12 @@ const CreatorsPage = () => {
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'left' && currentIndex < profiles.length - 1) {
       setCurrentIndex(prev => prev + 1);
+      // Reset states for new creator
+      setSelectedChat(null);
     } else if (direction === 'right' && currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
+      // Reset states for new creator
+      setSelectedChat(null);
     }
   };
 
