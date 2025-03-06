@@ -1,26 +1,15 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { IoHeartHalf } from "react-icons/io5";
-import { FaCommentMedical } from "react-icons/fa6";
-import { FaGift } from "react-icons/fa6";
-import { FaCopy } from "react-icons/fa";
-import { IoMdClose } from "react-icons/io";
-import { GiFlowerPot, GiRing } from "react-icons/gi";
-import { FaLaptopHouse } from "react-icons/fa";
-import { IoArrowBack } from "react-icons/io5";
 import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
-import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect, PublicKey, Transaction, SystemProgram, Provider } from '../../../utils/reown';
-import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
-import { FaCar } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
-import { IoFlash } from "react-icons/io5";
-import { IoSend } from "react-icons/io5";
 import PostCard from '@/components/PostCard';
-import { PassGateCheck } from '@/components/PassGateCheck';
 import Toast from '@/components/Toast';
-import { Pass } from "@/types/pass";
+import { IoFlash, IoClose } from "react-icons/io5";
+import { FaGift, FaCopy, FaDownload, FaCar, FaLaptopHouse } from "react-icons/fa";
+import { GiFlowerPot } from "react-icons/gi";
+import { useAppKit, useAppKitProvider, PublicKey, Transaction, SystemProgram, Provider } from '../../../utils/reown';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
 
 interface Post {
     _id: string;
@@ -29,16 +18,25 @@ interface Post {
     image: string;
     createdAt: string;
     category: string;
-    comments?: Array<{
-        address: string;
-        text: string;
-        timestamp: Date;
-    }>;
-    likes: string[];
-    likeCount?: number;
+    tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
     mediaType: 'none' | 'image' | 'video';
     mediaUrl?: string;
-    tier: 'Free' | 'Bronze' | 'Silver' | 'Gold';
+    comments?: Comment[];
+    likes: string[];
+    likeCount?: number;
+    gifts?: Array<{
+        from: string;
+        amount: number;
+        timestamp: Date;
+    }>;
+}
+
+interface Comment {
+    address: string;
+    username: string;
+    profileImage?: string;
+    text: string;
+    timestamp: Date;
 }
 
 interface Profile {
@@ -60,82 +58,151 @@ interface PageProps {
     }
 }
 
-const PassModal = ({ onClose, creatorAddress }: { onClose: () => void, creatorAddress: string }) => {
-    const router = useRouter();
-
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-gray-800 p-6 rounded-xl max-w-md w-full mx-4">
-                <h3 className="text-xl font-bold text-white mb-4">Premium Content</h3>
-                <p className="text-gray-300 mb-6">
-                    This creator has premium content available. Mint a pass to access exclusive posts and features.
-                </p>
-                <div className="space-y-4">
-                    <button
-                        onClick={() => router.push(`/passes?creator=${creatorAddress}`)}
-                        className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700"
-                    >
-                        View Available Passes
-                    </button>
-                    <button
-                        onClick={onClose}
-                        className="w-full bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-600"
-                    >
-                        View Free Content
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 const CreatorPage = ({ params }: PageProps) => {
     const { id } = params;
     const router = useRouter();
     const [posts, setPosts] = useState<Post[]>([]);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
-    const [showGiftModal, setShowGiftModal] = useState(false);
-    const [copySuccess, setCopySuccess] = useState(false);
-    const { open } = useAppKit();
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
     const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
-    const [likes, setLikes] = useState<{ [key: string]: number }>({});
-    const [hasLiked, setHasLiked] = useState<{ [key: string]: boolean }>({});
     const [isCommenting, setIsCommenting] = useState<{ [key: string]: boolean }>({});
+    const [userProfile, setUserProfile] = useState<Profile | null>(null);
+    const [userAddress, setUserAddress] = useState<string>('');
+    const [toast, setToast] = useState<{
+        show: boolean;
+        message: string;
+        type: 'success' | 'error' | 'warning'
+    }>({
+        show: false,
+        message: '',
+        type: 'success'
+    });
+    const [showGiftModal, setShowGiftModal] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [showFunChat, setShowFunChat] = useState(false);
+    const [funChats, setFunChats] = useState<FunChat[]>([]);
+    const [funChatMessage, setFunChatMessage] = useState('');
     const [giftAmount, setGiftAmount] = useState(0);
+    const chatRef = useRef<HTMLDivElement>(null);
+    const { open } = useAppKit();
+    const { connection } = useAppKitConnection();
+    const { walletProvider } = useAppKitProvider<Provider>('solana');
     const [selectedGift, setSelectedGift] = useState({
         flower: 20000000,
         car: 100000000,
         house: 1000000000
     });
-    const [toast, setToast] = useState<{
-        show: boolean;
-        message: string;
-        type: 'success' | 'error' | 'info' | 'warning'
-    }>({
-        show: false,
-        message: '',
-        type: 'info'
-    });
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [showFunChat, setShowFunChat] = useState(false);
-    const [funChats, setFunChats] = useState<FunChat[]>([]);
-    const [funChatMessage, setFunChatMessage] = useState('');
-    const chatRef = useRef<HTMLDivElement>(null);
-    const [userProfile, setUserProfile] = useState<Profile | null>(null);
-    const [showProfileModal, setShowProfileModal] = useState(false);
-    const [userAddress, setUserAddress] = useState<string>('');
-    const [hasAccess, setHasAccess] = useState(false);
-    const [freePosts, setFreePosts] = useState<Post[]>([]);
-    const [paidPosts, setPaidPosts] = useState<Post[]>([]);
-    const [hasFreePosts, setHasFreePosts] = useState<boolean | null>(null);
-    const [userPasses, setUserPasses] = useState<Pass[]>([]);
-    const [showPassModal, setShowPassModal] = useState(false);
 
-    const { isConnected, address } = useAppKitAccount();
-    const { connection } = useAppKitConnection();
-    const { walletProvider } = useAppKitProvider<Provider>('solana');
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const address = localStorage.getItem('address');
+                if (!address) {
+                    router.push('/');
+                    return;
+                }
+                setUserAddress(address);
+
+                // Fetch profiles and posts in parallel
+                const [profileRes, userProfileRes, postsRes] = await Promise.all([
+                    fetch(`/api/profile?address=${id}`),
+                    fetch(`/api/profile?address=${address}`),
+                    fetch('/api/posts')
+                ]);
+
+                const [profileData, userProfileData, postsData] = await Promise.all([
+                    profileRes.json(),
+                    userProfileRes.json(),
+                    postsRes.json()
+                ]);
+
+                if (profileData.profile) setProfile(profileData.profile);
+                if (userProfileData.profile) setUserProfile(userProfileData.profile);
+
+                // Filter posts for this creator
+                const creatorPosts = postsData.posts.filter((post: Post) => 
+                    post.username === id
+                );
+                setPosts(creatorPosts);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [id, router]);
+
+    const handleLike = async (postId: string) => {
+        try {
+            const res = await fetch(`/api/posts/${postId}/like`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address: userAddress })
+            });
+
+            if (!res.ok) throw new Error('Failed to update like');
+
+            const data = await res.json();
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post._id === postId
+                        ? { ...post, likes: data.likes, likeCount: data.likeCount }
+                        : post
+                )
+            );
+        } catch (error) {
+            console.error('Error updating like:', error);
+        }
+    };
+
+    const handleComment = async (e: React.FormEvent, postId: string) => {
+        e.preventDefault();
+        if (!newComment[postId]?.trim()) return;
+
+        try {
+            if (!userProfile?.username) {
+                setToast({
+                    show: true,
+                    message: 'Please create a profile first',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            setIsCommenting(prev => ({ ...prev, [postId]: true }));
+
+            const res = await fetch(`/api/posts/${postId}/comment`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    address: userAddress,
+                    username: userProfile.username,
+                    profileImage: userProfile.profileImage,
+                    text: newComment[postId].trim()
+                })
+            });
+
+            const data = await res.json();
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post._id === postId
+                        ? { ...post, comments: data.comments }
+                        : post
+                )
+            );
+
+            setNewComment(prev => ({ ...prev, [postId]: '' }));
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        } finally {
+            setIsCommenting(prev => ({ ...prev, [postId]: false }));
+        }
+    };
 
     const handleSendTx = async (amount: number, receiver: string) => {
         try {
@@ -155,219 +222,20 @@ const CreatorPage = ({ params }: PageProps) => {
             );
 
             const signature = connection ? await walletProvider.sendTransaction(transaction, connection) : null;
-            console.log(signature);
             
             setToast({
                 show: true,
                 message: 'Gift sent successfully!',
                 type: 'success'
             });
-
-            setTimeout(() => {
-                setToast({show: false, message: '', type: 'success'});
-            }, 3000);
-
         } catch (error) {
             console.error('Transaction failed:', error);
             setToast({
                 show: true,
-                message: 'Failed to send gift. Please try again.',
+                message: 'Failed to send gift',
                 type: 'error'
             });
-
-            setTimeout(() => {
-                setToast({show: false, message: '', type: 'error'});
-            }, 3000);
         }
-    };
-
-    const [isProfileFetched, setIsProfileFetched] = useState(false);
-
-    // Consolidate profile fetching into a single useEffect
-    useEffect(() => {
-        const fetchCreatorData = async () => {
-            if (isProfileFetched) return; // Prevent duplicate fetches
-            
-            try {
-                setLoading(true);
-                const myAddress = localStorage.getItem('address') || '';
-
-                // Fetch profiles in parallel
-                const [profileRes, userProfileRes] = await Promise.all([
-                    fetch(`/api/profile?address=${id}`),
-                    myAddress ? fetch(`/api/profile?address=${myAddress}`) : Promise.resolve(null)
-                ]);
-
-                const profileData = await profileRes.json();
-
-                if (profileData.profile) {
-                    setProfile(profileData.profile);
-                }
-
-                // Only fetch user profile if we have an address
-                if (userProfileRes) {
-                    const userProfileData = await userProfileRes.json();
-                    if (userProfileData.profile) {
-                        setUserProfile(userProfileData.profile);
-                    }
-                }
-
-                setIsProfileFetched(true);
-            } catch (error) {
-                console.error('Error fetching creator data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCreatorData();
-    }, [id]); // Only depend on id
-
-    // Update the posts fetching useEffect
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const postsRes = await fetch('/api');
-                const postsData = await postsRes.json();
-
-                // Filter posts by creator username
-                const creatorPosts = postsData.posts.filter((post: Post) =>
-                    post.username === id
-                );
-
-                // Initialize likes and comments state
-                const myAddress = localStorage.getItem('address') || '';
-                const initialLikes: { [key: string]: number } = {};
-                const initialHasLiked: { [key: string]: boolean } = {};
-
-                creatorPosts.forEach((post: Post) => {
-                    initialLikes[post._id] = post.likes?.length || 0;
-                    initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
-                });
-
-                // Split posts by tier
-                const free = creatorPosts.filter((post: Post) => post.tier === 'Free');
-                const paid = creatorPosts.filter((post: Post) => post.tier !== 'Free');
-
-                setFreePosts(free);
-                setPaidPosts(paid);
-                setLikes(initialLikes);
-                setHasLiked(initialHasLiked);
-                setHasFreePosts(free.length > 0);
-
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-                setToast({
-                    show: true,
-                    message: 'Failed to fetch posts',
-                    type: 'error'
-                });
-            }
-        };
-
-        if (isProfileFetched) {
-            fetchPosts();
-        }
-    }, [id, isProfileFetched]);
-
-    useEffect(() => {
-        const address = localStorage.getItem('address');
-        if (address) {
-            setUserAddress(address);
-        }
-    }, []);
-
-    const handleLike = async (postId: string) => {
-        try {
-            const address = localStorage.getItem('address');
-            if (!address) return;
-
-            const res = await fetch(`/api/posts/${postId}/like`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address })
-            });
-
-            if (!res.ok) throw new Error('Failed to update like');
-
-            const data = await res.json();
-            
-            // Update both free and paid posts
-            const updatePosts = (posts: Post[]) => 
-                posts.map(post =>
-                    post._id === postId
-                        ? { ...post, likes: data.likes }
-                        : post
-                );
-
-            setFreePosts(prev => updatePosts(prev));
-            setPaidPosts(prev => updatePosts(prev));
-            setLikes(prev => ({ ...prev, [postId]: data.likes.length }));
-            setHasLiked(prev => ({ ...prev, [postId]: data.likes.includes(address) }));
-
-        } catch (error) {
-            console.error('Error updating like:', error);
-        }
-    };
-
-    const handleComment = async (e: React.FormEvent, postId: string) => {
-        e.preventDefault();
-        if (!newComment[postId]?.trim()) return;
-
-        setIsCommenting(prev => ({ ...prev, [postId]: true }));
-
-        try {
-            const address = localStorage.getItem('address');
-            if (!address) return;
-
-            const res = await fetch(`/api/posts/${postId}/comment`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    address,
-                    text: newComment[postId].trim()
-                })
-            });
-
-            const data = await res.json();
-            
-            // Update both free and paid posts
-            const updatePosts = (posts: Post[]) => 
-                posts.map(post =>
-                    post._id === postId
-                        ? { ...post, comments: data.comments }
-                        : post
-                );
-
-            setFreePosts(prev => updatePosts(prev));
-            setPaidPosts(prev => updatePosts(prev));
-            setNewComment(prev => ({ ...prev, [postId]: '' }));
-
-        } catch (error) {
-            console.error('Error adding comment:', error);
-        } finally {
-            setIsCommenting(prev => ({ ...prev, [postId]: false }));
-        }
-    };
-
-    const censorAddress = (address: string): string => {
-        if (!address) return '';
-        return `${address.slice(0, 4)}...${address.slice(-4)}`;
-    };
-
-    const handleCopyAddress = async () => {
-        try {
-            await navigator.clipboard.writeText(id);
-            setCopySuccess(true);
-            setTimeout(() => setCopySuccess(false), 2000);
-        } catch (err) {
-            console.error('Failed to copy address:', err);
-        }
-    };
-
-    const handleGift = () => {
-        open();
-        setShowGiftModal(false);
     };
 
     const handleSendFunChat = async (e: React.FormEvent) => {
@@ -375,38 +243,16 @@ const CreatorPage = ({ params }: PageProps) => {
         if (!funChatMessage.trim()) return;
 
         try {
-            const address = localStorage.getItem('address');
-            if (!address) {
-                setToast({
-                    show: true,
-                    message: 'Please connect your wallet first',
-                    type: 'error'
-                });
-                return;
-            }
-
-            // Remove profile check since we already have userProfile state
             const res = await fetch(`/api/creator/${id}/funchat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    address,
+                    address: userAddress,
                     message: funChatMessage.trim()
                 })
             });
 
             const data = await res.json();
-            
-            if (data.error) {
-                setToast({
-                    show: true,
-                    message: data.error,
-                    type: 'error'
-                });
-                return;
-            }
-
-            // Reverse the order of chats so recent ones appear at bottom
             setFunChats([...data.chats].reverse());
             setFunChatMessage('');
             
@@ -418,51 +264,26 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
-    const checkPassAccess = (requiredTier: string) => {
-        return userPasses.some(pass => 
-            ['Gold', 'Silver', 'Bronze'].indexOf(pass.category) >= 
-            ['Gold', 'Silver', 'Bronze'].indexOf(requiredTier)
-        );
+    const handleDownload = async (mediaUrl: string) => {
+        try {
+            const response = await fetch(mediaUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `post-media${mediaUrl.endsWith('.mp4') ? '.mp4' : '.jpg'}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            setToast({
+                show: true,
+                message: 'Failed to download media',
+                type: 'error'
+            });
+        }
     };
-
-    const canChat = checkPassAccess('Silver');
-    const canInteract = checkPassAccess('Bronze');
-    const canDownload = checkPassAccess('Bronze');
-
-    if (!userAddress) {
-        return (
-            <div className="min-h-screen bg-black">
-                <NavBar />
-                <div className="container mx-auto px-4 py-8">
-                    <div className="bg-red-600 text-white p-4 rounded-lg">
-                        Please connect your wallet to view this content
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!hasAccess && hasFreePosts === false) {
-        return (
-            <div className="min-h-screen bg-black">
-                <NavBar />
-                <div className="container mx-auto px-4 py-8">
-                    <div className="bg-gray-800 p-6 rounded-lg text-center">
-                        <h2 className="text-2xl font-bold text-white mb-4">Content Locked</h2>
-                        <p className="text-gray-300 mb-6">
-                            This creator doesn't have any free content available. 
-                            Mint a pass to access their premium content.
-                        </p>
-                        <PassGateCheck
-                            creatorAddress={id}
-                            userAddress={userAddress}
-                            onAccessGranted={() => setHasAccess(true)}
-                        />
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     if (loading) {
         return (
@@ -486,25 +307,9 @@ const CreatorPage = ({ params }: PageProps) => {
                 />
             )}
             <div className="container mx-auto px-4 py-8">
-                {/* Show pass modal if there's premium content and user has no access */}
-                {!hasAccess && paidPosts.length > 0 && showPassModal && (
-                    <PassModal 
-                        onClose={() => setShowPassModal(false)}
-                        creatorAddress={id}
-                    />
-                )}
-
                 <div className="grid gap-8">
-                    {(hasAccess ? [...freePosts, ...paidPosts] : freePosts).map((post) => (
+                    {posts.map((post) => (
                         <div key={post._id} className="relative">
-                            {/* Tier Badge */}
-                            <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium z-10
-                                ${post.tier === 'Free' ? 'bg-green-600' :
-                                  post.tier === 'Bronze' ? 'bg-yellow-700' :
-                                  post.tier === 'Silver' ? 'bg-gray-400' :
-                                  'bg-yellow-500'} text-white`}>
-                                {post.tier}
-                            </div>
                             <PostCard
                                 post={post}
                                 userAddress={userAddress}
@@ -521,31 +326,190 @@ const CreatorPage = ({ params }: PageProps) => {
                                 }))}
                                 isCommentLoading={!!isCommenting[post._id]}
                                 censorAddress={censorAddress}
-                            />
+                                onToggleComments={() => setShowComments(prev => ({
+                                    ...prev,
+                                    [post._id]: !prev[post._id]
+                                }))}
+                                onDownload={() => post.mediaUrl && handleDownload(post.mediaUrl)}
+                                onGift={() => setShowGiftModal(true)}
+                            >
+                                {post.comments?.slice()
+                                    .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
+                                    .map((comment, idx) => (
+                                        <div key={idx} className='bg-[#1A1D1F] p-3 rounded-lg'>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Image
+                                                    src={comment.profileImage || '/empProfile.png'}
+                                                    alt="Profile"
+                                                    width={24}
+                                                    height={24}
+                                                    className="rounded-full"
+                                                />
+                                                <p className='text-gray-400'>{comment.username}</p>
+                                            </div>
+                                            <p className='text-gray-200'>{comment.text}</p>
+                                        </div>
+                                    ))}
+                            </PostCard>
                         </div>
                     ))}
                 </div>
+            </div>
 
-                {/* Show CTA if there's premium content */}
-                {!hasAccess && paidPosts.length > 0 && (
-                    <div className="mt-8 bg-gray-800 p-6 rounded-lg text-center">
-                        <h3 className="text-xl font-bold text-white mb-2">
-                            Want to see more?
-                        </h3>
-                        <p className="text-gray-300">
-                            You're currently viewing free content. Mint a pass to access premium content.
-                        </p>
-                        <button 
-                            onClick={() => setShowPassModal(true)}
-                            className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
+            {showGiftModal && (
+                <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
+                    <div className='bg-[#1A1D1F] rounded-lg p-6 md:w-[400px] w-[95%] relative shadow-xl'>
+                        <button
+                            onClick={() => setShowGiftModal(false)}
+                            className='absolute top-4 right-4 text-gray-400 hover:text-white transition-colors'
                         >
-                            View Passes
+                            <IoClose size={24} />
                         </button>
+
+                        <h2 className='text-white text-xl font-bold mb-6'>Gift {profile?.username}</h2>
+
+                        <div className='space-y-4'>
+                            <div className='flex flex-col gap-y-2'>
+                                <p className='text-gray-400 text-sm'>This creator address can receive SOL:</p>
+                                <div className='flex items-center gap-x-2'>
+                                    <p className='text-gray-200 font-mono bg-[#111315] p-2 rounded flex-1 overflow-x-auto'>
+                                        {id}
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(id);
+                                            setToast({
+                                                show: true,
+                                                message: 'Address copied!',
+                                                type: 'success'
+                                            });
+                                        }}
+                                        className='bg-blue-600 p-2 rounded hover:opacity-90 transition-opacity'
+                                    >
+                                        <FaCopy className='text-white' />
+                                    </button>
+                                </div>
+                            </div>
+                           
+                            <div className='text-center text-gray-400 text-sm'>Send SOL directly to this creator</div>
+                            <div className='flex my-2 items-center justify-center gap-x-8'>
+                                <button 
+                                    onClick={() => handleSendTx(selectedGift.flower, id)}
+                                    className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
+                                >
+                                    <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
+                                    <GiFlowerPot className='text-[1.5rem]' />
+                                    <p className='text-[0.8rem]'>Send flower</p>
+                                </button>
+
+                                <button 
+                                    onClick={() => handleSendTx(selectedGift.car, id)}
+                                    className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
+                                >
+                                    <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
+                                    <FaCar className='text-[1.5rem]' />
+                                    <p className='text-[0.8rem]'>Send car</p>
+                                </button>
+
+                                <button 
+                                    onClick={() => handleSendTx(selectedGift.house, id)}
+                                    className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
+                                >
+                                    <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
+                                    <FaLaptopHouse className='text-[1.5rem]' />
+                                    <p className='text-[0.8rem]'>Send house</p>
+                                </button>
+                            </div>
+
+                            <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
+                            <button
+                                onClick={() => {
+                                    open();
+                                    setShowGiftModal(false);
+                                }}
+                                className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
+                            >
+                                BUY SOL
+                            </button>
+                        </div>
                     </div>
-                )}
+                </div>
+            )}
+
+            {!showFunChat && (
+                <div className="md:hidden fixed left-4 bottom-[10vh] transform -translate-y-1/2 z-40">
+                    <button
+                        onClick={() => setShowFunChat(true)}
+                        className="bg-indigo-600 p-3 rounded-full shadow-lg"
+                    >
+                        <IoFlash className="text-white text-2xl" />
+                    </button>
+                </div>
+            )}
+
+            <div className={`fixed md:absolute top-1/2 md:top-[65vh] transform -translate-y-1/2 left-0 md:left-10 h-[65vh] md:h-[70vh] md:w-[400px] w-full 
+                bg-gradient-to-b from-gray-600 to-gray-800
+                ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
+                transition-transform duration-300 z-30 shadow-xl rounded-r-lg`}
+            >
+                <div className="p-4 h-full flex flex-col bg-black/30 md:bg-transparent">
+                    <button
+                        onClick={() => setShowFunChat(false)}
+                        className="md:hidden absolute top-4 right-4 text-white"
+                    >
+                        <IoClose size={24} />
+                    </button>
+
+                    <div className="flex items-center gap-2 mb-4">
+                        <h2 className="text-xl font-bold text-white">
+                            {profile?.username}'s Fun Talk
+                        </h2>
+                        <IoFlash className="text-white text-xl" />
+                    </div>
+
+                    <div
+                        ref={chatRef}
+                        className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2"
+                    >
+                        {funChats.map((chat, index) => (
+                            <div key={index} className="flex items-start gap-2 bg-white/5 p-2 rounded-lg">
+                                <Image
+                                    src={chat.profileImage || '/empProfile.png'}
+                                    alt="Profile"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full h-[40px] w-[40px] object-cover"
+                                />
+                                <div>
+                                    <p className="text-blue-200 text-xs">
+                                        {censorAddress(chat.address)}
+                                    </p>
+                                    <p className="text-white text-sm">{chat.message}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <form onSubmit={handleSendFunChat} className="mt-auto">
+                        <input
+                            type="text"
+                            value={funChatMessage}
+                            onChange={(e) => setFunChatMessage(e.target.value)}
+                            placeholder="Type your message..."
+                            className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
+                        />
+                    </form>
+                </div>
             </div>
         </div>
     );
+};
+
+const censorAddress = (address: string) => {
+    if (!address) return '';
+    const start = address.slice(0, 6);
+    const end = address.slice(-4);
+    return `${start}...${end}`;
 };
 
 export default CreatorPage;
