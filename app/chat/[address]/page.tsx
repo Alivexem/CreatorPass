@@ -69,7 +69,6 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
           creatorProfile={creatorProfile}
           userProfile={userProfile}
           onClose={() => router.back()}
-          className="pb-[100px] md:pb-0"
         />
       </div>
       {toast.show && (
