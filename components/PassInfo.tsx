@@ -3,7 +3,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import { Pass } from "@/types/pass";
 
 interface PassInfoProps {
-  rules: PassRule;
+  rules: Pass['rules'];
   tier: string;
 }
 
