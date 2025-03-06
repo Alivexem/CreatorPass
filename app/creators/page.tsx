@@ -53,33 +53,44 @@ const CreatorsPage = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const res = await fetch('/api/profiles');
+        const res = await fetch('/api/profiles', {
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const data = await res.json();
-        if (data.profiles) {
+        if (data.profiles && Array.isArray(data.profiles)) {
           // Get the highlight parameter from URL
           const params = new URLSearchParams(window.location.search);
           const highlightAddress = params.get('highlight');
 
           if (highlightAddress) {
-            // Find the highlighted creator
-            const highlightedProfile = data.profiles.find(
+            const index = data.profiles.findIndex(
               (profile: Profile) => profile.address === highlightAddress
             );
-
-            if (highlightedProfile) {
-              // Set the current index to show the highlighted creator
-              const index = data.profiles.findIndex(
-                (profile: Profile) => profile.address === highlightAddress
-              );
-              setCurrentIndex(index >= 0 ? index : 0);
+            if (index >= 0) {
+              setCurrentIndex(index);
               setHighlightedCreator(highlightAddress);
             }
           }
 
           setProfiles(data.profiles);
+        } else {
+          throw new Error('Invalid profiles data format');
         }
       } catch (error) {
         console.error('Error fetching profiles:', error);
+        setToast({
+          show: true,
+          message: 'Failed to load creators',
+          type: 'error'
+        });
       } finally {
         setLoading(false);
       }
@@ -252,7 +263,7 @@ const CreatorsPage = () => {
               <div
                 key={profile.address}
                 className={`w-full px-4 md:px-10 flex-shrink-0 transition-transform duration-300 ${
-                  index === currentIndex ? 'block' : 'hidden md:block'
+                  index === currentIndex ? 'block' : 'hidden'
                 }`}
               >
                 <div className="max-w-[500px] mx-auto">
