@@ -530,7 +530,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                     setGiftAmount(selectedGift.flower);
                                                     handleSendTx(selectedGift.flower, id);
                                                 }} 
-                                                className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
+                                                className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-3 rounded-lg bg-black hover:opacity-90 transition-opacity'
                                             >
                                                 <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
                                                 <GiFlowerPot className='text-[1.5rem]' />
@@ -542,7 +542,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                     setGiftAmount(selectedGift.car);
                                                     handleSendTx(selectedGift.car, id);
                                                 }} 
-                                                className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
+                                                className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-black hover:opacity-90 transition-opacity'
                                             >
                                                 <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
                                                 <FaCar className='text-[1.5rem]' />
@@ -554,7 +554,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                                     setGiftAmount(selectedGift.house);
                                                     handleSendTx(selectedGift.house, id);
                                                 }} 
-                                                className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-blue-700 hover:opacity-90 transition-opacity'
+                                                className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-black hover:opacity-90 transition-opacity'
                                             >
                                                 <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
                                                 <FaLaptopHouse className='text-[1.5rem]' />
@@ -565,7 +565,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                         <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
                                         <button
                                             onClick={handleGift}
-                                            className='bg-blue-600 text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
+                                            className='bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
                                         >
                                             BUY SOL
                                         </button>
@@ -601,9 +601,9 @@ const CreatorPage = ({ params }: PageProps) => {
                 <div className="md:hidden fixed left-4 bottom-[10vh] transform -translate-y-1/2 z-40">
                     <button
                         onClick={() => setShowFunChat(true)}
-                        className="bg-indigo-600 p-3 rounded-full shadow-lg"
+                        className="bg-indigo-600 animate bounce p-3 rounded-full shadow-lg"
                     >
-                        <IoFlash className="text-white text-2xl" />
+                        <IoFlash className="text-white text-xl" />
                     </button>
                 </div>
             )}
