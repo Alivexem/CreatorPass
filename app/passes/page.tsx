@@ -160,11 +160,15 @@ const PassesPage = () => {
             const hiddenCard = cardRef.current;
             const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
             const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
+            const passType = hiddenCard.querySelector('p.pass-type') as HTMLElement;
+            const passPrice = hiddenCard.querySelector('p.pass-price') as HTMLElement;
             
-            if (profileImage && username) {
+            if (profileImage && username && passType && passPrice) {
                 // Update the hidden template
                 profileImage.src = pass.image;
                 username.textContent = pass.creatorName;
+                passType.textContent = pass.type;
+                passPrice.textContent = `${pass.price} SOL`;
                 
                 // Wait for the profile image to load
                 await new Promise((resolve) => {
@@ -186,7 +190,7 @@ const PassesPage = () => {
                 const file = new File([blob], 'card.png', { type: 'image/png' });
                 const imageUrl = await uploadToIPFS(file);
                 
-                // Update metadata to include the correct profile information
+                // Update metadata to include pass type and price
                 const metadataUrl = await uploadMetadataToIPFS(imageUrl, pass.creatorName);
                 
                 // Continue with the rest of the minting process...
@@ -268,8 +272,8 @@ const PassesPage = () => {
                     {
                         createMetadataAccountArgsV3: {
                             data: {
-                                name: `${pass.creatorName} Access Card`,
-                                symbol: 'CARD',
+                                name: `${pass.creatorName} ${pass.type} Pass`,
+                                symbol: 'PASS',
                                 uri: metadataUrl,
                                 sellerFeeBasisPoints: 0,
                                 creators: null,
@@ -491,28 +495,15 @@ const AccessCard = ({ pass, className, onMint, isMinting }: {
         </div>
       )}
 
-      {/* Hidden card template for conversion - Simplified version */}
+      {/* Hidden card template for conversion */}
       <div style={{ position: 'absolute', left: '-9999px' }}>
         <div ref={cardRef}>
-            <div className="w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-[#080e0e] p-6">
-                <Image 
-                    src='/sol.png'
-                    alt="sol"
-                    height={45}
-                    width={45}
-                    className='mx-auto'
-                />
-                <Image 
-                    src="/empProfile.png"
-                    alt="profile"
-                    height={150}
-                    width={150}
-                    className='rounded-lg w-full h-48 object-cover my-4'
-                />
-                <div className='flex items-center justify-center gap-3'>
-                    <p className='font-mono text-white font-bold'></p>
-                </div>
-            </div>
+            <AccessCardTemplate 
+                image={'/empProfile.png'} 
+                name={''} 
+                type={''}
+                price={0}
+            />
         </div>
       </div>
 

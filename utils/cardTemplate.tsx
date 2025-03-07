@@ -2,7 +2,14 @@ import React from 'react';
 import Image from 'next/image';
 import { RiHeart2Line, RiNftFill } from "react-icons/ri";
 
-export const AccessCardTemplate = ({ image, name }: { image: string, name: string }) => (
+interface AccessCardTemplateProps {
+    image: string;
+    name: string;
+    type: string;
+    price: number;
+}
+
+export const AccessCardTemplate = ({ image, name, type, price }: AccessCardTemplateProps) => (
   <div className="w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-500 to-purple-600">
     <div className='p-6 text-center'>
       <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />

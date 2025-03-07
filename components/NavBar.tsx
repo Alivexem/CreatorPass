@@ -11,6 +11,7 @@ import type { Provider } from '@reown/appkit-adapter-solana'
 import { GoHomeFill } from "react-icons/go";
 import { MdDashboardCustomize } from "react-icons/md";
 import { IoTicketSharp } from "react-icons/io5";
+import { BiWallet } from "react-icons/bi";
 import NotificationDropdown from './NotificationDropdown';
 
 const NavBar = () => {
@@ -181,6 +182,7 @@ const NavBar = () => {
                 className='bg-gray-200 h-[70%] md:h-8 px-4 w-auto md:rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purlpe-300'
                 onClick={handleConnect}
               >
+                <BiWallet className="text-black mr-2" />
                 <p className='text-black text-[1rem] whitespace-nowrap'>{connectValue}</p>
               </div>
             </div>
