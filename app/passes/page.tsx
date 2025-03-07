@@ -201,6 +201,25 @@ const PassesPage = () => {
         const walletPubkey = new PublicKey(walletAddress);
         console.log('Wallet public key created:', walletPubkey.toString());
 
+        // Add test transaction here
+        console.log('Testing wallet transaction...');
+        const testTransaction = new Transaction().add(
+            SystemProgram.transfer({
+                fromPubkey: walletPubkey,
+                toPubkey: walletPubkey,
+                lamports: 0,
+            })
+        );
+
+        // First latestBlockhash (for test transaction)
+        const testBlockhash = await connection.getLatestBlockhash();
+        testTransaction.recentBlockhash = testBlockhash.blockhash;
+        testTransaction.feePayer = walletPubkey;
+
+        console.log('Sending test transaction...');
+        const testSignature = await walletProvider.sendTransaction(testTransaction, connection);
+        console.log('Test transaction successful:', testSignature);
+
         // Update the hidden template with the correct profile data
         const hiddenCard = cardRef.current;
         const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
@@ -236,8 +255,13 @@ const PassesPage = () => {
         if (!metadataUrl) throw new Error('Failed to upload metadata to IPFS');
 
         // Step 2: Prepare transaction
-        const latestBlockhash = await connection.getLatestBlockhash();
-        
+        // Second latestBlockhash (for mint transaction)
+        const mintBlockhash = await connection.getLatestBlockhash();
+        const transaction = new Transaction({
+            feePayer: walletPubkey,
+            recentBlockhash: mintBlockhash.blockhash,
+        });
+
         // Check balance
         const balance = await connection.getBalance(walletPubkey);
         const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
@@ -271,12 +295,6 @@ const PassesPage = () => {
             ],
             TOKEN_METADATA_PROGRAM_ID
         );
-
-        // Create transaction
-        const transaction = new Transaction({
-            feePayer: walletPubkey,
-            recentBlockhash: latestBlockhash.blockhash,
-        });
 
         // Add instructions
         transaction.add(
