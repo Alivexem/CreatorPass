@@ -144,17 +144,39 @@ const PassesPage = () => {
   };
 
   const mintNFT = async (pass: Pass) => {
+    console.log('mintNFT function called'); // Debug log
+
     if (!cardRef.current || !connection || !walletProvider) {
-        console.error('Required dependencies not initialized');
+        console.error('Required dependencies:', {
+            hasCardRef: !!cardRef.current,
+            hasConnection: !!connection,
+            hasWalletProvider: !!walletProvider
+        });
         return;
     }
 
     try {
+        console.log('Starting minting process...'); // Debug log
         setMintingStates(prev => ({...prev, [pass._id]: true}));
         
         // Step 1: Generate and upload image first
         const cardElement = cardRef.current.querySelector('div');
+        console.log('Card element found:', !!cardElement); // Debug log
+
         if (!cardElement) throw new Error('Card template not found');
+
+        // Test IPFS upload with a small file first
+        console.log('Testing IPFS connection...'); // Debug log
+        const testBlob = new Blob(['test'], { type: 'text/plain' });
+        const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
+        
+        try {
+            const testUrl = await uploadToIPFS(testFile);
+            console.log('Test IPFS upload successful:', testUrl); // Debug log
+        } catch (error) {
+            console.error('IPFS test upload failed:', error);
+            throw new Error('IPFS connection failed');
+        }
 
         // Get wallet address first to fail early if not available
         const walletAddress = localStorage.getItem('address');
@@ -400,7 +422,10 @@ const PassesPage = () => {
                       </ul>
                     </div>
                     <button 
-                      onClick={() => mintNFT(pass)}
+                      onClick={() => {
+                        console.log('Mint button clicked'); // Debug log
+                        mintNFT(pass);
+                      }}
                       disabled={mintingStates[pass._id]}
                       className='w-full bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
                     >
