@@ -148,177 +148,177 @@ const PassesPage = () => {
     setIsMinting(true);
     
     try {
-        // Get latest blockhash first
-        const latestBlockhash = await connection.getLatestBlockhash();
-        
         setMintingStates(prev => ({...prev, [pass._id]: true}));
 
-        // Ensure we're using the correct profile image for the NFT
+        // Step 1: Generate and upload image first
         const cardElement = cardRef.current.querySelector('div');
-        if (cardElement) {
-            // Update the hidden template with the correct profile data
-            const hiddenCard = cardRef.current;
-            const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
-            const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
-            const passType = hiddenCard.querySelector('p.pass-type') as HTMLElement;
-            const passPrice = hiddenCard.querySelector('p.pass-price') as HTMLElement;
-            
-            if (profileImage && username && passType && passPrice) {
-                // Update the hidden template
-                profileImage.src = pass.image;
-                username.textContent = pass.creatorName;
-                passType.textContent = pass.type;
-                passPrice.textContent = `${pass.price} SOL`;
-                
-                // Wait for the profile image to load
-                await new Promise((resolve) => {
-                    if (profileImage.complete) resolve(null);
-                    else {
-                        profileImage.onload = () => resolve(null);
-                        profileImage.onerror = () => resolve(null);
-                    }
-                });
-                
-                // Add a small delay to ensure rendering is complete
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // Convert card to PNG and upload to IPFS
-                const dataUrl = await toPng(hiddenCard);
-                
-                const response = await fetch(dataUrl);
-                const blob = await response.blob();
-                const file = new File([blob], 'card.png', { type: 'image/png' });
-                const imageUrl = await uploadToIPFS(file);
-                
-                // Update metadata to include pass type and price
-                const metadataUrl = await uploadMetadataToIPFS(imageUrl, pass.creatorName);
-                
-                // Continue with the rest of the minting process...
-                const walletAddress = localStorage.getItem('address');
-                if (!walletAddress) throw new Error('No wallet address found');
-                const walletPubkey = new PublicKey(walletAddress);
+        if (!cardElement) throw new Error('Card template not found');
 
-                // Check wallet balance including pass price
-                const balance = await connection.getBalance(walletPubkey);
-                const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
-                const passPriceInLamports = pass.price * LAMPORTS_PER_SOL;
-                const estimatedCost = rentExempt + passPriceInLamports + (0.05 * LAMPORTS_PER_SOL);
+        // Update the hidden template with the correct profile data
+        const hiddenCard = cardRef.current;
+        const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
+        const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
+        
+        if (!profileImage || !username) throw new Error('Card template elements not found');
 
-                if (balance < estimatedCost) {
-                    throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
-                }
-
-                // Create mint account
-                const mintKeypair = Keypair.generate();
-                const lamports = await getMinimumBalanceForRentExemptMint(connection);
-                
-                // Get the token account address
-                const [associatedTokenAddress] = await PublicKey.findProgramAddress(
-                    [
-                        walletPubkey.toBuffer(),
-                        TOKEN_PROGRAM_ID.toBuffer(),
-                        mintKeypair.publicKey.toBuffer(),
-                    ],
-                    ASSOCIATED_TOKEN_PROGRAM_ID
-                );
-
-                // Get metadata address
-                const [metadataAddress] = PublicKey.findProgramAddressSync(
-                    [
-                        Buffer.from('metadata'),
-                        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-                        mintKeypair.publicKey.toBuffer(),
-                    ],
-                    TOKEN_METADATA_PROGRAM_ID
-                );
-
-                const createMintAccountIx = SystemProgram.createAccount({
-                    fromPubkey: walletPubkey,
-                    newAccountPubkey: mintKeypair.publicKey,
-                    space: MINT_SIZE,
-                    lamports,
-                    programId: TOKEN_PROGRAM_ID,
-                });
-
-                const initializeMintIx = createInitializeMintInstruction(
-                    mintKeypair.publicKey,
-                    0,
-                    walletPubkey,
-                    walletPubkey,
-                );
-
-                const createAssociatedTokenAccountIx = createAssociatedTokenAccountInstruction(
-                    walletPubkey,
-                    associatedTokenAddress,
-                    walletPubkey,
-                    mintKeypair.publicKey,
-                );
-
-                const mintToIx = createMintToInstruction(
-                    mintKeypair.publicKey,
-                    associatedTokenAddress,
-                    walletPubkey,
-                    1,
-                );
-
-                const createMetadataIx = createCreateMetadataAccountV3Instruction(
-                    {
-                        metadata: metadataAddress,
-                        mint: mintKeypair.publicKey,
-                        mintAuthority: walletPubkey,
-                        payer: walletPubkey,
-                        updateAuthority: walletPubkey,
-                    },
-                    {
-                        createMetadataAccountArgsV3: {
-                            data: {
-                                name: `${pass.creatorName} ${pass.type} Pass`,
-                                symbol: 'PASS',
-                                uri: metadataUrl,
-                                sellerFeeBasisPoints: 0,
-                                creators: null,
-                                collection: null,
-                                uses: null,
-                            },
-                            isMutable: true,
-                            collectionDetails: null,
-                        },
-                    },
-                );
-
-                const transaction = new Transaction({
-                    feePayer: walletPubkey,
-                    recentBlockhash: latestBlockhash.blockhash,
-                });
-
-                transaction.add(
-                    createMintAccountIx,
-                    initializeMintIx,
-                    createAssociatedTokenAccountIx,
-                    mintToIx,
-                    createMetadataIx,
-                );
-
-                transaction.sign(mintKeypair);
-
-                const signature = await walletProvider.sendTransaction(transaction, connection);
-                await connection.confirmTransaction(signature);
-
-                setToast({
-                    show: true,
-                    message: 'NFT minted successfully!',
-                    type: 'success'
-                });
-
-                setTimeout(() => {
-                    setToast({
-                        show: false,
-                        message: '',
-                        type: 'success'
-                    });
-                }, 3000);
+        // Update the hidden template
+        profileImage.src = pass.image;
+        username.textContent = pass.creatorName;
+        
+        // Wait for the profile image to load
+        await new Promise((resolve) => {
+            if (profileImage.complete) resolve(null);
+            else {
+                profileImage.onload = () => resolve(null);
+                profileImage.onerror = () => resolve(null);
             }
+        });
+        
+        // Add a small delay to ensure rendering is complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Generate image and upload to IPFS
+        const dataUrl = await toPng(hiddenCard);
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], 'card.png', { type: 'image/png' });
+        
+        const imageUrl = await uploadToIPFS(file);
+        if (!imageUrl) throw new Error('Failed to upload image to IPFS');
+        
+        // Upload metadata to IPFS
+        const metadataUrl = await uploadMetadataToIPFS(imageUrl, pass.creatorName);
+        if (!metadataUrl) throw new Error('Failed to upload metadata to IPFS');
+
+        // Step 2: Proceed with minting
+        const walletAddress = localStorage.getItem('address');
+        if (!walletAddress) throw new Error('No wallet address found');
+        const walletPubkey = new PublicKey(walletAddress);
+
+        // Get latest blockhash
+        const latestBlockhash = await connection.getLatestBlockhash();
+
+        // Check wallet balance including pass price
+        const balance = await connection.getBalance(walletPubkey);
+        const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
+        const passPriceInLamports = pass.price * LAMPORTS_PER_SOL;
+        const estimatedCost = rentExempt + passPriceInLamports + (0.05 * LAMPORTS_PER_SOL);
+
+        if (balance < estimatedCost) {
+            throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
         }
+
+        // Create mint account
+        const mintKeypair = Keypair.generate();
+        const lamports = await getMinimumBalanceForRentExemptMint(connection);
+        
+        // Get the token account address
+        const [associatedTokenAddress] = await PublicKey.findProgramAddress(
+            [
+                walletPubkey.toBuffer(),
+                TOKEN_PROGRAM_ID.toBuffer(),
+                mintKeypair.publicKey.toBuffer(),
+            ],
+            ASSOCIATED_TOKEN_PROGRAM_ID
+        );
+
+        // Get metadata address
+        const [metadataAddress] = PublicKey.findProgramAddressSync(
+            [
+                Buffer.from('metadata'),
+                TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+                mintKeypair.publicKey.toBuffer(),
+            ],
+            TOKEN_METADATA_PROGRAM_ID
+        );
+
+        const createMintAccountIx = SystemProgram.createAccount({
+            fromPubkey: walletPubkey,
+            newAccountPubkey: mintKeypair.publicKey,
+            space: MINT_SIZE,
+            lamports,
+            programId: TOKEN_PROGRAM_ID,
+        });
+
+        const initializeMintIx = createInitializeMintInstruction(
+            mintKeypair.publicKey,
+            0,
+            walletPubkey,
+            walletPubkey,
+        );
+
+        const createAssociatedTokenAccountIx = createAssociatedTokenAccountInstruction(
+            walletPubkey,
+            associatedTokenAddress,
+            walletPubkey,
+            mintKeypair.publicKey,
+        );
+
+        const mintToIx = createMintToInstruction(
+            mintKeypair.publicKey,
+            associatedTokenAddress,
+            walletPubkey,
+            1,
+        );
+
+        const createMetadataIx = createCreateMetadataAccountV3Instruction(
+            {
+                metadata: metadataAddress,
+                mint: mintKeypair.publicKey,
+                mintAuthority: walletPubkey,
+                payer: walletPubkey,
+                updateAuthority: walletPubkey,
+            },
+            {
+                createMetadataAccountArgsV3: {
+                    data: {
+                        name: `${pass.creatorName} Access Card`,
+                        symbol: 'CARD',
+                        uri: metadataUrl,
+                        sellerFeeBasisPoints: 0,
+                        creators: null,
+                        collection: null,
+                        uses: null,
+                    },
+                    isMutable: true,
+                    collectionDetails: null,
+                },
+            },
+        );
+
+        const transaction = new Transaction({
+            feePayer: walletPubkey,
+            recentBlockhash: latestBlockhash.blockhash,
+        });
+
+        transaction.add(
+            createMintAccountIx,
+            initializeMintIx,
+            createAssociatedTokenAccountIx,
+            mintToIx,
+            createMetadataIx,
+        );
+
+        transaction.sign(mintKeypair);
+
+        const signature = await walletProvider.sendTransaction(transaction, connection);
+        await connection.confirmTransaction(signature);
+
+        // After successful minting
+        setToast({
+            show: true,
+            message: 'NFT minted successfully!',
+            type: 'success'
+        });
+
+        setTimeout(() => {
+            setToast({
+                show: false,
+                message: '',
+                type: 'success'
+            });
+        }, 3000);
+
     } catch (err) {
         console.error('Error minting NFT:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to mint NFT';
@@ -339,47 +339,6 @@ const PassesPage = () => {
         setMintingStates(prev => ({...prev, [pass._id]: false}));
     }
 };
-
-const AccessCard = ({ pass, className, onMint, isMinting }: { 
-  pass: Pass, 
-  className: string,
-  onMint: () => void,
-  isMinting: boolean 
-}) => (
-  <div className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl ${className}`}>
-    <div className='p-6 text-center'>
-      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-      <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
-    </div>
-    <div className='bg-[#080e0e] p-6 space-y-4'>
-      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-      <Image 
-        src={pass.image || '/empProfile.png'} 
-        className='rounded-lg w-full h-48 object-cover' 
-        height={70} 
-        width={150} 
-        alt='profile' 
-      />
-      <div className='flex items-center justify-center gap-3'>
-        <RiHeart2Line className='text-white' />
-        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{pass.creatorName}</p>
-        <RiHeart2Line className='text-white' />
-      </div>
-      <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          onMint();
-        }}
-        disabled={isMinting}
-        className='w-full bg-blue-700 hover:bg-blue-400 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
-      >
-        <RiNftFill className="text-xl" />
-        {isMinting ? 'Minting...' : 'Mint NFT'}
-      </button>
-    </div>
-  </div>
-)
-
   return (
     <div className='min-h-screen pb-[120px] md:pb-0 bg-black'>
       <NavBar />
@@ -414,20 +373,56 @@ const AccessCard = ({ pass, className, onMint, isMinting }: {
                 {(window.innerWidth <= 768 ? passes : paginatedPasses).map((pass, index) => (
                   <div 
                     key={index}
-                    className={`transform transition-all duration-300 ${
-                      index === 1 ? 'scale-105 hover:scale-110 z-10' : 'hover:scale-105'
-                    }`}
-                    onClick={() => setShowPopup(true)}
+                    className="min-w-[280px] md:min-w-0 snap-center bg-[#1A1D1F] rounded-xl p-4 relative hover:bg-[#22262A] transition-colors"
                   >
-                    <AccessCard
-                      pass={pass}
-                      className={index === 1 
-                        ? "bg-gradient-to-r from-blue-500 to-purple-600"
-                        : "bg-gradient-to-r from-blue-400 to-purple-500"
-                      }
-                      onMint={() => mintNFT(pass)}
-                      isMinting={mintingStates[pass._id]}
-                    />
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-gray-400">{pass.creatorName}</span>
+                    </div>
+                    <div className="relative h-48 w-full mb-4">
+                      <Image
+                        src={pass.image}
+                        alt={pass.creatorName}
+                        fill
+                        className="rounded-lg object-cover"
+                      />
+                    </div>
+                    <div className={`
+                      bg-gradient-to-r from-gray-600 to-gray-700 p-3 mb-3
+                    `}>
+                      <h3 className="text-xl font-bold text-white">{pass.type}</h3>
+                    </div>
+                    <p className="text-white mb-2">{pass.price} SOL</p>
+                    <p className="text-gray-400 text-sm mb-4">{pass.message}</p>
+                    <div className="space-y-2 mb-4">
+                      <h4 className="text-white font-semibold">Pass Rules:</h4>
+                      <ul className="text-gray-300 space-y-1 text-sm">
+                        {Object.entries(pass.rules).map(([key, value]) => (
+                          <li key={key} className="flex items-center gap-2">
+                            <span className={value ? 'text-green-500' : 'text-red-500'}>
+                              {value ? '✓' : '✗'}
+                            </span>
+                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <button 
+                      onClick={() => mintNFT(pass)}
+                      disabled={mintingStates[pass._id]}
+                      className='w-full bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
+                    >
+                      {mintingStates[pass._id] ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Minting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <RiNftFill className="text-xl" />
+                          <span>Mint NFT</span>
+                        </>
+                      )}
+                    </button>
                   </div>
                 ))}
               </div>
@@ -495,15 +490,28 @@ const AccessCard = ({ pass, className, onMint, isMinting }: {
         </div>
       )}
 
-      {/* Hidden card template for conversion */}
+      {/* Hidden card template for conversion - Simplified version */}
       <div style={{ position: 'absolute', left: '-9999px' }}>
         <div ref={cardRef}>
-            <AccessCardTemplate 
-                image={'/empProfile.png'} 
-                name={''} 
-                type={''}
-                price={0}
-            />
+            <div className="w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-[#080e0e] p-6">
+                <Image 
+                    src='/sol.png'
+                    alt="sol"
+                    height={45}
+                    width={45}
+                    className='mx-auto'
+                />
+                <Image 
+                    src="/empProfile.png"
+                    alt="profile"
+                    height={150}
+                    width={150}
+                    className='rounded-lg w-full h-48 object-cover my-4'
+                />
+                <div className='flex items-center justify-center gap-3'>
+                    <p className='font-mono text-white font-bold'></p>
+                </div>
+            </div>
         </div>
       </div>
 
