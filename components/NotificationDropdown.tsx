@@ -19,6 +19,13 @@ interface Notification {
     read: boolean;
 }
 
+interface ProfileCache {
+    [key: string]: {
+        data: any;
+        timestamp: number;
+    }
+}
+
 export default function NotificationDropdown() {
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -26,6 +33,37 @@ export default function NotificationDropdown() {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const database = getDatabase(app);
+    const [profileCache, setProfileCache] = useState<ProfileCache>({});
+    const CACHE_DURATION = 30000; // 30 seconds cache
+
+    const getProfileData = async (address: string) => {
+        const now = Date.now();
+        const cached = profileCache[address];
+        
+        // Return cached data if it's fresh
+        if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+            return cached.data;
+        }
+
+        try {
+            const profileRes = await fetch(`/api/profile?address=${address}`);
+            const profileData = await profileRes.json();
+            
+            // Update cache
+            setProfileCache(prev => ({
+                ...prev,
+                [address]: {
+                    data: profileData.profile,
+                    timestamp: now
+                }
+            }));
+
+            return profileData.profile;
+        } catch (error) {
+            console.error('Error fetching sender profile:', error);
+            return null;
+        }
+    };
 
     useEffect(() => {
         const address = localStorage.getItem('address');
@@ -37,33 +75,33 @@ export default function NotificationDropdown() {
         const unsubscribe = onValue(notificationsQuery, async (snapshot) => {
             const notificationsData = snapshot.val();
             if (notificationsData) {
-                const notificationsList = await Promise.all(
-                    Object.entries(notificationsData).map(async ([id, data]: [string, any]) => {
-                        // Fetch sender's profile for each notification
-                        try {
-                            const profileRes = await fetch(`/api/profile?address=${data.senderAddress}`);
-                            const profileData = await profileRes.json();
-                            const profile = profileData.profile;
+                // Get unique sender addresses
+                const senderAddresses = [...new Set(
+                    Object.values(notificationsData).map((data: any) => data.senderAddress)
+                )];
 
-                            return {
-                                _id: id,
-                                ...data,
-                                senderName: profile?.username || 'Unknown User',
-                                senderImage: profile?.profileImage || '/empProfile.png',
-                                createdAt: new Date(data.timestamp).toISOString()
-                            };
-                        } catch (error) {
-                            console.error('Error fetching sender profile:', error);
-                            return {
-                                _id: id,
-                                ...data,
-                                senderName: 'Unknown User',
-                                senderImage: '/empProfile.png',
-                                createdAt: new Date(data.timestamp).toISOString()
-                            };
-                        }
-                    })
+                // Fetch all profiles in parallel
+                const profiles = await Promise.all(
+                    senderAddresses.map(address => getProfileData(address))
                 );
+
+                // Create a map of address to profile
+                const profileMap = senderAddresses.reduce((acc, address, index) => ({
+                    ...acc,
+                    [address]: profiles[index]
+                }), {});
+
+                const notificationsList = Object.entries(notificationsData).map(([id, data]: [string, any]) => {
+                    const profile = profileMap[data.senderAddress];
+                    return {
+                        _id: id,
+                        ...data,
+                        senderName: profile?.username || 'Unknown User',
+                        senderImage: profile?.profileImage || '/empProfile.png',
+                        createdAt: new Date(data.timestamp).toISOString()
+                    };
+                });
+
                 setNotifications(notificationsList);
                 setUnreadCount(notificationsList.filter(n => !n.read).length);
             } else {
