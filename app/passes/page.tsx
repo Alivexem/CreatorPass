@@ -144,7 +144,17 @@ const PassesPage = () => {
   };
 
   const mintNFT = async (pass: Pass) => {
-    console.log('mintNFT function called'); // Debug log
+    console.log('mintNFT function called');
+
+    if (!isConnected) {
+        console.log('Wallet not connected');
+        setToast({
+            show: true,
+            message: 'Please connect your wallet first',
+            type: 'error'
+        });
+        return;
+    }
 
     if (!cardRef.current || !connection || !walletProvider) {
         console.error('Required dependencies:', {
@@ -178,10 +188,18 @@ const PassesPage = () => {
             throw new Error('IPFS connection failed');
         }
 
-        // Get wallet address first to fail early if not available
+        // After IPFS upload succeeds, log wallet state
+        console.log('IPFS upload complete, checking wallet state:', {
+            isConnected,
+            hasWalletProvider: !!walletProvider,
+            walletAddress: localStorage.getItem('address')
+        });
+
         const walletAddress = localStorage.getItem('address');
         if (!walletAddress) throw new Error('No wallet address found');
+        
         const walletPubkey = new PublicKey(walletAddress);
+        console.log('Wallet public key created:', walletPubkey.toString());
 
         // Update the hidden template with the correct profile data
         const hiddenCard = cardRef.current;
