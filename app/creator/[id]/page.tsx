@@ -434,7 +434,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                 className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                             >
                                 <IoHeartHalf
-                                    className={`text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : ''}`}
+                                    className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : ''}`}
                                 />
                                 <p>{likes[post._id] || post.likeCount || 0} likes</p>
                             </button>
@@ -445,14 +445,14 @@ const CreatorPage = ({ params }: PageProps) => {
                                 }))}
                                 className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                             >
-                                <FaCommentMedical className='text-[1.7rem]' />
+                                <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
                                 <p>{post.comments?.length || 0} comments</p>
                             </button>
                             <button
                                 onClick={() => setShowGiftModal(true)}
-                                className='bg-gradient-to-r from-purple-600 to-blue-600 text-[1rem] h-[40px] w-auto p-3 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
+                                className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
                             >
-                                <FaGift className='text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
+                                <FaGift className='text-[1.1rem] md:text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
                             </button>
                         </div>
                         {showComments[post._id] && (
@@ -565,7 +565,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                         <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
                                         <button
                                             onClick={handleGift}
-                                            className='bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
+                                            className='bg-black text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
                                         >
                                             BUY SOL
                                         </button>

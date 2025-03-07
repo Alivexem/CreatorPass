@@ -144,15 +144,22 @@ const PassesPage = () => {
   };
 
   const mintNFT = async (pass: Pass) => {
-    if (!cardRef.current || !connection || !walletProvider) return;
-    setIsMinting(true);
-    
+    if (!cardRef.current || !connection || !walletProvider) {
+        console.error('Required dependencies not initialized');
+        return;
+    }
+
     try {
         setMintingStates(prev => ({...prev, [pass._id]: true}));
-
+        
         // Step 1: Generate and upload image first
         const cardElement = cardRef.current.querySelector('div');
         if (!cardElement) throw new Error('Card template not found');
+
+        // Get wallet address first to fail early if not available
+        const walletAddress = localStorage.getItem('address');
+        if (!walletAddress) throw new Error('No wallet address found');
+        const walletPubkey = new PublicKey(walletAddress);
 
         // Update the hidden template with the correct profile data
         const hiddenCard = cardRef.current;
@@ -165,7 +172,7 @@ const PassesPage = () => {
         profileImage.src = pass.image;
         username.textContent = pass.creatorName;
         
-        // Wait for the profile image to load
+        // Wait for image loading
         await new Promise((resolve) => {
             if (profileImage.complete) resolve(null);
             else {
@@ -174,10 +181,9 @@ const PassesPage = () => {
             }
         });
         
-        // Add a small delay to ensure rendering is complete
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Generate image and upload to IPFS
+        // Generate and upload image
         const dataUrl = await toPng(hiddenCard);
         const response = await fetch(dataUrl);
         const blob = await response.blob();
@@ -186,19 +192,13 @@ const PassesPage = () => {
         const imageUrl = await uploadToIPFS(file);
         if (!imageUrl) throw new Error('Failed to upload image to IPFS');
         
-        // Upload metadata to IPFS
         const metadataUrl = await uploadMetadataToIPFS(imageUrl, pass.creatorName);
         if (!metadataUrl) throw new Error('Failed to upload metadata to IPFS');
 
-        // Step 2: Proceed with minting
-        const walletAddress = localStorage.getItem('address');
-        if (!walletAddress) throw new Error('No wallet address found');
-        const walletPubkey = new PublicKey(walletAddress);
-
-        // Get latest blockhash
+        // Step 2: Prepare transaction
         const latestBlockhash = await connection.getLatestBlockhash();
-
-        // Check wallet balance including pass price
+        
+        // Check balance
         const balance = await connection.getBalance(walletPubkey);
         const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
         const passPriceInLamports = pass.price * LAMPORTS_PER_SOL;
@@ -211,8 +211,8 @@ const PassesPage = () => {
         // Create mint account
         const mintKeypair = Keypair.generate();
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
-        
-        // Get the token account address
+
+        // Get token account address
         const [associatedTokenAddress] = await PublicKey.findProgramAddress(
             [
                 walletPubkey.toBuffer(),
@@ -232,79 +232,72 @@ const PassesPage = () => {
             TOKEN_METADATA_PROGRAM_ID
         );
 
-        const createMintAccountIx = SystemProgram.createAccount({
-            fromPubkey: walletPubkey,
-            newAccountPubkey: mintKeypair.publicKey,
-            space: MINT_SIZE,
-            lamports,
-            programId: TOKEN_PROGRAM_ID,
-        });
-
-        const initializeMintIx = createInitializeMintInstruction(
-            mintKeypair.publicKey,
-            0,
-            walletPubkey,
-            walletPubkey,
-        );
-
-        const createAssociatedTokenAccountIx = createAssociatedTokenAccountInstruction(
-            walletPubkey,
-            associatedTokenAddress,
-            walletPubkey,
-            mintKeypair.publicKey,
-        );
-
-        const mintToIx = createMintToInstruction(
-            mintKeypair.publicKey,
-            associatedTokenAddress,
-            walletPubkey,
-            1,
-        );
-
-        const createMetadataIx = createCreateMetadataAccountV3Instruction(
-            {
-                metadata: metadataAddress,
-                mint: mintKeypair.publicKey,
-                mintAuthority: walletPubkey,
-                payer: walletPubkey,
-                updateAuthority: walletPubkey,
-            },
-            {
-                createMetadataAccountArgsV3: {
-                    data: {
-                        name: `${pass.creatorName} Access Card`,
-                        symbol: 'CARD',
-                        uri: metadataUrl,
-                        sellerFeeBasisPoints: 0,
-                        creators: null,
-                        collection: null,
-                        uses: null,
-                    },
-                    isMutable: true,
-                    collectionDetails: null,
-                },
-            },
-        );
-
+        // Create transaction
         const transaction = new Transaction({
             feePayer: walletPubkey,
             recentBlockhash: latestBlockhash.blockhash,
         });
 
+        // Add instructions
         transaction.add(
-            createMintAccountIx,
-            initializeMintIx,
-            createAssociatedTokenAccountIx,
-            mintToIx,
-            createMetadataIx,
+            SystemProgram.createAccount({
+                fromPubkey: walletPubkey,
+                newAccountPubkey: mintKeypair.publicKey,
+                space: MINT_SIZE,
+                lamports,
+                programId: TOKEN_PROGRAM_ID,
+            }),
+            createInitializeMintInstruction(
+                mintKeypair.publicKey,
+                0,
+                walletPubkey,
+                walletPubkey,
+            ),
+            createAssociatedTokenAccountInstruction(
+                walletPubkey,
+                associatedTokenAddress,
+                walletPubkey,
+                mintKeypair.publicKey,
+            ),
+            createMintToInstruction(
+                mintKeypair.publicKey,
+                associatedTokenAddress,
+                walletPubkey,
+                1,
+            ),
+            createCreateMetadataAccountV3Instruction(
+                {
+                    metadata: metadataAddress,
+                    mint: mintKeypair.publicKey,
+                    mintAuthority: walletPubkey,
+                    payer: walletPubkey,
+                    updateAuthority: walletPubkey,
+                },
+                {
+                    createMetadataAccountArgsV3: {
+                        data: {
+                            name: `${pass.creatorName} Access Card`,
+                            symbol: 'CARD',
+                            uri: metadataUrl,
+                            sellerFeeBasisPoints: 0,
+                            creators: null,
+                            collection: null,
+                            uses: null,
+                        },
+                        isMutable: true,
+                        collectionDetails: null,
+                    },
+                },
+            )
         );
 
+        // Sign with mint keypair
         transaction.sign(mintKeypair);
 
+        // Send transaction using wallet provider
         const signature = await walletProvider.sendTransaction(transaction, connection);
         await connection.confirmTransaction(signature);
 
-        // After successful minting
         setToast({
             show: true,
             message: 'NFT minted successfully!',
@@ -485,7 +478,7 @@ const PassesPage = () => {
 
       {/* Remove the old Swipe Modal and replace with Toast */}
       {showSwipeModal && (
-        <div className="fixed top-4 right-4 md:hidden bg-orange-600 text-white p-4 rounded-lg shadow-lg z-50">
+        <div className="fixed top-2 right-2 md:hidden bg-orange-500 text-white p-4 rounded-md shadow-lg z-50">
           <p className="text-sm">Swipe left to see more passes</p>
         </div>
       )}
