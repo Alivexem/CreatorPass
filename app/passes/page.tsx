@@ -160,15 +160,11 @@ const PassesPage = () => {
             const hiddenCard = cardRef.current;
             const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
             const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
-            const passType = hiddenCard.querySelector('h3.pass-type') as HTMLElement;
-            const passPrice = hiddenCard.querySelector('p.pass-price') as HTMLElement;
             
-            if (profileImage && username && passType && passPrice) {
+            if (profileImage && username) {
                 // Update the hidden template
                 profileImage.src = pass.image;
                 username.textContent = pass.creatorName;
-                passType.textContent = pass.type;
-                passPrice.textContent = `${pass.price} SOL`;
                 
                 // Wait for the profile image to load
                 await new Promise((resolve) => {
@@ -202,7 +198,7 @@ const PassesPage = () => {
                 const balance = await connection.getBalance(walletPubkey);
                 const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
                 const passPriceInLamports = pass.price * LAMPORTS_PER_SOL;
-                const estimatedCost = rentExempt + passPriceInLamports + (0.05 * LAMPORTS_PER_SOL); // rent + pass price + fees
+                const estimatedCost = rentExempt + passPriceInLamports + (0.05 * LAMPORTS_PER_SOL);
 
                 if (balance < estimatedCost) {
                     throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
@@ -310,7 +306,6 @@ const PassesPage = () => {
                     type: 'success'
                 });
 
-                // Add timeout to clear success toast
                 setTimeout(() => {
                     setToast({
                         show: false,
@@ -322,37 +317,19 @@ const PassesPage = () => {
         }
     } catch (err) {
         console.error('Error minting NFT:', err);
-        // Only show error toast for actual errors, not for confirmation timeout
         const errorMessage = err instanceof Error ? err.message : 'Failed to mint NFT';
-        if (!errorMessage.includes('Transaction was not confirmed')) {
+        setToast({
+            show: true,
+            message: errorMessage,
+            type: 'error'
+        });
+        setTimeout(() => {
             setToast({
-                show: true,
-                message: errorMessage,
+                show: false,
+                message: '',
                 type: 'error'
             });
-            // Add timeout to clear error toast
-            setTimeout(() => {
-                setToast({
-                    show: false,
-                    message: '',
-                    type: 'error'
-                });
-            }, 3000);
-        } else {
-            // For confirmation timeout, still complete the minting process
-            setToast({
-                show: true,
-                message: 'NFT minted successfully! It may take a moment to appear.',
-                type: 'success'
-            });
-            setTimeout(() => {
-                setToast({
-                    show: false,
-                    message: '',
-                    type: 'success'
-                });
-            }, 3000);
-        }
+        }, 3000);
     } finally {
         setIsMinting(false);
         setMintingStates(prev => ({...prev, [pass._id]: false}));
@@ -372,7 +349,7 @@ const PassesPage = () => {
             Get unlimited access to premium content and unique experiences from your favorite creators.
           </p>
           <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
-            All passes are free during initial release
+            All creators passes are available here
           </div>
         </div>
       </div>
@@ -428,7 +405,7 @@ const PassesPage = () => {
                     <button 
                       onClick={() => mintNFT(pass)}
                       disabled={mintingStates[pass._id]}
-                      className='w-full relative bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
+                      className='w-full bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
                     >
                       {mintingStates[pass._id] ? (
                         <>
@@ -509,25 +486,28 @@ const PassesPage = () => {
         </div>
       )}
 
-      {/* Hidden card template for conversion */}
+      {/* Hidden card template for conversion - Simplified version */}
       <div style={{ position: 'absolute', left: '-9999px' }}>
         <div ref={cardRef}>
-          <div className="bg-[#1A1D1F] rounded-xl p-4">
-            <div className="relative h-48 w-full mb-4">
-              <img
-                src="/empProfile.png"
-                alt="profile"
-                className="rounded-lg object-cover w-full h-full"
-              />
+            <div className="w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-[#080e0e] p-6">
+                <Image 
+                    src='/sol.png'
+                    alt="sol"
+                    height={45}
+                    width={45}
+                    className='mx-auto'
+                />
+                <Image 
+                    src="/empProfile.png"
+                    alt="profile"
+                    height={150}
+                    width={150}
+                    className='rounded-lg w-full h-48 object-cover my-4'
+                />
+                <div className='flex items-center justify-center gap-3'>
+                    <p className='font-mono text-white font-bold'></p>
+                </div>
             </div>
-            <div className="bg-gradient-to-r from-purple-600 to-blue-500 rounded-lg p-3 mb-3">
-              <h3 className="text-xl font-bold text-white">Access Card</h3>
-            </div>
-            <div className="flex items-center justify-between">
-              <img src="/whiteLogo.png" alt="logo" className="w-[60px]" />
-              <p className="text-white font-mono"></p>
-            </div>
-          </div>
         </div>
       </div>
 

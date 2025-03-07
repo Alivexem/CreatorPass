@@ -227,7 +227,7 @@ const CreatorsPage = () => {
           <div className='flex items-center justify-center gap-8'>
             <button
               onClick={handlePrevious}
-              className='text-white/50 hover:text-white transition-colors'
+              className='text-white/50 hover:text-white -mr-[30px] md:-mr-0 transition-colors'
               disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleLeft className='text-3xl' />
@@ -245,7 +245,7 @@ const CreatorsPage = () => {
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
-                  className={`w-[70vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
+                  className={`w-[80vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
                     bg-gradient-to-r from-blue-500 to-purple-600 
                     transform hover:scale-105 transition-all duration-300
                     ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
@@ -297,7 +297,7 @@ const CreatorsPage = () => {
 
             <button
               onClick={handleNext}
-              className='text-white/50 hover:text-white transition-colors'
+              className='text-white/50 hover:text-white -ml-[30px] md:-ml-0 transition-colors'
               disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleRight className='text-3xl' />
