@@ -112,7 +112,7 @@ const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowCont
         </div>
 
 
-        <div
+        {/* <div
           onClick={() => handleClick('contents')}
           className={`flex items-center gap-x-1 cursor-pointer ${isActive('contents')} hover:text-blue-500`}
         >
@@ -120,7 +120,7 @@ const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowCont
             <FaCircleDollarToSlot  />
             <p>Payout</p>
           </div>
-        </div>
+        </div> */}
 
         <div
           onClick={() => handleClick('contents')}

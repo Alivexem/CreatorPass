@@ -5,9 +5,9 @@ import { RiProfileFill } from "react-icons/ri";
 import { GoHomeFill } from "react-icons/go";
 import Link from "next/link";
 import { MdLogout } from "react-icons/md";
-import { FaCircleDollarToSlot } from "react-icons/fa6";
-import { useAppKit, useAppKitAccount, useDisconnect } from '../utils/reown';
+import { useDisconnect } from '../utils/reown';
 import { useRouter } from 'next/navigation';
+
 interface DashboardMobileNavProps {
   onShowContent: () => void;
   onShowDashboard: () => void;
@@ -31,61 +31,35 @@ const DashboardMobileNav = ({
       console.error('Disconnect error:', error);
     }
   };
+
   return (
-    <div className='fixed right-4 bottom-10 flex flex-col gap-4 md:hidden z-50'>
+    <div className='h-[80px] px-4 border-purple-600 border-t pt-3 box-border flex items-center justify-between w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
       <Link href='/welcome'>
-        <button
-          className={`p-3 rounded-full bg-gray-700 text-gray-200 shadow-lg hover:scale-110 transition-all border-gray-300 border`}
-        >
-          <GoHomeFill className="text-xl" />
-        </button>
+        <div className='flex flex-col cursor-pointer items-center space-y-2'>
+          <GoHomeFill className="text-lg text-gray-300" />
+          <p className='text-[0.7rem]'>Home</p>
+        </div>
       </Link>
 
+      <div onClick={onShowDashboard} className='flex flex-col cursor-pointer items-center space-y-2'>
+        <RxDashboard className={`text-lg ${activeSection === 'dashboard' ? 'text-purple-500' : 'text-gray-300'}`} />
+        <p className={`text-[0.7rem] ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
+      </div>
 
-      <button
-        onClick={onShowDashboard}
-        className={`p-3 rounded-full shadow-lg ${activeSection === 'dashboard'
-          ? 'bg-purple-500 text-white'
-          : 'bg-gray-700 text-gray-300'
-          } hover:scale-110 transition-all border-gray-300 border`}
-      >
-        <RxDashboard className="text-xl" />
-      </button>
+      <div onClick={onShowContent} className='flex flex-col cursor-pointer items-center space-y-2'>
+        <FaDatabase className={`text-lg ${activeSection === 'content' ? 'text-purple-500' : 'text-gray-300'}`} />
+        <p className={`text-[0.7rem] ${activeSection === 'content' ? 'text-purple-500' : ''}`}>Content</p>
+      </div>
 
-      <button
-        className='p-3 rounded-full bg-gray-700 text-gray-300 shadow-lg hover:scale-110 transition-all border-gray-300 border'
-      >
-        <FaCircleDollarToSlot className="text-xl" />
-      </button>
+      <div onClick={onShowProfile} className='flex flex-col cursor-pointer items-center space-y-2'>
+        <RiProfileFill className={`text-lg ${activeSection === 'profile' ? 'text-purple-500' : 'text-gray-300'}`} />
+        <p className={`text-[0.7rem] ${activeSection === 'profile' ? 'text-purple-500' : ''}`}>Profile</p>
+      </div>
 
-
-
-      <button
-        onClick={onShowContent}
-        className={`p-3 rounded-full shadow-lg ${activeSection === 'content'
-          ? 'bg-purple-500 text-white'
-          : 'bg-gray-700 text-gray-300'
-          } hover:scale-110 transition-all border-gray-300 border`}
-      >
-        <FaDatabase className="text-xl" />
-      </button>
-
-      <button
-        onClick={onShowProfile}
-        className={`p-3 rounded-full shadow-lg ${activeSection === 'profile'
-          ? 'bg-purple-500 text-white'
-          : 'bg-gray-700 text-gray-300'
-          } hover:scale-110 transition-all border-gray-300 border`}
-      >
-        <RiProfileFill className="text-xl" />
-      </button>
-
-      <button
-      onClick={handleDisconnect}
-        className='p-3 rounded-full bg-gray-700 text-gray-300 shadow-lg hover:scale-110 transition-all border-gray-300 border'
-      >
-        <MdLogout className="text-xl" />
-      </button>
+      <div onClick={handleDisconnect} className='flex flex-col cursor-pointer items-center space-y-2'>
+        <MdLogout className="text-lg text-gray-300" />
+        <p className='text-[0.7rem]'>Logout</p>
+      </div>
     </div>
   );
 };
