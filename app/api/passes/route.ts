@@ -2,21 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
 import Pass from '@/models/pass';
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const { searchParams } = new URL(request.url);
+    
+    const { searchParams } = new URL(req.url);
     const address = searchParams.get('address');
 
-    if (!address) {
-      return NextResponse.json({ message: 'Address is required' }, { status: 400 });
+    let passes;
+    if (address) {
+      // If address is provided, fetch passes for that creator
+      passes = await Pass.find({ creatorAddress: address });
+    } else {
+      // If no address, fetch all passes
+      passes = await Pass.find({});
     }
 
-    const passes = await Pass.find({ creatorAddress: address });
-    return NextResponse.json({ passes });
-  } catch (error: any) {
-    console.error('Error fetching passes:', error);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, passes });
+  } catch (error) {
+    console.error('Error in GET /api/passes:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch passes' },
+      { status: 500 }
+    );
   }
 }
 

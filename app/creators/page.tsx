@@ -210,7 +210,7 @@ const CreatorsPage = () => {
               <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
                 Chat creators, view their posts where you have access to like, comment, gift and interact in their private rooms.
               </p>
-              <div className='bg-purple-500/20 text-purple-400 px-6 py-3 rounded-xl inline-block'>
+              <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
                 Access your favourite creators
               </div>
             </div>
@@ -227,7 +227,7 @@ const CreatorsPage = () => {
           <div className='flex items-center justify-center gap-8'>
             <button
               onClick={handlePrevious}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
+              className='text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleLeft className='text-3xl' />
@@ -241,72 +241,68 @@ const CreatorsPage = () => {
                 }}
                 transition={{ duration: 0.5 }}
               >
-                <Link href={`/creator/${currentProfile.address}`}>
-                  <div
-                    onTouchStart={handleTouchStart}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl 
-                      bg-gradient-to-r from-blue-500 to-purple-600 
-                      transform hover:scale-105 transition-all duration-300
-                      ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
-                  >
-                    <div className='p-6 text-center'>
-                      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-                      <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
+                <div
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  className={`w-[70vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
+                    bg-gradient-to-r from-blue-500 to-purple-600 
+                    transform hover:scale-105 transition-all duration-300
+                    ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
+                >
+                  {/* <div className='p-6 text-center'>
+                    <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
+                    <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
+                  </div> */}
+                  <div className='bg-[#080e0e] p-6 space-y-4'>
+                    <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
+                    <Image
+                      src={currentProfile.profileImage || '/empProfile.png'}
+                      className='rounded-lg w-full h-48 object-cover'
+                      height={70}
+                      width={150}
+                      alt='profile'
+                    />
+                    <div className='flex flex-col items-start justify-start gap-3'>
+                    <div className='flex items-start justify-start gap-3'>
+                      <RiHeart2Line className='text-white' />
+                      <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{currentProfile.username}</p>
+                      <RiHeart2Line className='text-white' />
                     </div>
-                    <div className='bg-[#080e0e] p-6 space-y-4'>
-                      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-                      <Image
-                        src={currentProfile.profileImage || '/empProfile.png'}
-                        className='rounded-lg w-full h-48 object-cover'
-                        height={70}
-                        width={150}
-                        alt='profile'
-                      />
-                      <div className='flex items-center justify-center gap-3'>
-                        <RiHeart2Line className='text-white' />
-                        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{currentProfile.username}</p>
-                        <RiHeart2Line className='text-white' />
-                      </div>
-                      <p className='text-gray-300 text-center text-sm'>{currentProfile.about}</p>
+                    <p className='text-gray-300 text-left text-sm'>{currentProfile.about}</p>  
+                    </div>                    
+                    <div className="space-y-2 pt-4">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleChatClick(currentProfile.address);
+                        }}
+                        className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <IoChatbubbleEllipsesOutline className="text-xl" />
+                        <span>Chat {currentProfile.username}</span>
+                      </button>
+                      
+                      <Link href={`/creator/${currentProfile.address}`} className="block">
+                        <button className="w-full bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors flex items-center justify-center gap-2">
+                          <RiGalleryFill className="text-xl" />
+                          <span>View Posts</span>
+                        </button>
+                      </Link>
                     </div>
                   </div>
-                </Link>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleChatClick(currentProfile.address);
-                  }}
-                  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
-                >
-                  <IoChatbubbleEllipsesOutline className="text-xl" />
-                  <span>Chat {currentProfile.username}</span>
-                </button>
-                <Link href={`/creator/${currentProfile.address}`}>
-                  <button className="mt-2 bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors w-full flex items-center justify-center gap-2">
-                    <RiGalleryFill className="text-xl" />
-                    <span>View Posts</span>
-                  </button>
-                </Link>
+                </div>
               </motion.div>
             )}
 
             <button
               onClick={handleNext}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
+              className='text-white/50 hover:text-white transition-colors'
               disabled={profiles.length <= 1}
             >
               <FaArrowAltCircleRight className='text-3xl' />
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Remove the old Swipe Modal and replace with Toast */}
-      {showSwipeModal && (
-        <div className="fixed top-4 right-4 md:hidden bg-orange-600 text-white p-4 rounded-lg shadow-lg z-50">
-          <p className="text-sm">Swipe left to see more creators</p>
         </div>
       )}
 

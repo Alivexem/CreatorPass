@@ -399,7 +399,7 @@ const Content = ({ setToast }: ContentProps) => {
                         className='w-full max-w-md mx-auto flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-xl shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300'
                     >
                         <MdAddCircle className="text-2xl" />
-                        <span className="font-medium text-lg">Create New Post</span>
+                        <span className="font-medium text-md">Create New Post</span>
                     </button>
                 </div>
 

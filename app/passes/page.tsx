@@ -33,16 +33,25 @@ import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mp
 import { createCreateMetadataAccountV3Instruction } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, Signer, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-interface Profile {
-  address: string;
-  username: string;
-  about: string;
-  profileImage: string;
+interface Pass {
+  _id: string;
+  creatorAddress: string;
+  creatorName: string;
+  type: 'Regular' | 'Special' | 'VIP';
+  price: number;
+  message: string;
+  rules: {
+    funForumAccess: boolean;
+    likeCommentAccess: boolean;
+    downloadAccess: boolean;
+    giftAccess: boolean;
+  };
+  image: string;
 }
 
 const PassesPage = () => {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [passes, setPasses] = useState<Pass[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -60,28 +69,30 @@ const PassesPage = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMinting, setIsMinting] = useState(false);
 
+  const PASSES_PER_PAGE = 6;
+
   useEffect(() => {
-    const fetchProfiles = async () => {
+    const fetchPasses = async () => {
       try {
-        const res = await fetch('/api/profiles');
+        const res = await fetch('/api/passes');
         const data = await res.json();
-        if (data.profiles) {
-          setProfiles(data.profiles);
-          // Initialize minting states for all profiles
-          const states = data.profiles.reduce((acc: any, profile: Profile) => {
-            acc[profile.address] = false;
+        if (data.passes) {
+          setPasses(data.passes);
+          // Initialize minting states for all passes
+          const states = data.passes.reduce((acc: any, pass: Pass) => {
+            acc[pass._id] = false;
             return acc;
           }, {});
           setMintingStates(states);
         }
       } catch (error) {
-        console.error('Error fetching profiles:', error);
+        console.error('Error fetching passes:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfiles();
+    fetchPasses();
 
     // Show swipe toast on mobile devices
     if (window.innerWidth <= 768) {
@@ -92,12 +103,18 @@ const PassesPage = () => {
     }
   }, []);
 
+  const totalPages = Math.ceil(passes.length / PASSES_PER_PAGE);
+  const paginatedPasses = passes.slice(
+    (currentPage - 1) * PASSES_PER_PAGE,
+    currentPage * PASSES_PER_PAGE
+  );
+
   const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? profiles.length - 1 : prev - 1));
+    setCurrentPage((prev) => (prev === 1 ? totalPages : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === profiles.length - 1 ? 0 : prev + 1));
+    setCurrentPage((prev) => (prev === totalPages ? 1 : prev + 1));
   };
 
   const handleTouchStart = (e: TouchEvent) => {
@@ -126,20 +143,7 @@ const PassesPage = () => {
     }
   };
 
-  const currentProfile = profiles[currentIndex];
-
-  const getVisibleProfiles = () => {
-    if (profiles.length <= 3) return profiles;
-    
-    let visibleProfiles = [];
-    for (let i = 0; i < 3; i++) {
-      const index = (currentIndex + i) % profiles.length;
-      visibleProfiles.push(profiles[index]);
-    }
-    return visibleProfiles;
-  };
-
-  const mintNFT = async (profile: Profile) => {
+  const mintNFT = async (pass: Pass) => {
     if (!cardRef.current || !connection || !walletProvider) return;
     setIsMinting(true);
     
@@ -147,7 +151,7 @@ const PassesPage = () => {
         // Get latest blockhash first
         const latestBlockhash = await connection.getLatestBlockhash();
         
-        setMintingStates(prev => ({...prev, [profile.address]: true}));
+        setMintingStates(prev => ({...prev, [pass._id]: true}));
 
         // Ensure we're using the correct profile image for the NFT
         const cardElement = cardRef.current.querySelector('div');
@@ -156,11 +160,15 @@ const PassesPage = () => {
             const hiddenCard = cardRef.current;
             const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
             const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
+            const passType = hiddenCard.querySelector('h3.pass-type') as HTMLElement;
+            const passPrice = hiddenCard.querySelector('p.pass-price') as HTMLElement;
             
-            if (profileImage && username) {
+            if (profileImage && username && passType && passPrice) {
                 // Update the hidden template
-                profileImage.src = profile.profileImage || '/empProfile.png';
-                username.textContent = profile.username;
+                profileImage.src = pass.image;
+                username.textContent = pass.creatorName;
+                passType.textContent = pass.type;
+                passPrice.textContent = `${pass.price} SOL`;
                 
                 // Wait for the profile image to load
                 await new Promise((resolve) => {
@@ -183,17 +191,18 @@ const PassesPage = () => {
                 const imageUrl = await uploadToIPFS(file);
                 
                 // Update metadata to include the correct profile information
-                const metadataUrl = await uploadMetadataToIPFS(imageUrl, profile.username);
+                const metadataUrl = await uploadMetadataToIPFS(imageUrl, pass.creatorName);
                 
                 // Continue with the rest of the minting process...
                 const walletAddress = localStorage.getItem('address');
                 if (!walletAddress) throw new Error('No wallet address found');
                 const walletPubkey = new PublicKey(walletAddress);
 
-                // Check wallet balance first
+                // Check wallet balance including pass price
                 const balance = await connection.getBalance(walletPubkey);
                 const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
-                const estimatedCost = rentExempt + (0.05 * LAMPORTS_PER_SOL); // 0.05 SOL for fees
+                const passPriceInLamports = pass.price * LAMPORTS_PER_SOL;
+                const estimatedCost = rentExempt + passPriceInLamports + (0.05 * LAMPORTS_PER_SOL); // rent + pass price + fees
 
                 if (balance < estimatedCost) {
                     throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
@@ -263,7 +272,7 @@ const PassesPage = () => {
                     {
                         createMetadataAccountArgsV3: {
                             data: {
-                                name: `${profile.username} Access Card`,
+                                name: `${pass.creatorName} Access Card`,
                                 symbol: 'CARD',
                                 uri: metadataUrl,
                                 sellerFeeBasisPoints: 0,
@@ -346,7 +355,7 @@ const PassesPage = () => {
         }
     } finally {
         setIsMinting(false);
-        setMintingStates(prev => ({...prev, [profile.address]: false}));
+        setMintingStates(prev => ({...prev, [pass._id]: false}));
     }
 };
   return (
@@ -369,71 +378,98 @@ const PassesPage = () => {
       </div>
 
       {/* Cards Section */}
-      <div className='relative max-w-6xl mx-auto px-4 -mt-20 mb-20'>
+      <div className='max-w-7xl mx-auto px-4 -mt-20 mb-20'>
         {loading ? (
           <div className='flex justify-center items-center py-20'>
             <div className='text-white text-xl animate-pulse'>Loading passes...</div>
           </div>
-        ) : profiles.length === 0 ? (
+        ) : passes.length === 0 ? (
           <div className='text-white text-xl text-center py-20'>No passes available</div>
         ) : (
-          <div className='flex items-center justify-center gap-6'>
-            <button
-              onClick={handlePrevious}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= 1}
-            >
-              <FaArrowAltCircleLeft className='text-3xl' />
-            </button>
-
-            {/* Desktop View */}
-            <div className='hidden md:flex gap-6'>
-              {getVisibleProfiles().map((profile, index) => (
-                <div 
-                  key={index}
-                  className={`transform transition-all duration-300 ${
-                    index === 1 ? 'scale-105 hover:scale-110 z-10' : 'hover:scale-105'
-                  }`}
-                  onClick={() => setShowPopup(true)}
-                >
-                  <AccessCard
-                    profile={profile}
-                    className={index === 1 
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600"
-                      : "bg-gradient-to-r from-blue-400 to-purple-500"
-                    }
-                    onMint={() => mintNFT(profile)}
-                    isMinting={mintingStates[profile.address]}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Mobile View */}
-            <div 
-              className='md:hidden w-full'
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <div className='flex justify-center'>
-                <AccessCard
-                  profile={currentProfile}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600"
-                  onMint={() => mintNFT(currentProfile)}
-                  isMinting={mintingStates[currentProfile?.address || '']}
-                />
+          <>
+            <div className="relative overflow-x-auto">
+              <div className="flex gap-8 md:grid md:grid-cols-3 md:gap-8 snap-x snap-mandatory">
+                {(window.innerWidth <= 768 ? passes : paginatedPasses).map((pass, index) => (
+                  <div 
+                    key={index}
+                    className="min-w-[280px] md:min-w-0 snap-center bg-[#1A1D1F] rounded-xl p-4 relative hover:bg-[#22262A] transition-colors"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-gray-400">{pass.creatorName}</span>
+                    </div>
+                    <div className="relative h-48 w-full mb-4">
+                      <Image
+                        src={pass.image}
+                        alt={pass.creatorName}
+                        fill
+                        className="rounded-lg object-cover"
+                      />
+                    </div>
+                    <div className={`
+                      bg-gradient-to-r from-gray-600 to-gray-700 p-3 mb-3
+                    `}>
+                      <h3 className="text-xl font-bold text-white">{pass.type}</h3>
+                    </div>
+                    <p className="text-white mb-2">{pass.price} SOL</p>
+                    <p className="text-gray-400 text-sm mb-4">{pass.message}</p>
+                    <div className="space-y-2 mb-4">
+                      <h4 className="text-white font-semibold">Pass Rules:</h4>
+                      <ul className="text-gray-300 space-y-1 text-sm">
+                        {Object.entries(pass.rules).map(([key, value]) => (
+                          <li key={key} className="flex items-center gap-2">
+                            <span className={value ? 'text-green-500' : 'text-red-500'}>
+                              {value ? '✓' : '✗'}
+                            </span>
+                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <button 
+                      onClick={() => mintNFT(pass)}
+                      disabled={mintingStates[pass._id]}
+                      className='w-full relative bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
+                    >
+                      {mintingStates[pass._id] ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Minting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <RiNftFill className="text-xl" />
+                          <span>Mint NFT</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <button
-              onClick={handleNext}
-              className='hidden md:block text-white/50 hover:text-white transition-colors'
-              disabled={profiles.length <= 1}
-            >
-              <FaArrowAltCircleRight className='text-3xl' />
-            </button>
-          </div>
+            {/* Pagination Controls - Only show on tablet and above */}
+            {window.innerWidth > 768 && totalPages > 1 && (
+              <div className="flex justify-center items-center gap-4 mt-12">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-blue-700 text-white rounded-lg disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span className="text-white">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-blue-700 text-white rounded-lg disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -476,10 +512,22 @@ const PassesPage = () => {
       {/* Hidden card template for conversion */}
       <div style={{ position: 'absolute', left: '-9999px' }}>
         <div ref={cardRef}>
-            <AccessCardTemplate 
-                image={'/empProfile.png'} 
-                name={''} 
-            />
+          <div className="bg-[#1A1D1F] rounded-xl p-4">
+            <div className="relative h-48 w-full mb-4">
+              <img
+                src="/empProfile.png"
+                alt="profile"
+                className="rounded-lg object-cover w-full h-full"
+              />
+            </div>
+            <div className="bg-gradient-to-r from-purple-600 to-blue-500 rounded-lg p-3 mb-3">
+              <h3 className="text-xl font-bold text-white">Access Card</h3>
+            </div>
+            <div className="flex items-center justify-between">
+              <img src="/whiteLogo.png" alt="logo" className="w-[60px]" />
+              <p className="text-white font-mono"></p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -496,45 +544,5 @@ const PassesPage = () => {
     </div>
   )
 }
-
-const AccessCard = ({ profile, className, onMint, isMinting }: { 
-  profile: Profile, 
-  className: string,
-  onMint: () => void,
-  isMinting: boolean 
-}) => (
-  <div className={`w-[300px] rounded-2xl overflow-hidden shadow-2xl ${className}`}>
-    <div className='p-6 text-center'>
-      <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-      <p className='font-cursive text-2xl text-white font-bold mt-4'>Access Card</p>
-    </div>
-    <div className='bg-[#080e0e] p-6 space-y-4'>
-      <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-      <Image 
-        src={profile.profileImage || '/empProfile.png'} 
-        className='rounded-lg w-full h-48 object-cover' 
-        height={70} 
-        width={150} 
-        alt='profile' 
-      />
-      <div className='flex items-center justify-center gap-3'>
-        <RiHeart2Line className='text-white' />
-        <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{profile.username}</p>
-        <RiHeart2Line className='text-white' />
-      </div>
-      <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          onMint();
-        }}
-        disabled={isMinting}
-        className='w-full bg-blue-700 hover:bg-blue-400 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity'
-      >
-        <RiNftFill className="text-xl" />
-        {isMinting ? 'Minting...' : 'Mint NFT'}
-      </button>
-    </div>
-  </div>
-)
 
 export default PassesPage
