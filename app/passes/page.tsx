@@ -312,6 +312,25 @@ const PassesPage = () => {
             throw new Error('Platform address not available');
         }
 
+        // Add this validation after getting platformAddress
+        console.log('Current platform address:', platformAddress); // Debug log
+
+        let validPlatformAddress;
+        try {
+          // Validate and clean up platform address - it seems to be duplicated
+          const cleanPlatformAddress = platformAddress?.substring(0, 44); // Take first 44 chars
+          validPlatformAddress = new PublicKey(cleanPlatformAddress);
+          console.log('Validated platform address:', validPlatformAddress.toString()); // Debug log
+        } catch (error) {
+          console.error('Invalid platform address:', error);
+          setToast({
+            show: true,
+            message: 'Invalid platform address configuration',
+            type: 'error'
+          });
+          return;
+        }
+
         // Replace the single payment instruction with split payments
         const creatorPaymentInstruction = SystemProgram.transfer({
             fromPubkey: walletPubkey,
@@ -319,9 +338,10 @@ const PassesPage = () => {
             lamports: creatorPayment,
         });
 
+        // Replace the platform payment instruction with validated address
         const platformPaymentInstruction = SystemProgram.transfer({
             fromPubkey: walletPubkey,
-            toPubkey: new PublicKey(platformAddress),
+            toPubkey: validPlatformAddress, // Use validated address
             lamports: platformPayment,
         });
 
