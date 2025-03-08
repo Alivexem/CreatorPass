@@ -1,20 +1,24 @@
 import connectDB from "@/libs/mongodb";
 import { NextResponse } from 'next/server';
-import monetization from '@/models/monetization'; // You'll need to create this model
+import monetization from '@/models/monetization';
+
+// Fallback address in case database fails
+const FALLBACK_ADDRESS = "3v7rE4hWTKi8vswPg8VbjGLJt9DeNNDG15dMuSHTX6Ev3v7rE4hWTKi8vswPg8VbjGLJt9DeNNDG15dMuSHTX6Ev";
 
 // Connect to MongoDB once for the module
 await connectDB();
 
 export async function GET() {
     try {
-        const money = await monetization.findOne({
-            _id: "67c57a753756f665413fef96"
-        });
+        // Instead of looking for a specific ID, just get the first record
+        const money = await monetization.findOne();
 
+        // If no record found in DB, use fallback
         if (!money) {
+            console.log('No monetization record found, using fallback address');
             return new NextResponse(
-                JSON.stringify({ error: 'Monetization address not found' }),
-                { status: 404 }
+                JSON.stringify({ address: FALLBACK_ADDRESS }),
+                { status: 200 }
             );
         }
 
@@ -24,9 +28,10 @@ export async function GET() {
         );
     } catch (error) {
         console.error('Error fetching monetization address:', error);
+        // On any error, return the fallback address
         return new NextResponse(
-            JSON.stringify({ error: 'Failed to fetch monetization address' }),
-            { status: 500 }
+            JSON.stringify({ address: FALLBACK_ADDRESS }),
+            { status: 200 }
         );
     }
 }
