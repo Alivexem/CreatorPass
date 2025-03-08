@@ -1,18 +1,28 @@
 export const uploadToIPFS = async (file: File): Promise<string> => {
+  console.log('Starting IPFS file upload...', { fileName: file.name, fileSize: file.size });
+  
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch('/api/upload', {
-    method: 'POST',
-    body: formData,
-  });
+  try {
+    console.log('Sending file to upload endpoint...');
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to upload to IPFS');
+    if (!response.ok) {
+      console.error('IPFS upload failed:', response.status, response.statusText);
+      throw new Error('Failed to upload to IPFS');
+    }
+
+    const data = await response.json();
+    console.log('IPFS upload successful:', data.url);
+    return data.url;
+  } catch (error) {
+    console.error('IPFS upload error:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.url;
 };
 
 export const uploadMetadataToIPFS = async (
@@ -28,7 +38,10 @@ export const uploadMetadataToIPFS = async (
     }>;
   }
 ): Promise<string> => {
+  console.log('Starting metadata upload...', { metadata });
+  
   try {
+    console.log('Sending metadata to upload endpoint...');
     const response = await fetch('/api/upload-metadata', {
       method: 'POST',
       headers: {
@@ -37,11 +50,16 @@ export const uploadMetadataToIPFS = async (
       body: JSON.stringify(metadata),
     });
 
-    if (!response.ok) throw new Error('Failed to upload metadata');
+    if (!response.ok) {
+      console.error('Metadata upload failed:', response.status, response.statusText);
+      throw new Error('Failed to upload metadata');
+    }
+
     const data = await response.json();
+    console.log('Metadata upload successful:', data.url);
     return data.url;
   } catch (error) {
-    console.error('Error uploading metadata:', error);
+    console.error('Metadata upload error:', error);
     throw error;
   }
 };
