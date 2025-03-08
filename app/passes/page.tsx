@@ -15,8 +15,6 @@ import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProg
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { motion, AnimatePresence } from "framer-motion";
 
-
-
 import { 
   createMint,
   getOrCreateAssociatedTokenAccount,
@@ -144,7 +142,10 @@ const PassesPage = () => {
   };
 
   const mintNFT = async (pass: Pass) => {
+    console.log('Starting mint process for pass:', pass);
+
     if (!isConnected) {
+        console.log('Wallet not connected');
         setToast({
             show: true,
             message: 'Please connect your wallet first',
@@ -154,7 +155,11 @@ const PassesPage = () => {
     }
 
     if (!cardRef.current || !connection || !walletProvider) {
-        console.error('Required dependencies not met');
+        console.error('Missing dependencies:', {
+            hasCardRef: !!cardRef.current,
+            hasConnection: !!connection,
+            hasWalletProvider: !!walletProvider
+        });
         return;
     }
 
@@ -162,41 +167,62 @@ const PassesPage = () => {
         setMintingStates(prev => ({...prev, [pass._id]: true}));
         setIsMinting(true);
         
+        console.log('Generating card image...');
         // Generate the access card using the template
         const cardElement = cardRef.current.querySelector('div');
-        if (!cardElement) throw new Error('Card template not found');
+        if (!cardElement) {
+            console.error('Card template element not found');
+            throw new Error('Card template not found');
+        }
 
         // Update the card template with pass data
         const hiddenCard = cardRef.current;
         const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
         const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
         
-        if (!profileImage || !username) throw new Error('Card template elements not found');
+        if (!profileImage || !username) {
+            console.error('Template elements not found:', { profileImage, username });
+            throw new Error('Card template elements not found');
+        }
 
         // Set the actual pass data
         profileImage.src = pass.image;
         username.textContent = pass.creatorName;
         
+        console.log('Waiting for image to load...');
         // Wait for image to load
         await new Promise((resolve) => {
-            if (profileImage.complete) resolve(null);
-            else {
-                profileImage.onload = () => resolve(null);
-                profileImage.onerror = () => resolve(null);
+            if (profileImage.complete) {
+                console.log('Image already loaded');
+                resolve(null);
+            } else {
+                console.log('Setting up image load handlers');
+                profileImage.onload = () => {
+                    console.log('Image loaded successfully');
+                    resolve(null);
+                };
+                profileImage.onerror = () => {
+                    console.error('Image failed to load');
+                    resolve(null);
+                };
             }
         });
         
-        // Generate card image
+        console.log('Generating card PNG...');
         const dataUrl = await toPng(hiddenCard);
         const response = await fetch(dataUrl);
         const blob = await response.blob();
         const file = new File([blob], `${pass.creatorName.replace(/\s+/g, '_')}_access_card.png`, { type: 'image/png' });
         
-        // Upload image to IPFS
+        console.log('Uploading image to IPFS...');
         const imageUrl = await uploadToIPFS(file);
-        if (!imageUrl) throw new Error('Failed to upload image to IPFS');
+        if (!imageUrl) {
+            console.error('IPFS image upload failed');
+            throw new Error('Failed to upload image to IPFS');
+        }
+        console.log('Image uploaded:', imageUrl);
         
-        // Create and upload metadata
+        console.log('Preparing metadata...');
         const metadata = {
             name: `${pass.creatorName} Access Card`,
             symbol: 'CARD',
@@ -212,19 +238,31 @@ const PassesPage = () => {
             ]
         };
         
+        console.log('Uploading metadata to IPFS...');
         const metadataUrl = await uploadMetadataToIPFS(imageUrl, metadata);
-        if (!metadataUrl) throw new Error('Failed to upload metadata to IPFS');
+        if (!metadataUrl) {
+            console.error('IPFS metadata upload failed');
+            throw new Error('Failed to upload metadata to IPFS');
+        }
+        console.log('Metadata uploaded:', metadataUrl);
 
+        console.log('Getting wallet address...');
         const walletAddress = localStorage.getItem('address');
-        if (!walletAddress) throw new Error('No wallet address found');
+        if (!walletAddress) {
+            console.error('No wallet address found in localStorage');
+            throw new Error('No wallet address found');
+        }
         
         const walletPubkey = new PublicKey(walletAddress);
+        console.log('Using wallet:', walletPubkey.toString());
         
         // Create mint account
+        console.log('Creating mint account...');
         const mintKeypair = Keypair.generate();
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
         // Get token account and metadata addresses
+        console.log('Deriving token addresses...');
         const [associatedTokenAddress] = await PublicKey.findProgramAddress(
             [
                 walletPubkey.toBuffer(),
@@ -243,13 +281,14 @@ const PassesPage = () => {
             TOKEN_METADATA_PROGRAM_ID
         );
 
-        // Create and configure transaction
+        console.log('Creating transaction...');
         const transaction = new Transaction();
         const blockHash = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockHash.blockhash;
         transaction.feePayer = walletPubkey;
 
-        // Add instructions for minting
+        console.log('Adding mint instructions...');
+        // Rest of your existing transaction instructions...
         transaction.add(
             SystemProgram.createAccount({
                 fromPubkey: walletPubkey,
@@ -306,12 +345,18 @@ const PassesPage = () => {
             )
         );
 
+        console.log('Signing transaction with mint keypair...');
         transaction.sign(mintKeypair);
         
-        // Send and confirm transaction
+        console.log('Sending transaction...');
         const signature = await walletProvider.sendTransaction(transaction, connection);
-        await connection.confirmTransaction(signature);
+        console.log('Transaction sent:', signature);
+        
+        console.log('Confirming transaction...');
+        const confirmation = await connection.confirmTransaction(signature);
+        console.log('Transaction confirmed:', confirmation);
 
+        console.log('Minting complete!');
         setToast({
             show: true,
             message: 'Access Card minted successfully!',
@@ -319,7 +364,7 @@ const PassesPage = () => {
         });
 
     } catch (err) {
-        console.error('Error minting NFT:', err);
+        console.error('Detailed error:', err);
         setToast({
             show: true,
             message: err instanceof Error ? err.message : 'Failed to mint Access Card',
