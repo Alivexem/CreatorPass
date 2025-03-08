@@ -356,38 +356,53 @@ const PassesPage = () => {
         const signature = await walletProvider.sendTransaction(transaction, connection);
         console.log('Transaction sent:', signature);
         
-        // Start a timer for success case
+        // Start a timer for success case - reduced to 5 seconds
         const successTimer = setTimeout(() => {
-            console.log('No error after 10 seconds, assuming success');
+            console.log('No error after 5 seconds, assuming success');
             setToast({
                 show: true,
-                message: 'Access Card minted successfully!',
+                message: 'Transaction sent! Check your wallet for the NFT',
                 type: 'success'
             });
             setIsMinting(false);
             setMintingStates(prev => ({...prev, [pass._id]: false}));
-        }, 10000); // 10 seconds
+        }, 5000); // 5 seconds
 
         try {
             console.log('Confirming transaction...');
-            const confirmation = await connection.confirmTransaction(signature);
+            const confirmation = await connection.confirmTransaction(signature, 'processed');
             console.log('Transaction confirmed:', confirmation);
             
             // If we get here before the timer, clear it and show success
             clearTimeout(successTimer);
-            setToast({
-                show: true,
-                message: 'Access Card minted successfully!',
-                type: 'success'
-            });
+            
+            // Only show confirmation message if we haven't shown success message yet
+            if (mintingStates[pass._id]) {
+                setToast({
+                    show: true,
+                    message: 'Access Card minted successfully!',
+                    type: 'success'
+                });
+            }
         } catch (confirmError) {
             // Clear the success timer if we get a confirmation error
             clearTimeout(successTimer);
-            throw confirmError;
+            
+            // Don't throw the confirmation error, just log it
+            console.warn('Confirmation status unknown:', confirmError);
+            
+            // If we're still minting, show a more user-friendly message
+            if (mintingStates[pass._id]) {
+                setToast({
+                    show: true,
+                    message: 'Transaction sent! Check your wallet for the NFT',
+                    type: 'success'
+                });
+            }
         }
 
     } catch (err) {
-        console.error('Detailed error:', err);
+        console.error('Transaction error:', err);
         setToast({
             show: true,
             message: err instanceof Error ? err.message : 'Failed to mint Access Card',
