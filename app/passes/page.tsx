@@ -103,17 +103,19 @@ const PassesPage = () => {
   }, []);
 
   useEffect(() => {
-    // Add this to your existing useEffect or create a new one
     const fetchPlatformAddress = async () => {
-        try {
-            const res = await fetch('/api/monetization');
-            const data = await res.json();
-            if (data.address) {
-                setPlatformAddress(data.address);
-            }
-        } catch (error) {
-            console.error('Error fetching platform address:', error);
+      try {
+        const res = await fetch('/api/monetization');
+        const data = await res.json();
+        if (data.address) {
+          setPlatformAddress(data.address);
+          console.log('Platform address fetched successfully:', data.address); // Debug log
+        } else {
+          console.error('Platform address not found in response:', data); // Debug log
         }
+      } catch (error) {
+        console.error('Error fetching platform address:', error);
+      }
     };
 
     fetchPlatformAddress();
