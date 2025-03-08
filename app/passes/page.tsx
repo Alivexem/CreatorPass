@@ -222,9 +222,11 @@ const PassesPage = () => {
             symbol: 'CARD',
             description: pass.message,
             image: imageUrl,
+            price: pass.price, // Added price to metadata
             attributes: [
                 { trait_type: 'Type', value: pass.type },
                 { trait_type: 'Creator', value: pass.creatorName },
+                { trait_type: 'Price', value: pass.price }, // Added price as attribute
                 { trait_type: 'Fun Forum Access', value: pass.rules.funForumAccess },
                 { trait_type: 'Like Comment Access', value: pass.rules.likeCommentAccess },
                 { trait_type: 'Download Access', value: pass.rules.downloadAccess },
@@ -281,8 +283,16 @@ const PassesPage = () => {
         transaction.recentBlockhash = blockHash.blockhash;
         transaction.feePayer = walletPubkey;
 
-        console.log('Adding mint instructions...');
-        // Rest of your existing transaction instructions...
+        // Add payment instruction for the pass price
+        const solPayment = SystemProgram.transfer({
+            fromPubkey: walletPubkey,
+            toPubkey: new PublicKey(pass.creatorAddress), // Send payment to creator
+            lamports: Math.floor(pass.price * LAMPORTS_PER_SOL), // Convert SOL to lamports
+        });
+
+        transaction.add(solPayment);
+
+        // Add the rest of the minting instructions
         transaction.add(
             SystemProgram.createAccount({
                 fromPubkey: walletPubkey,

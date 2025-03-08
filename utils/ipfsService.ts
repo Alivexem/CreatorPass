@@ -32,9 +32,10 @@ export const uploadMetadataToIPFS = async (
     symbol: string;
     description: string;
     image: string;
+    price: number;  // Added price field
     attributes: Array<{
       trait_type: string;
-      value: string | boolean;
+      value: string | boolean | number;
     }>;
   }
 ): Promise<string> => {
