@@ -168,48 +168,42 @@ const PassesPage = () => {
         setIsMinting(true);
         
         console.log('Generating card image...');
-        // Generate the access card using the template
-        const cardElement = cardRef.current.querySelector('div');
-        if (!cardElement) {
-            console.error('Card template element not found');
+        const hiddenCard = cardRef.current;
+        if (!hiddenCard) {
             throw new Error('Card template not found');
         }
 
-        // Update the card template with pass data
-        const hiddenCard = cardRef.current;
+        // Pre-load the pass image using the native Image constructor
+        console.log('Pre-loading pass image...');
+        const preloadImage = new window.Image();
+        await new Promise((resolve, reject) => {
+            preloadImage.onload = resolve;
+            preloadImage.onerror = reject;
+            preloadImage.src = pass.image;
+        });
+
+        // Update template elements
         const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
         const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
         
         if (!profileImage || !username) {
-            console.error('Template elements not found:', { profileImage, username });
             throw new Error('Card template elements not found');
         }
 
-        // Set the actual pass data
+        // Update template with pass data
         profileImage.src = pass.image;
         username.textContent = pass.creatorName;
         
-        console.log('Waiting for image to load...');
-        // Wait for image to load
-        await new Promise((resolve) => {
-            if (profileImage.complete) {
-                console.log('Image already loaded');
-                resolve(null);
-            } else {
-                console.log('Setting up image load handlers');
-                profileImage.onload = () => {
-                    console.log('Image loaded successfully');
-                    resolve(null);
-                };
-                profileImage.onerror = () => {
-                    console.error('Image failed to load');
-                    resolve(null);
-                };
-            }
-        });
+        // Wait for browser to paint updates
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         console.log('Generating card PNG...');
-        const dataUrl = await toPng(hiddenCard);
+        const dataUrl = await toPng(hiddenCard, {
+            quality: 0.95,
+            pixelRatio: 2,
+            cacheBust: true
+        });
+
         const response = await fetch(dataUrl);
         const blob = await response.blob();
         const file = new File([blob], `${pass.creatorName.replace(/\s+/g, '_')}_access_card.png`, { type: 'image/png' });
@@ -534,25 +528,28 @@ const PassesPage = () => {
       {/* Hidden card template for conversion - Simplified version */}
       <div style={{ position: 'absolute', left: '-9999px' }}>
         <div ref={cardRef}>
-            <div className="w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-[#080e0e] p-6">
-                <Image 
-                    src='/sol.png'
-                    alt="sol"
-                    height={45}
-                    width={45}
-                    className='mx-auto'
-                />
-                <Image 
-                    src="/empProfile.png"
-                    alt="profile"
-                    height={150}
-                    width={150}
-                    className='rounded-lg w-full h-48 object-cover my-4'
-                />
-                <div className='flex items-center justify-center gap-3'>
-                    <p className='font-mono text-white font-bold'></p>
-                </div>
+          <div className="w-[300px] h-[450px] rounded-2xl overflow-hidden shadow-2xl bg-[#080e0e] p-6">
+            <Image 
+              src='/sol.png'
+              alt="sol"
+              width={45}
+              height={45}
+              className='mx-auto mb-4'
+              priority
+            />
+            <div className="relative w-full h-48 mb-4">
+              <Image 
+                src="/empProfile.png"
+                alt="profile"
+                fill
+                className='rounded-lg object-cover'
+                priority
+              />
             </div>
+            <div className='flex items-center justify-center gap-3'>
+              <p className='font-mono text-white font-bold text-xl'></p>
+            </div>
+          </div>
         </div>
       </div>
 
