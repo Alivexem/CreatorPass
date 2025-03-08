@@ -66,6 +66,7 @@ const PassesPage = () => {
   const { isConnected, address } = useAppKitAccount();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMinting, setIsMinting] = useState(false);
+  const [platformAddress, setPlatformAddress] = useState<string | null>(null);
 
   const PASSES_PER_PAGE = 6;
 
@@ -99,6 +100,23 @@ const PassesPage = () => {
         setShowSwipeModal(false);
       }, 8000);
     }
+  }, []);
+
+  useEffect(() => {
+    // Add this to your existing useEffect or create a new one
+    const fetchPlatformAddress = async () => {
+        try {
+            const res = await fetch('/api/monetization');
+            const data = await res.json();
+            if (data.address) {
+                setPlatformAddress(data.address);
+            }
+        } catch (error) {
+            console.error('Error fetching platform address:', error);
+        }
+    };
+
+    fetchPlatformAddress();
   }, []);
 
   const totalPages = Math.ceil(passes.length / PASSES_PER_PAGE);
@@ -283,14 +301,29 @@ const PassesPage = () => {
         transaction.recentBlockhash = blockHash.blockhash;
         transaction.feePayer = walletPubkey;
 
-        // Add payment instruction for the pass price
-        const solPayment = SystemProgram.transfer({
+        // Calculate payment splits
+        const totalPayment = Math.floor(pass.price * LAMPORTS_PER_SOL);
+        const platformPayment = Math.floor(totalPayment * 0.2); // 20%
+        const creatorPayment = totalPayment - platformPayment; // 80%
+
+        if (!platformAddress) {
+            throw new Error('Platform address not available');
+        }
+
+        // Replace the single payment instruction with split payments
+        const creatorPaymentInstruction = SystemProgram.transfer({
             fromPubkey: walletPubkey,
-            toPubkey: new PublicKey(pass.creatorAddress), // Send payment to creator
-            lamports: Math.floor(pass.price * LAMPORTS_PER_SOL), // Convert SOL to lamports
+            toPubkey: new PublicKey(pass.creatorAddress),
+            lamports: creatorPayment,
         });
 
-        transaction.add(solPayment);
+        const platformPaymentInstruction = SystemProgram.transfer({
+            fromPubkey: walletPubkey,
+            toPubkey: new PublicKey(platformAddress),
+            lamports: platformPayment,
+        });
+
+        transaction.add(creatorPaymentInstruction, platformPaymentInstruction);
 
         // Add the rest of the minting instructions
         transaction.add(
