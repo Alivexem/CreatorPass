@@ -144,10 +144,7 @@ const PassesPage = () => {
   };
 
   const mintNFT = async (pass: Pass) => {
-    console.log('mintNFT function called');
-
     if (!isConnected) {
-        console.log('Wallet not connected');
         setToast({
             show: true,
             message: 'Please connect your wallet first',
@@ -157,81 +154,30 @@ const PassesPage = () => {
     }
 
     if (!cardRef.current || !connection || !walletProvider) {
-        console.error('Required dependencies:', {
-            hasCardRef: !!cardRef.current,
-            hasConnection: !!connection,
-            hasWalletProvider: !!walletProvider
-        });
+        console.error('Required dependencies not met');
         return;
     }
 
     try {
-        console.log('Starting minting process...'); // Debug log
         setMintingStates(prev => ({...prev, [pass._id]: true}));
+        setIsMinting(true);
         
-        // Step 1: Generate and upload image first
+        // Generate the access card using the template
         const cardElement = cardRef.current.querySelector('div');
-        console.log('Card element found:', !!cardElement); // Debug log
-
         if (!cardElement) throw new Error('Card template not found');
 
-        // Test IPFS upload with a small file first
-        console.log('Testing IPFS connection...'); // Debug log
-        const testBlob = new Blob(['test'], { type: 'text/plain' });
-        const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-        
-        try {
-            const testUrl = await uploadToIPFS(testFile);
-            console.log('Test IPFS upload successful:', testUrl); // Debug log
-        } catch (error) {
-            console.error('IPFS test upload failed:', error);
-            throw new Error('IPFS connection failed');
-        }
-
-        // After IPFS upload succeeds, log wallet state
-        console.log('IPFS upload complete, checking wallet state:', {
-            isConnected,
-            hasWalletProvider: !!walletProvider,
-            walletAddress: localStorage.getItem('address')
-        });
-
-        const walletAddress = localStorage.getItem('address');
-        if (!walletAddress) throw new Error('No wallet address found');
-        
-        const walletPubkey = new PublicKey(walletAddress);
-        console.log('Wallet public key created:', walletPubkey.toString());
-
-        // Add test transaction here
-        console.log('Testing wallet transaction...');
-        const testTransaction = new Transaction().add(
-            SystemProgram.transfer({
-                fromPubkey: walletPubkey,
-                toPubkey: walletPubkey,
-                lamports: 0,
-            })
-        );
-
-        // First latestBlockhash (for test transaction)
-        const testBlockhash = await connection.getLatestBlockhash();
-        testTransaction.recentBlockhash = testBlockhash.blockhash;
-        testTransaction.feePayer = walletPubkey;
-
-        console.log('Sending test transaction...');
-        const testSignature = await walletProvider.sendTransaction(testTransaction, connection);
-        console.log('Test transaction successful:', testSignature);
-
-        // Update the hidden template with the correct profile data
+        // Update the card template with pass data
         const hiddenCard = cardRef.current;
         const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
         const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
         
         if (!profileImage || !username) throw new Error('Card template elements not found');
 
-        // Update the hidden template
+        // Set the actual pass data
         profileImage.src = pass.image;
         username.textContent = pass.creatorName;
         
-        // Wait for image loading
+        // Wait for image to load
         await new Promise((resolve) => {
             if (profileImage.complete) resolve(null);
             else {
@@ -240,43 +186,45 @@ const PassesPage = () => {
             }
         });
         
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Generate and upload image
+        // Generate card image
         const dataUrl = await toPng(hiddenCard);
         const response = await fetch(dataUrl);
         const blob = await response.blob();
-        const file = new File([blob], 'card.png', { type: 'image/png' });
+        const file = new File([blob], `${pass.creatorName.replace(/\s+/g, '_')}_access_card.png`, { type: 'image/png' });
         
+        // Upload image to IPFS
         const imageUrl = await uploadToIPFS(file);
         if (!imageUrl) throw new Error('Failed to upload image to IPFS');
         
-        const metadataUrl = await uploadMetadataToIPFS(imageUrl, pass.creatorName);
+        // Create and upload metadata
+        const metadata = {
+            name: `${pass.creatorName} Access Card`,
+            symbol: 'CARD',
+            description: pass.message,
+            image: imageUrl,
+            attributes: [
+                { trait_type: 'Type', value: pass.type },
+                { trait_type: 'Creator', value: pass.creatorName },
+                { trait_type: 'Fun Forum Access', value: pass.rules.funForumAccess },
+                { trait_type: 'Like Comment Access', value: pass.rules.likeCommentAccess },
+                { trait_type: 'Download Access', value: pass.rules.downloadAccess },
+                { trait_type: 'Gift Access', value: pass.rules.giftAccess }
+            ]
+        };
+        
+        const metadataUrl = await uploadMetadataToIPFS(imageUrl, metadata);
         if (!metadataUrl) throw new Error('Failed to upload metadata to IPFS');
 
-        // Step 2: Prepare transaction
-        // Second latestBlockhash (for mint transaction)
-        const mintBlockhash = await connection.getLatestBlockhash();
-        const transaction = new Transaction({
-            feePayer: walletPubkey,
-            recentBlockhash: mintBlockhash.blockhash,
-        });
-
-        // Check balance
-        const balance = await connection.getBalance(walletPubkey);
-        const rentExempt = await getMinimumBalanceForRentExemptMint(connection);
-        const passPriceInLamports = pass.price * LAMPORTS_PER_SOL;
-        const estimatedCost = rentExempt + passPriceInLamports + (0.05 * LAMPORTS_PER_SOL);
-
-        if (balance < estimatedCost) {
-            throw new Error(`Insufficient SOL balance. Need at least ${(estimatedCost / LAMPORTS_PER_SOL).toFixed(4)} SOL`);
-        }
-
+        const walletAddress = localStorage.getItem('address');
+        if (!walletAddress) throw new Error('No wallet address found');
+        
+        const walletPubkey = new PublicKey(walletAddress);
+        
         // Create mint account
         const mintKeypair = Keypair.generate();
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
-        // Get token account address
+        // Get token account and metadata addresses
         const [associatedTokenAddress] = await PublicKey.findProgramAddress(
             [
                 walletPubkey.toBuffer(),
@@ -286,7 +234,6 @@ const PassesPage = () => {
             ASSOCIATED_TOKEN_PROGRAM_ID
         );
 
-        // Get metadata address
         const [metadataAddress] = PublicKey.findProgramAddressSync(
             [
                 Buffer.from('metadata'),
@@ -296,7 +243,13 @@ const PassesPage = () => {
             TOKEN_METADATA_PROGRAM_ID
         );
 
-        // Add instructions
+        // Create and configure transaction
+        const transaction = new Transaction();
+        const blockHash = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockHash.blockhash;
+        transaction.feePayer = walletPubkey;
+
+        // Add instructions for minting
         transaction.add(
             SystemProgram.createAccount({
                 fromPubkey: walletPubkey,
@@ -334,11 +287,15 @@ const PassesPage = () => {
                 {
                     createMetadataAccountArgsV3: {
                         data: {
-                            name: `${pass.creatorName} Access Card`,
-                            symbol: 'CARD',
+                            name: metadata.name,
+                            symbol: metadata.symbol,
                             uri: metadataUrl,
                             sellerFeeBasisPoints: 0,
-                            creators: null,
+                            creators: [{
+                                address: walletPubkey,
+                                verified: true,
+                                share: 100
+                            }],
                             collection: null,
                             uses: null,
                         },
@@ -349,47 +306,32 @@ const PassesPage = () => {
             )
         );
 
-        // Sign with mint keypair
         transaction.sign(mintKeypair);
-
-        // Send transaction using wallet provider
+        
+        // Send and confirm transaction
         const signature = await walletProvider.sendTransaction(transaction, connection);
         await connection.confirmTransaction(signature);
 
         setToast({
             show: true,
-            message: 'NFT minted successfully!',
+            message: 'Access Card minted successfully!',
             type: 'success'
         });
 
-        setTimeout(() => {
-            setToast({
-                show: false,
-                message: '',
-                type: 'success'
-            });
-        }, 3000);
-
     } catch (err) {
         console.error('Error minting NFT:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to mint NFT';
         setToast({
             show: true,
-            message: errorMessage,
+            message: err instanceof Error ? err.message : 'Failed to mint Access Card',
             type: 'error'
         });
-        setTimeout(() => {
-            setToast({
-                show: false,
-                message: '',
-                type: 'error'
-            });
-        }, 3000);
     } finally {
         setIsMinting(false);
         setMintingStates(prev => ({...prev, [pass._id]: false}));
+        setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
     }
 };
+
   return (
     <div className='min-h-screen pb-[120px] md:pb-0 bg-black'>
       <NavBar />
