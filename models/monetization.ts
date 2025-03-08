@@ -5,4 +5,4 @@ const monetizationSchema = new mongoose.Schema({
     account: String
 });
 
-export default mongoose.models.Monetization || mongoose.model('Monetization', monetizationSchema);
+export default mongoose.models.monetization || mongoose.model('monetization', monetizationSchema);
