@@ -15,36 +15,33 @@ export const uploadToIPFS = async (file: File): Promise<string> => {
   return data.url;
 };
 
-export const uploadMetadataToIPFS = async (imageUrl: string, name: string): Promise<string> => {
-  const metadata = {
-    name: `${name} Access Card`,
-    description: `Access Card for ${name}`,
-    image: imageUrl,
-    attributes: [
-      {
-        trait_type: "Type",
-        value: "Access Card"
-      },
-      {
-        trait_type: "Creator",
-        value: name
-      }
-    ]
-  };
-
-  const response = await fetch('/api/upload', {
-    method: 'POST',
-    body: JSON.stringify(metadata),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to upload metadata to IPFS');
+export const uploadMetadataToIPFS = async (
+  imageUrl: string, 
+  metadata: {
+    name: string;
+    symbol: string;
+    description: string;
+    image: string;
+    attributes: Array<{
+      trait_type: string;
+      value: string | boolean;
+    }>;
   }
+): Promise<string> => {
+  try {
+    const response = await fetch('/api/upload-metadata', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(metadata),
+    });
 
-  const data = await response.json();
-  return data.url;
-}; 
+    if (!response.ok) throw new Error('Failed to upload metadata');
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    console.error('Error uploading metadata:', error);
+    throw error;
+  }
+};
