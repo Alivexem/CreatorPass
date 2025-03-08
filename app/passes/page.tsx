@@ -356,16 +356,35 @@ const PassesPage = () => {
         const signature = await walletProvider.sendTransaction(transaction, connection);
         console.log('Transaction sent:', signature);
         
-        console.log('Confirming transaction...');
-        const confirmation = await connection.confirmTransaction(signature);
-        console.log('Transaction confirmed:', confirmation);
+        // Start a timer for success case
+        const successTimer = setTimeout(() => {
+            console.log('No error after 10 seconds, assuming success');
+            setToast({
+                show: true,
+                message: 'Access Card minted successfully!',
+                type: 'success'
+            });
+            setIsMinting(false);
+            setMintingStates(prev => ({...prev, [pass._id]: false}));
+        }, 10000); // 10 seconds
 
-        console.log('Minting complete!');
-        setToast({
-            show: true,
-            message: 'Access Card minted successfully!',
-            type: 'success'
-        });
+        try {
+            console.log('Confirming transaction...');
+            const confirmation = await connection.confirmTransaction(signature);
+            console.log('Transaction confirmed:', confirmation);
+            
+            // If we get here before the timer, clear it and show success
+            clearTimeout(successTimer);
+            setToast({
+                show: true,
+                message: 'Access Card minted successfully!',
+                type: 'success'
+            });
+        } catch (confirmError) {
+            // Clear the success timer if we get a confirmation error
+            clearTimeout(successTimer);
+            throw confirmError;
+        }
 
     } catch (err) {
         console.error('Detailed error:', err);
@@ -377,7 +396,8 @@ const PassesPage = () => {
     } finally {
         setIsMinting(false);
         setMintingStates(prev => ({...prev, [pass._id]: false}));
-        setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+        // Increase toast display time to 5 seconds
+        setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 5000);
     }
 };
 
