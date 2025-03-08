@@ -42,7 +42,7 @@ export const uploadMetadataToIPFS = async (
   
   try {
     console.log('Sending metadata to upload endpoint...');
-    const response = await fetch('/api/upload-metadata', {
+    const response = await fetch('/api/upload', { // Changed from /api/upload-metadata
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
