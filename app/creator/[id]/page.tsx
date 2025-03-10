@@ -17,6 +17,25 @@ import { FaCar } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import { IoFlash } from "react-icons/io5";
 import { IoSend } from "react-icons/io5";
+import { IoMdDownload } from "react-icons/io"; // Add this import
+import { MdContentCopy } from "react-icons/md"; // Add this import
+import { IoHeart, IoHeartOutline } from "react-icons/io5"; // Add this import
+
+import { CommentModal } from '@/components/CommentModal';
+import { CommentItem } from '@/components/CommentItem';
+
+interface Comment {
+    _id: string;
+    address: string;
+    username: string;
+    comment: string;
+    timestamp?: Date;
+    likes?: string[];
+    likeCount?: number;
+    replies?: Comment[];
+    profileImage?: string;
+    hasReplies?: boolean;  // Add this property
+}
 
 interface Post {
     _id: string;
@@ -24,11 +43,7 @@ interface Post {
     note: string;
     image: string;
     createdAt: string;
-    comments?: Array<{
-        address: string;
-        comment: string;
-        timestamp?: Date;
-    }>;
+    comments?: Comment[];
     likes?: string[];
     likeCount?: number;
 }
@@ -44,12 +59,18 @@ interface FunChat {
     message: string;
     profileImage: string;
     timestamp: string;
+    username?: string; // Add username to interface
 }
 
 interface PageProps {
     params: {
         id: string
     }
+}
+
+interface CommentHandlers {
+    handleComment: (postId: string, comment: string, replyToId?: string) => Promise<void>;
+    handleCommentLike: (postId: string, commentId: string) => Promise<void>;
 }
 
 const CreatorPage = ({ params }: PageProps) => {
@@ -84,6 +105,12 @@ const CreatorPage = ({ params }: PageProps) => {
     const chatRef = useRef<HTMLDivElement>(null);
     const [userProfile, setUserProfile] = useState<Profile | null>(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
+    const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+    const [showCommentModal, setShowCommentModal] = useState(false);
+    const [replyTo, setReplyTo] = useState<Comment | null>(null);
+    const [commentLikes, setCommentLikes] = useState<{[key: string]: boolean}>({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadedPosts, setLoadedPosts] = useState(false);
 
     const { isConnected, address } = useAppKitAccount();
     const { connection } = useAppKitConnection();
@@ -198,8 +225,11 @@ const CreatorPage = ({ params }: PageProps) => {
                 setPosts(creatorPosts);
                 setLikes(initialLikes);
                 setHasLiked(initialHasLiked);
+                setLoadedPosts(true);
             } catch (error) {
                 console.error('Error fetching posts:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -241,26 +271,44 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
-    const handleComment = async (e: React.FormEvent, postId: string) => {
-        e.preventDefault();
-        if (!newComment[postId]?.trim()) return;
-
-        setIsCommenting(prev => ({ ...prev, [postId]: true }));
+    const handleComment = async (postId: string, comment: string, replyToId?: string): Promise<void> => {
+        if (!comment.trim()) return;
 
         try {
             const address = localStorage.getItem('address');
-            if (!address) return;
+            if (!address || !userProfile) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet and create a profile first',
+                    type: 'error'
+                });
+                return;
+            }
 
-            const res = await fetch(`/api/posts/${postId}/comment`, {
-                method: 'PUT',
+            const payload = {
+                address,
+                comment: comment.trim(),
+                replyToId,
+                username: userProfile.username,
+                profileImage: userProfile.profileImage
+            };
+
+            const res = await fetch(`/api/posts/${postId}/comments`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    address,
-                    comment: newComment[postId].trim()
-                })
+                body: JSON.stringify(payload)
             });
 
+            if (!res.ok) throw new Error('Failed to add comment');
             const data = await res.json();
+
+            // Update both the selected post and posts state
+            setSelectedPost(prev => 
+                prev?._id === postId 
+                    ? { ...prev, comments: data.comments }
+                    : prev
+            );
+
             setPosts(prevPosts =>
                 prevPosts.map(post =>
                     post._id === postId
@@ -269,19 +317,127 @@ const CreatorPage = ({ params }: PageProps) => {
                 )
             );
 
-            setNewComment(prev => ({ ...prev, [postId]: '' }));
+            // Reset the reply state if this was a reply
+            if (replyToId) {
+                setReplyTo(null);
+            }
+
         } catch (error) {
             console.error('Error adding comment:', error);
-        } finally {
-            setIsCommenting(prev => ({ ...prev, [postId]: false }));
+            setToast({
+                show: true,
+                message: 'Failed to add comment. Please try again.',
+                type: 'error'
+            });
         }
     };
 
-    const censorAddress = (address: string) => {
-        if (!address) return '';
-        const start = address.slice(0, 6);
-        const end = address.slice(-4);
-        return `${start}...${end}`;
+    const handleCommentLike = async (postId: string, commentId: string) => {
+        try {
+            const address = localStorage.getItem('address');
+            if (!address || !userProfile) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet and create a profile first',
+                    type: 'error'
+                });
+                return;
+            }
+
+            const res = await fetch(`/api/posts/${postId}/comments/${commentId}/like`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    address,
+                    username: userProfile.username 
+                })
+            });
+
+            if (!res.ok) throw new Error('Failed to like comment');
+            const data = await res.json();
+
+            // Update both selected post and posts state
+            const updateCommentsWithLike = (comments: Comment[]): Comment[] => 
+                comments.map(c => {
+                    if (c._id === commentId) {
+                        return { 
+                            ...c, 
+                            likeCount: data.likeCount,
+                            likes: data.likes 
+                        };
+                    }
+                    if (c.replies) {
+                        return { ...c, replies: updateCommentsWithLike(c.replies) };
+                    }
+                    return c;
+                });
+
+            setSelectedPost(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    comments: updateCommentsWithLike(prev.comments || [])
+                };
+            });
+
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post._id === postId
+                        ? { ...post, comments: updateCommentsWithLike(post.comments || []) }
+                        : post
+                )
+            );
+
+        } catch (error) {
+            console.error('Error liking comment:', error);
+            setToast({
+                show: true,
+                message: 'Failed to like comment. Please try again.',
+                type: 'error'
+            });
+        }
+    };
+
+    const handleReply = async (postId: string, comment: string, replyToId: string) => {
+        if (!replyToId) {
+            console.error('No reply target specified');
+            return;
+        }
+        await handleComment(postId, comment, replyToId);
+    };
+
+    const updateComments = (comments: Comment[], targetCommentId: string, likeData: { likeCount: number, likes: string[] }): Comment[] => {
+        return comments.map(c => {
+            if (c._id === targetCommentId) {
+                return { ...c, likeCount: likeData.likeCount, likes: likeData.likes };
+            }
+            if (c.replies) {
+                return { ...c, replies: updateComments(c.replies, targetCommentId, likeData) };
+            }
+            return c;
+        });
+    };
+
+    const handleCommentClick = async (post: Post) => {
+        setSelectedPost(post);
+        setShowCommentModal(true);
+
+        // Fetch full comment data including replies
+        try {
+            const res = await fetch(`/api/posts/${post._id}/comments`);
+            const data = await res.json();
+            if (data.comments) {
+                setSelectedPost(prev => 
+                    prev ? { ...prev, comments: data.comments } : null
+                );
+            }
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        }
+    };
+
+    const formatUserInfo = (username: string = 'Anonymous') => {
+        return username;
     };
 
     const handleCopyAddress = async () => {
@@ -299,7 +455,7 @@ const CreatorPage = ({ params }: PageProps) => {
         setShowGiftModal(false);
     };
 
-    const handleSendFunChat = async (e: React.FormEvent) => {
+    const handleSendFunChat = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!funChatMessage.trim()) return;
 
@@ -347,7 +503,7 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className='bg-black pb-[100px] md:pb-0 min-h-screen flex flex-col'>
                 <NavBar />
@@ -358,7 +514,7 @@ const CreatorPage = ({ params }: PageProps) => {
         );
     }
 
-    if (posts.length === 0) {
+    if (loadedPosts && posts.length === 0) {
         return (
             <div className='bg-black pb-[100px] md:pb-0 min-h-screen flex flex-col'>
                 <NavBar />
@@ -406,7 +562,7 @@ const CreatorPage = ({ params }: PageProps) => {
                             </div>
                             <div className='flex items-center gap-x-2'>
                                 <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                                <p className='hidden md:block text-gray-400'>{censorAddress(post.username)}</p>
+                                <p className='hidden md:block text-gray-400'>{formatUserInfo(post.username)}</p>
                             </div>
                         </div>
                         <div className='px-10 mt-5 text-gray-200'>
@@ -439,10 +595,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                 <p>{likes[post._id] || post.likeCount || 0} likes</p>
                             </button>
                             <button
-                                onClick={() => setShowComments(prev => ({
-                                    ...prev,
-                                    [post._id]: !prev[post._id]
-                                }))}
+                                onClick={() => handleCommentClick(post)}
                                 className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                             >
                                 <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
@@ -454,10 +607,30 @@ const CreatorPage = ({ params }: PageProps) => {
                             >
                                 <FaGift className='text-[1.1rem] md:text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
                             </button>
+                            {/* Add these new buttons */}
+                            <button
+                                onClick={() => navigator.clipboard.writeText(post.note)}
+                                className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
+                            >
+                                <MdContentCopy className='text-[1.1rem] md:text-[1.7rem]' />
+                                <p className='hidden md:block'>Copy</p>
+                            </button>
+                            {post.image && (
+                                <button
+                                    onClick={() => window.open(post.image, '_blank')}
+                                    className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
+                                >
+                                    <IoMdDownload className='text-[1.1rem] md:text-[1.7rem]' />
+                                    <p className='hidden md:block'>Download</p>
+                                </button>
+                            )}
                         </div>
                         {showComments[post._id] && (
                             <div className='px-10 py-5 border-t border-gray-800 transition-all duration-300'>
-                                <form onSubmit={(e) => handleComment(e, post._id)} className='mb-4'>
+                                <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+                                    e.preventDefault();
+                                    handleComment(post._id, newComment[post._id] || '');
+                                }} className='mb-4'>
                                     <input
                                         type="text"
                                         value={newComment[post._id] || ''}
@@ -484,7 +657,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                         )
                                         .map((comment, idx) => (
                                             <div key={idx} className='bg-[#1A1D1F] p-3 rounded-lg'>
-                                                <p className='text-gray-400'>{censorAddress(comment.address)}</p>
+                                                <p className='text-gray-400'>{formatUserInfo(comment.address)}</p>
                                                 <p className='text-gray-200'>{comment.comment}</p>
                                             </div>
                                         ))}
@@ -647,7 +820,7 @@ const CreatorPage = ({ params }: PageProps) => {
                                 />
                                 <div>
                                     <p className="text-blue-200 text-xs">
-                                        {censorAddress(chat.address)}
+                                        {chat.username || 'Anonymous'}
                                     </p>
                                     <p className="text-white text-sm">{chat.message}</p>
                                 </div>
@@ -690,6 +863,17 @@ const CreatorPage = ({ params }: PageProps) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showCommentModal && selectedPost && (
+                <CommentModal 
+                    post={selectedPost}
+                    onClose={() => setShowCommentModal(false)}
+                    onComment={handleComment}
+                    onLike={handleCommentLike}
+                    onReply={handleComment}
+                    userProfile={userProfile || null}
+                />
             )}
 
             <Footer />
