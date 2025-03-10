@@ -129,7 +129,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
   };
 
   const handleDeletePass = async (passId: string) => {
-    if (deleteConfirmText !== 'i want to delete this pass') {
+    if (deleteConfirmText !== 'I want to delete this pass') {
       setToast({
         show: true,
         message: 'Please type the confirmation text correctly',
@@ -401,7 +401,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                   Warning: Deleting this pass will remove access for all fans who purchased it.
                   They will no longer be able to view your exclusive content.
                 </p>
-                <p className="text-gray-400 mb-2">Type 'i want to delete this pass' to confirm:</p>
+                <p className="text-gray-400 mb-2">Type 'I want to delete this pass' to confirm:</p>
                 <input
                   type="text"
                   value={deleteConfirmText}

@@ -65,7 +65,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onRep
                         <div className="flex justify-between items-start gap-2">
                             <div className="flex flex-col">
                                 <span className="text-white font-medium truncate">
-                                    {commentProfile?.username || ''}
+                                    {commentProfile?.username || '...'}
                                 </span>
                                 <span className="text-xs text-gray-500">
                                     {formatTimestamp(comment.timestamp)}

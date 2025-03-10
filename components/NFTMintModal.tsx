@@ -104,7 +104,7 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreate
         {/* Header */}
         <div className="p-6 border-b border-gray-800">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-white">Pass Creation</h2>
+            <h2 className="text-2xl font-bold text-white">Pass card creation</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-white">
               <IoMdClose size={24} />
             </button>
@@ -126,7 +126,7 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreate
                 </button>
                 <button
                   onClick={() => setSelectedType('Special')}
-                  className="w-full p-4 rounded border border-purple-600-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
+                  className="w-full p-4 rounded-lg border border-purple-600 bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
                 >
                   <FaRegStar size={20} />
                   Special
@@ -139,7 +139,7 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreate
                   VIP
                 </button>
 
-                <p className='text-white text-[0.8rem]'>20% is charged as platform fee each time you make a sale. 80% is sent to your wallet instantly</p>
+                <p className='text-white text-[0.8rem]'>A 20% platform-maintenance fee is deducted on every pass sale and the remaining 80% is sent to your wallet instantly.</p>
               </div>
             ) : (
               <div className="space-y-6">

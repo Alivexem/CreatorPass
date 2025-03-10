@@ -582,7 +582,7 @@ const CreatorPage = ({ params }: PageProps) => {
                     {toast.message}
                 </div>
             )}
-            <div className='pt-[200px]'></div>
+            <div className='pt-[100px] md:pt-[200px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20 md:mb-64 md:ml-[300px]'>
                 {posts.map((post) => (
                     <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
