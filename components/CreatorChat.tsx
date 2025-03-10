@@ -10,6 +10,7 @@ import { BsEmojiSmile } from 'react-icons/bs';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import Toast from '@/components/Toast';
+import { useRouter } from 'next/navigation';
 
 interface Message {
   id: string;
@@ -40,6 +41,7 @@ interface CreatorChatProps {
 const database = getDatabase(app);
 
 const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile, onClose }: CreatorChatProps) => {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -53,6 +55,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     message: string;
     type: 'success' | 'error' | 'info' | 'warning';
   }>({ show: false, message: '', type: 'info' });
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -71,6 +75,20 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   }, []);
 
   useEffect(() => {
+    // Validate user profile immediately when component mounts
+    if (!userProfile || !userProfile?.username || userProfile?.username === '') {
+      setToast({
+        show: true,
+        message: 'Please create a profile first',
+        type: 'warning'
+      });
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 2000);
+      return;
+    }
+
     const chatId = [creatorAddress, userAddress].sort().join('-');
     const messagesRef = ref(database, `chats/${chatId}/messages`);
     const messagesQuery = query(messagesRef, orderByChild('timestamp'));
@@ -101,13 +119,31 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     });
 
     return () => unsubscribe();
-  }, [creatorAddress, userAddress]);
+  }, [creatorAddress, userAddress, userProfile, router]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    // Detect keyboard visibility changes
+    const handleResize = () => {
+      const isKeyboard = window.innerHeight < window.outerHeight * 0.85;
+      setIsKeyboardVisible(isKeyboard);
+      
+      if (formRef.current) {
+        if (isKeyboard) {
+          // When keyboard is visible, scroll to input
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleMouseEnter = (messageId: string) => {
     setHoveredMessage(messageId);
@@ -266,7 +302,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         </div>
 
         {/* Input */}
-        <form onSubmit={sendMessage} className="p-4 bg-[#232629]">
+        <form 
+          ref={formRef}
+          onSubmit={sendMessage} 
+          className={`p-4 bg-[#232629] transition-all duration-300 ${
+            isKeyboardVisible ? 'fixed bottom-0 left-0 right-0 md:relative' : ''
+          }`}
+        >
           <div className="flex gap-2 items-center">
             <button
               ref={emojiButtonRef}

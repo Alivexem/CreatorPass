@@ -162,11 +162,11 @@ export default function NotificationDropdown() {
             >
                 {unreadCount > 0 ? (
                     <>
-                        <IoNotifications className="text-[22px] md:text-[25px]" />
+                        <IoNotifications className="text-[19px] md:text-[25px]" />
                         <RxDotFilled className="absolute -top-1 -right-1 text-blue-500 text-lg" />
                     </>
                 ) : (
-                    <IoNotificationsOutline className="text-[22px] md:text-[25px]" />
+                    <IoNotificationsOutline className="text-[19px] md:text-[25px]" />
                 )}
             </button>
 
@@ -176,7 +176,7 @@ export default function NotificationDropdown() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 md:right-auto mt-2 w-80 bg-[#1A1D1F] rounded-lg shadow-lg overflow-hidden z-50"
+                        className="absolute -left-[450%] md:left-auto md:right-auto mt-2 w-80 bg-[#1A1D1F] rounded-lg shadow-lg overflow-hidden z-50"
                     >
                         <div className="max-h-96 overflow-y-auto">
                             {notifications.length === 0 ? (
@@ -196,7 +196,7 @@ export default function NotificationDropdown() {
                                                 alt=""
                                                 width={40}
                                                 height={40}
-                                                className="rounded-full"
+                                                className="rounded-[50%] object-fit"
                                             />
                                             <div>
                                                 <p className="text-white font-semibold">{notification.senderName}</p>

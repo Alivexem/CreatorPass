@@ -119,25 +119,27 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreate
                 <h2 className="text-xl font-bold text-white mb-6">Select Pass Type</h2>
                 <button
                   onClick={() => setSelectedType('Regular')}
-                  className="w-full p-4 rounded-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
+                  className="w-full p-4 border border-purple-600 rounded-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
                 >
                   <BsTicketPerforated size={20} />
                   Regular
                 </button>
                 <button
                   onClick={() => setSelectedType('Special')}
-                  className="w-full p-4 rounded-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
+                  className="w-full p-4 rounded border border-purple-600-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
                 >
                   <FaRegStar size={20} />
                   Special
                 </button>
                 <button
                   onClick={() => setSelectedType('VIP')}
-                  className="w-full p-4 rounded-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
+                  className="w-full p-4 rounded-lg border border-purple-600 bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
                 >
                   <RiVipCrownLine size={20} />
                   VIP
                 </button>
+
+                <p className='text-white text-[0.8rem]'>20% is charged as platform fee each time you make a sale. 80% is sent to your wallet instantly</p>
               </div>
             ) : (
               <div className="space-y-6">
