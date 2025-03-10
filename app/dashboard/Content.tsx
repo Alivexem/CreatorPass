@@ -17,6 +17,7 @@ interface Post {
     username: string;
     note: string;
     image?: string;
+    tier: 'Free' | 'Regular' | 'Special' | 'VIP';
     comments?: Array<{
         address: string;
         comment: string;
@@ -24,6 +25,17 @@ interface Post {
     }>;
     likes?: string[];
     likeCount?: number;
+}
+
+interface PassTier {
+    name: 'Free' | 'Regular' | 'Special' | 'VIP';
+    available: boolean;
+}
+
+interface Pass {
+    _id: string;
+    type: 'Regular' | 'Special' | 'VIP';
+    creatorAddress: string;
 }
 
 const Content = ({ setToast }: ContentProps) => {
@@ -45,6 +57,13 @@ const Content = ({ setToast }: ContentProps) => {
     const [isCommentLoading, setIsCommentLoading] = useState<{ [key: string]: boolean }>({});
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImage, setModalImage] = useState('');
+    const [selectedTier, setSelectedTier] = useState<string>('Free');
+    const [availableTiers, setAvailableTiers] = useState<PassTier[]>([
+        { name: 'Free', available: true },
+        { name: 'Regular', available: false },
+        { name: 'Special', available: false },
+        { name: 'VIP', available: false },
+    ]);
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -109,8 +128,28 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
+    const fetchUserPasses = async () => {
+        try {
+            const address = localStorage.getItem('address');
+            if (!address) return;
+
+            const response = await fetch(`/api/passes?address=${address}`);
+            const data = await response.json();
+            
+            const userPasses: Pass[] = data.passes || [];
+            
+            setAvailableTiers(prev => prev.map(tier => ({
+                ...tier,
+                available: tier.name === 'Free' || userPasses.some((pass: Pass) => pass.type === tier.name)
+            })));
+        } catch (error) {
+            console.error('Error fetching passes:', error);
+        }
+    };
+
     useEffect(() => {
         fetchPosts();
+        fetchUserPasses();
     }, []);
 
     const handleDelete = async (postId: string) => {
@@ -217,10 +256,13 @@ const Content = ({ setToast }: ContentProps) => {
                 throw new Error('Profile not found, setup your profile');
             }
 
-            const fullData = {
+            // Make sure the tier is explicitly included in the post data
+            const postData = {
                 username: myAddress,
                 note: note.trim(),
-                image: image || ''
+                image: image || '',
+                tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP', // Explicitly type the tier
+                timestamp: new Date().toISOString()
             };
 
             const res = await fetch('/api', {
@@ -229,7 +271,7 @@ const Content = ({ setToast }: ContentProps) => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(fullData)
+                body: JSON.stringify(postData)
             });
 
             if (!res.ok) {
@@ -378,7 +420,7 @@ const Content = ({ setToast }: ContentProps) => {
         if (!address) return '';
         const start = address.slice(0, 4);
         const end = address.slice(-4);
-        return `${start}xxxxxxxx${end}`;
+        return `${start}*****${end}`;
     };
 
     useEffect(() => {
@@ -388,6 +430,15 @@ const Content = ({ setToast }: ContentProps) => {
             }
         };
     }, [selectedImage]);
+
+    const getTierColor = (tier: string) => {
+        switch(tier) {
+            case 'VIP': return 'text-yellow-500';
+            case 'Special': return 'text-purple-500';
+            case 'Regular': return 'text-blue-500';
+            default: return 'text-gray-500';
+        }
+    };
 
     return (
         <div className='min-h-screen bg-black px-4 py-8'>
@@ -500,7 +551,7 @@ const Content = ({ setToast }: ContentProps) => {
                 {/* Upload Modal */}
                 {showUploader && (
                     <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4'>
-                        <div className='bg-[#2A2D2F] -mt-[20px] md:-mt-0 rounded-xl max-w-xl w-full'>
+                        <div className='bg-[#2A2D2F] -mt-[18%] md:-mt-0 h-[80vh] md:h-[95vh] rounded-xl max-w-xl w-full'>
                             <form onSubmit={handleSubmit} className='p-6'>
                                 <div className='flex flex-col gap-6'>
                                     <div className='flex justify-between items-center'>
@@ -515,7 +566,7 @@ const Content = ({ setToast }: ContentProps) => {
                                     </div>
 
                                     <div 
-                                        className='relative group cursor-pointer rounded-xl overflow-hidden h-[200px]'
+                                        className='relative group cursor-pointer rounded-xl overflow-hidden h-[100px] md:h-[150px]'
                                         onDragOver={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
@@ -581,6 +632,30 @@ const Content = ({ setToast }: ContentProps) => {
                                             Processing image...
                                         </div>
                                     )}
+
+                                    <div className="relative">
+                                        <select
+                                            value={selectedTier}
+                                            onChange={(e) => setSelectedTier(e.target.value)}
+                                            className="w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none appearance-none cursor-pointer"
+                                        >
+                                            {availableTiers.map((tier) => (
+                                                <option
+                                                    key={tier.name}
+                                                    value={tier.name}
+                                                    disabled={!tier.available}
+                                                    className={!tier.available ? 'text-gray-500' : ''}
+                                                >
+                                                    {tier.name} {!tier.available && '(Create this pass first)'}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
 
                                     <textarea 
                                         value={note}

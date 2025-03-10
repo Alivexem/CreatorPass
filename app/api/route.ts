@@ -5,22 +5,31 @@ import Creates from "../../models/uploads";
 export async function POST(request: NextRequest) {
     try {
         await connectDB();
-        const data = await request.json();
+        const { username, note, image, tier, timestamp } = await request.json();
         
-        const newPost = await Creates.create({
-            username: data.username,
-            note: data.note,
-            image: data.image || '',
-            likes: [],
-            comments: []
-        });
+        if (!username || !note) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
 
-        console.log('Created new post:', newPost);
+        const postData = {
+            username,
+            note,
+            image: image || '',
+            tier: tier || 'Free', // Default to 'Free' if not specified
+            createdAt: timestamp || new Date().toISOString(),
+            likes: [],
+            likeCount: 0,
+            comments: []
+        };
+
+        const post = new Creates(postData);
+        await post.save();
 
         return NextResponse.json({ 
             message: 'Post uploaded',
-            post: newPost 
+            post: post 
         });
+
     } catch (error: any) {
         console.error('Post creation error:', error);
         return NextResponse.json({ 

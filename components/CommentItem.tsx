@@ -64,7 +64,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onRep
                     <div className="bg-[#111315] p-3 rounded-lg">
                         <div className="flex justify-between items-start gap-2">
                             <div className="flex flex-col">
-                                <span className="text-white font-medium truncate">
+                                <span className="text-gray-300 text-[0.9rem] font-medium truncate">
                                     {commentProfile?.username || '...'}
                                 </span>
                                 <span className="text-xs text-gray-500">
@@ -75,9 +75,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onRep
                                 <span className="text-xs text-blue-400">Me</span>
                             )}
                         </div>
-                        <p className="text-gray-300 mt-1 break-words">{comment.comment}</p>
+                        <p className="text-white mt-1 break-words">{comment.comment}</p>
                     </div>
-                    <div className="flex gap-4 mt-2 text-sm">
+                    {/* <div className="flex gap-4 mt-2 text-sm">
                         <button
                             onClick={() => onLike(postId, comment._id)}
                             className="text-gray-400 hover:text-white flex items-center gap-1"
@@ -97,7 +97,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onRep
                                 Reply
                             </button>
                         )}
-                    </div>
+                    </div> */}
                     
                     {comment.hasReplies && !isReply && (
                         <button
