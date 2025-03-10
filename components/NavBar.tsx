@@ -179,7 +179,7 @@ const NavBar = () => {
                 <NotificationDropdown />
               </div>
               <div
-                className='bg-gray-200 h-[70%] md:h-8 px-4 w-auto md:rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purlpe-300'
+                className='bg-gray-200 h-[70%] md:h-8 px-4 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purlpe-300'
                 onClick={handleConnect}
               >
                 <BiWallet className="text-black mr-2" />

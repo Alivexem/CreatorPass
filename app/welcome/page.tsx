@@ -258,7 +258,7 @@ const Page = () => {
                         className='flex items-center gap-x-8'
                     >
                         <Link href='/passes'>
-                            <button className="mt-8 text-[0.8rem] px-4 md:px-8 py-3 md:py-4 rounded-[40px] md:rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+                            <button className="mt-8 text-[0.8rem] px-5 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
   shadow-sm bg-transparent border-[2px] border-blue-600">
                                 Explore Passes
                             </button>
@@ -266,7 +266,7 @@ const Page = () => {
                         </Link>
 
                         <Link href='/creators'>
-                            <button className="mt-8 px-4 md:px-8 py-3 md:py-4 rounded-[40px] md:rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+                            <button className="mt-8 px-5 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
   shadow-sm bg-transparent border-[2px] text-[0.8rem] border-purple-600">
                                 Visit creators
                             </button>
