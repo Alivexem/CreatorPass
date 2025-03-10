@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoMdClose } from "react-icons/io";
 import { CommentItem } from './CommentItem';
 import { Post, Profile, Comment } from '@/types/interfaces';
@@ -16,19 +16,36 @@ interface CommentModalProps {
 export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onComment, onLike, onReply, userProfile }) => {
     const [newComment, setNewComment] = useState('');
     const [replyTo, setReplyTo] = useState<Comment | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newComment.trim()) return;
+        if (!newComment.trim() || isSubmitting) return;
 
-        if (replyTo && replyTo._id) {
-            await onReply(post._id, newComment, replyTo._id);
-        } else {
-            await onComment(post._id, newComment);
+        setIsSubmitting(true);
+        try {
+            // Update to use PUT instead of POST for comments
+            if (replyTo && replyTo._id) {
+                await onReply(post._id, newComment, replyTo._id);
+            } else {
+                await onComment(post._id, newComment);
+            }
+            setNewComment('');
+            setReplyTo(null);
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+        } finally {
+            setIsSubmitting(false);
         }
-        setNewComment('');
-        setReplyTo(null);
     };
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            setNewComment('');
+            setReplyTo(null);
+        };
+    }, []);
 
     return (
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
@@ -41,16 +58,22 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                 </div>
 
                 <div className="h-[calc(75vh-180px)] overflow-y-auto p-4 space-y-4">
-                    {post.comments?.map((comment) => (
-                        <CommentItem 
-                            key={comment._id}
-                            comment={comment}
-                            onLike={onLike}
-                            onReply={(c) => setReplyTo(c)}
-                            postId={post._id}
-                            userProfile={userProfile}
-                        />
-                    ))}
+                    {post.comments && post.comments.length > 0 ? (
+                        post.comments.map((comment) => (
+                            <CommentItem 
+                                key={comment._id}
+                                comment={comment}
+                                onLike={onLike}
+                                onReply={(c) => setReplyTo(c)}
+                                postId={post._id}
+                                userProfile={userProfile}
+                            />
+                        ))
+                    ) : (
+                        <div className="text-center text-gray-400 py-4">
+                            No comments yet. Be the first to comment!
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-4 border-t border-gray-800">
@@ -72,12 +95,14 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                             onChange={(e) => setNewComment(e.target.value)}
                             placeholder="Add a comment..."
                             className="flex-1 bg-[#111315] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            disabled={isSubmitting}
                         />
                         <button
                             type="submit"
-                            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+                            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                            disabled={isSubmitting || !newComment.trim()}
                         >
-                            Post
+                            {isSubmitting ? 'Posting...' : 'Post'}
                         </button>
                     </form>
                 </div>

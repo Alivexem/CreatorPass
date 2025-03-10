@@ -111,6 +111,8 @@ const CreatorPage = ({ params }: PageProps) => {
     const [commentLikes, setCommentLikes] = useState<{[key: string]: boolean}>({});
     const [isLoading, setIsLoading] = useState(true);
     const [loadedPosts, setLoadedPosts] = useState(false);
+    const [downloadedStates, setDownloadedStates] = useState<{ [key: string]: boolean }>({});
+    const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>({});
 
     const { isConnected, address } = useAppKitAccount();
     const { connection } = useAppKitConnection();
@@ -238,6 +240,38 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     }, [id, isProfileFetched]);
 
+    const fetchPostComments = async (postId: string) => {
+        try {
+            const res = await fetch(`/api/posts/${postId}/comments`);
+            if (!res.ok) throw new Error('Failed to fetch comments');
+            const data = await res.json();
+            return data.comments || [];
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            return [];
+        }
+    };
+
+    const updatePostComments = async (postId: string) => {
+        const comments = await fetchPostComments(postId);
+        
+        // Update selected post if it matches
+        setSelectedPost(prev => 
+            prev && prev._id === postId
+                ? { ...prev, comments }
+                : prev
+        );
+
+        // Update posts list
+        setPosts(prevPosts =>
+            prevPosts.map(post =>
+                post._id === postId
+                    ? { ...post, comments }
+                    : post
+            )
+        );
+    };
+
     const handleLike = async (postId: string) => {
         try {
             const address = localStorage.getItem('address');
@@ -258,13 +292,13 @@ const CreatorPage = ({ params }: PageProps) => {
             setPosts(prevPosts =>
                 prevPosts.map(post =>
                     post._id === postId
-                        ? { ...post, likeCount: data.likeCount }
+                        ? { ...post, likeCount: data.likeCount, likes: data.likes }
                         : post
                 )
             );
 
             setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
-            setHasLiked(prev => ({ ...prev, [postId]: data.hasLiked }));
+            setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] }));
 
         } catch (error) {
             console.error('Error updating like:', error);
@@ -285,30 +319,26 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
-            const payload = {
-                address,
-                comment: comment.trim(),
-                replyToId,
-                username: userProfile.username,
-                profileImage: userProfile.profileImage
-            };
+            setIsCommenting(prev => ({ ...prev, [postId]: true }));
 
-            const res = await fetch(`/api/posts/${postId}/comments`, {
-                method: 'POST',
+            // Update to match the API route - use PUT with action
+            const res = await fetch(`/api/posts/${postId}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    action: 'comment',
+                    address,
+                    comment: comment.trim(),
+                    replyToId,
+                    username: userProfile.username,
+                    profileImage: userProfile.profileImage
+                })
             });
 
             if (!res.ok) throw new Error('Failed to add comment');
             const data = await res.json();
 
-            // Update both the selected post and posts state
-            setSelectedPost(prev => 
-                prev?._id === postId 
-                    ? { ...prev, comments: data.comments }
-                    : prev
-            );
-
+            // Update the posts state with the new comments
             setPosts(prevPosts =>
                 prevPosts.map(post =>
                     post._id === postId
@@ -317,7 +347,13 @@ const CreatorPage = ({ params }: PageProps) => {
                 )
             );
 
-            // Reset the reply state if this was a reply
+            // Update selected post if modal is open
+            if (selectedPost && selectedPost._id === postId) {
+                setSelectedPost(prev => prev ? { ...prev, comments: data.comments } : null);
+            }
+
+            // Reset states
+            setNewComment(prev => ({ ...prev, [postId]: '' }));
             if (replyToId) {
                 setReplyTo(null);
             }
@@ -327,6 +363,31 @@ const CreatorPage = ({ params }: PageProps) => {
             setToast({
                 show: true,
                 message: 'Failed to add comment. Please try again.',
+                type: 'error'
+            });
+        } finally {
+            setIsCommenting(prev => ({ ...prev, [postId]: false }));
+        }
+    };
+
+    const handleCommentClick = async (post: Post) => {
+        try {
+            setSelectedPost({...post}); // Create a copy of the post
+            setShowCommentModal(true);
+            
+            const comments = await fetchPostComments(post._id);
+            if (!showCommentModal) return; // Don't update if modal was closed
+
+            // Update both states atomically
+            setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments } : prev);
+            setPosts(prevPosts =>
+                prevPosts.map(p => p._id === post._id ? { ...p, comments } : p)
+            );
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            setToast({
+                show: true,
+                message: 'Failed to load comments. Please try again.',
                 type: 'error'
             });
         }
@@ -347,46 +408,13 @@ const CreatorPage = ({ params }: PageProps) => {
             const res = await fetch(`/api/posts/${postId}/comments/${commentId}/like`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    address,
-                    username: userProfile.username 
-                })
+                body: JSON.stringify({ address })
             });
 
             if (!res.ok) throw new Error('Failed to like comment');
-            const data = await res.json();
 
-            // Update both selected post and posts state
-            const updateCommentsWithLike = (comments: Comment[]): Comment[] => 
-                comments.map(c => {
-                    if (c._id === commentId) {
-                        return { 
-                            ...c, 
-                            likeCount: data.likeCount,
-                            likes: data.likes 
-                        };
-                    }
-                    if (c.replies) {
-                        return { ...c, replies: updateCommentsWithLike(c.replies) };
-                    }
-                    return c;
-                });
-
-            setSelectedPost(prev => {
-                if (!prev) return null;
-                return {
-                    ...prev,
-                    comments: updateCommentsWithLike(prev.comments || [])
-                };
-            });
-
-            setPosts(prevPosts =>
-                prevPosts.map(post =>
-                    post._id === postId
-                        ? { ...post, comments: updateCommentsWithLike(post.comments || []) }
-                        : post
-                )
-            );
+            // Update comments immediately after liking
+            await updatePostComments(postId);
 
         } catch (error) {
             console.error('Error liking comment:', error);
@@ -416,24 +444,6 @@ const CreatorPage = ({ params }: PageProps) => {
             }
             return c;
         });
-    };
-
-    const handleCommentClick = async (post: Post) => {
-        setSelectedPost(post);
-        setShowCommentModal(true);
-
-        // Fetch full comment data including replies
-        try {
-            const res = await fetch(`/api/posts/${post._id}/comments`);
-            const data = await res.json();
-            if (data.comments) {
-                setSelectedPost(prev => 
-                    prev ? { ...prev, comments: data.comments } : null
-                );
-            }
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-        }
     };
 
     const formatUserInfo = (username: string = 'Anonymous') => {
@@ -501,6 +511,35 @@ const CreatorPage = ({ params }: PageProps) => {
         } catch (error) {
             console.error('Error sending message:', error);
         }
+    };
+
+    const handleDownload = async (imageUrl: string, postId: string) => {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `image-${Date.now()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setDownloadedStates(prev => ({ ...prev, [postId]: true }));
+            setTimeout(() => {
+                setDownloadedStates(prev => ({ ...prev, [postId]: false }));
+            }, 2000);
+        } catch (error) {
+            console.error('Error downloading image:', error);
+        }
+    };
+
+    const handleCopy = (text: string, postId: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedStates(prev => ({ ...prev, [postId]: true }));
+        setTimeout(() => {
+            setCopiedStates(prev => ({ ...prev, [postId]: false }));
+        }, 2000);
     };
 
     if (isLoading) {
@@ -609,17 +648,23 @@ const CreatorPage = ({ params }: PageProps) => {
                             </button>
                             {/* Add these new buttons */}
                             <button
-                                onClick={() => navigator.clipboard.writeText(post.note)}
-                                className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
+                                onClick={() => handleCopy(post.note, post._id)}
+                                className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative'
                             >
+                                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
+                                   <p className='whitespace-nowrap'> {copiedStates[post._id] && 'Text Copied!'} </p>
+                                </div>
                                 <MdContentCopy className='text-[1.1rem] md:text-[1.7rem]' />
                                 <p className='hidden md:block'>Copy</p>
                             </button>
                             {post.image && (
                                 <button
-                                    onClick={() => window.open(post.image, '_blank')}
-                                    className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
+                                    onClick={() => handleDownload(post.image, post._id)}
+                                    className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative'
                                 >
+                                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
+                                        {downloadedStates[post._id] && 'Downloading!'}
+                                    </div>
                                     <IoMdDownload className='text-[1.1rem] md:text-[1.7rem]' />
                                     <p className='hidden md:block'>Download</p>
                                 </button>
@@ -868,7 +913,12 @@ const CreatorPage = ({ params }: PageProps) => {
             {showCommentModal && selectedPost && (
                 <CommentModal 
                     post={selectedPost}
-                    onClose={() => setShowCommentModal(false)}
+                    onClose={() => {
+                        setShowCommentModal(false);
+                        setTimeout(() => {
+                            setSelectedPost(null);
+                        }, 200);
+                    }}
                     onComment={handleComment}
                     onLike={handleCommentLike}
                     onReply={handleComment}

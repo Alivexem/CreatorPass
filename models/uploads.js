@@ -26,6 +26,6 @@ const uploadSchema = new Schema({
 
 uploadSchema.index({ createdAt: 1 });
 
-const Creates = mongoose.models.Creates || mongoose.model('Creates', uploadSchema);
+const creates = mongoose.models.creates || mongoose.model('creates', uploadSchema);
 
-export default Creates;
+export default creates;
