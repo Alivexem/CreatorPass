@@ -36,6 +36,7 @@ interface WorldChat {
     profileImage: string;
     timestamp: string;
     country?: string;
+    username?: string; // Add username to interface
 }
 
 interface Profile {
@@ -85,6 +86,7 @@ const Page = () => {
     }>({ show: false, message: '', type: 'info' });
     const [personalChats, setPersonalChats] = useState<ChatHistoryItem[]>([]);
     const [isLoadingPersonalChats, setIsLoadingPersonalChats] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string>(''); // Add error message state
 
     // Consolidate data fetching into a single useEffect
     useEffect(() => {
@@ -154,15 +156,19 @@ const Page = () => {
         try {
             const address = localStorage.getItem('address');
             if (!address) {
-                setToast({
-                    show: true,
-                    message: 'Please connect your wallet first',
-                    type: 'warning'
-                });
+                setErrorMessage('Please connect your wallet first');
                 return;
             }
 
-            // Use cached profile data instead of fetching again
+            // Check if user has profile
+            const profileRes = await fetch(`/api/profile?address=${address}`);
+            const profileData = await profileRes.json();
+
+            if (!profileData.profile) {
+                setErrorMessage('Please create a profile in Dashboard before chatting');
+                return;
+            }
+
             const response = await fetch('/api/worldchat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -172,33 +178,24 @@ const Page = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                setToast({
-                    show: true,
-                    message: data.error,
-                    type: 'warning'
-                });
+                setErrorMessage(data.error);
                 return;
             }
 
-            // Update UI immediately with new chat
             setChats(prevChats => [...prevChats, data.chat]);
             setMessage('');
+            setErrorMessage(''); // Clear error message on success
         } catch (error) {
             console.error('Error sending message:', error);
-            setToast({
-                show: true,
-                message: 'Failed to send message',
-                type: 'error'
-            });
+            setErrorMessage('Failed to send message');
         }
     };
 
-    const formatUserInfo = (address: string, country?: string) => {
-        const shortAddress = `${address.slice(0, 4)}...${address.slice(-4)}`;
+    const formatUserInfo = (username: string = 'Anonymous', country?: string) => {
         if (country) {
-            return `${shortAddress} (${country.slice(0, 3).toUpperCase()})`;
+            return `${username} (${country.slice(0, 3).toUpperCase()})`;
         }
-        return shortAddress;
+        return username;
     };
 
     const formatDate = (timestamp: string) => {
@@ -261,16 +258,16 @@ const Page = () => {
                         className='flex items-center gap-x-8'
                     >
                         <Link href='/passes'>
-                            <button className="mt-8 text-[0.8rem] px-5 md:px-8 py-3 md:py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-transparent border-[2px] border-blue-700">
+                            <button className="mt-8 text-[0.8rem] px-4 md:px-8 py-3 md:py-4 rounded-[40px] md:rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+  shadow-sm bg-transparent border-[2px] border-blue-600">
                                 Explore Passes
                             </button>
 
                         </Link>
 
                         <Link href='/creators'>
-                            <button className="mt-8 text-[0.8rem] px-5 md:px-8 py-3 md:py-4 rounded-lg md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-transparent border-[2px] border-purple-700">
+                            <button className="mt-8 px-4 md:px-8 py-3 md:py-4 rounded-[40px] md:rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+  shadow-sm bg-transparent border-[2px] text-[0.8rem] border-purple-600">
                                 Visit creators
                             </button>
 
@@ -279,7 +276,7 @@ const Page = () => {
                 </div>
 
 
-                <div className='h-[400px] hidden mt-[10%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F] backdrop-blur-md rounded-[12px] text-white shadow-lg border-[3px] border-blue-600'>
+                <div className='h-[400px] hidden mt-[8%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F] backdrop-blur-md rounded-[12px] text-white border-dashed border-[3px] border-blue-600'>
                     <div className='w-full flex justify-between items-center mb-4'>
                         <p className='text-[1.6rem] font-bold'>Messages</p>
                         <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
@@ -424,7 +421,7 @@ const Page = () => {
                                     />
                                     <div>
                                         <p className='text-purple-100 text-sm'>
-                                            {formatUserInfo(chat.address, chat.country)}
+                                            {formatUserInfo(chat.username, chat.country)}
                                         </p>
                                         <p className='text-white text-[0.8rem] md:-[0.9rem]'>{chat.message}</p>
                                         <p className='text-gray-500 text-[0.7rem] mt-1'>
@@ -435,20 +432,25 @@ const Page = () => {
                             ))}
                         </div>
 
-                        <form onSubmit={handleSendMessage} className='flex gap-2'>
-                            <input
-                                type='text'
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder='Type your message...'
-                                className='flex-1 bg-[#292e31] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
-                            />
-                            <button
-                                type='submit'
-                                className='bg-purple-600 text-white p-2 rounded-lg transition-colors hover:bg-purple-700'
-                            >
-                                <IoSend size={20} />
-                            </button>
+                        <form onSubmit={handleSendMessage} className='flex flex-col gap-2'>
+                            <div className='flex gap-2'>
+                                <input
+                                    type='text'
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    placeholder='Type your message...'
+                                    className='flex-1 bg-[#292e31] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
+                                />
+                                <button
+                                    type='submit'
+                                    className='bg-purple-600 text-white p-2 rounded-lg transition-colors hover:bg-purple-700'
+                                >
+                                    <IoSend size={20} />
+                                </button>
+                            </div>
+                            {errorMessage && (
+                                <p className="text-red-500 font-bold text-sm">{errorMessage}</p>
+                            )}
                         </form>
                     </div>
 

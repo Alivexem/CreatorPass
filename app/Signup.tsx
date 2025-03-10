@@ -8,7 +8,7 @@ import { FcLinux } from "react-icons/fc";
 import { FcLike } from "react-icons/fc";
 const App = () => {
     const [showToaster, setShowToaster] = useState(false);
-    const [buttonText, setButtonText] = useState('Get started')
+    const [buttonText, setButtonText] = useState('Connect wallet')
     const router = useRouter();
     const { address, isConnected, caipAddress, status, embeddedWalletInfo } = useAppKitAccount();
     const { open } = useAppKit();
@@ -121,7 +121,7 @@ const App = () => {
                 </div>
                 <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg cursor-pointer md:ml-4 flex justify-center mb-14 md:mb-0 mt-6'>
                     <button className='w-full md:max-w-[250px] lg:max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
-                        <Image src='/sol.png' alt='sol' height={20} width={20} /> {isConnected ? 'Go in' : 'Get started'}
+                        <Image src='/sol.png' alt='sol' height={20} width={20} /> {isConnected ? 'Go in' : 'Connect wallet'}
                     </button>
                 </div>
             </div>
