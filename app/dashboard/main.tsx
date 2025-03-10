@@ -256,7 +256,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                   <button
                     onClick={handleCreatePassClick}
                     disabled={!canCreateMorePasses()}
-                    className='flex-1 bg-purple-600 hover:bg-purple-700 h-[50px] transition-all py-3 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                    className='flex-1 mb-[60px] md:mb-0 bg-purple-600 hover:bg-purple-700 h-[50px] transition-all py-3 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
                   >
                     <IoTicketSharp size={20} />
                     {canCreateMorePasses() ? 'Create Pass' : 'Max Passes Created'}
@@ -282,8 +282,8 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                       bgColor: 'bg-green-500/20'
                     },
                     {
-                      title: 'Top Pass',
-                      description: 'Your best performing pass',
+                      title: 'Total CRTP',
+                      description: 'Your Creator Reputation Points',
                       icon: <SiSolana className='text-blue-500 text-2xl' />,
                       bgColor: 'bg-blue-800/20'
                     }

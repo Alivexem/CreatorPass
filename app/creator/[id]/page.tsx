@@ -405,7 +405,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
-            const res = await fetch(`/api/posts/${postId}/comments/${commentId}/like`, {
+            const res = await fetch(`/api/userpost/${postId}/comments/${commentId}/like`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ address })

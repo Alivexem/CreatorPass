@@ -396,7 +396,7 @@ const Content = ({ setToast }: ContentProps) => {
                 <div className='mb-10'>
                     <button
                         onClick={() => setShowUploader(true)}
-                        className='w-full max-w-md mx-auto flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-xl shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300'
+                        className='w-full max-w-md mx-auto flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-lg shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300'
                     >
                         <MdAddCircle className="text-2xl" />
                         <span className="font-medium text-md">Create New Post</span>
@@ -500,7 +500,7 @@ const Content = ({ setToast }: ContentProps) => {
                 {/* Upload Modal */}
                 {showUploader && (
                     <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4'>
-                        <div className='bg-[#2A2D2F] rounded-xl max-w-xl w-full'>
+                        <div className='bg-[#2A2D2F] -mt-[20px] md:-mt-0 rounded-xl max-w-xl w-full'>
                             <form onSubmit={handleSubmit} className='p-6'>
                                 <div className='flex flex-col gap-6'>
                                     <div className='flex justify-between items-center'>
@@ -594,7 +594,7 @@ const Content = ({ setToast }: ContentProps) => {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
+                                        className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
                                     >
                                         {loading ? (
                                             <>
