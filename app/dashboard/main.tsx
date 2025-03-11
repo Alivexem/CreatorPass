@@ -425,7 +425,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                   <button
                     onClick={() => deletePassId && handleDeletePass(deletePassId)}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center gap-2"
-                    disabled={deleteConfirmText !== 'i want to delete this pass' || isDeleting}
+                    disabled={deleteConfirmText !== 'I want to delete this pass' || isDeleting}
                   >
                     {isDeleting ? (
                       <>
