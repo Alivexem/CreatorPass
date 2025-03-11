@@ -57,7 +57,7 @@ const PostCard = ({
                 </div>
                 <div className='flex items-center gap-x-2'>
                     <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                    <p className='hidden md:block'>{censorAddress(post.username)}</p>
+                    <p className='hidden text-[0.8rem] md:block'>{censorAddress(post.username)}</p>
                 </div>
             </div>
 
@@ -92,21 +92,21 @@ const PostCard = ({
                             hasLiked ? 'text-purple-500' : 'text-white'
                         }`} 
                     />
-                    <p>{likes} likes</p>
+                    <p className='text-[0.8rem] md:text-[1rem]'>{likes} likes</p>
                 </button>
                 <button 
                     onClick={onToggleComments}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
                 >
                     <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
-                    <p>{post.comments?.length || 0} comments</p>
+                    <p className='text-[0.8rem] md:text-[1rem]'>{post.comments?.length || 0} comments</p>
                 </button>
                 <button 
                     onClick={onDelete}
-                    className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[150px] text-white rounded-lg flex items-center justify-center gap-x-3'
+                    className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[80px] text-white rounded-lg flex items-center justify-center gap-x-3'
                 >
                     <MdDeleteForever className='text-[1.1rem] md:text-[1.7rem]' />
-                    <p className='hidden md:block'>Delete</p>
+                    <p className='hidden text-[0.8rem] md:text-[1rem] md:block'>Delete</p>
                 </button>
             </div>
 
