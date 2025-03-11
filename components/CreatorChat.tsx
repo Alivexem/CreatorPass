@@ -57,6 +57,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   }>({ show: false, message: '', type: 'info' });
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -129,15 +130,19 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
   useEffect(() => {
     // Detect keyboard visibility changes
+    const initialHeight = window.innerHeight;
+    
     const handleResize = () => {
-      const isKeyboard = window.innerHeight < window.outerHeight * 0.85;
-      setIsKeyboardVisible(isKeyboard);
-      
-      if (formRef.current) {
-        if (isKeyboard) {
-          // When keyboard is visible, scroll to input
-          window.scrollTo(0, document.body.scrollHeight);
-        }
+      const currentHeight = window.innerHeight;
+      if (initialHeight > currentHeight) {
+        // Keyboard is shown
+        const difference = initialHeight - currentHeight;
+        setKeyboardHeight(difference);
+        setIsKeyboardVisible(true);
+      } else {
+        // Keyboard is hidden
+        setKeyboardHeight(0);
+        setIsKeyboardVisible(false);
       }
     };
 
@@ -233,6 +238,9 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         className="md:fixed md:right-0 md:top-0 h-[89vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
+        style={{
+          height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '89vh'
+        }}
       >
         {/* Header */}
         <div className="bg-purple-900 p-4 mb-5 flex items-center justify-between">
@@ -258,6 +266,9 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <div
           ref={chatContainerRef}
           className="flex-1 overflow-y-auto p-4 space-y-4"
+          style={{
+            height: isKeyboardVisible ? `calc(100% - ${keyboardHeight}px)` : 'auto'
+          }}
         >
           {messages.map((message) => (
             <div
@@ -306,8 +317,11 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           ref={formRef}
           onSubmit={sendMessage} 
           className={`p-4 bg-[#232629] transition-all duration-300 ${
-            isKeyboardVisible ? 'fixed bottom-0 left-0 right-0 md:relative' : ''
+            isKeyboardVisible ? 'fixed bottom-0 left-0 right-0 md:relative z-50' : ''
           }`}
+          style={{
+            transform: isKeyboardVisible ? `translateY(-${keyboardHeight}px)` : 'none'
+          }}
         >
           <div className="flex gap-2 items-center">
             <button

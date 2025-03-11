@@ -36,28 +36,28 @@ const DashboardMobileNav = ({
     <div className='h-[80px] px-4 border-purple-600 border-t pt-3 box-border flex items-center justify-between w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
       <Link href='/welcome'>
         <div className='flex flex-col cursor-pointer items-center space-y-2'>
-          <GoHomeFill className="text-lg text-gray-300" />
+          <GoHomeFill className="text-gray-300" />
           <p className='text-[0.7rem]'>Home</p>
         </div>
       </Link>
 
       <div onClick={onShowDashboard} className='flex flex-col cursor-pointer items-center space-y-2'>
-        <RxDashboard className={`text-lg ${activeSection === 'dashboard' ? 'text-purple-500' : 'text-gray-300'}`} />
+        <RxDashboard className={`${activeSection === 'dashboard' ? 'text-purple-500' : 'text-gray-300'}`} />
         <p className={`text-[0.7rem] ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
       </div>
 
       <div onClick={onShowContent} className='flex flex-col cursor-pointer items-center space-y-2'>
-        <FaDatabase className={`text-lg ${activeSection === 'content' ? 'text-purple-500' : 'text-gray-300'}`} />
+        <FaDatabase className={`${activeSection === 'content' ? 'text-purple-500' : 'text-gray-300'}`} />
         <p className={`text-[0.7rem] ${activeSection === 'content' ? 'text-purple-500' : ''}`}>Content</p>
       </div>
 
       <div onClick={onShowProfile} className='flex flex-col cursor-pointer items-center space-y-2'>
-        <RiProfileFill className={`text-lg ${activeSection === 'profile' ? 'text-purple-500' : 'text-gray-300'}`} />
+        <RiProfileFill className={`${activeSection === 'profile' ? 'text-purple-500' : 'text-gray-300'}`} />
         <p className={`text-[0.7rem] ${activeSection === 'profile' ? 'text-purple-500' : ''}`}>Profile</p>
       </div>
 
       <div onClick={handleDisconnect} className='flex flex-col cursor-pointer items-center space-y-2'>
-        <MdLogout className="text-lg text-gray-300" />
+        <MdLogout className="text-gray-300" />
         <p className='text-[0.7rem]'>Logout</p>
       </div>
     </div>

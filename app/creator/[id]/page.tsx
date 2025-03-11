@@ -42,6 +42,7 @@ interface Post {
     username: string;
     note: string;
     image: string;
+    tier: 'Free' | 'Regular' | 'Special' | 'VIP';
     createdAt: string;
     comments?: Comment[];
     likes?: string[];
@@ -542,6 +543,15 @@ const CreatorPage = ({ params }: PageProps) => {
         }, 2000);
     };
 
+    const getTierColor = (tier: string) => {
+        switch(tier) {
+            case 'VIP': return 'text-yellow-500';
+            case 'Special': return 'text-purple-500';
+            case 'Regular': return 'text-blue-500';
+            default: return 'text-gray-500';
+        }
+    };
+
     if (isLoading) {
         return (
             <div className='bg-black pb-[100px] md:pb-0 min-h-screen flex flex-col'>
@@ -582,7 +592,7 @@ const CreatorPage = ({ params }: PageProps) => {
                     {toast.message}
                 </div>
             )}
-            <div className='pt-[200px]'></div>
+            <div className='pt-[100px] md:pt-[200px]'></div>
             <div className='flex flex-col space-y-10 justify-center items-center mb-20 md:mb-64 md:ml-[300px]'>
                 {posts.map((post) => (
                     <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
@@ -600,8 +610,13 @@ const CreatorPage = ({ params }: PageProps) => {
                                 <p className='text-[1.1rem] font-medium'>{profile?.username || 'Anonymous'}</p>
                             </div>
                             <div className='flex items-center gap-x-2'>
-                                <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                                <p className='hidden md:block text-gray-400'>{formatUserInfo(post.username)}</p>
+                                <Image src='/sol.png' height={20} width={20} alt='solana' className='rounded-lg' />
+                                <div className='flex flex-col items-end'>
+                                    {/* <p className='text-gray-400'>{formatUserInfo(post.username)}</p> */}
+                                    <span className={`text-[0.7rem] ${getTierColor(post.tier)}`}>
+                                        {post.tier} Post
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div className='px-10 mt-5 text-gray-200'>
