@@ -550,7 +550,7 @@ const Content = ({ setToast }: ContentProps) => {
 
                 {/* Upload Modal */}
                 {showUploader && (
-                    <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4'>
+                    <div className='fixed inset-0 bg-black md:bg-opacity-75 flex justify-center items-center z-50 p-4'>
                         <div className='bg-[#2A2D2F] -mt-[18%] md:-mt-0 h-[80vh] md:h-[95vh] rounded-xl max-w-xl w-full'>
                             <form onSubmit={handleSubmit} className='p-6'>
                                 <div className='flex flex-col gap-6'>

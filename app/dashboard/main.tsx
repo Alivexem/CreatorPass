@@ -366,7 +366,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
 
           {/* Pass Info Modal */}
           {selectedPassInfo && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black md:bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-[#1A1D1F] rounded-xl w-full max-w-md p-6 relative">
                 <button 
                   onClick={() => setSelectedPassInfo(null)}
