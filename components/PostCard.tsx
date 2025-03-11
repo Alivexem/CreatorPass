@@ -44,13 +44,13 @@ const PostCard = ({
             <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
                 {/* Profile Section */}
                 <div className='flex items-center gap-x-3'>
-                    <div className='h-[60px] w-[60px] relative'>
+                    <div className='h-[50px] w-[50px] relative'>
                         <Image 
                             src={userProfile?.profilePic} 
                             fill
                             alt='profile' 
                             className='rounded-lg object-cover'
-                            sizes="60px"
+                            sizes="50px"
                         />
                     </div>
                     <p className='text-[1.1rem]'>{userProfile?.username}</p>
