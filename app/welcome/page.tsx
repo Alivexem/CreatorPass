@@ -457,7 +457,7 @@ const Page = () => {
                     {/* Hot Creators */}
                     <div className='w-full md:w-1/3'>
                         <h2 className='text-2xl font-bold text-white mb-6 flex items-center gap-2'>
-                            HOT <FaFire className="text-orange-500" />
+                            WELCOME <FaFire className="text-orange-500" />
                         </h2>
                         <div className='flex justify-center items-center w-full mb-[60px]'>
                             <div className='space-y-4 -mb-[150px] md:mb-0'>
