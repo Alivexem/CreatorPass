@@ -68,23 +68,43 @@ const PassesPage = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMinting, setIsMinting] = useState(false);
   const [platformAddress, setPlatformAddress] = useState<string | null>(null);
+  const [highlightedCreatorPasses, setHighlightedCreatorPasses] = useState<Pass[]>([]);
 
-  const PASSES_PER_PAGE = 6;
+  const PASSES_PER_PAGE = 3;
+
+  // Add new helper function to sort passes
+  const sortPasses = (passes: Pass[], highlightedCreator: string | null) => {
+    return passes.sort((a, b) => {
+      // Put highlighted creator's passes first
+      if (highlightedCreator) {
+        if (a.creatorAddress === highlightedCreator && b.creatorAddress !== highlightedCreator) return -1;
+        if (b.creatorAddress === highlightedCreator && a.creatorAddress !== highlightedCreator) return 1;
+      }
+      return 0;
+    });
+  };
 
   useEffect(() => {
     const fetchPasses = async () => {
       try {
+        const highlightedCreator = sessionStorage.getItem('highlightCreator');
         const res = await fetch('/api/passes');
         const data = await res.json();
+        
         if (data.passes) {
-          setPasses(data.passes);
-          // Initialize minting states for all passes
-          const states = data.passes.reduce((acc: any, pass: Pass) => {
+          // Sort passes to put highlighted creator's passes first
+          const sortedPasses = sortPasses(data.passes, highlightedCreator);
+          setPasses(sortedPasses);
+
+          // Initialize minting states
+          const states = sortedPasses.reduce((acc: any, pass: Pass) => {
             acc[pass._id] = false;
             return acc;
           }, {});
           setMintingStates(states);
         }
+
+        sessionStorage.removeItem('highlightCreator');
       } catch (error) {
         console.error('Error fetching passes:', error);
       } finally {
@@ -122,7 +142,8 @@ const PassesPage = () => {
     fetchPlatformAddress();
   }, []);
 
-  const totalPages = Math.ceil(passes.length / PASSES_PER_PAGE);
+  const totalPasses = passes.length;
+  const totalPages = Math.ceil(totalPasses / PASSES_PER_PAGE);
   const paginatedPasses = passes.slice(
     (currentPage - 1) * PASSES_PER_PAGE,
     currentPage * PASSES_PER_PAGE
@@ -510,6 +531,23 @@ const PassesPage = () => {
         </div>
       </div>
 
+      {/* Highlighted Creator Passes */}
+      {highlightedCreatorPasses.length > 0 && (
+        <div className='max-w-7xl mx-auto px-4 mb-12'>
+          <h2 className='text-2xl font-bold text-white mb-6'>
+            Available Creator Passes
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {highlightedCreatorPasses.map((pass, index) => (
+              // Render pass card with highlighted styling
+              <div key={index} className="bg-[#1A1D1F] rounded-xl p-4 relative hover:bg-[#22262A] transition-colors border-2 border-purple-500">
+                {/* ...existing pass card content... */}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Cards Section */}
       <div className='max-w-7xl mx-auto px-4 -mt-20 mb-20'>
         {loading ? (
@@ -522,64 +560,71 @@ const PassesPage = () => {
           <>
             <div className="relative overflow-x-auto">
               <div className="flex gap-8 md:grid md:grid-cols-3 md:gap-8 snap-x snap-mandatory">
-                {(window.innerWidth <= 768 ? passes : paginatedPasses).map((pass, index) => (
-                  <div 
-                    key={index}
-                    className="min-w-[280px] md:min-w-0 snap-center bg-[#1A1D1F] rounded-xl p-4 relative hover:bg-[#22262A] transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-gray-400">{pass.creatorName}</span>
-                    </div>
-                    <div className="relative h-48 w-full mb-4">
-                      <Image
-                        src={pass.image}
-                        alt={pass.creatorName}
-                        fill
-                        className="rounded-lg object-cover"
-                      />
-                    </div>
-                    <div className={`
-                      bg-gradient-to-r from-gray-600 to-gray-700 p-3 mb-3
-                    `}>
-                      <h3 className="text-xl font-bold text-white">{pass.type}</h3>
-                    </div>
-                    <p className="text-white mb-2">{pass.price} SOL</p>
-                    <p className="text-gray-400 text-sm mb-4">{pass.message}</p>
-                    <div className="space-y-2 mb-4">
-                      <h4 className="text-white font-semibold">Pass Rules:</h4>
-                      <ul className="text-gray-300 space-y-1 text-sm">
-                        {Object.entries(pass.rules).map(([key, value]) => (
-                          <li key={key} className="flex items-center gap-2">
-                            <span className={value ? 'text-green-500' : 'text-red-500'}>
-                              {value ? '✓' : '✗'}
-                            </span>
-                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        console.log('Mint button clicked'); // Debug log
-                        mintNFT(pass);
-                      }}
-                      disabled={mintingStates[pass._id]}
-                      className='w-full bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
+                {(window.innerWidth <= 768 ? passes : paginatedPasses).map((pass, index) => {
+                  const highlightedCreator = sessionStorage.getItem('highlightCreator');
+                  const isHighlighted = highlightedCreator && pass.creatorAddress === highlightedCreator;
+                  
+                  return (
+                    <div 
+                      key={index}
+                      className={`min-w-[280px] md:min-w-0 snap-center bg-[#1A1D1F] rounded-xl p-4 relative hover:bg-[#22262A] transition-colors ${
+                        isHighlighted ? 'border-2 border-purple-500' : ''
+                      }`}
                     >
-                      {mintingStates[pass._id] ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Minting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <RiNftFill className="text-xl" />
-                          <span>Mint NFT</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-gray-400">{pass.creatorName}</span>
+                      </div>
+                      <div className="relative h-48 w-full mb-4">
+                        <Image
+                          src={pass.image}
+                          alt={pass.creatorName}
+                          fill
+                          className="rounded-lg object-cover"
+                        />
+                      </div>
+                      <div className={`
+                        bg-gradient-to-r from-gray-600 to-gray-700 p-3 mb-3
+                      `}>
+                        <h3 className="text-xl font-bold text-white">{pass.type}</h3>
+                      </div>
+                      <p className="text-white mb-2">{pass.price} SOL</p>
+                      <p className="text-gray-400 text-sm mb-4">{pass.message}</p>
+                      <div className="space-y-2 mb-4">
+                        <h4 className="text-white font-semibold">Pass Rules:</h4>
+                        <ul className="text-gray-300 space-y-1 text-sm">
+                          {Object.entries(pass.rules).map(([key, value]) => (
+                            <li key={key} className="flex items-center gap-2">
+                              <span className={value ? 'text-green-500' : 'text-red-500'}>
+                                {value ? '✓' : '✗'}
+                              </span>
+                              {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          console.log('Mint button clicked'); // Debug log
+                          mintNFT(pass);
+                        }}
+                        disabled={mintingStates[pass._id]}
+                        className='w-full bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
+                      >
+                        {mintingStates[pass._id] ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Minting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <RiNftFill className="text-xl" />
+                            <span>Mint NFT</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

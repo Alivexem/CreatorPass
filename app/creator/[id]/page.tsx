@@ -23,7 +23,7 @@ import { IoHeart, IoHeartOutline } from "react-icons/io5"; // Add this import
 
 import { CommentModal } from '@/components/CommentModal';
 import { CommentItem } from '@/components/CommentItem';
-
+import { RiErrorWarningLine } from "react-icons/ri";
 interface Comment {
     _id: string;
     address: string;
@@ -74,6 +74,29 @@ interface CommentHandlers {
     handleCommentLike: (postId: string, commentId: string) => Promise<void>;
 }
 
+interface AccessNotification {
+  show: boolean;
+  message: string;
+  availableTiers: string[];
+}
+
+interface Pass {
+  _id: string;
+  creatorAddress: string;
+  creatorName: string;
+  type: 'Regular' | 'Special' | 'VIP';
+  price: number;
+  message: string;
+  rules: {
+    funForumAccess: boolean;
+    likeCommentAccess: boolean;
+    downloadAccess: boolean;
+    giftAccess: boolean;
+  };
+  image: string;
+  holders: string[];
+}
+
 const CreatorPage = ({ params }: PageProps) => {
     const { id } = params;
     const router = useRouter();
@@ -114,6 +137,12 @@ const CreatorPage = ({ params }: PageProps) => {
     const [loadedPosts, setLoadedPosts] = useState(false);
     const [downloadedStates, setDownloadedStates] = useState<{ [key: string]: boolean }>({});
     const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>({});
+    const [userPasses, setUserPasses] = useState<Pass[]>([]);
+    const [accessNotification, setAccessNotification] = useState<AccessNotification>({
+        show: false,
+        message: '',
+        availableTiers: []
+    });
 
     const { isConnected, address } = useAppKitAccount();
     const { connection } = useAppKitConnection();
@@ -175,15 +204,33 @@ const CreatorPage = ({ params }: PageProps) => {
                 const myAddress = localStorage.getItem('address') || '';
 
                 // Fetch profiles in parallel
-                const [profileRes, userProfileRes] = await Promise.all([
+                const [profileRes, userProfileRes, passesRes] = await Promise.all([
                     fetch(`/api/profile?address=${id}`),
-                    myAddress ? fetch(`/api/profile?address=${myAddress}`) : Promise.resolve(null)
+                    myAddress ? fetch(`/api/profile?address=${myAddress}`) : Promise.resolve(null),
+                    fetch(`/api/passes?address=${id}`)
                 ]);
 
                 const profileData = await profileRes.json();
+                const passesData = await passesRes.json();
 
                 if (profileData.profile) {
                     setProfile(profileData.profile);
+                }
+
+                // Check user's passes
+                if (myAddress) {
+                    const userPassesRes = await fetch(`/api/passholders/check/${id}?address=${myAddress}`);
+                    const userPassesData = await userPassesRes.json();
+                    setUserPasses(userPassesData.passes || []);
+                }
+
+                // Handle passes data
+                if (passesData.passes) {
+                    const availableTiers = passesData.passes.map((pass: Pass) => pass.type);
+                    setAccessNotification(prev => ({
+                        ...prev,
+                        availableTiers
+                    }));
                 }
 
                 // Only fetch user profile if we have an address
@@ -216,16 +263,47 @@ const CreatorPage = ({ params }: PageProps) => {
                     post.username === id
                 );
 
+                // Get user's access level based on passes
+                const userTiers = new Set(['Free', ...userPasses.map(pass => pass.type)]);
+
+                // Filter posts based on user's access
+                const accessiblePosts = creatorPosts.filter((post: Post) => userTiers.has(post.tier));
+
+                // Set access notification if there are inaccessible posts
+                const inaccessibleTiers = new Set<string>(
+                    creatorPosts
+                        .filter((post: Post) => !userTiers.has(post.tier))
+                        .map((post: Post) => post.tier)
+                );
+
+                if (inaccessibleTiers.size > 0) {
+                    setAccessNotification({
+                        show: true,
+                        message: `${profile?.username || 'Anonymous'} has ${Array.from(inaccessibleTiers).join(', ')} tier post(s), get pass here to gain access!`,
+                        availableTiers: Array.from(inaccessibleTiers) as string[]
+                    });
+                }
+
+                // Handle case where no free posts exist
+                if (!creatorPosts.some((post: Post) => post.tier === 'Free')) {
+                    setAccessNotification(prev => ({
+                        ...prev,
+                        show: true,
+                        message: `${profile?.username || 'Anonymous'} doesn't have any free posts. Available pass tiers: ${accessNotification.availableTiers.join(', ')}`
+                    }));
+                }
+
+                // Initialize states for accessible posts
                 const myAddress = localStorage.getItem('address') || '';
                 const initialLikes: { [key: string]: number } = {};
                 const initialHasLiked: { [key: string]: boolean } = {};
 
-                creatorPosts.forEach((post: Post) => {
+                accessiblePosts.forEach((post: Post) => {
                     initialLikes[post._id] = post.likeCount || 0;
                     initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
                 });
 
-                setPosts(creatorPosts);
+                setPosts(accessiblePosts);
                 setLikes(initialLikes);
                 setHasLiked(initialHasLiked);
                 setLoadedPosts(true);
@@ -239,7 +317,7 @@ const CreatorPage = ({ params }: PageProps) => {
         if (isProfileFetched) {
             fetchPosts();
         }
-    }, [id, isProfileFetched]);
+    }, [id, isProfileFetched, profile?.username, userPasses]);
 
     const fetchPostComments = async (postId: string) => {
         try {
@@ -552,6 +630,12 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
+    const handleNotificationClick = () => {
+        // Store creator ID in session storage to highlight their passes
+        sessionStorage.setItem('highlightCreator', id);
+        router.push('/passes');
+    };
+
     if (isLoading) {
         return (
             <div className='bg-black pb-[100px] md:pb-0 min-h-screen flex flex-col'>
@@ -577,23 +661,18 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className='bg-black pb-[80px] md:pb-0'>
             <NavBar />
-            {/* <button 
-                onClick={() => router.push('/creators')}
-                className='absolute top-40 left-4 md:left-14 h-[50px] w-[50px] bg-transparent z-50 text-white hover:text-gray-600 transition-colors'
-            >
-                <IoArrowBack size={24} />
-            </button> */}
-            {toast.show && (
+            {/* Access Notification */}
+            {accessNotification.show && !showFunChat && (
                 <div 
-                    className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg ${
-                        toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-                    } text-white transition-opacity duration-300`}
+                    onClick={handleNotificationClick}
+                    className="bg-gradient-to-r md:left-[35vw] absolute mt-[120px] md:mt-[130px] from-purple-600 my-5 to-purple-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 cursor-pointer hover:opacity-90 transition-opacity text-center w-auto mx-4"
                 >
-                    {toast.message}
+                    <p className='text-[1rem] flex items-center text-left'><RiErrorWarningLine className='text-white mr-2' />{accessNotification.message}</p>
+                
                 </div>
             )}
-            <div className='pt-[100px] md:pt-[200px]'></div>
-            <div className='flex flex-col space-y-10 justify-center items-center pb-[60px] md:pb-0 mb-20 md:mb-64 md:ml-[300px]'>
+            <div className={`${accessNotification.show ? 'pt-[200px]' : 'pt-[100px]'}  md:pt-[200px]`}></div>
+            <div className='flex flex-col space-y-10 justify-center items-center pb-[60px] mb-20 md:mb-0 md:ml-[300px]'>
                 {posts.map((post) => (
                     <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
@@ -811,7 +890,7 @@ const CreatorPage = ({ params }: PageProps) => {
             </div>
 
             {selectedImage && (
-                <div className='fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50'>
+                <div className='fixed inset-0 bg-black md:bg-opacity-90 flex justify-center items-center z-50'>
                     <button
                         onClick={() => setSelectedImage(null)}
                         className='absolute top-4 right-4 text-gray-400 hover:text-white transition-colors'
@@ -842,7 +921,7 @@ const CreatorPage = ({ params }: PageProps) => {
             )}
 
             {/* Fun Chat Section */}
-            <div className={`fixed md:absolute top-1/2 md:top-[65vh] transform -translate-y-1/2 left-0 md:left-10 h-[65vh] md:h-[70vh] md:w-[400px] w-full 
+            <div className={`fixed top-1/2 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[45vh] md:h-[70vh] md:w-[400px] w-full 
                 bg-gradient-to-b from-gray-600 to-gray-800
                 ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
                 transition-transform duration-300 z-30 shadow-xl rounded-r-lg`}
@@ -941,7 +1020,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 />
             )}
 
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };
