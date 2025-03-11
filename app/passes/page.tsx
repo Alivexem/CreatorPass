@@ -45,6 +45,7 @@ interface Pass {
     giftAccess: boolean;
   };
   image: string;
+  holders: string[]; // Add this line
 }
 
 const PassesPage = () => {
@@ -454,6 +455,25 @@ const PassesPage = () => {
                     type: 'success'
                 });
             }
+        }
+
+        // After successful transaction confirmation, update the pass holders
+        try {
+          const response = await fetch(`/api/passholders/${pass._id}`, { // Updated endpoint
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              holderAddress: walletAddress
+            }),
+          });
+      
+          if (!response.ok) {
+            console.warn('Failed to update pass holders:', await response.text());
+          }
+        } catch (error) {
+          console.warn('Error updating pass holders:', error);
         }
 
     } catch (err) {

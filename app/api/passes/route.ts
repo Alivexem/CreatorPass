@@ -62,7 +62,9 @@ export async function POST(request: NextRequest) {
       price,
       message,
       image,
-      rules
+      rules,
+      holders: [], // Initialize empty holders array
+      createdAt: new Date(),
     });
 
     return NextResponse.json({ success: true, pass });
@@ -70,4 +72,4 @@ export async function POST(request: NextRequest) {
     console.error('Error creating pass:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-} 
+}
