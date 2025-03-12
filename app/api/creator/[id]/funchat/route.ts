@@ -1,92 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
-import CreatorFunChat from '@/app/models/CreatorFunChat';
-import Profile from '@/models/profile';
+import FunChat from '@/models/FunChat';
 
-// Simple in-memory cache with 30-second TTL
-const CACHE_TTL = 30000; // 30 seconds
-const cache = new Map<string, { data: any; timestamp: number }>();
-
-await connectDB();
-
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+    req: Request,
+    { params }: { params: { id: string } }
+) {
     try {
-        const cacheKey = `funchat_${params.id}`;
-        const now = Date.now();
-        const cached = cache.get(cacheKey);
+        await connectDB();
+        const { id } = params;
 
-        // Return cached data if valid
-        if (cached && (now - cached.timestamp < CACHE_TTL)) {
-            return NextResponse.json({ chats: cached.data });
-        }
-
-        const chats = await CreatorFunChat.find({ creatorId: params.id })
+        const chats = await FunChat.find({ creatorId: id })
             .sort({ timestamp: -1 })
-            .limit(50); // Limit to latest 50 messages for performance
-        
-        // Use Promise.all for parallel processing
-        const chatsWithUsernames = await Promise.all(chats.map(async (chat) => {
-            const userProfile = await Profile.findOne(
-                { address: chat.address },
-                { username: 1, _id: 0 } // Only fetch username field
-            );
-            return {
-                ...chat.toObject(),
-                username: userProfile?.username || 'Anonymous'
-            };
-        }));
+            .limit(100);
 
-        // Update cache
-        cache.set(cacheKey, {
-            data: chatsWithUsernames,
-            timestamp: now
-        });
-
-        return NextResponse.json({ chats: chatsWithUsernames });
+        return NextResponse.json({ chats });
     } catch (error) {
         console.error('Error fetching fun chats:', error);
-        return NextResponse.json({ error: 'Failed to fetch chats' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Failed to fetch fun chats' },
+            { status: 500 }
+        );
     }
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(
+    req: Request,
+    { params }: { params: { id: string } }
+) {
     try {
-        const { address, message } = await req.json();
-        const userProfile = await Profile.findOne({ address }, { username: 1, profileImage: 1 });
-        
-        if (!userProfile) {
+        await connectDB();
+        const { id } = params;
+        const body = await req.json();
+        const { address, message, username, profileImage, timestamp } = body;
+
+        if (!address || !message) {
             return NextResponse.json(
-                { error: 'Profile not found. Please create a profile first.' },
+                { error: 'Missing required fields' },
                 { status: 400 }
             );
         }
 
-        const newChat = await CreatorFunChat.create({
-            creatorId: params.id,
+        // Create new fun chat
+        const newChat = await FunChat.create({
+            creatorId: id,
             address,
+            username,
+            profileImage,
             message,
-            profileImage: userProfile.profileImage,
-            timestamp: new Date().toISOString(),
-            username: userProfile.username
+            timestamp: timestamp || new Date()
         });
 
-        // Invalidate cache
-        const cacheKey = `funchat_${params.id}`;
-        cache.delete(cacheKey);
-
-        // Fetch only recent chats after posting
-        const recentChats = await CreatorFunChat.find({ creatorId: params.id })
+        // Get updated chats
+        const chats = await FunChat.find({ creatorId: id })
             .sort({ timestamp: -1 })
-            .limit(50);
+            .limit(100);
 
-        const chatsWithUsernames = await Promise.all(recentChats.map(async (chat) => ({
-            ...chat.toObject(),
-            username: chat.username || 'Anonymous'
-        })));
-
-        return NextResponse.json({ chats: chatsWithUsernames }, { status: 201 });
+        return NextResponse.json({ chats });
     } catch (error) {
-        console.error('Error creating fun chat:', error);
-        return NextResponse.json({ error: 'Failed to create chat message' }, { status: 500 });
+        console.error('Error sending fun chat:', error);
+        return NextResponse.json(
+            { error: 'Failed to send fun chat' },
+            { status: 500 }
+        );
     }
 }

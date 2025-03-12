@@ -500,35 +500,58 @@ const CreatorPage = ({ params }: PageProps) => {
     const handleSendFunChat = async (message: string) => {
         try {
             const address = localStorage.getItem('address');
-            if (!address) {
+            if (!address || !userProfile) {
                 setToast({
                     show: true,
-                    message: 'Please connect your wallet first',
+                    message: 'Please connect your wallet and create a profile first',
                     type: 'error'
                 });
                 return;
             }
+
+            const newChat = {
+                message,
+                username: userProfile.username,
+                profileImage: userProfile.profileImage,
+                timestamp: new Date().toISOString(),
+                address
+            };
+
+            // Optimistically update UI
+            setFunChats(prev => [newChat, ...prev]);
 
             const res = await fetch(`/api/creator/${id}/funchat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address, message })
+                body: JSON.stringify({ 
+                    address,
+                    message,
+                    username: userProfile.username,
+                    profileImage: userProfile.profileImage,
+                    timestamp: new Date().toISOString()
+                })
             });
 
-            const data = await res.json();
-            
-            if (data.error) {
-                setToast({
-                    show: true,
-                    message: data.error,
-                    type: 'error'
-                });
-                return;
+            if (!res.ok) {
+                // If request fails, revert the optimistic update
+                setFunChats(prev => prev.filter(chat => chat !== newChat));
+                throw new Error('Failed to send fun chat');
             }
 
-            setFunChats([...data.chats].reverse());
+            // Fetch fresh data after successful post
+            const getRes = await fetch(`/api/creator/${id}/funchat`);
+            if (getRes.ok) {
+                const data = await getRes.json();
+                setFunChats([...data.chats].reverse());
+            }
+
         } catch (error) {
             console.error('Error sending message:', error);
+            setToast({
+                show: true,
+                message: 'Failed to send message',
+                type: 'error'
+            });
         }
     };
 
@@ -625,6 +648,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         onDownload={handleDownload}
                         downloadedStates={downloadedStates}
                         copiedStates={copiedStates}
+                        date={post.timestamp} // Add this line
                     />
                 ))}
             </div>
@@ -676,6 +700,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 funChats={funChats}
                 onSendChat={handleSendFunChat}
                 profileUsername={profile?.username}
+                creatorId={id}
             />
 
             {/* Profile Required Modal */}

@@ -663,7 +663,7 @@ const Content = ({ setToast }: ContentProps) => {
                                         placeholder='Express yourself...' 
                                         className='w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none resize-none'
                                         rows={4}
-                                        maxLength={150}
+                                        maxLength={350}
                                     />
 
                                     <button

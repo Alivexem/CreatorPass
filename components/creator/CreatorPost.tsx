@@ -4,6 +4,7 @@ import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical, FaGift } from "react-icons/fa6";
 import { MdContentCopy } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
+import { formatDistanceToNow } from 'date-fns';
 
 interface CreatorPostProps {
     post: Post;
@@ -18,6 +19,7 @@ interface CreatorPostProps {
     onDownload: (imageUrl: string, postId: string) => void;
     downloadedStates: { [key: string]: boolean };
     copiedStates: { [key: string]: boolean };
+    date?: string;
 }
 
 const CreatorPost = ({
@@ -32,8 +34,31 @@ const CreatorPost = ({
     onCopy,
     onDownload,
     downloadedStates,
-    copiedStates
+    copiedStates,
+    date
 }: CreatorPostProps) => {
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return '';
+        
+        const postDate = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - postDate.getTime());
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+            if (diffHours === 0) {
+                const diffMinutes = Math.floor(diffTime / (1000 * 60));
+                return `${diffMinutes}m ago`;
+            }
+            return `${diffHours}h ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays}d ago`;
+        } else {
+            return postDate.toLocaleDateString();
+        }
+    };
+
     const getTierColor = (tier: string) => {
         switch(tier) {
             case 'VIP': return 'text-yellow-500';
@@ -67,6 +92,7 @@ const CreatorPost = ({
                         </span>
                     </div>
                 </div>
+                {date && <span className="text-sm text-gray-400">{formatDate(date)}</span>}
             </div>
 
             {/* Content */}
