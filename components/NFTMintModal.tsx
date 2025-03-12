@@ -12,6 +12,7 @@ interface PassCreateModalProps {
   onClose: () => void;
   onCreate: (passData: any) => void;
   profileImage: string;
+  ownedPasses: ("Regular" | "Special" | "VIP")[]; // Add this line
 }
 
 interface PassRules {
@@ -28,7 +29,7 @@ const defaultRules: PassRules = {
   giftAccess: true
 };
 
-const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreateModalProps) => {
+const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage, ownedPasses }: PassCreateModalProps) => {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [price, setPrice] = useState<string>('');
   const [message, setMessage] = useState<string>('');
@@ -96,6 +97,10 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreate
     onClose();
   };
 
+  const isPassTypeOwned = (type: "Regular" | "Special" | "VIP") => {
+    return ownedPasses.includes(type);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -117,27 +122,26 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreate
             {!selectedType ? (
               <div className="space-y-4">
                 <h2 className="text-xl font-bold text-white mb-6">Select Pass Type</h2>
-                <button
-                  onClick={() => setSelectedType('Regular')}
-                  className="w-full p-4 border border-purple-600 rounded-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
-                >
-                  <BsTicketPerforated size={20} />
-                  Regular
-                </button>
-                <button
-                  onClick={() => setSelectedType('Special')}
-                  className="w-full p-4 rounded-lg border border-purple-600 bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
-                >
-                  <FaRegStar size={20} />
-                  Special
-                </button>
-                <button
-                  onClick={() => setSelectedType('VIP')}
-                  className="w-full p-4 rounded-lg border border-purple-600 bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3"
-                >
-                  <RiVipCrownLine size={20} />
-                  VIP
-                </button>
+                {["Regular", "Special", "VIP"].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedType(type)}
+                    disabled={isPassTypeOwned(type as "Regular" | "Special" | "VIP")}
+                    className={`w-full p-4 border border-purple-600 rounded-lg bg-[#2A2D31] hover:bg-[#32363B] text-white transition-all flex items-center justify-center gap-3 ${
+                      isPassTypeOwned(type as "Regular" | "Special" | "VIP") 
+                        ? 'bg-gray-600 cursor-not-allowed opacity-50' 
+                        : 'bg-purple-600 hover:bg-purple-700'
+                    }`}
+                  >
+                    {type === "Regular" && <BsTicketPerforated size={20} />}
+                    {type === "Special" && <FaRegStar size={20} />}
+                    {type === "VIP" && <RiVipCrownLine size={20} />}
+                    {type}
+                    {isPassTypeOwned(type as "Regular" | "Special" | "VIP") && (
+                      <span className="ml-2">⛔</span>
+                    )}
+                  </button>
+                ))}
 
                 <p className='text-white text-[0.8rem]'>A 20% platform-maintenance fee is deducted on every pass sale and the remaining 80% is sent to your wallet instantly.</p>
               </div>
@@ -284,4 +288,4 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage }: PassCreate
   );
 };
 
-export default PassCreateModal; 
+export default PassCreateModal;
