@@ -5,7 +5,7 @@ import Profile from "../../../models/profile";
 export async function POST(request) {
     try {
         await connectDB();
-        const { address, username, country, about, profileImage } = await request.json();
+        const { address, username, country, about, profileImage, isAdultContent } = await request.json();
         
         if (!address) {
             return NextResponse.json({ message: 'Address is required' }, { status: 400 });
@@ -14,7 +14,14 @@ export async function POST(request) {
         // Update profile if exists, create if it doesn't (upsert)
         const profile = await Profile.findOneAndUpdate(
             { address },
-            { username, country, about, profileImage },
+            { 
+                username, 
+                country, 
+                about, 
+                profileImage, 
+                isAdultContent,
+                updatedAt: new Date() 
+            },
             { new: true, upsert: true }
         );
 
@@ -46,4 +53,4 @@ export async function GET(request) {
         console.error('Get profile error:', error);
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
-} 
+}

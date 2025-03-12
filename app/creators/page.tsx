@@ -24,6 +24,8 @@ interface Profile {
   username: string;
   about: string;
   profileImage: string;
+  isAdultContent?: boolean;
+  country?: string;
 }
 
 const CreatorsPage = () => {
@@ -258,19 +260,33 @@ const CreatorsPage = () => {
                     <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
                     <Image
                       src={currentProfile.profileImage || '/empProfile.png'}
-                      className='rounded-lg w-full h-48 object-cover'
+                      className='rounded-lg w-full h-60 object-cover'
                       height={70}
                       width={150}
                       alt='profile'
                     />
                     <div className='flex flex-col items-start justify-start gap-3'>
-                    <div className='flex items-start justify-start gap-3'>
-                      <RiHeart2Line className='text-white' />
-                      <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>{currentProfile.username}</p>
-                      <RiHeart2Line className='text-white' />
+                      <div className='flex items-center justify-between w-full'>
+                        <div className='flex items-center gap-3'>
+                          <RiHeart2Line className='text-white' />
+                          <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>
+                            {currentProfile.username}
+                          </p>
+                          <RiHeart2Line className='text-white' />
+                        </div>
+                        {currentProfile.isAdultContent && (
+                          <div className="bg-red-600 text-white px-2 py-1 rounded-md text-sm font-bold animate-pulse">
+                            18+
+                          </div>
+                        )}
+                      </div>
+                      {currentProfile.country && (
+                        <p className="text-gray-400 text-sm flex items-center gap-2">
+                          <span>📍</span> {currentProfile.country}
+                        </p>
+                      )}
+                      <p className='text-gray-300 text-left text-sm'>{currentProfile.about}</p>
                     </div>
-                    <p className='text-gray-300 text-left text-sm'>{currentProfile.about}</p>  
-                    </div>                    
                     <div className="space-y-2 pt-4">
                       <button
                         onClick={(e) => {

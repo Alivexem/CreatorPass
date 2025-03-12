@@ -20,6 +20,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   const [selectedImagePreview, setSelectedImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isAdultContent, setIsAdultContent] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateForm = () => {
@@ -69,7 +70,8 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
           username,
           country,
           about,
-          profileImage
+          profileImage,
+          isAdultContent
         }),
       });
 
@@ -108,6 +110,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
           setCountry(data.profile.country || '');
           setAbout(data.profile.about || '');
           setProfileImage(data.profile.profileImage || '');
+          setIsAdultContent(data.profile.isAdultContent || false);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -264,6 +267,19 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
                 {errors.about && <p className="text-red-400 text-sm mt-1">{errors.about}</p>}
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center space-x-3 bg-[#1A1D1F] p-4 rounded-lg border border-gray-700">
+            <input
+              type="checkbox"
+              id="adultContent"
+              checked={isAdultContent}
+              onChange={(e) => setIsAdultContent(e.target.checked)}
+              className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+            />
+            <label htmlFor="adultContent" className="text-gray-300">
+              I create and upload 18+ content
+            </label>
           </div>
 
           <div className="flex justify-end pt-4">

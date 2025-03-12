@@ -38,6 +38,7 @@ interface Pass {
   };
   image: string;
   holders: string[]; // Add this line
+  ownedPasses?: string[]; // Add this
 }
 
 const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
@@ -362,6 +363,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
             onClose={() => setShowPassModal(false)}
             onCreate={handleCreatePass}
             profileImage={profile?.profileImage || '/emptProfile.jpg'}
+            ownedPasses={passes.map(p => p.type)} // Add this line
           />
 
           {/* Pass Info Modal */}
