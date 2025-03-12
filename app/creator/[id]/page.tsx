@@ -24,44 +24,9 @@ import { IoHeart, IoHeartOutline } from "react-icons/io5"; // Add this import
 import { CommentModal } from '@/components/CommentModal';
 import { CommentItem } from '@/components/CommentItem';
 import { RiErrorWarningLine } from "react-icons/ri";
-interface Comment {
-    _id: string;
-    address: string;
-    username: string;
-    comment: string;
-    timestamp?: Date;
-    likes?: string[];
-    likeCount?: number;
-    replies?: Comment[];
-    profileImage?: string;
-    hasReplies?: boolean;  // Add this property
-}
-
-interface Post {
-    _id: string;
-    username: string;
-    note: string;
-    image: string;
-    tier: 'Free' | 'Regular' | 'Special' | 'VIP';
-    createdAt: string;
-    comments?: Comment[];
-    likes?: string[];
-    likeCount?: number;
-}
-
-interface Profile {
-    username: string;
-    profileImage: string;
-    address: string;
-}
-
-interface FunChat {
-    address: string;
-    message: string;
-    profileImage: string;
-    timestamp: string;
-    username?: string; // Add username to interface
-}
+import CreatorPost from '@/components/creator/CreatorPost';
+import GiftModal from '@/components/creator/GiftModal';
+import { Post, Profile, Comment, Pass, FunChat } from '@/types/creator';
 
 interface PageProps {
     params: {
@@ -78,23 +43,6 @@ interface AccessNotification {
   show: boolean;
   message: string;
   availableTiers: string[];
-}
-
-interface Pass {
-  _id: string;
-  creatorAddress: string;
-  creatorName: string;
-  type: 'Regular' | 'Special' | 'VIP';
-  price: number;
-  message: string;
-  rules: {
-    funForumAccess: boolean;
-    likeCommentAccess: boolean;
-    downloadAccess: boolean;
-    giftAccess: boolean;
-  };
-  image: string;
-  holders: string[];
 }
 
 const CreatorPage = ({ params }: PageProps) => {
@@ -674,220 +622,33 @@ const CreatorPage = ({ params }: PageProps) => {
             <div className={`${accessNotification.show ? 'pt-[200px]' : 'pt-[100px]'}  md:pt-[200px]`}></div>
             <div className='flex flex-col space-y-10 justify-center items-center pb-[60px] mb-20 md:mb-0 md:ml-[300px]'>
                 {posts.map((post) => (
-                    <div key={post._id} className='md:w-[50vw] w-[95%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
-                        <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
-                            <div className='flex items-center gap-x-3'>
-                                <div className='relative h-[50px] w-[50px]'>
-                                    <Image
-                                        src={profile?.profileImage || '/empProfile.png'}
-                                        fill
-                                        style={{ objectFit: 'cover' }}
-                                        alt='profile'
-                                        className='rounded-lg'
-                                    />
-                                </div>
-                                <p className='text-[1.1rem] font-medium'>{profile?.username || 'Anonymous'}</p>
-                            </div>
-                            <div className='flex items-center gap-x-2'>
-                                <Image src='/sol.png' height={20} width={20} alt='solana' className='rounded-lg' />
-                                <div className='flex flex-col items-end'>
-                                    {/* <p className='text-gray-400'>{formatUserInfo(post.username)}</p> */}
-                                    <span className={`text-[0.7rem] ${getTierColor(post.tier)}`}>
-                                        {post.tier} Post
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className='px-10 mt-5 text-gray-200'>
-                            <p className='text-left'>{post.note}</p>
-                        </div>
-                        {post.image && (
-                            <div className='flex justify-center w-[100%] items-center'>
-                                <div 
-                                    className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
-                                    onClick={() => setSelectedImage(post.image)}
-                                >
-                                    <Image
-                                        src={post.image}
-                                        fill
-                                        style={{ objectFit: 'cover' }}
-                                        className='rounded-lg shadow-md'
-                                        alt='post image'
-                                    />
-                                </div>
-                            </div>
-                        )}
-                        <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
-                            <button
-                                onClick={() => handleLike(post._id)}
-                                className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
-                            >
-                                <IoHeartHalf
-                                    className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${hasLiked[post._id] ? 'text-purple-500' : ''}`}
-                                />
-                                <p>{likes[post._id] || post.likeCount || 0} likes</p>
-                            </button>
-                            <button
-                                onClick={() => handleCommentClick(post)}
-                                className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
-                            >
-                                <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
-                                <p>{post.comments?.length || 0} comments</p>
-                            </button>
-                            <button
-                                onClick={() => setShowGiftModal(true)}
-                                className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity'
-                            >
-                                <FaGift className='text-[1.1rem] md:text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
-                            </button>
-                            {/* Add these new buttons */}
-                            <button
-                                onClick={() => handleCopy(post.note, post._id)}
-                                className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative'
-                            >
-                                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
-                                   <p className='whitespace-nowrap'> {copiedStates[post._id] && 'Text Copied!'} </p>
-                                </div>
-                                <MdContentCopy className='text-[1.1rem] md:text-[1.7rem]' />
-                                <p className='hidden md:block'>Copy</p>
-                            </button>
-                            {post.image && (
-                                <button
-                                    onClick={() => handleDownload(post.image, post._id)}
-                                    className='text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative'
-                                >
-                                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
-                                        {downloadedStates[post._id] && 'Downloading!'}
-                                    </div>
-                                    <IoMdDownload className='text-[1.1rem] md:text-[1.7rem]' />
-                                    <p className='hidden md:block'>Download</p>
-                                </button>
-                            )}
-                        </div>
-                        {showComments[post._id] && (
-                            <div className='px-10 py-5 border-t border-gray-800 transition-all duration-300'>
-                                <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-                                    e.preventDefault();
-                                    handleComment(post._id, newComment[post._id] || '');
-                                }} className='mb-4'>
-                                    <input
-                                        type="text"
-                                        value={newComment[post._id] || ''}
-                                        onChange={(e) => setNewComment(prev => ({
-                                            ...prev,
-                                            [post._id]: e.target.value
-                                        }))}
-                                        placeholder="Add a comment..."
-                                        className='w-full bg-[#1A1D1F] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500'
-                                    />
-                                    <button
-                                        type="submit"
-                                        className='w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity'
-                                        disabled={isCommenting[post._id]}
-                                    >
-                                        {isCommenting[post._id] ? 'Posting comment...' : 'Comment'}
-                                    </button>
-                                </form>
-
-                                <div className='max-h-[200px] overflow-y-auto space-y-3'>
-                                    {post.comments?.slice()
-                                        .sort((a, b) =>
-                                            new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime()
-                                        )
-                                        .map((comment, idx) => (
-                                            <div key={idx} className='bg-[#1A1D1F] p-3 rounded-lg'>
-                                                <p className='text-gray-400'>{formatUserInfo(comment.address)}</p>
-                                                <p className='text-gray-200'>{comment.comment}</p>
-                                            </div>
-                                        ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {showGiftModal && (
-                            <div className='fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
-                                <div className='bg-[#1A1D1F] rounded-lg p-6 md:w-[400px] w-[95%] relative shadow-xl'>
-                                    <button
-                                        onClick={() => setShowGiftModal(false)}
-                                        className='absolute top-4 right-4 text-gray-400 hover:text-white transition-colors'
-                                    >
-                                        <IoMdClose size={24} />
-                                    </button>
-
-                                    <h2 className='text-white text-xl font-bold mb-6'>Gift {profile?.username}</h2>
-
-                                    <div className='space-y-4'>
-                                        <div className='flex flex-col gap-y-2'>
-                                            <p className='text-gray-400 text-sm'>This creator address can receive SOL:</p>
-                                            <div className='flex items-center gap-x-2'>
-                                                <p className='text-gray-200 font-mono bg-[#111315] p-2 rounded flex-1 overflow-x-auto'>
-                                                    {id}
-                                                </p>
-                                                <button
-                                                    onClick={handleCopyAddress}
-                                                    className='bg-blue-600 p-2 rounded hover:opacity-90 transition-opacity'
-                                                >
-                                                    <FaCopy className='text-white' />
-                                                </button>
-                                            </div>
-                                            {copySuccess && (
-                                                <p className='text-green-500 text-sm'>Address copied!</p>
-                                            )}
-                                        </div>
-                                       
-                                        <div className='text-center text-gray-400 text-sm'>Send SOL directly to this creator</div>
-                                        <div className='flex my-2 items-center justify-center gap-x-8'>
-                                            <button 
-                                                onClick={() => {
-                                                    setGiftAmount(selectedGift.flower);
-                                                    handleSendTx(selectedGift.flower, id);
-                                                }} 
-                                                className='flex items-center shadow-lg justify-evenly flex-col gap-y-2 text-white p-3 rounded-lg bg-black hover:opacity-90 transition-opacity'
-                                            >
-                                                <p className='text-[0.8rem]'>{selectedGift.flower / 1000000000} SOL</p>
-                                                <GiFlowerPot className='text-[1.5rem]' />
-                                                <p className='text-[0.8rem]'>Send flower</p>
-                                            </button>
-
-                                            <button 
-                                                onClick={() => {
-                                                    setGiftAmount(selectedGift.car);
-                                                    handleSendTx(selectedGift.car, id);
-                                                }} 
-                                                className='flex items-center shadow-lg justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-black hover:opacity-90 transition-opacity'
-                                            >
-                                                <p className='text-[0.8rem]'>{selectedGift.car / 1000000000} SOL</p>
-                                                <FaCar className='text-[1.5rem]' />
-                                                <p className='text-[0.8rem]'>Send car</p>
-                                            </button>
-
-                                            <button 
-                                                onClick={() => {
-                                                    setGiftAmount(selectedGift.house);
-                                                    handleSendTx(selectedGift.house, id);
-                                                }} 
-                                                className='flex shadow-lg items-center justify-center flex-col gap-y-2 text-white p-3 rounded-lg bg-black hover:opacity-90 transition-opacity'
-                                            >
-                                                <p className='text-[0.8rem]'>{selectedGift.house / 1000000000} SOL</p>
-                                                <FaLaptopHouse className='text-[1.5rem]' />
-                                                <p className='text-[0.8rem]'>Send house</p>
-                                            </button>
-                                        </div>
-
-                                        <div className='text-center text-gray-400 text-sm'>Easily upgrade SOL balance if low</div>
-                                        <button
-                                            onClick={handleGift}
-                                            className='bg-black text-white px-4 py-2 rounded-lg w-full hover:opacity-90 transition-opacity'
-                                        >
-                                            BUY SOL
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    <CreatorPost
+                        key={post._id}
+                        post={post}
+                        profile={profile}
+                        hasLiked={hasLiked[post._id]}
+                        likes={likes[post._id]}
+                        onLike={() => handleLike(post._id)}
+                        onComment={() => handleCommentClick(post)}
+                        onGift={() => setShowGiftModal(true)}
+                        onImageClick={setSelectedImage}
+                        onCopy={handleCopy}
+                        onDownload={handleDownload}
+                        downloadedStates={downloadedStates}
+                        copiedStates={copiedStates}
+                    />
                 ))}
             </div>
+
+            {showGiftModal && (
+                <GiftModal
+                    profile={profile}
+                    creatorId={id}
+                    onClose={() => setShowGiftModal(false)}
+                    onSendTx={handleSendTx}
+                    onBuySol={handleGift}
+                />
+            )}
 
             {selectedImage && (
                 <div className='fixed inset-0 bg-black md:bg-opacity-90 flex justify-center items-center z-50'>
