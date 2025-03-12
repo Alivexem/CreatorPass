@@ -9,7 +9,11 @@ import { IoMdDownload } from "react-icons/io";
 
 interface PostCardProps {
     post: any;
-    userProfile: any;
+    userProfile: {
+        username: string;
+        address: string;
+        profileImage?: string; // Make profileImage optional
+    };
     hasLiked: boolean;
     likes: number;
     showComments: boolean;
@@ -56,7 +60,7 @@ const PostCard = ({
                 <div className='flex items-center gap-x-3'>
                     <div className='relative h-[50px] w-[50px]'>
                         <Image
-                            src={userProfile?.profilePic || '/empProfile.png'}
+                            src={userProfile?.profileImage || '/empProfile.png'} // Use optional chaining and provide default
                             fill
                             style={{ objectFit: 'cover' }}
                             alt='profile'
