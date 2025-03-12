@@ -636,7 +636,7 @@ const CreatorPage = ({ params }: PageProps) => {
         router.push('/passes');
     };
 
-    if (isLoading) {
+    if (isLoading || !loadedPosts) {
         return (
             <div className='bg-black pb-[100px] md:pb-0 min-h-screen flex flex-col'>
                 <NavBar />
@@ -647,12 +647,12 @@ const CreatorPage = ({ params }: PageProps) => {
         );
     }
 
-    if (loadedPosts && posts.length === 0) {
+    if (posts.length === 0) {
         return (
             <div className='bg-black pb-[100px] md:pb-0 min-h-screen flex flex-col'>
                 <NavBar />
                 <div className='flex-1 flex justify-center items-center'>
-                    <p className='text-white text-2xl'>This creator haven't posted yet</p>
+                    <p className='text-white text-2xl'>This creator hasn&apos;t posted yet</p>
                 </div>
             </div>
         );
@@ -674,7 +674,7 @@ const CreatorPage = ({ params }: PageProps) => {
             <div className={`${accessNotification.show ? 'pt-[200px]' : 'pt-[100px]'}  md:pt-[200px]`}></div>
             <div className='flex flex-col space-y-10 justify-center items-center pb-[60px] mb-20 md:mb-0 md:ml-[300px]'>
                 {posts.map((post) => (
-                    <div key={post._id} className='md:w-[50vw] w-[95%] min-h-[200px] rounded-xl bg-[#111315] shadow-lg'>
+                    <div key={post._id} className='md:w-[50vw] w-[95%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
                         <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
                             <div className='flex items-center gap-x-3'>
                                 <div className='relative h-[50px] w-[50px]'>
@@ -921,7 +921,7 @@ const CreatorPage = ({ params }: PageProps) => {
             )}
 
             {/* Fun Chat Section */}
-            <div className={`fixed top-1/2 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[45vh] md:h-[70vh] md:w-[400px] w-full 
+            <div className={`fixed top-1/2 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[65vh] md:h-[70vh] md:w-[400px] w-full 
                 bg-gradient-to-b from-gray-600 to-gray-800
                 ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
                 transition-transform duration-300 z-30 shadow-xl rounded-r-lg`}
