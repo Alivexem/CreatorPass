@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { IoFlash } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
 import Image from 'next/image';
@@ -11,17 +11,41 @@ interface CreatorFunChatProps {
     funChats: FunChat[];
     onSendChat: (message: string) => Promise<void>;
     profileUsername?: string;
+    creatorId: string; // Add this
 }
 
 const CreatorFunChat = ({ 
     showFunChat, 
     setShowFunChat, 
-    funChats, 
+    funChats: initialFunChats, 
     onSendChat,
-    profileUsername 
+    profileUsername,
+    creatorId 
 }: CreatorFunChatProps) => {
     const [funChatMessage, setFunChatMessage] = useState('');
+    const [funChats, setFunChats] = useState(initialFunChats);
     const chatRef = useRef<HTMLDivElement>(null);
+
+    const fetchFunChats = async () => {
+        try {
+            const res = await fetch(`/api/creator/${creatorId}/funchat`);
+            if (!res.ok) throw new Error('Failed to fetch fun chats');
+            const data = await res.json();
+            setFunChats([...data.chats].reverse());
+        } catch (error) {
+            console.error('Error fetching fun chats:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchFunChats();
+    }, [creatorId]);
+
+    useEffect(() => {
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
+    }, [funChats]);
 
     const handleSendFunChat = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -30,6 +54,8 @@ const CreatorFunChat = ({
         await onSendChat(funChatMessage.trim());
         setFunChatMessage('');
         
+        fetchFunChats();
+
         if (chatRef.current) {
             chatRef.current.scrollTop = chatRef.current.scrollHeight;
         }
@@ -44,16 +70,16 @@ const CreatorFunChat = ({
                         onClick={() => setShowFunChat(true)}
                         className="bg-indigo-600 animate bounce p-3 rounded-full shadow-lg"
                     >
-                        <IoFlash className="text-white text-xl" />
+                        <IoFlash className="text-white text-lg" />
                     </button>
                 </div>
             )}
 
             {/* Fun Chat Section */}
-            <div className={`fixed top-1/2 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[65vh] md:h-[70vh] md:w-[400px] w-full 
+            <div className={`fixed top-[45%] z-50 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[88vh] md:h-[70vh] md:w-[400px] w-full 
                 bg-gradient-to-b from-gray-600 to-gray-800
                 ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
-                transition-transform duration-300 z-30 shadow-xl rounded-r-lg`}
+                transition-transform duration-300 z-30 shadow-xl md:rounded-r-lg`}
             >
                 <div className="p-4 h-full flex flex-col bg-black/30 md:bg-transparent">
                     {/* Mobile Close Button */}
@@ -78,7 +104,7 @@ const CreatorFunChat = ({
                         className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2"
                     >
                         {funChats.map((chat, index) => (
-                            <div key={index} className="flex items-start gap-2 bg-white/5 p-2 rounded-lg">
+                            <div key={chat.timestamp + index} className="flex items-start gap-2 bg-white/5 p-2 rounded-lg">
                                 <Image
                                     src={chat.profileImage || '/empProfile.png'}
                                     alt="Profile"
@@ -86,11 +112,16 @@ const CreatorFunChat = ({
                                     height={32}
                                     className="rounded-full h-[40px] w-[40px] object-cover"
                                 />
-                                <div>
-                                    <p className="text-blue-200 text-xs">
-                                        {chat.username || 'Anonymous'}
-                                    </p>
-                                    <p className="text-white text-sm">{chat.message}</p>
+                                <div className="flex-1">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-blue-200 text-xs">
+                                            {chat.username || 'Anonymous'}
+                                        </p>
+                                        <p className="text-gray-400 text-xs">
+                                            {new Date(chat.timestamp).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <p className="text-white text-sm break-words">{chat.message}</p>
                                 </div>
                             </div>
                         ))}

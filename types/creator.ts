@@ -21,6 +21,7 @@ export interface Post {
     comments?: Comment[];
     likes?: string[];
     likeCount?: number;
+    timestamp?: string;  // Add this line to support post dates
 }
 
 export interface Profile {

@@ -16,10 +16,12 @@ export interface Post {
     username: string;
     note: string;
     image: string;
+    tier: 'Free' | 'Regular' | 'Special' | 'VIP';
     createdAt: string;
     comments?: Comment[];
     likes?: string[];
     likeCount?: number;
+    profileImage?: string;
 }
 
 export interface Profile {

@@ -72,16 +72,37 @@ const PassesPage = () => {
 
   const PASSES_PER_PAGE = 3;
 
-  // Add new helper function to sort passes
-  const sortPasses = (passes: Pass[], highlightedCreator: string | null) => {
-    return passes.sort((a, b) => {
-      // Put highlighted creator's passes first
-      if (highlightedCreator) {
-        if (a.creatorAddress === highlightedCreator && b.creatorAddress !== highlightedCreator) return -1;
-        if (b.creatorAddress === highlightedCreator && a.creatorAddress !== highlightedCreator) return 1;
+  const sortAndFilterPasses = async (passes: Pass[], highlightedCreator: string | null) => {
+    // Get all creator posts to check pass usage
+    const usedPasses = new Set<string>();
+
+    // Check each pass
+    for (const pass of passes) {
+      // Fetch creator's posts
+      const res = await fetch(`/api/posts/user/${pass.creatorAddress}`);
+      if (!res.ok) continue;
+      
+      const data = await res.json();
+      const creatorPosts = data.posts || [];
+
+      // Check if the pass type is used in any posts
+      const isPassUsed = creatorPosts.some((post: any) => post.tier === pass.type);
+      
+      if (isPassUsed) {
+        usedPasses.add(pass._id);
       }
-      return 0;
-    });
+    }
+
+    // Filter out unused passes and sort by highlighted creator
+    return passes
+      .filter(pass => usedPasses.has(pass._id))
+      .sort((a, b) => {
+        if (highlightedCreator) {
+          if (a.creatorAddress === highlightedCreator && b.creatorAddress !== highlightedCreator) return -1;
+          if (b.creatorAddress === highlightedCreator && a.creatorAddress !== highlightedCreator) return 1;
+        }
+        return 0;
+      });
   };
 
   useEffect(() => {
@@ -92,12 +113,12 @@ const PassesPage = () => {
         const data = await res.json();
         
         if (data.passes) {
-          // Sort passes to put highlighted creator's passes first
-          const sortedPasses = sortPasses(data.passes, highlightedCreator);
-          setPasses(sortedPasses);
+          // Filter and sort passes based on usage
+          const filteredAndSortedPasses = await sortAndFilterPasses(data.passes, highlightedCreator);
+          setPasses(filteredAndSortedPasses);
 
-          // Initialize minting states
-          const states = sortedPasses.reduce((acc: any, pass: Pass) => {
+          // Initialize minting states for filtered passes
+          const states = filteredAndSortedPasses.reduce((acc: any, pass: Pass) => {
             acc[pass._id] = false;
             return acc;
           }, {});

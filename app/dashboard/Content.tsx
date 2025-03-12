@@ -7,24 +7,12 @@ import { MdAddCircle } from "react-icons/md";
 import { FaImages } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import PostCard from '@/components/PostCard';
+import { CommentModal } from '@/components/CommentModal';
+import { CommentItem } from '@/components/CommentItem';
+import { Post, Comment, Profile } from '@/types/interfaces';
 
 interface ContentProps {
   setToast: (toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
-}
-
-interface Post {
-    _id: string;
-    username: string;
-    note: string;
-    image?: string;
-    tier: 'Free' | 'Regular' | 'Special' | 'VIP';
-    comments?: Array<{
-        address: string;
-        comment: string;
-        timestamp?: Date;
-    }>;
-    likes?: string[];
-    likeCount?: number;
 }
 
 interface PassTier {
@@ -46,7 +34,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [postText, setPostText] = useState('Post');
     const [selectedImage, setSelectedImage] = useState<string>('');
     const [posts, setPosts] = useState<Post[]>([]);
-    const [userProfile, setUserProfile] = useState<any>(null);
+    const [userProfile, setUserProfile] = useState<Profile | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [postToDelete, setPostToDelete] = useState<string | null>(null);
     const [isLoadingPosts, setIsLoadingPosts] = useState(true);
@@ -64,12 +52,15 @@ const Content = ({ setToast }: ContentProps) => {
         { name: 'Special', available: false },
         { name: 'VIP', available: false },
     ]);
+    const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+    const [showCommentModal, setShowCommentModal] = useState(false);
+    const [replyTo, setReplyTo] = useState<Comment | null>(null);
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
         try {
-            const myAddress = localStorage.getItem('address');
-            if (!myAddress) {
+            const address = localStorage.getItem('address');
+            if (!address) {
                 setToast({
                     show: true,
                     message: 'Please connect your wallet first',
@@ -78,16 +69,8 @@ const Content = ({ setToast }: ContentProps) => {
                 return;
             }
 
-            const res = await fetch(`/api/posts/user/${myAddress}`);
-            if (!res.ok) {
-                throw new Error('Failed to fetch posts');
-            }
-            
-            const data = await res.json();
-            setPosts(data.posts);
-
-            // First get user profile
-            const profileRes = await fetch(`/api/profile?address=${myAddress}`);
+            // First fetch profile
+            const profileRes = await fetch(`/api/profile?address=${address}`);
             const profileData = await profileRes.json();
 
             if (!profileData.profile) {
@@ -99,20 +82,35 @@ const Content = ({ setToast }: ContentProps) => {
                 return;
             }
 
+            // Set user profile first
             setUserProfile({
                 username: profileData.profile.username || 'Anonymous',
                 address: profileData.profile.address,
-                profilePic: profileData.profile.profileImage || '/empProfile.png'
+                profileImage: profileData.profile.profileImage || '/empProfile.png'
             });
 
+            // Then fetch posts
+            const postsRes = await fetch('/api');
+            const postsData = await postsRes.json();
+
+            const userPosts = postsData.creator
+                .filter((post: Post) => post.username === address)
+                .map((post: Post) => ({
+                    ...post,
+                    tier: post.tier || 'Free',
+                    profileImage: profileData.profile.profileImage || '/empProfile.png'
+                }));
+
+            // Initialize likes and hasLiked states
             const initialLikes: { [key: string]: number } = {};
             const initialHasLiked: { [key: string]: boolean } = {};
 
-            data.posts.forEach((post: Post) => {
+            userPosts.forEach((post: Post) => {
                 initialLikes[post._id] = post.likeCount || 0;
-                initialHasLiked[post._id] = post.likes?.includes(myAddress) || false;
+                initialHasLiked[post._id] = post.likes?.includes(address) || false;
             });
 
+            setPosts(userPosts);
             setLikes(initialLikes);
             setHasLiked(initialHasLiked);
 
@@ -236,10 +234,10 @@ const Content = ({ setToast }: ContentProps) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!note) {
+        if (!note || !userProfile) {
             setToast({
                 show: true,
-                message: 'Type a post before submitting!',
+                message: !note ? 'Type a post before submitting!' : 'Please set up your profile first',
                 type: 'warning'
             });
             return;
@@ -247,6 +245,7 @@ const Content = ({ setToast }: ContentProps) => {
 
         setPostText('Loading...');
         const myAddress = localStorage.getItem('address');
+        if (!myAddress) return;
 
         try {
             const profileRes = await fetch(`/api/profile?address=${myAddress}`);
@@ -258,12 +257,15 @@ const Content = ({ setToast }: ContentProps) => {
 
             // Make sure the tier is explicitly included in the post data
             const postData = {
-                username: myAddress,
+                username: userProfile.username,
                 note: note.trim(),
-                image: image || '',
-                tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP', // Explicitly type the tier
-                timestamp: new Date().toISOString()
-            };
+                image: image || '/default-image.png', // Provide default image
+                tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP',
+                createdAt: new Date().toISOString(),
+                comments: [],
+                likes: [],
+                likeCount: 0
+            } as const;
 
             const res = await fetch('/api', {
                 method: 'POST',
@@ -306,6 +308,7 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
+    // Update handleLike to include proper UI feedback
     const handleLike = async (postId: string) => {
         try {
             const address = localStorage.getItem('address');
@@ -318,6 +321,7 @@ const Content = ({ setToast }: ContentProps) => {
                 return;
             }
 
+            setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] })); // Optimistic update
             const res = await fetch(`/api/posts/${postId}/like`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -325,11 +329,11 @@ const Content = ({ setToast }: ContentProps) => {
             });
 
             if (!res.ok) {
+                setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] })); // Revert if failed
                 throw new Error('Failed to update like');
             }
 
             const data = await res.json();
-            
             setPosts(prevPosts => 
                 prevPosts.map(post => 
                     post._id === postId 
@@ -337,10 +341,7 @@ const Content = ({ setToast }: ContentProps) => {
                         : post
                 )
             );
-
             setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
-            setHasLiked(prev => ({ ...prev, [postId]: data.hasLiked }));
-            
         } catch (error) {
             console.error('Error updating like:', error);
             setToast({
@@ -351,9 +352,8 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
-    const handleComment = async (e: React.FormEvent, postId: string) => {
-        e.preventDefault();
-        if (!newComment[postId]?.trim()) return;
+    const handleComment = async (postId: string, comment: string, replyToId?: string): Promise<void> => {
+        if (!comment.trim() || !userProfile) return;
 
         try {
             const address = localStorage.getItem('address');
@@ -368,28 +368,37 @@ const Content = ({ setToast }: ContentProps) => {
 
             setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
 
-            const res = await fetch(`/api/posts/${postId}/comment`, {
+            // Update to match the creator page API route
+            const res = await fetch(`/api/posts/${postId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    address, 
-                    comment: newComment[postId].trim() 
+                body: JSON.stringify({
+                    action: 'comment',
+                    address,
+                    comment: comment.trim(),
+                    replyToId,
+                    username: userProfile.username,
+                    profileImage: userProfile.profileImage
                 })
             });
 
-            if (!res.ok) {
-                throw new Error('Failed to add comment');
-            }
-
+            if (!res.ok) throw new Error('Failed to add comment');
             const data = await res.json();
-            setPosts(prevPosts => 
-                prevPosts.map(post => 
-                    post._id === postId 
+
+            // Update posts with new comments
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post._id === postId
                         ? { ...post, comments: data.comments }
                         : post
                 )
             );
-            
+
+            // Update selected post if modal is open
+            if (selectedPost && selectedPost._id === postId) {
+                setSelectedPost(prev => prev ? { ...prev, comments: data.comments } : null);
+            }
+
             setNewComment(prev => ({ ...prev, [postId]: '' }));
         } catch (error) {
             console.error('Error adding comment:', error);
@@ -400,6 +409,89 @@ const Content = ({ setToast }: ContentProps) => {
             });
         } finally {
             setIsCommentLoading(prev => ({ ...prev, [postId]: false }));
+        }
+    };
+
+    const handleReply = async (postId: string, comment: string, replyToId: string): Promise<void> => {
+        await handleComment(postId, comment, replyToId);
+    };
+
+    const fetchPostComments = async (postId: string) => {
+        try {
+            const res = await fetch(`/api/posts/${postId}/comments`);
+            if (!res.ok) throw new Error('Failed to fetch comments');
+            const data = await res.json();
+            return data.comments || [];
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            return [];
+        }
+    };
+
+    const updatePostComments = async (postId: string) => {
+        const comments = await fetchPostComments(postId);
+        setPosts(prevPosts =>
+            prevPosts.map(post =>
+                post._id === postId
+                    ? { ...post, comments }
+                    : post
+            )
+        );
+        if (selectedPost?._id === postId) {
+            setSelectedPost(prev => prev ? { ...prev, comments } : null);
+        }
+    };
+
+    const handleCommentClick = async (post: Post) => {
+        try {
+            setSelectedPost({...post});
+            setShowCommentModal(true);
+            
+            const comments = await fetchPostComments(post._id);
+            if (!showCommentModal) return;
+
+            setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments } : prev);
+            setPosts(prevPosts =>
+                prevPosts.map(p => p._id === post._id ? { ...p, comments } : p)
+            );
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            setToast({
+                show: true,
+                message: 'Failed to load comments. Please try again.',
+                type: 'error'
+            });
+        }
+    };
+
+    const handleCommentLike = async (postId: string, commentId: string) => {
+        try {
+            const address = localStorage.getItem('address');
+            if (!address) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            const res = await fetch(`/api/posts/${postId}/comments/${commentId}/like`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address })
+            });
+
+            if (!res.ok) throw new Error('Failed to like comment');
+            await updatePostComments(postId);
+
+        } catch (error) {
+            console.error('Error liking comment:', error);
+            setToast({
+                show: true,
+                message: 'Failed to like comment. Please try again.',
+                type: 'error'
+            });
         }
     };
 
@@ -472,17 +564,27 @@ const Content = ({ setToast }: ContentProps) => {
                             <PostCard
                                 key={post._id}
                                 post={post}
-                                userProfile={userProfile}
+                                userProfile={{
+                                    username: userProfile!.username,
+                                    address: userProfile!.address,
+                                    profileImage: post.profileImage || '/empProfile.png' // Provide default value
+                                }}
                                 hasLiked={hasLiked[post._id]}
                                 likes={likes[post._id] || post.likeCount || 0}
                                 showComments={showComments[post._id]}
                                 onLike={() => handleLike(post._id)}
                                 onDelete={() => handleDelete(post._id)}
-                                onToggleComments={() => setShowComments(prev => ({ 
-                                    ...prev, 
-                                    [post._id]: !prev[post._id] 
-                                }))}
-                                handleComment={(e) => handleComment(e, post._id)}
+                                onToggleComments={() => handleCommentClick(post)}
+                                handleComment={(e: React.FormEvent) => {
+                                    e.preventDefault();
+                                    const form = e.target as HTMLFormElement;
+                                    const formData = new FormData(form);
+                                    const comment = formData.get('comment') as string;
+                                    if (comment.trim()) {
+                                        handleComment(post._id, comment);
+                                        form.reset();
+                                    }
+                                }}
                                 newComment={newComment[post._id] || ''}
                                 setNewComment={(value) => setNewComment(prev => ({
                                     ...prev,
@@ -498,6 +600,8 @@ const Content = ({ setToast }: ContentProps) => {
                         ))}
                     </div>
                 )}
+                {/* //     </div> */}
+                {/* // )} */}
 
                 {/* Delete Modal */}
                 {showDeleteModal && (
@@ -663,7 +767,7 @@ const Content = ({ setToast }: ContentProps) => {
                                         placeholder='Express yourself...' 
                                         className='w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none resize-none'
                                         rows={4}
-                                        maxLength={150}
+                                        maxLength={350}
                                     />
 
                                     <button
@@ -684,6 +788,28 @@ const Content = ({ setToast }: ContentProps) => {
                     </div>
                 )}
             </div>
+            {showCommentModal && selectedPost && userProfile && (
+                <CommentModal 
+                    post={{
+                        ...selectedPost,
+                        comments: selectedPost.comments?.map(comment => ({
+                            ...comment,
+                            username: comment.username || 'Anonymous',
+                            profileImage: comment.profileImage || '/default-avatar.png'
+                        })) || []
+                    }}
+                    onClose={() => {
+                        setShowCommentModal(false);
+                        setTimeout(() => {
+                            setSelectedPost(null);
+                        }, 200);
+                    }}
+                    onComment={handleComment}
+                    onLike={handleCommentLike}
+                    onReply={handleReply}
+                    userProfile={userProfile}
+                />
+            )}
         </div>
     );
 };

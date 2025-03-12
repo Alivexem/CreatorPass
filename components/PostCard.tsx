@@ -4,11 +4,16 @@ import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
-import CommentSection from './CommentSection';
+import { MdContentCopy } from "react-icons/md";
+import { IoMdDownload } from "react-icons/io";
 
 interface PostCardProps {
     post: any;
-    userProfile: any;
+    userProfile: {
+        username: string;
+        address: string;
+        profileImage?: string; // Make profileImage optional
+    };
     hasLiked: boolean;
     likes: number;
     showComments: boolean;
@@ -39,90 +44,114 @@ const PostCard = ({
     censorAddress,
     onImageClick
 }: PostCardProps) => {
+    const getTierColor = (tier: string) => {
+        switch(tier) {
+            case 'VIP': return 'text-yellow-500';
+            case 'Special': return 'text-purple-500';
+            case 'Regular': return 'text-blue-500';
+            default: return 'text-gray-500';
+        }
+    };
+
     return (
-        <div className='w-[95%] min-h-[200px] rounded-xl bg-transparent border-[1px] border-gray-200'>
-            <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#26355D]'>
-                {/* Profile Section */}
+        <div className='md:w-[50vw] w-[95%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
+            {/* Header */}
+            <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
                 <div className='flex items-center gap-x-3'>
-                    <div className='h-[50px] w-[50px] relative'>
-                        <Image 
-                            src={userProfile?.profilePic} 
+                    <div className='relative h-[50px] w-[50px]'>
+                        <Image
+                            src={userProfile?.profileImage || '/empProfile.png'} // Use optional chaining and provide default
                             fill
-                            alt='profile' 
-                            className='rounded-lg object-cover'
-                            sizes="50px"
+                            style={{ objectFit: 'cover' }}
+                            alt='profile'
+                            className='rounded-lg'
                         />
                     </div>
-                    <p className='text-[1.1rem]'>{userProfile?.username}</p>
+                    <p className='text-[1.1rem] font-medium'>{userProfile?.username || 'Anonymous'}</p>
                 </div>
                 <div className='flex items-center gap-x-2'>
-                    <Image src='/sol.png' height={20} width={20} alt='profile' className='rounded-lg' />
-                    <p className='hidden text-[0.8rem] md:block'>{censorAddress(post.username)}</p>
+                    <Image src='/sol.png' height={20} width={20} alt='solana' className='rounded-lg' />
+                    <div className='flex flex-col items-end'>
+                        <span className={`text-[0.7rem] ${getTierColor(post.tier || 'Free')}`}>
+                            {post.tier || 'Free'} Post
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {/* Post Content */}
-            <div className='flex-start px-10 mt-5 text-white'>
+            {/* Content */}
+            <div className='px-10 mt-5 text-gray-200'>
                 <p className='text-left'>{post.note}</p>
             </div>
 
-            {/* Post Image */}
+            {/* Image */}
             {post.image && (
-                <div 
-                    className='relative cursor-pointer w-full aspect-video rounded-xl overflow-hidden'
-                    onClick={() => onImageClick(post.image!)}
-                >
-                    <Image
-                        src={post.image}
-                        alt="Post image"
-                        fill
-                        className='object-cover'
-                    />
+                <div className='flex justify-center w-[100%] items-center'>
+                    <div 
+                        className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
+                        onClick={() => onImageClick(post.image)}
+                    >
+                        <Image
+                            src={post.image}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className='rounded-lg shadow-md'
+                            alt='post image'
+                        />
+                    </div>
                 </div>
             )}
 
-            {/* Action Buttons */}
-            <div className='mt-10 w-[100%] flex mb-5 px-10 justify-between items-center flex-wrap gap-y-4'>
-                <button 
+            {/* Actions */}
+            <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
+                <button
                     onClick={onLike}
-                    className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                    className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
-                    <IoHeartHalf 
-                        className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${
-                            hasLiked ? 'text-purple-500' : 'text-white'
-                        }`} 
+                    <IoHeartHalf
+                        className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${hasLiked ? 'text-purple-500' : ''}`}
                     />
-                    <p className='text-[0.8rem] md:text-[1rem]'>{likes} likes</p>
+                    <p>{likes} likes</p>
                 </button>
-                <button 
+                <button
                     onClick={onToggleComments}
-                    className='flex flex-col md:flex-row items-center gap-x-3 text-white hover:opacity-80 transition-opacity'
+                    className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
                     <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
-                    <p className='text-[0.8rem] md:text-[1rem]'>{post.comments?.length || 0} comments</p>
+                    <p>{post.comments?.length || 0} comments</p>
                 </button>
-                <button 
+                <button
                     onClick={onDelete}
-                    className='bg-red-700 text-[1rem] h-[40px] w-auto p-2 md:w-[80px] text-white rounded-lg flex items-center justify-center gap-x-3'
+                    className='flex flex-col md:flex-row items-center gap-x-3 text-red-500 hover:text-red-400 transition-colors'
                 >
                     <MdDeleteForever className='text-[1.1rem] md:text-[1.7rem]' />
-                    <p className='hidden text-[0.8rem] md:text-[1rem] md:block'>Delete</p>
+                    <p className='hidden md:block'>Delete</p>
                 </button>
             </div>
 
             {/* Comments Section */}
             {showComments && (
-                <CommentSection 
-                    post={post}
-                    handleComment={handleComment}
-                    newComment={newComment}
-                    setNewComment={setNewComment}
-                    isCommentLoading={isCommentLoading}
-                    censorAddress={censorAddress}
-                />
+                <div className='px-10 py-5 border-t border-gray-800'>
+                    <form onSubmit={handleComment} className='flex gap-x-2'>
+                        <input
+                            type='text'
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder='Add a comment...'
+                            className='flex-1 bg-[#1A1D1F] text-white rounded-lg px-4 py-2'
+                        />
+                        <button
+                            type='submit'
+                            disabled={isCommentLoading}
+                            className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50'
+                        >
+                            Post
+                        </button>
+                    </form>
+                </div>
             )}
         </div>
     );
 };
 
-export default PostCard; 
+export default PostCard;
