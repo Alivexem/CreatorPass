@@ -27,6 +27,8 @@ import { RiErrorWarningLine } from "react-icons/ri";
 import CreatorPost from '@/components/creator/CreatorPost';
 import GiftModal from '@/components/creator/GiftModal';
 import { Post, Profile, Comment, Pass, FunChat } from '@/types/creator';
+import CreatorFunChat from '@/components/creator/CreatorFunChat';
+import AccessNotification from '@/components/creator/AccessNotification';
 
 interface PageProps {
     params: {
@@ -492,10 +494,7 @@ const CreatorPage = ({ params }: PageProps) => {
         setShowGiftModal(false);
     };
 
-    const handleSendFunChat = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!funChatMessage.trim()) return;
-
+    const handleSendFunChat = async (message: string) => {
         try {
             const address = localStorage.getItem('address');
             if (!address) {
@@ -507,14 +506,10 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
-            // Remove profile check since we already have userProfile state
             const res = await fetch(`/api/creator/${id}/funchat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    address,
-                    message: funChatMessage.trim()
-                })
+                body: JSON.stringify({ address, message })
             });
 
             const data = await res.json();
@@ -528,13 +523,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
-            // Reverse the order of chats so recent ones appear at bottom
             setFunChats([...data.chats].reverse());
-            setFunChatMessage('');
-            
-            if (chatRef.current) {
-                chatRef.current.scrollTop = chatRef.current.scrollHeight;
-            }
         } catch (error) {
             console.error('Error sending message:', error);
         }
@@ -609,16 +598,13 @@ const CreatorPage = ({ params }: PageProps) => {
     return (
         <div className='bg-black pb-[80px] md:pb-0'>
             <NavBar />
-            {/* Access Notification */}
-            {accessNotification.show && !showFunChat && (
-                <div 
-                    onClick={handleNotificationClick}
-                    className="bg-gradient-to-r md:left-[35vw] absolute mt-[120px] md:mt-[130px] from-purple-600 my-5 to-purple-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 cursor-pointer hover:opacity-90 transition-opacity text-center w-auto mx-4"
-                >
-                    <p className='text-[1rem] flex items-center text-left'><RiErrorWarningLine className='text-white mr-2' />{accessNotification.message}</p>
-                
-                </div>
-            )}
+            
+            <AccessNotification 
+                show={accessNotification.show && !showFunChat}
+                message={accessNotification.message}
+                onClick={handleNotificationClick}
+            />
+
             <div className={`${accessNotification.show ? 'pt-[200px]' : 'pt-[100px]'}  md:pt-[200px]`}></div>
             <div className='flex flex-col space-y-10 justify-center items-center pb-[60px] mb-20 md:mb-0 md:ml-[300px]'>
                 {posts.map((post) => (
@@ -681,65 +667,13 @@ const CreatorPage = ({ params }: PageProps) => {
                 </div>
             )}
 
-            {/* Fun Chat Section */}
-            <div className={`fixed top-1/2 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[65vh] md:h-[70vh] md:w-[400px] w-full 
-                bg-gradient-to-b from-gray-600 to-gray-800
-                ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
-                transition-transform duration-300 z-30 shadow-xl rounded-r-lg`}
-            >
-                <div className="p-4 h-full flex flex-col bg-black/30 md:bg-transparent">
-                    {/* Mobile Close Button */}
-                    <button
-                        onClick={() => setShowFunChat(false)}
-                        className="md:hidden absolute top-4 right-4 text-white"
-                    >
-                        <IoMdClose size={24} />
-                    </button>
-
-                    {/* Chat Header */}
-                    <div className="flex items-center gap-2 mb-4">
-                        <h2 className="text-xl font-bold text-white">
-                            {profile?.username}'s Fun Talk
-                        </h2>
-                        <IoFlash className="text-white text-xl" />
-                    </div>
-
-                    {/* Chat Messages */}
-                    <div
-                        ref={chatRef}
-                        className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2"
-                    >
-                        {funChats.map((chat, index) => (
-                            <div key={index} className="flex items-start gap-2 bg-white/5 p-2 rounded-lg">
-                                <Image
-                                    src={chat.profileImage || '/empProfile.png'}
-                                    alt="Profile"
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full h-[40px] w-[40px] object-cover"
-                                />
-                                <div>
-                                    <p className="text-blue-200 text-xs">
-                                        {chat.username || 'Anonymous'}
-                                    </p>
-                                    <p className="text-white text-sm">{chat.message}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Chat Input */}
-                    <form onSubmit={handleSendFunChat} className="mt-auto">
-                        <input
-                            type="text"
-                            value={funChatMessage}
-                            onChange={(e) => setFunChatMessage(e.target.value)}
-                            placeholder="Type your message..."
-                            className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
-                        />
-                    </form>
-                </div>
-            </div>
+            <CreatorFunChat 
+                showFunChat={showFunChat}
+                setShowFunChat={setShowFunChat}
+                funChats={funChats}
+                onSendChat={handleSendFunChat}
+                profileUsername={profile?.username}
+            />
 
             {/* Profile Required Modal */}
             {showProfileModal && (
