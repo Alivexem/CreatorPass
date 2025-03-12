@@ -209,9 +209,12 @@ const CreatorPage = ({ params }: PageProps) => {
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
 
-                const creatorPosts = postsData.creator.filter((post: Post) =>
-                    post.username === id
-                );
+                const creatorPosts = postsData.creator
+                    .filter((post: Post) => post.username === id)
+                    .map((post: Post) => ({
+                        ...post,
+                        tier: post.tier || 'Free' // Set default tier to 'Free' if not specified
+                    }));
 
                 // Get user's access level based on passes
                 const userTiers = new Set(['Free', ...userPasses.map(pass => pass.type)]);
