@@ -1,11 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['res.cloudinary.com'], // Keep your image domain settings
+    domains: ['res.cloudinary.com'],
   },
-  experimental: {
-    turbo: {}, // Turbo should be an object, not a boolean
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      "punycode": false,
+      "pino-pretty": false,
+      "net": false,
+      "tls": false,
+      "fs": false,
+    };
+    return config;
   },
 };
 
-module.exports = nextConfig;
+module.exports = nextConfig; 
