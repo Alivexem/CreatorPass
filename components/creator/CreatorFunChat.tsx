@@ -93,7 +93,7 @@ const CreatorFunChat = ({
                     {/* Chat Header */}
                     <div className="flex items-center gap-2 mb-4">
                         <h2 className="text-xl font-bold text-white">
-                            {profileUsername}'s Fun Talk
+                            {profileUsername}'s Room Chat
                         </h2>
                         <IoFlash className="text-white text-xl" />
                     </div>

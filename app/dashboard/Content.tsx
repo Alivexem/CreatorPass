@@ -274,7 +274,7 @@ const Content = ({ setToast }: ContentProps) => {
                 username: myAddress,
                 note: note.trim(),
                 image: image || '',
-                tier: selectedTier,  // Make sure selectedTier is included
+                tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP',  // Explicitly type the tier
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
@@ -290,7 +290,7 @@ const Content = ({ setToast }: ContentProps) => {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
                 },
-                body: JSON.stringify(postData)
+                body: JSON.stringify({ ...postData, tier: selectedTier })  // Ensure tier is included in stringified body
             });
 
             if (!res.ok) {
