@@ -69,6 +69,9 @@ const PassesPage = () => {
   const [isMinting, setIsMinting] = useState(false);
   const [platformAddress, setPlatformAddress] = useState<string | null>(null);
   const [highlightedCreatorPasses, setHighlightedCreatorPasses] = useState<Pass[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredPasses, setFilteredPasses] = useState<Pass[]>([]);
+  const [ownedPasses, setOwnedPasses] = useState<Set<string>>(new Set());
 
   const PASSES_PER_PAGE = 3;
 
@@ -163,6 +166,34 @@ const PassesPage = () => {
     fetchPlatformAddress();
   }, []);
 
+  useEffect(() => {
+    const filtered = passes.filter(pass =>
+      pass.creatorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pass.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pass.type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPasses(filtered);
+  }, [searchTerm, passes]);
+
+  useEffect(() => {
+    const checkOwnedPasses = async () => {
+      const address = localStorage.getItem('address');
+      if (!address) return;
+
+      try {
+        const res = await fetch(`/api/passholders/check/${address}`);
+        const data = await res.json();
+        if (data.passes) {
+          setOwnedPasses(new Set(data.passes.map((pass: Pass) => pass._id)));
+        }
+      } catch (error) {
+        console.error('Error checking owned passes:', error);
+      }
+    };
+
+    checkOwnedPasses();
+  }, []);
+
   const totalPasses = passes.length;
   const totalPages = Math.ceil(totalPasses / PASSES_PER_PAGE);
   const paginatedPasses = passes.slice(
@@ -201,6 +232,15 @@ const PassesPage = () => {
     } else {
       // Swiped right
       handlePrevious();
+    }
+  };
+
+  const handlePassSelect = (index: number) => {
+    setCurrentPage(Math.ceil((index + 1) / PASSES_PER_PAGE));
+    // Scroll to the selected pass
+    const passElements = document.querySelectorAll('.pass-card');
+    if (passElements[index]) {
+      passElements[index].scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -533,21 +573,80 @@ const PassesPage = () => {
     }
 };
 
+  const renderPassButton = (pass: Pass) => {
+    const isOwned = ownedPasses.has(pass._id);
+    
+    return (
+      <button 
+        onClick={() => !isOwned && mintNFT(pass)}
+        disabled={mintingStates[pass._id] || isOwned}
+        className={`w-full py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 
+          ${isOwned 
+            ? 'bg-gray-600 text-gray-300' 
+            : 'bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white'
+          } disabled:opacity-50`}
+      >
+        {mintingStates[pass._id] ? (
+          <>
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Minting...</span>
+          </>
+        ) : isOwned ? (
+          <>
+            <span>Owned</span>
+          </>
+        ) : (
+          <>
+            <RiNftFill className="text-xl" />
+            <span>Mint NFT</span>
+          </>
+        )}
+      </button>
+    );
+  };
+
   return (
     <div className='min-h-screen pb-[120px] md:pb-0 bg-black'>
       <NavBar />
       
       {/* Hero Section */}
-      <div className='container mx-auto px-4 pt-20 pb-32'>
+      <div className='container mx-auto mt-14 mb-10 px-4 pt-20'>
         <div className='max-w-4xl mx-auto text-center space-y-6'>
-          <h1 className='text-4xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
-            Exclusive Creator Passes
-          </h1>
-          <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
-            Get unlimited access to premium content and unique experiences from your favorite creators.
-          </p>
-          <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
-            All creators passes are available here
+          <div className='w-[350px] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
+            <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
+              Available Passes
+            </h1>
+            <input
+              type="text"
+              placeholder="Search passes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg mb-4"
+            />
+            <div className="h-[300px] overflow-y-auto">
+              {filteredPasses.map((pass, index) => (
+                <div
+                  key={pass._id}
+                  onClick={() => handlePassSelect(index)}
+                  className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg cursor-pointer"
+                >
+                  <Image
+                    src={pass.image}
+                    alt={pass.creatorName}
+                    width={40}
+                    height={40}
+                    className="rounded-lg"
+                  />
+                  <div className="text-left">
+                    <p className="text-white font-semibold">{pass.type} - {pass.creatorName}</p>
+                    <p className="text-gray-400 text-sm truncate w-[200px]">
+                      {pass.message}
+                    </p>
+                    <p className="text-blue-400 text-sm">{pass.price} SOL</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -623,26 +722,7 @@ const PassesPage = () => {
                           ))}
                         </ul>
                       </div>
-                      <button 
-                        onClick={() => {
-                          console.log('Mint button clicked'); // Debug log
-                          mintNFT(pass);
-                        }}
-                        disabled={mintingStates[pass._id]}
-                        className='w-full bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
-                      >
-                        {mintingStates[pass._id] ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Minting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <RiNftFill className="text-xl" />
-                            <span>Mint NFT</span>
-                          </>
-                        )}
-                      </button>
+                      {renderPassButton(pass)} {/* Replace the old button with this line */}
                     </div>
                   );
                 })}
