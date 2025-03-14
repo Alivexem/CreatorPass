@@ -221,7 +221,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
             {/* Header */}
             <div className='mb-10'>
-              <h1 className='md:text-4xl text-2xl font-bold text-purple-500 flex items-center gap-3'>
+              <h1 className='md:text-4xl text-3xl font-bold text-purple-500 flex items-center gap-3'>
                 Creator Dashboard
                 <FaDatabase />
               </h1>
