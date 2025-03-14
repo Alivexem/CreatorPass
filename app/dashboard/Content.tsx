@@ -269,17 +269,17 @@ const Content = ({ setToast }: ContentProps) => {
                 throw new Error('Profile not found, setup your profile');
             }
 
-            // Make sure the tier is explicitly included in the post data
+            // Create the post data with explicit tier typing
             const postData = {
                 username: myAddress,
                 note: note.trim(),
-                image: image || '', // Provide default image
-                tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP',
+                image: image || '',
+                tier: selectedTier,  // Make sure selectedTier is included
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
                 likeCount: 0,
-                creatorAddress: myAddress  // Add creator's address
+                creatorAddress: myAddress
             };
 
             const res = await fetch('/api', {
