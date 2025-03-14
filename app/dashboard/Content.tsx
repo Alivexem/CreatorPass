@@ -70,7 +70,12 @@ const Content = ({ setToast }: ContentProps) => {
             }
 
             // First fetch profile
-            const profileRes = await fetch(`/api/profile?address=${address}`);
+            const profileRes = await fetch(`/api/profile?address=${address}`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
             const profileData = await profileRes.json();
 
             if (!profileData.profile) {
@@ -91,26 +96,28 @@ const Content = ({ setToast }: ContentProps) => {
 
             // Then fetch posts
             const postsRes = await fetch('/api');
-            const postsData = await postsRes.json();
+            const { creator } = await postsRes.json();
 
-            const userPosts = postsData.creator
-                .filter((post: Post) => post.username === address)
-                .map((post: Post) => ({
-                    ...post,
-                    tier: post.tier || 'Free',
-                    profileImage: profileData.profile.profileImage || '/empProfile.png'
-                }));
+            // Process the creator array
+            const processedPosts = creator.map((post: Post) => ({
+                ...post,
+                tier: post.tier || 'Free',
+                profileImage: profileData.profile.profileImage || '/empProfile.png',
+                comments: post.comments || [],
+                likes: post.likes || [],
+                likeCount: post.likeCount || 0
+            }));
 
             // Initialize likes and hasLiked states
             const initialLikes: { [key: string]: number } = {};
             const initialHasLiked: { [key: string]: boolean } = {};
 
-            userPosts.forEach((post: Post) => {
+            processedPosts.forEach((post: Post) => {
                 initialLikes[post._id] = post.likeCount || 0;
                 initialHasLiked[post._id] = post.likes?.includes(address) || false;
             });
 
-            setPosts(userPosts);
+            setPosts(processedPosts);
             setLikes(initialLikes);
             setHasLiked(initialHasLiked);
 
@@ -248,7 +255,12 @@ const Content = ({ setToast }: ContentProps) => {
         if (!myAddress) return;
 
         try {
-            const profileRes = await fetch(`/api/profile?address=${myAddress}`);
+            const profileRes = await fetch(`/api/profile?address=${myAddress}`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
             const profileData = await profileRes.json();
 
             if (!profileData.profile) {
@@ -259,19 +271,22 @@ const Content = ({ setToast }: ContentProps) => {
             const postData = {
                 username: userProfile.username,
                 note: note.trim(),
-                image: image || '/default-image.png', // Provide default image
+                image: image || '', // Provide default image
                 tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP',
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
-                likeCount: 0
-            } as const;
+                likeCount: 0,
+                creatorAddress: myAddress  // Add creator's address
+            };
 
             const res = await fetch('/api', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
                 },
                 body: JSON.stringify(postData)
             });

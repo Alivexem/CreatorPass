@@ -722,7 +722,7 @@ const PassesPage = () => {
                           ))}
                         </ul>
                       </div>
-                      {renderPassButton(pass)}
+                      {renderPassButton(pass)} {/* Replace the old button with this line */}
                     </div>
                   );
                 })}
