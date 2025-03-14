@@ -221,7 +221,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
             {/* Header */}
             <div className='mb-10'>
-              <h1 className='text-4xl font-bold text-purple-500 flex items-center gap-3'>
+              <h1 className='md:text-4xl text-2xl font-bold text-purple-500 flex items-center gap-3'>
                 Creator Dashboard
                 <FaDatabase />
               </h1>
@@ -258,7 +258,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                   <button
                     onClick={handleCreatePassClick}
                     disabled={!canCreateMorePasses()}
-                    className='flex-1 mb-[80px] md:mb-0 mt-5 bg-green-600 md:bg-purple-600 hover:bg-purple-700 h-[70px] transition-all py-3 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                    className='flex-1 mb-[50px] md:mb-0 mt-5 bg-green-600 md:bg-purple-600 hover:bg-purple-700 h-[60px] transition-all py-3 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
                   >
                     <IoTicketSharp size={20} />
                     {canCreateMorePasses() ? 'Create Pass' : 'Max Passes Created'}
@@ -397,7 +397,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
 
           {/* Delete Confirmation Modal */}
           {showDeleteModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black md:bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-[#1A1D1F] rounded-xl w-full max-w-md p-6 relative">
                 <h2 className="text-xl font-bold text-red-500 mb-4">Delete Pass</h2>
                 <p className="text-gray-300 mb-4">

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, TouchEvent } from 'react'
+import React, { useState, useEffect, TouchEvent, useRef } from 'react'
 import NavBar from '@/components/NavBar'
 import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
@@ -29,6 +29,7 @@ interface Profile {
 }
 
 const CreatorsPage = () => {
+  const creatorCardRef = useRef<HTMLDivElement>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -215,6 +216,15 @@ const CreatorsPage = () => {
 
   const handleCreatorSelect = (index: number) => {
     setCurrentIndex(index);
+    // Check if on mobile and scroll to card
+    if (window.innerWidth <= 768 && creatorCardRef.current) {
+      setTimeout(() => {
+        creatorCardRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 100);
+    }
   };
 
   const currentProfile = profiles[currentIndex];
@@ -285,7 +295,7 @@ const CreatorsPage = () => {
             </div> 
 
             {/* Creator Card */}
-            <div className='flex justify-center items-center w-full'>
+            <div className='flex justify-center items-center w-full' ref={creatorCardRef}>
               {loading ? (
                 <div className='flex justify-center items-center h-[500px]'>
                   <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
@@ -295,7 +305,7 @@ const CreatorsPage = () => {
                   <div className='flex items-center justify-center gap-8'>
                     <button
                       onClick={handlePrevious}
-                      className='text-white/50 hover:text-white -mr-[30px] md:-mr-0 transition-colors'
+                      className='text-white/50 hover:text-white z-50 -mr-[40px] md:-mr-30 md:-mr-0 transition-colors'
                       disabled={profiles.length <= 1}
                     >
                       <FaArrowAltCircleLeft className='text-3xl' />
@@ -313,7 +323,7 @@ const CreatorsPage = () => {
                           onTouchStart={handleTouchStart}
                           onTouchMove={handleTouchMove}
                           onTouchEnd={handleTouchEnd}
-                          className={`w-[75vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
+                          className={`w-[80vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
                             bg-gradient-to-r from-blue-500 to-purple-600 
                             transform hover:scale-105 transition-all duration-300
                             ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
@@ -375,7 +385,7 @@ const CreatorsPage = () => {
 
                     <button
                       onClick={handleNext}
-                      className='text-white/50 hover:text-white -ml-[30px] md:-ml-0 transition-colors'
+                      className='text-white/50 hover:text-white z-50 -ml-[40px] md:-ml-0 transition-colors'
                       disabled={profiles.length <= 1}
                     >
                       <FaArrowAltCircleRight className='text-3xl' />

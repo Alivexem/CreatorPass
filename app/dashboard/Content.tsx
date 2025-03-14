@@ -269,17 +269,17 @@ const Content = ({ setToast }: ContentProps) => {
                 throw new Error('Profile not found, setup your profile');
             }
 
-            // Make sure the tier is explicitly included in the post data
+            // Create the post data with explicit tier typing
             const postData = {
                 username: myAddress,
                 note: note.trim(),
-                image: image || '', // Provide default image
-                tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP',
+                image: image || '',
+                tier: selectedTier,  // Make sure selectedTier is included
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
                 likeCount: 0,
-                creatorAddress: myAddress  // Add creator's address
+                creatorAddress: myAddress
             };
 
             const res = await fetch('/api', {
@@ -672,7 +672,7 @@ const Content = ({ setToast }: ContentProps) => {
                 {/* Upload Modal */}
                 {showUploader && (
                     <div className='fixed inset-0 bg-black md:bg-opacity-75 flex justify-center items-center z-50 p-4'>
-                        <div className='bg-[#2A2D2F] -mt-[18%] md:-mt-0 h-[80vh] md:h-[95vh] rounded-xl max-w-xl w-full'>
+                        <div className='bg-[#2A2D2F] overflow-y-auto md:-mt-0 h-[80vh] md:h-[95vh] rounded-xl max-w-xl w-full'>
                             <form onSubmit={handleSubmit} className='p-6'>
                                 <div className='flex flex-col overflow-y-auto gap-6'>
                                     <div className='flex justify-between items-center'>
