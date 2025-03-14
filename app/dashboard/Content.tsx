@@ -801,8 +801,11 @@ const Content = ({ setToast }: ContentProps) => {
                                         placeholder='Express yourself...' 
                                         className='w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none resize-none'
                                         rows={4}
-                                        maxLength={350}
+                                        maxLength={650}
                                     />
+                                    <div className="text-right text-gray-400 text-sm">
+                                        {note.length}/650 characters
+                                    </div>
 
                                     <button
                                         type="submit"
