@@ -80,7 +80,7 @@ const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowCont
 
   return (
     <div className='border-gray-600 fixed border-2 bg-black w-[23%] top-0 h-[100vh] p-0 flex justify-start flex-col items-start pl-20'>
-      <Image src='/whiteLogo.png' height={40} width={200} alt='Iwang Logo' className='-ml-7 mt-5' />
+      <Image src='/whiteLogo.png' height={40} width={200} alt='logo' className='-ml-7 mt-5' />
       <div className='flex flex-col gap-y-[30px] text-md font-[700] justify-start mt-[48px]'>
 
         <Link href='/welcome'>

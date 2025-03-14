@@ -188,9 +188,9 @@ const NavBar = () => {
                 <NotificationDropdown />
               </div>
               <div
-                className='bg-gray-200 h-[70%] md:h-8 px-4 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purlpe-300'
+                className='bg-gray-200 -mr-3 md:-mr-0 h-[70%] md:h-8 px-4 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purlpe-300'
                 onClick={handleConnect}
-              >
+               >
                 <BiWallet className="text-black mr-2" />
                 <p className='text-black text-[1rem] whitespace-nowrap'>{connectValue}</p>
               </div>

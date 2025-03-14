@@ -45,7 +45,9 @@ const CreatorsPage = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const res = await fetch('/api/profiles');
+        const res = await fetch('/api/profiles', {
+          cache: 'no-store'
+        });
         const data = await res.json();
         if (data.profiles) {
           // Get the highlight parameter from URL
@@ -97,7 +99,9 @@ const CreatorsPage = () => {
 
   const fetchUserProfile = async (address: string) => {
     try {
-      const res = await fetch(`/api/profile?address=${address}`);
+      const res = await fetch(`/api/profile?address=${address}`, {
+        cache: 'no-store'
+      });
       const data = await res.json();
       if (data.profile) {
         setUserProfile(data.profile);
@@ -154,7 +158,9 @@ const CreatorsPage = () => {
       }
 
       // Check if user has a profile
-      const profileRes = await fetch(`/api/profile?address=${address}`);
+      const profileRes = await fetch(`/api/profile?address=${address}`, {
+        cache: 'no-store'
+      });
       const profileData = await profileRes.json();
 
       if (!profileData.profile || !profileData.profile.username) {
