@@ -71,6 +71,7 @@ const PassesPage = () => {
   const [highlightedCreatorPasses, setHighlightedCreatorPasses] = useState<Pass[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPasses, setFilteredPasses] = useState<Pass[]>([]);
+  const [ownedPasses, setOwnedPasses] = useState<Set<string>>(new Set());
 
   const PASSES_PER_PAGE = 3;
 
@@ -173,6 +174,25 @@ const PassesPage = () => {
     );
     setFilteredPasses(filtered);
   }, [searchTerm, passes]);
+
+  useEffect(() => {
+    const checkOwnedPasses = async () => {
+      const address = localStorage.getItem('address');
+      if (!address) return;
+
+      try {
+        const res = await fetch(`/api/passholders/check/${address}`);
+        const data = await res.json();
+        if (data.passes) {
+          setOwnedPasses(new Set(data.passes.map((pass: Pass) => pass._id)));
+        }
+      } catch (error) {
+        console.error('Error checking owned passes:', error);
+      }
+    };
+
+    checkOwnedPasses();
+  }, []);
 
   const totalPasses = passes.length;
   const totalPages = Math.ceil(totalPasses / PASSES_PER_PAGE);
@@ -553,6 +573,38 @@ const PassesPage = () => {
     }
 };
 
+  const renderPassButton = (pass: Pass) => {
+    const isOwned = ownedPasses.has(pass._id);
+    
+    return (
+      <button 
+        onClick={() => !isOwned && mintNFT(pass)}
+        disabled={mintingStates[pass._id] || isOwned}
+        className={`w-full py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 
+          ${isOwned 
+            ? 'bg-gray-600 text-gray-300' 
+            : 'bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white'
+          } disabled:opacity-50`}
+      >
+        {mintingStates[pass._id] ? (
+          <>
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Minting...</span>
+          </>
+        ) : isOwned ? (
+          <>
+            <span>Owned</span>
+          </>
+        ) : (
+          <>
+            <RiNftFill className="text-xl" />
+            <span>Mint NFT</span>
+          </>
+        )}
+      </button>
+    );
+  };
+
   return (
     <div className='min-h-screen pb-[120px] md:pb-0 bg-black'>
       <NavBar />
@@ -670,26 +722,7 @@ const PassesPage = () => {
                           ))}
                         </ul>
                       </div>
-                      <button 
-                        onClick={() => {
-                          console.log('Mint button clicked'); // Debug log
-                          mintNFT(pass);
-                        }}
-                        disabled={mintingStates[pass._id]}
-                        className='w-full bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50'
-                      >
-                        {mintingStates[pass._id] ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Minting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <RiNftFill className="text-xl" />
-                            <span>Mint NFT</span>
-                          </>
-                        )}
-                      </button>
+                      {renderPassButton(pass)}
                     </div>
                   );
                 })}

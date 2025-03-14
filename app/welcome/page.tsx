@@ -249,7 +249,7 @@ const Page = () => {
                         transition={{ duration: 1, delay: 0.4 }}
                         className='text-md md:text-2xl text-gray-300 text-start max-w-2xl'
                     >
-                        Join the next generation of content creators and viewers. Access exclusive posts, videos, and experiences from your favorite creators.
+                        Join the next generation of content creators and viewers. Access exclusive posts, videos, and experiences from your favorite creators. Create magic in your dashboard!
                     </motion.p>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.5 }}

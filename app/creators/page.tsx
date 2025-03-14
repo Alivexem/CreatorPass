@@ -42,6 +42,7 @@ const CreatorsPage = () => {
   const [toast, setToast] = useState<{ show: boolean; message: string; type: string }>({ show: false, message: '', type: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProfiles, setFilteredProfiles] = useState<Profile[]>([]);
+  const [contentFilter, setContentFilter] = useState<'all' | '18+' | 'normal'>('all');
   const router = useRouter();
 
   useEffect(() => {
@@ -100,12 +101,21 @@ const CreatorsPage = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = profiles.filter(profile =>
-      profile.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile.about.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = profiles.filter(profile => {
+      const matchesSearch = profile.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        profile.about.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      switch (contentFilter) {
+        case '18+':
+          return matchesSearch && profile.isAdultContent;
+        case 'normal':
+          return matchesSearch && !profile.isAdultContent;
+        default:
+          return matchesSearch;
+      }
+    });
     setFilteredProfiles(filtered);
-  }, [searchTerm, profiles]);
+  }, [searchTerm, profiles, contentFilter]);
 
   const fetchUserProfile = async (address: string) => {
     try {
@@ -218,155 +228,165 @@ const CreatorsPage = () => {
 
       <div className='container mx-auto px-4 pt-20'>
         <motion.div
-          className='max-w-4xl mx-auto text-center space-y-6'
+          className='max-w-6xl mx-auto'
           animate={{
             x: selectedChat ? -100 : 0
           }}
           transition={{ duration: 0.5 }}
         >
-          <div className='container mx-auto px-4 pt-20'>
-            <div className='max-w-4xl mx-auto text-center space-y-6'>
-              <div className='w-[350px] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
-                <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
-                  Find Creators
-                </h1>
-                <input
-                  type="text"
-                  placeholder="Search creators..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg mb-4"
-                />
-                <div className="h-[300px] overflow-y-auto">
-                  {filteredProfiles.map((profile, index) => (
-                    <div
-                      key={profile.address}
-                      onClick={() => handleCreatorSelect(index)}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg cursor-pointer"
-                    >
-                      <Image
-                        src={profile.profileImage || '/empProfile.png'}
-                        alt={profile.username}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                      <div className="text-left">
-                        <p className="text-white font-semibold">{profile.username}</p>
-                        <p className="text-gray-400 text-sm truncate w-[200px]">
-                          {profile.about}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <div className='flex flex-col md:flex-row gap-8 items-start justify-center'>
+            {/* Search and Filter Box */}
+            <div className='w-[80vw] md:w-[500px] bg-[#080e0e] rounded-xl p-4 border border-gray-800 md:sticky top-[25%] mt-10 md:mt-0 mb-10'>
+              <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
+                Find Creators
+              </h1>
+              <input
+                type="text"
+                placeholder="Search creators..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg mb-4"
+              />
+              <div className="mb-4">
+                <label className="text-white mb-2 block">Content Filter</label>
+                <select 
+                  value={contentFilter}
+                  onChange={(e) => setContentFilter(e.target.value as 'all' | '18+' | 'normal')}
+                  className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg"
+                >
+                  <option value="all">All Content</option>
+                  <option value="18+">18+ Only</option>
+                  <option value="normal">Normal Only</option>
+                </select>
               </div>
+              <div className="md:h-[150px] h-[200px] overflow-y-auto">
+                {filteredProfiles.map((profile, index) => (
+                  <div
+                    key={profile.address}
+                    onClick={() => handleCreatorSelect(index)}
+                    className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg cursor-pointer"
+                  >
+                    <Image
+                      src={profile.profileImage || '/empProfile.png'}
+                      alt={profile.username}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                    <div className="text-left">
+                      <p className="text-white font-semibold">{profile.username}</p>
+                      <p className="text-gray-400 text-sm truncate w-[200px]">
+                        {profile.about}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Creator Card */}
+            <div className='flex justify-center items-center w-full'>
+              {loading ? (
+                <div className='flex justify-center items-center h-[500px]'>
+                  <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
+                </div>
+              ) : (
+                <div className='relative max-w-6xl px-4 pb-20 md:pt-20'>
+                  <div className='flex items-center justify-center gap-8'>
+                    <button
+                      onClick={handlePrevious}
+                      className='text-white/50 hover:text-white -mr-[30px] md:-mr-0 transition-colors'
+                      disabled={profiles.length <= 1}
+                    >
+                      <FaArrowAltCircleLeft className='text-3xl' />
+                    </button>
+
+                    {currentProfile && (
+                      <motion.div
+                        className="flex flex-col justify-center items-center"
+                        animate={{
+                          x: selectedChat ? -100 : 0
+                        }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <div
+                          onTouchStart={handleTouchStart}
+                          onTouchMove={handleTouchMove}
+                          onTouchEnd={handleTouchEnd}
+                          className={`w-[80vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
+                            bg-gradient-to-r from-blue-500 to-purple-600 
+                            transform hover:scale-105 transition-all duration-300
+                            ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
+                        >
+                          <div className='bg-[#080e0e] p-6 space-y-4'>
+                            <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
+                            <Image
+                              src={currentProfile.profileImage || '/empProfile.png'}
+                              className='rounded-lg w-full h-60 object-cover'
+                              height={70}
+                              width={150}
+                              alt='profile'
+                            />
+                            <div className='flex flex-col items-start justify-start gap-3'>
+                              <div className='flex items-center justify-between w-full'>
+                                <div className='flex items-center gap-3'>
+                                  <RiHeart2Line className='text-white' />
+                                  <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>
+                                    {currentProfile.username}
+                                  </p>
+                                  <RiHeart2Line className='text-white' />
+                                </div>
+                                {currentProfile.isAdultContent && (
+                                  <div className="bg-red-600 text-white px-2 py-1 rounded-md text-sm font-bold animate-pulse">
+                                    18+
+                                  </div>
+                                )}
+                              </div>
+                              {currentProfile.country && (
+                                <p className="text-gray-400 text-sm flex items-center gap-2">
+                                  <span>📍</span> {currentProfile.country}
+                                </p>
+                              )}
+                              <p className='text-gray-300 text-left text-sm'>{currentProfile.about}</p>
+                            </div>
+                            <div className="space-y-2 pt-4">
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleChatClick(currentProfile.address);
+                                }}
+                                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                              >
+                                <IoChatbubbleEllipsesOutline className="text-xl" />
+                                <span>Chat {currentProfile.username}</span>
+                              </button>
+                              
+                              <Link href={`/creator/${currentProfile.address}`} className="block">
+                                <button className="w-full bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors flex items-center justify-center gap-2">
+                                  <RiGalleryFill className="text-xl" />
+                                  <span>View Posts</span>
+                                </button>
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <button
+                      onClick={handleNext}
+                      className='text-white/50 hover:text-white -ml-[30px] md:-ml-0 transition-colors'
+                      disabled={profiles.length <= 1}
+                    >
+                      <FaArrowAltCircleRight className='text-3xl' />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
       </div>
-
-      {loading ? (
-        <div className='flex justify-center items-center h-[500px]'>
-          <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
-        </div>
-      ) : (
-        <div className='relative max-w-6xl mx-auto px-4 py-20'>
-          <div className='flex items-center justify-center gap-8'>
-            <button
-              onClick={handlePrevious}
-              className='text-white/50 hover:text-white -mr-[30px] md:-mr-0 transition-colors'
-              disabled={profiles.length <= 1}
-            >
-              <FaArrowAltCircleLeft className='text-3xl' />
-            </button>
-
-            {currentProfile && (
-              <motion.div
-                className="flex flex-col items-center"
-                animate={{
-                  x: selectedChat ? -100 : 0
-                }}
-                transition={{ duration: 0.5 }}
-              >
-                <div
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                  className={`w-[80vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
-                    bg-gradient-to-r from-blue-500 to-purple-600 
-                    transform hover:scale-105 transition-all duration-300
-                    ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
-                >
-                  {/* <div className='p-6 text-center'>
-                    <Image height={45} width={45} src='/sol.png' alt='sol' className='mx-auto' />
-                    <p className='font-cursive text-2xl text-white font-bold mt-4'>Creator Card</p>
-                  </div> */}
-                  <div className='bg-[#080e0e] p-6 space-y-4'>
-                    <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
-                    <Image
-                      src={currentProfile.profileImage || '/empProfile.png'}
-                      className='rounded-lg w-full h-60 object-cover'
-                      height={70}
-                      width={150}
-                      alt='profile'
-                    />
-                    <div className='flex flex-col items-start justify-start gap-3'>
-                      <div className='flex items-center justify-between w-full'>
-                        <div className='flex items-center gap-3'>
-                          <RiHeart2Line className='text-white' />
-                          <p className='font-mono text-[0.7rem] md:text-[1rem] text-white font-bold'>
-                            {currentProfile.username}
-                          </p>
-                          <RiHeart2Line className='text-white' />
-                        </div>
-                        {currentProfile.isAdultContent && (
-                          <div className="bg-red-600 text-white px-2 py-1 rounded-md text-sm font-bold animate-pulse">
-                            18+
-                          </div>
-                        )}
-                      </div>
-                      {currentProfile.country && (
-                        <p className="text-gray-400 text-sm flex items-center gap-2">
-                          <span>📍</span> {currentProfile.country}
-                        </p>
-                      )}
-                      <p className='text-gray-300 text-left text-sm'>{currentProfile.about}</p>
-                    </div>
-                    <div className="space-y-2 pt-4">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleChatClick(currentProfile.address);
-                        }}
-                        className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <IoChatbubbleEllipsesOutline className="text-xl" />
-                        <span>Chat {currentProfile.username}</span>
-                      </button>
-                      
-                      <Link href={`/creator/${currentProfile.address}`} className="block">
-                        <button className="w-full bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors flex items-center justify-center gap-2">
-                          <RiGalleryFill className="text-xl" />
-                          <span>View Posts</span>
-                        </button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            <button
-              onClick={handleNext}
-              className='text-white/50 hover:text-white -ml-[30px] md:-ml-0 transition-colors'
-              disabled={profiles.length <= 1}
-            >
-              <FaArrowAltCircleRight className='text-3xl' />
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className='container mx-auto px-4 pb-32'>
         <div className='hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
