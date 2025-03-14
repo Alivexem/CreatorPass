@@ -94,19 +94,21 @@ const Content = ({ setToast }: ContentProps) => {
                 profileImage: profileData.profile.profileImage || '/empProfile.png'
             });
 
-            // Then fetch posts
-            const postsRes = await fetch('/api');
+            // Modified to fetch posts by address
+            const postsRes = await fetch(`/api?address=${address}`);
             const { creator } = await postsRes.json();
 
-            // Process the creator array
-            const processedPosts = creator.map((post: Post) => ({
-                ...post,
-                tier: post.tier || 'Free',
-                profileImage: profileData.profile.profileImage || '/empProfile.png',
-                comments: post.comments || [],
-                likes: post.likes || [],
-                likeCount: post.likeCount || 0
-            }));
+            // Process only posts that match the address
+            const processedPosts = creator
+                .filter((post: Post) => post.username === address)
+                .map((post: Post) => ({
+                    ...post,
+                    tier: post.tier || 'Free',
+                    profileImage: profileData.profile.profileImage || '/empProfile.png',
+                    comments: post.comments || [],
+                    likes: post.likes || [],
+                    likeCount: post.likeCount || 0
+                }));
 
             // Initialize likes and hasLiked states
             const initialLikes: { [key: string]: number } = {};
@@ -269,7 +271,7 @@ const Content = ({ setToast }: ContentProps) => {
 
             // Make sure the tier is explicitly included in the post data
             const postData = {
-                username: userProfile.username,
+                username: myAddress,
                 note: note.trim(),
                 image: image || '', // Provide default image
                 tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP',
