@@ -68,6 +68,15 @@ const CreatorPost = ({
         }
     };
 
+    const createMarkup = (text: string) => {
+        return {
+            __html: text.replace(
+                /(https?:\/\/[^\s]+)/g,
+                '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>'
+            )
+        };
+    };
+
     return (
         <div className='md:w-[50vw] w-[95%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
             {/* Header */}
@@ -97,7 +106,10 @@ const CreatorPost = ({
 
             {/* Content */}
             <div className='px-10 mt-5 text-gray-200'>
-                <p className='text-left'>{post.note}</p>
+                <div 
+                    className='text-left'
+                    dangerouslySetInnerHTML={createMarkup(post.note)}
+                />
             </div>
 
             {/* Image */}

@@ -637,13 +637,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 {posts.map((post) => (
                     <CreatorPost
                         key={post._id}
-                        post={{
-                            ...post,
-                            note: post.note.replace(
-                                /(https?:\/\/[^\s]+)/g,
-                                '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>'
-                            )
-                        }}
+                        post={post}  // Remove the note replacement here
                         profile={profile}
                         hasLiked={hasLiked[post._id]}
                         likes={likes[post._id]}
