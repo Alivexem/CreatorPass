@@ -61,6 +61,23 @@ const CreatorFunChat = ({
         }
     };
 
+    const renderChatMessage = (message: string) => {
+        const urlRegex = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
+        const linkifiedContent = message.split(urlRegex).map((part, i) => {
+            if (part.match(urlRegex)) {
+                return `<a href="${part}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${part}</a>`;
+            }
+            return part;
+        }).join('');
+
+        return (
+            <div 
+                className="text-white text-sm break-words"
+                dangerouslySetInnerHTML={{ __html: linkifiedContent }}
+            />
+        );
+    };
+
     return (
         <>
             {/* Mobile Fun Chat Toggle */}
@@ -121,7 +138,7 @@ const CreatorFunChat = ({
                                             {new Date(chat.timestamp).toLocaleString()}
                                         </p>
                                     </div>
-                                    <p className="text-white text-sm break-words">{chat.message}</p>
+                                    {renderChatMessage(chat.message)}
                                 </div>
                             </div>
                         ))}

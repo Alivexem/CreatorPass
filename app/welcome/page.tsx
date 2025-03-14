@@ -216,6 +216,23 @@ const Page = () => {
         }
     };
 
+    const renderChatMessage = (message: string) => {
+        const urlRegex = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
+        const linkifiedContent = message.split(urlRegex).map((part, i) => {
+            if (part.match(urlRegex)) {
+                return `<a href="${part}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${part}</a>`;
+            }
+            return part;
+        }).join('');
+
+        return (
+            <div 
+                className="text-white text-[0.8rem] md:-[0.9rem] break-words"
+                dangerouslySetInnerHTML={{ __html: linkifiedContent }}
+            />
+        );
+    };
+
     return (
         <div className='min-h-screen bg-black'>
             {toast.show && (
@@ -423,7 +440,7 @@ const Page = () => {
                                         <p className='text-purple-100 text-sm'>
                                             {formatUserInfo(chat.username, chat.country)}
                                         </p>
-                                        <p className='text-white text-[0.8rem] md:-[0.9rem]'>{chat.message}</p>
+                                        {renderChatMessage(chat.message)}
                                         <p className='text-gray-500 text-[0.7rem] mt-1'>
                                             {formatDate(chat.timestamp)}
                                         </p>
