@@ -612,7 +612,7 @@ const PassesPage = () => {
       {/* Hero Section */}
       <div className='container mx-auto mt-14 mb-10 px-4 pt-20'>
         <div className='max-w-4xl mx-auto text-center space-y-6'>
-          <div className='w-[350px] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
+          <div className='md:w-[350px] w-[90vw] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
             <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
               Available Passes
             </h1>

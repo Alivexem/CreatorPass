@@ -22,6 +22,7 @@ export interface Post {
     likes?: string[];
     likeCount?: number;
     timestamp?: string;  // Add this line to support post dates
+    __v: number; // Add this line to fix the TypeScript error
 }
 
 export interface Profile {
