@@ -273,11 +273,13 @@ const Content = ({ setToast }: ContentProps) => {
                 throw new Error('Profile not found, setup your profile');
             }
 
+            console.log('Frontend - Selected tier before creating postData:', selectedTier);
+
             const postData = {
                 username: myAddress,
                 note: note.trim(),
                 image: image || '',
-                tier: selectedTier,
+                tier: selectedTier, // Make sure tier is explicitly included
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
@@ -285,15 +287,17 @@ const Content = ({ setToast }: ContentProps) => {
                 creatorAddress: myAddress
             };
 
+            console.log('Frontend - Complete postData being sent:', JSON.stringify(postData, null, 2));
+
             const res = await fetch('/api', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-'Accept': 'application/json',
+                    'Accept': 'application/json',
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                 },
-                body: JSON.stringify(postData)  // Send postData directly without spreading
+                body: JSON.stringify(postData)
             });
 
             if (!res.ok) {
@@ -301,6 +305,7 @@ const Content = ({ setToast }: ContentProps) => {
             }
 
             const data = await res.json();
+            console.log('Frontend - Response from server:', JSON.stringify(data, null, 2));
 
             if (data.message === 'Post uploaded') {
                 setToast({
@@ -771,7 +776,7 @@ const Content = ({ setToast }: ContentProps) => {
                                             value={selectedTier}
                                             onChange={(e) => setSelectedTier(e.target.value)}
                                             className="w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none appearance-none cursor-pointer"
-                                        >
+                                         >
                                             {availableTiers.map((tier) => (
                                                 <option
                                                     key={tier.name}
