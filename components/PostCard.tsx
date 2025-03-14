@@ -7,6 +7,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { MdContentCopy } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
 import { Post, Profile } from '@/types/interfaces';
+import { linkifyText } from '@/utils/linkify';
 
 interface PostCardProps {
     post: Post;
@@ -38,19 +39,33 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
     };
 
     const renderPostText = () => {
-        if (post.note.length <= 300 || showFullText) {
-            return post.note;
-        }
+        const text = post.note;
+        const urlRegex = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
+        
+        const content = text.length <= 300 || showFullText
+            ? text
+            : text.slice(0, 300) + '... ' +
+              (showFullText ? '' : '<button class="text-blue-500 hover:text-blue-600">See more</button>');
+
+        const linkifiedContent = content.split(urlRegex).map((part, i) => {
+            if (part.match(urlRegex)) {
+                return `<a href="${part}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${part}</a>`;
+            }
+            return part;
+        }).join('');
+
         return (
-            <>
-                {post.note.slice(0, 300)}...
-                <button 
-                    onClick={() => setShowFullText(true)}
-                    className="text-blue-500 hover:text-blue-600 ml-2"
-                >
-                    See more
-                </button>
-            </>
+            <div 
+                className="whitespace-pre-wrap break-words"
+                dangerouslySetInnerHTML={{ __html: linkifiedContent }}
+                onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.tagName === 'BUTTON') {
+                        e.preventDefault();
+                        setShowFullText(true);
+                    }
+                }}
+            />
         );
     };
 

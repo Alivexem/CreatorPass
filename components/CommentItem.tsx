@@ -47,6 +47,23 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onRep
             minute: '2-digit'
         });
     };
+
+    const renderCommentText = (commentText: string) => {
+        const urlRegex = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
+        const linkifiedContent = commentText.split(urlRegex).map((part, i) => {
+            if (part.match(urlRegex)) {
+                return `<a href="${part}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${part}</a>`;
+            }
+            return part;
+        }).join('');
+
+        return (
+            <div 
+                className="text-white mt-1 break-words"
+                dangerouslySetInnerHTML={{ __html: linkifiedContent }}
+            />
+        );
+    };
     
     return (
         <div className={`${isReply ? 'ml-8 mt-2' : ''}`}>
@@ -75,7 +92,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onRep
                                 <span className="text-xs text-blue-400">Me</span>
                             )}
                         </div>
-                        <p className="text-white mt-1 break-words">{comment.comment}</p>
+                        {renderCommentText(comment.comment)}
                     </div>
                     {/* <div className="flex gap-4 mt-2 text-sm">
                         <button

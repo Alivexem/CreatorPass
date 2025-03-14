@@ -522,12 +522,12 @@ const Content = ({ setToast }: ContentProps) => {
 
     const typing = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newValue = e.target.value;
-        if (newValue.length <= 150) {
+        if (newValue.length <= 650) {  // Changed from 150 to 650
             setNote(newValue);
         } else {
             setToast({
                 show: true,
-                message: 'Post cannot exceed 150 characters',
+                message: 'Post cannot exceed 650 characters',  // Changed from 150 to 650
                 type: 'warning'
             });
         }
