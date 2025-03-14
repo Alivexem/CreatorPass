@@ -258,7 +258,7 @@ const Page = () => {
                         className='flex items-center gap-x-8'
                     >
                         <Link href='/passes'>
-                            <button className="mt-8 text-[13.5px] md:text-[18px] px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+                            <button className="mt-8 text-[15px] px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
   shadow-sm bg-transparent whitespace-nowrap border md:border-[2px] border-blue-600">
                                 Explore Passes
                             </button>
@@ -267,7 +267,7 @@ const Page = () => {
 
                         <Link href='/creators'>
                             <button className="mt-8 px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[13.5px] md:text-[18px] border-purple-600">
+  shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[15px] border-purple-600">
                                 Visit creators
                             </button>
 
@@ -400,7 +400,7 @@ const Page = () => {
                     <div className='w-[85vw] md:w-2/3 bg-[#252729] rounded-xl p-6'>
                         <div className='flex items-center flex-col'>
                             <div className='flex items-center gap-2'>
-                                <h2 className='text-2xl md:text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
+                                <h2 className='text-xl md:text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
                                 <TbWorldCheck size={30} className='text-white' />
                             </div>
                             {/* <p className='text-gray-400 text-sm'>All Countries</p> */}
