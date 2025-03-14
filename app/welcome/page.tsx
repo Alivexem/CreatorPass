@@ -258,7 +258,7 @@ const Page = () => {
                         className='flex items-center gap-x-8'
                     >
                         <Link href='/passes'>
-                            <button className="mt-8 text-[0.8rem] px-5 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+                            <button className="mt-8 text-[15px] md:text-[18px] px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
   shadow-sm bg-transparent whitespace-nowrap border md:border-[2px] border-blue-600">
                                 Explore Passes
                             </button>
@@ -266,8 +266,8 @@ const Page = () => {
                         </Link>
 
                         <Link href='/creators'>
-                            <button className="mt-8 px-5 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[0.8rem] border-purple-600">
+                            <button className="mt-8 px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+  shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[15px] md:text-[18px] border-purple-600">
                                 Visit creators
                             </button>
 
@@ -276,7 +276,7 @@ const Page = () => {
                 </div>
 
 
-                <div className='h-[400px] hidden mt-[8%] w-[35%] items-center md:flex flex-col p-4 bg-[#1A1D1F] backdrop-blur-md rounded-[12px] text-white border-dashed border-[3px] border-blue-600'>
+                <div className='h-[400px] hidden mt-[8%] min-w-[30%] max-w-[30%] items-center md:flex flex-col p-4 bg-[#1A1D1F] backdrop-blur-md rounded-[12px] text-white border-dashed border-[3px] border-blue-600'>
                     <div className='w-full flex justify-between items-center mb-4'>
                         <p className='text-[1.6rem] font-bold'>Messages</p>
                         <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
@@ -394,10 +394,10 @@ const Page = () => {
             </motion.div>
 
             {/* Community Section */}
-            <div className='container md:mt-10 mx-auto px-4 md:py-20'>
+            <div className='container -mt-10 md:mt-10 mx-auto px-4 md:py-20'>
                 <div className='flex flex-col md:flex-row gap-8 max-w-7xl mx-auto'>
                     {/* World Chat */}
-                    <div className='w-full md:w-2/3 bg-[#252729] rounded-xl p-6'>
+                    <div className='w-[85vw] md:w-2/3 bg-[#252729] rounded-xl p-6'>
                         <div className='flex items-center flex-col'>
                             <div className='flex items-center gap-2'>
                                 <h2 className='text-2xl md:text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
@@ -485,7 +485,7 @@ const Page = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 1.2 }}
                     className='grid grid-cols-2 lg:grid-cols-4 gap-8'
-                >
+                 >
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
                         <FeatureCard
                             icon={<FaUnlockKeyhole className="text-4xl" />}
@@ -541,7 +541,7 @@ const AccessCard = ({ image, name, className }: AccessCardProps) => (
 )
 
 const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
-    <div className='bg-[#232629] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
+    <div className='bg-[#232629] box-border h-[240px] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
         <div className='text-blue-400 mb-4'>{icon}</div>
         <h3 className='text-lg md:text-xl font-bold text-white mb-2'>{title}</h3>
         <p className='text-gray-300 text-[0.8rem] md:text-[0.9rem]'>{description}</p>

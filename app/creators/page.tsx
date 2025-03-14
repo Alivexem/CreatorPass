@@ -40,6 +40,8 @@ const CreatorsPage = () => {
   const [highlightedCreator, setHighlightedCreator] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: string }>({ show: false, message: '', type: '' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredProfiles, setFilteredProfiles] = useState<Profile[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -96,6 +98,14 @@ const CreatorsPage = () => {
       fetchUserProfile(address);
     }
   }, []);
+
+  useEffect(() => {
+    const filtered = profiles.filter(profile =>
+      profile.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      profile.about.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProfiles(filtered);
+  }, [searchTerm, profiles]);
 
   const fetchUserProfile = async (address: string) => {
     try {
@@ -193,6 +203,10 @@ const CreatorsPage = () => {
     }
   };
 
+  const handleCreatorSelect = (index: number) => {
+    setCurrentIndex(index);
+  };
+
   const currentProfile = profiles[currentIndex];
 
   // Add highlight effect to the creator card if it matches the highlighted address
@@ -212,14 +226,40 @@ const CreatorsPage = () => {
         >
           <div className='container mx-auto px-4 pt-20'>
             <div className='max-w-4xl mx-auto text-center space-y-6'>
-              <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
-                Find Creators
-              </h1>
-              <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
-                Chat creators, view their posts where you have access to like, comment, gift and interact in their private rooms.
-              </p>
-              <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
-                Access your favourite creators
+              <div className='w-[350px] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
+                <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
+                  Find Creators
+                </h1>
+                <input
+                  type="text"
+                  placeholder="Search creators..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg mb-4"
+                />
+                <div className="h-[300px] overflow-y-auto">
+                  {filteredProfiles.map((profile, index) => (
+                    <div
+                      key={profile.address}
+                      onClick={() => handleCreatorSelect(index)}
+                      className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg cursor-pointer"
+                    >
+                      <Image
+                        src={profile.profileImage || '/empProfile.png'}
+                        alt={profile.username}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                      <div className="text-left">
+                        <p className="text-white font-semibold">{profile.username}</p>
+                        <p className="text-gray-400 text-sm truncate w-[200px]">
+                          {profile.about}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

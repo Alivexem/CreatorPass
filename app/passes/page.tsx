@@ -69,6 +69,8 @@ const PassesPage = () => {
   const [isMinting, setIsMinting] = useState(false);
   const [platformAddress, setPlatformAddress] = useState<string | null>(null);
   const [highlightedCreatorPasses, setHighlightedCreatorPasses] = useState<Pass[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredPasses, setFilteredPasses] = useState<Pass[]>([]);
 
   const PASSES_PER_PAGE = 3;
 
@@ -163,6 +165,15 @@ const PassesPage = () => {
     fetchPlatformAddress();
   }, []);
 
+  useEffect(() => {
+    const filtered = passes.filter(pass =>
+      pass.creatorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pass.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pass.type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPasses(filtered);
+  }, [searchTerm, passes]);
+
   const totalPasses = passes.length;
   const totalPages = Math.ceil(totalPasses / PASSES_PER_PAGE);
   const paginatedPasses = passes.slice(
@@ -201,6 +212,15 @@ const PassesPage = () => {
     } else {
       // Swiped right
       handlePrevious();
+    }
+  };
+
+  const handlePassSelect = (index: number) => {
+    setCurrentPage(Math.ceil((index + 1) / PASSES_PER_PAGE));
+    // Scroll to the selected pass
+    const passElements = document.querySelectorAll('.pass-card');
+    if (passElements[index]) {
+      passElements[index].scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -538,16 +558,43 @@ const PassesPage = () => {
       <NavBar />
       
       {/* Hero Section */}
-      <div className='container mx-auto px-4 pt-20 pb-32'>
+      <div className='container mx-auto mt-14 mb-10 px-4 pt-20'>
         <div className='max-w-4xl mx-auto text-center space-y-6'>
-          <h1 className='text-4xl md:text-7xl mt-[100px] font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'>
-            Exclusive Creator Passes
-          </h1>
-          <p className='text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto'>
-            Get unlimited access to premium content and unique experiences from your favorite creators.
-          </p>
-          <div className='bg-green-500/20 text-green-400 px-6 py-3 rounded-xl inline-block'>
-            All creators passes are available here
+          <div className='w-[350px] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
+            <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
+              Available Passes
+            </h1>
+            <input
+              type="text"
+              placeholder="Search passes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg mb-4"
+            />
+            <div className="h-[300px] overflow-y-auto">
+              {filteredPasses.map((pass, index) => (
+                <div
+                  key={pass._id}
+                  onClick={() => handlePassSelect(index)}
+                  className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg cursor-pointer"
+                >
+                  <Image
+                    src={pass.image}
+                    alt={pass.creatorName}
+                    width={40}
+                    height={40}
+                    className="rounded-lg"
+                  />
+                  <div className="text-left">
+                    <p className="text-white font-semibold">{pass.type} - {pass.creatorName}</p>
+                    <p className="text-gray-400 text-sm truncate w-[200px]">
+                      {pass.message}
+                    </p>
+                    <p className="text-blue-400 text-sm">{pass.price} SOL</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
