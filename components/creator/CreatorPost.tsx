@@ -5,6 +5,7 @@ import { FaCommentMedical, FaGift } from "react-icons/fa6";
 import { MdContentCopy } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
 import { formatDistanceToNow } from 'date-fns';
+import { useState } from 'react';
 
 interface CreatorPostProps {
     post: Post;
@@ -37,6 +38,8 @@ const CreatorPost = ({
     copiedStates,
     date
 }: CreatorPostProps) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return '';
         
@@ -69,12 +72,18 @@ const CreatorPost = ({
     };
 
     const createMarkup = (text: string) => {
-        return {
-            __html: text.replace(
-                /(https?:\/\/[^\s]+)/g,
-                '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>'
-            )
-        };
+        const processedText = text.replace(
+            /(https?:\/\/[^\s]+)/g,
+            '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>'
+        );
+        
+        if (!isExpanded && processedText.length > 350) {
+            return {
+                __html: processedText.slice(0, 350) + '...'
+            };
+        }
+        
+        return { __html: processedText };
     };
 
     return (
@@ -110,6 +119,14 @@ const CreatorPost = ({
                     className='text-left'
                     dangerouslySetInnerHTML={createMarkup(post.note)}
                 />
+                {post.note.length > 350 && (
+                    <button 
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-purple-500 hover:text-purple-400 transition-colors mt-2 text-sm"
+                    >
+                        {isExpanded ? 'Show Less' : 'Read More'}
+                    </button>
+                )}
             </div>
 
             {/* Image */}
