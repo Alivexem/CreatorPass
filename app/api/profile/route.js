@@ -67,12 +67,3 @@ export async function GET(request) {
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
-
-// Add these options to your fetch calls on the client side:
-export const fetchOptions = {
-    cache: 'no-store',
-    headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-    }
-};
