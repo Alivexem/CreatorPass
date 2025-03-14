@@ -262,7 +262,7 @@ const CreatorsPage = () => {
                 <select 
                   value={contentFilter}
                   onChange={(e) => setContentFilter(e.target.value as 'all' | '18+' | 'normal')}
-                  className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg"
+                  className="w-full bg-gray-900 pr-2 text-white px-4 py-2 rounded-lg"
                 >
                   <option value="all">All Content</option>
                   <option value="18+">18+ Only</option>
@@ -323,7 +323,7 @@ const CreatorsPage = () => {
                           onTouchStart={handleTouchStart}
                           onTouchMove={handleTouchMove}
                           onTouchEnd={handleTouchEnd}
-                          className={`w-[80vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
+                          className={`w-[78vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
                             bg-gradient-to-r from-blue-500 to-purple-600 
                             transform hover:scale-105 transition-all duration-300
                             ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}

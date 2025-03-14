@@ -29,7 +29,12 @@ const PostSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     comments: [CommentSchema],
     likes: [String],
-    likeCount: { type: Number, default: 0 }
+    likeCount: { type: Number, default: 0 },
+    tier: {
+        type: String,
+        enum: ['Free', 'Regular', 'Special', 'VIP'],
+        default: 'Free'
+    }
 });
 
 export default mongoose.models.Post || mongoose.model('Post', PostSchema);
