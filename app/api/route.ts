@@ -5,7 +5,11 @@ import Creates from "../../models/uploads";
 export async function POST(request: NextRequest) {
     try {
         await connectDB();
-        const { username, note, image, tier, timestamp } = await request.json();
+        const requestData = await request.json();
+        console.log('Server - Received post data:', JSON.stringify(requestData, null, 2));
+        
+        const { username, note, image, tier, timestamp } = requestData;
+        console.log('Server - Destructured tier:', tier); // Add this log
         
         if (!username || !note) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -22,12 +26,17 @@ export async function POST(request: NextRequest) {
             comments: []
         };
 
+        console.log('Server - Final post data before saving:', JSON.stringify(postData, null, 2));
+
         const post = new Creates(postData);
-        await post.save();
+        console.log('Server - Created model instance:', post); // Add this log
+        
+        const savedPost = await post.save();
+        console.log('Server - Saved post document:', JSON.stringify(savedPost.toObject(), null, 2));
 
         return NextResponse.json({ 
             message: 'Post uploaded',
-            post: post 
+            post: savedPost 
         });
 
     } catch (error: any) {
