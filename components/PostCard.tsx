@@ -1,19 +1,16 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
 import { MdContentCopy } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
+import { Post, Profile } from '@/types/interfaces';
 
 interface PostCardProps {
-    post: any;
-    userProfile: {
-        username: string;
-        address: string;
-        profileImage?: string; // Make profileImage optional
-    };
+    post: Post;
+    userProfile: Profile;
     hasLiked: boolean;
     likes: number;
     showComments: boolean;
@@ -28,22 +25,9 @@ interface PostCardProps {
     onImageClick: (imageUrl: string) => void;
 }
 
-const PostCard = ({
-    post,
-    userProfile,
-    hasLiked,
-    likes,
-    showComments,
-    onLike,
-    onDelete,
-    onToggleComments,
-    handleComment,
-    newComment,
-    setNewComment,
-    isCommentLoading,
-    censorAddress,
-    onImageClick
-}: PostCardProps) => {
+const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
+    const [showFullText, setShowFullText] = useState(false);
+
     const getTierColor = (tier: string) => {
         switch(tier) {
             case 'VIP': return 'text-yellow-500';
@@ -53,6 +37,23 @@ const PostCard = ({
         }
     };
 
+    const renderPostText = () => {
+        if (post.note.length <= 300 || showFullText) {
+            return post.note;
+        }
+        return (
+            <>
+                {post.note.slice(0, 300)}...
+                <button 
+                    onClick={() => setShowFullText(true)}
+                    className="text-blue-500 hover:text-blue-600 ml-2"
+                >
+                    See more
+                </button>
+            </>
+        );
+    };
+
     return (
         <div className='md:w-[50vw] w-[95%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
             {/* Header */}
@@ -60,14 +61,14 @@ const PostCard = ({
                 <div className='flex items-center gap-x-3'>
                     <div className='relative h-[50px] w-[50px]'>
                         <Image
-                            src={userProfile?.profileImage || '/empProfile.png'} // Use optional chaining and provide default
+                            src={props.userProfile?.profileImage || '/empProfile.png'} // Use optional chaining and provide default
                             fill
                             style={{ objectFit: 'cover' }}
                             alt='profile'
                             className='rounded-lg'
                         />
                     </div>
-                    <p className='text-[1.1rem] font-medium'>{userProfile?.username || 'Anonymous'}</p>
+                    <p className='text-[1.1rem] font-medium'>{props.userProfile?.username || 'Anonymous'}</p>
                 </div>
                 <div className='flex items-center gap-x-2'>
                     <Image src='/sol.png' height={20} width={20} alt='solana' className='rounded-lg' />
@@ -81,7 +82,9 @@ const PostCard = ({
 
             {/* Content */}
             <div className='px-10 mt-5 text-gray-200'>
-                <p className='text-left'>{post.note}</p>
+                <div className="whitespace-pre-wrap break-words">
+                    {renderPostText()}
+                </div>
             </div>
 
             {/* Image */}
@@ -89,7 +92,7 @@ const PostCard = ({
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
                         className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
-                        onClick={() => onImageClick(post.image)}
+                        onClick={() => props.onImageClick(post.image)}
                     >
                         <Image
                             src={post.image}
@@ -105,23 +108,23 @@ const PostCard = ({
             {/* Actions */}
             <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
                 <button
-                    onClick={onLike}
+                    onClick={props.onLike}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
                     <IoHeartHalf
-                        className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${hasLiked ? 'text-purple-500' : ''}`}
+                        className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${props.hasLiked ? 'text-purple-500' : ''}`}
                     />
-                    <p>{likes} likes</p>
+                    <p>{props.likes} likes</p>
                 </button>
                 <button
-                    onClick={onToggleComments}
+                    onClick={props.onToggleComments}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
                     <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
                     <p>{post.comments?.length || 0} comments</p>
                 </button>
                 <button
-                    onClick={onDelete}
+                    onClick={props.onDelete}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-red-500 hover:text-red-400 transition-colors'
                 >
                     <MdDeleteForever className='text-[1.1rem] md:text-[1.7rem]' />
@@ -130,19 +133,19 @@ const PostCard = ({
             </div>
 
             {/* Comments Section */}
-            {showComments && (
+            {props.showComments && (
                 <div className='px-10 py-5 border-t border-gray-800'>
-                    <form onSubmit={handleComment} className='flex gap-x-2'>
+                    <form onSubmit={props.handleComment} className='flex gap-x-2'>
                         <input
                             type='text'
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
+                            value={props.newComment}
+                            onChange={(e) => props.setNewComment(e.target.value)}
                             placeholder='Add a comment...'
                             className='flex-1 bg-[#1A1D1F] text-white rounded-lg px-4 py-2'
                         />
                         <button
                             type='submit'
-                            disabled={isCommentLoading}
+                            disabled={props.isCommentLoading}
                             className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50'
                         >
                             Post
