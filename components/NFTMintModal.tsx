@@ -104,7 +104,7 @@ const PassCreateModal = ({ isOpen, onClose, onCreate, profileImage, ownedPasses 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black md:bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-[#1A1D1F] -mt-[60px] md:-mt-[10px] rounded-xl w-full max-w-2xl md:max-h-[90vh] max-h-[80vh] flex flex-col relative">
         {/* Header */}
         <div className="p-6 border-b border-gray-800">

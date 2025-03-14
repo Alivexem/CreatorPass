@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import { getDatabase, ref, push, onValue, query, orderByChild, update } from 'firebase/database';
 import { app } from '@/utils/firebase';
 import Image from 'next/image';
@@ -39,6 +39,15 @@ interface CreatorChatProps {
 
 // Initialize database
 const database = getDatabase(app);
+
+const urlPattern = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+
+const wrapUrlsInLinks = (text: string) => {
+  return text.replace(urlPattern, (url) => {
+    const href = url.startsWith('www.') ? `https://${url}` : url;
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${url}</a>`;
+  });
+};
 
 const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile, onClose }: CreatorChatProps) => {
   const router = useRouter();
@@ -224,6 +233,30 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     setNewMessage(prev => prev + emoji.native);
   };
 
+  const linkifyText = (text: string): ReactNode[] => {
+    const urlPattern = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+    const parts = text.split(urlPattern);
+    
+    return parts.map((part, i) => {
+      if (part?.match(urlPattern)) {
+        const url = part.startsWith('www.') ? `https://${part}` : part;
+        return (
+          <a 
+            key={i}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <>
       {toast.show && (
@@ -296,7 +329,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                     : 'bg-gray-700 rounded-tl-none'
                 }`}>
                   <p className="text-white text-sm whitespace-pre-wrap break-words">
-                    {message.text}
+                    <span dangerouslySetInnerHTML={{ __html: wrapUrlsInLinks(message.text) }} />
                   </p>
                 </div>
                 <span className={`text-xs text-gray-400 mt-1 block ${

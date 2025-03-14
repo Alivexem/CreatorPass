@@ -70,7 +70,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
     };
 
     return (
-        <div className='md:w-[50vw] w-[95%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
+        <div className='md:w-[50vw] w-[100%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
             {/* Header */}
             <div className='w-[100%] h-[80px] rounded-t-xl flex justify-between px-7 items-center box-border text-white bg-[#1A1D1F]'>
                 <div className='flex items-center gap-x-3'>
