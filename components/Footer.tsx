@@ -9,7 +9,7 @@ const Footer = () => {
             <div className='max-w-6xl w-full grid grid-cols-1 md:grid-cols-3 gap-8'>
                 {/* Brand Section */}
                 <div className='flex flex-col items-center md:items-start gap-y-3'>
-                    <Image src='/whiteLogo.png' alt='logo' height={30} width={150} />
+                    <Image src='/crtp.jpg' alt='logo' height={45} width={45} />
                     <p className='text-gray-300 text-sm max-w-[250px] text-center md:text-left'>
                         A decentralized social platform connecting content creators to fans through blockchain technology
                     </p>
@@ -34,16 +34,16 @@ const Footer = () => {
                            className='hover:text-purple-500 transition-colors'>
                             <FaGithub size={24} />
                         </a>
-                        <a href="https://x.com/alivexem" target="_blank" rel="noopener noreferrer"
+                        <a href="https://x.com/creatorpass_" target="_blank" rel="noopener noreferrer"
                            className='hover:text-purple-500 transition-colors'>
                             <FaTwitter size={24} />
                         </a>
-                        <a href="mailto:athkinstestimony@gmail.com"
+                        <a href="socialficreatorpass@gmail.com"
                            className='hover:text-purple-500 transition-colors'>
                             <FaEnvelope size={24} />
                         </a>
                     </div>
-                    <p className='text-gray-300 text-sm mt-2'>athkinstestimony@gmail.com</p>
+                    <p className='text-gray-300 text-sm mt-2'>socialficreatorpass@gmail.com</p>
                 </div>
             </div>
 

@@ -43,7 +43,7 @@ const DashboardMobileNav = ({
 
       <div onClick={onShowDashboard} className='flex flex-col cursor-pointer items-center space-y-2'>
         <RxDashboard className={`${activeSection === 'dashboard' ? 'text-purple-500' : 'text-gray-300'}`} />
-        <p className={`text-[0.7rem] ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`}>Dashboard</p>
+        <p className={`text-[0.7rem] ${activeSection === 'dashboard' ? 'text-purple-500' : ''}`}>NFT</p>
       </div>
 
       <div onClick={onShowContent} className='flex flex-col cursor-pointer items-center space-y-2'>
