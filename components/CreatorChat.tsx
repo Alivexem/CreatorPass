@@ -11,6 +11,13 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import Toast from '@/components/Toast';
 import { useRouter } from 'next/navigation';
+import { FaImages } from "react-icons/fa6";
+import { FaGift } from "react-icons/fa";
+import { toPng } from 'html-to-image';
+import { GiftCardTemplate } from '@/utils/giftTemplate'; // We'll create this next
+import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProgram, PublicKey, Provider } from '../utils/reown';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 interface Message {
   id: string;
@@ -21,6 +28,9 @@ interface Message {
     profileImage: string;
   };
   timestamp: number;
+  type?: 'text' | 'image' | 'gift';
+  giftAmount?: number;
+  imageUrl?: string;
 }
 
 interface CreatorChatProps {
@@ -67,6 +77,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [giftAmount, setGiftAmount] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const giftCardRef = useRef<HTMLDivElement>(null);
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
+  const { connection } = useAppKitConnection();
+  const { isConnected } = useAppKitAccount();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -257,6 +274,127 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     });
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onloadend = async () => {
+      try {
+        const base64data = reader.result;
+        const res = await fetch("/api/imageApi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: base64data }),
+        });
+
+        if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+        const data = await res.json();
+        
+        // Send image message
+        const messageData = {
+          text: '',
+          type: 'image',
+          imageUrl: data.url,
+          sender: {
+            address: userAddress,
+            username: userProfile?.username || 'Anonymous',
+            profileImage: userProfile?.profileImage || '/empProfile.png'
+          },
+          timestamp: Date.now()
+        };
+
+        const chatId = [creatorAddress, userAddress].sort().join('-');
+        const messagesRef = ref(database, `chats/${chatId}/messages`);
+        await push(messagesRef, messageData);
+
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        setToast({
+          show: true,
+          message: 'Failed to upload image',
+          type: 'error'
+        });
+      } finally {
+        setIsUploading(false);
+      }
+    };
+  };
+
+  const handleGift = async () => {
+    if (!giftAmount || parseFloat(giftAmount) <= 0) {
+      setToast({
+        show: true,
+        message: 'Please enter a valid amount',
+        type: 'error'
+      });
+      return;
+    }
+
+    try {
+      if (!isConnected || !connection || !walletProvider) {
+        throw new Error('Wallet not connected');
+      }
+
+      const lamports = Math.floor(parseFloat(giftAmount) * LAMPORTS_PER_SOL);
+      const latestBlockhash = await connection.getLatestBlockhash();
+
+      const transaction = new Transaction({
+        feePayer: new PublicKey(userAddress),
+        recentBlockhash: latestBlockhash.blockhash,
+      }).add(
+        SystemProgram.transfer({
+          fromPubkey: new PublicKey(userAddress),
+          toPubkey: new PublicKey(creatorAddress),
+          lamports,
+        })
+      );
+
+      const signature = await walletProvider.sendTransaction(transaction, connection);
+      
+      // Generate gift card image
+      if (giftCardRef.current) {
+        const giftImage = await toPng(giftCardRef.current);
+        
+        // Send gift message
+        const messageData = {
+          text: `Sent ${giftAmount} SOL`,
+          type: 'gift',
+          giftAmount: parseFloat(giftAmount),
+          imageUrl: giftImage,
+          sender: {
+            address: userAddress,
+            username: userProfile?.username || 'Anonymous',
+            profileImage: userProfile?.profileImage || '/empProfile.png'
+          },
+          timestamp: Date.now()
+        };
+
+        const chatId = [creatorAddress, userAddress].sort().join('-');
+        const messagesRef = ref(database, `chats/${chatId}/messages`);
+        await push(messagesRef, messageData);
+      }
+
+      setGiftAmount('');
+      setShowGiftModal(false);
+      setToast({
+        show: true,
+        message: 'Gift sent successfully!',
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Gift transaction failed:', error);
+      setToast({
+        show: true,
+        message: error instanceof Error ? error.message : 'Failed to send gift',
+        type: 'error'
+      });
+    }
+  };
+
   return (
     <>
       {toast.show && (
@@ -365,6 +503,25 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             >
               <BsEmojiSmile size={20} />
             </button>
+
+            <label className="text-gray-400 hover:text-white cursor-pointer">
+              <FaImages size={20} />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={isUploading}
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setShowGiftModal(true)}
+              className="text-gray-400 hover:text-white"
+            >
+              <FaGift size={20} />
+            </button>
             
             <input
               type="text"
@@ -392,6 +549,47 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             </div>
           )}
         </form>
+
+        {/* Gift Modal */}
+        {showGiftModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+            <div className="bg-[#1A1D1F] p-6 rounded-lg w-[90%] max-w-md">
+              <h3 className="text-white text-xl font-bold mb-4">Send Gift</h3>
+              <input
+                type="number"
+                value={giftAmount}
+                onChange={(e) => setGiftAmount(e.target.value)}
+                className="w-full bg-[#2A2D2F] text-white p-3 rounded-lg mb-4"
+                placeholder="Amount in SOL"
+                step="0.01"
+                min="0"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={handleGift}
+                  className="flex-1 bg-purple-600 text-white p-3 rounded-lg"
+                >
+                  Send Gift
+                </button>
+                <button
+                  onClick={() => setShowGiftModal(false)}
+                  className="flex-1 bg-gray-600 text-white p-3 rounded-lg"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Hidden gift card template */}
+        <div style={{ position: 'absolute', left: '-9999px' }} ref={giftCardRef}>
+          <GiftCardTemplate
+            amount={giftAmount}
+            sender={userProfile?.username || 'Anonymous'}
+            recipient={creatorProfile.username}
+          />
+        </div>
       </motion.div>
     </>
   );
