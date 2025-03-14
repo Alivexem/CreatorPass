@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, TouchEvent, useRef } from 'react'
+import React, { useState, useEffect, TouchEvent, useRef, ReactNode } from 'react'
 import NavBar from '@/components/NavBar'
 import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
@@ -28,11 +28,28 @@ interface Profile {
   country?: string;
 }
 
-const formatAboutText = (text: string) => {
-  return text.replace(
-    /(https?:\/\/[^\s]+)/g,
-    (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #60A5FA; text-decoration: none; display: inline-block;" onMouseOver="this.style.textDecoration='underline'" onMouseOut="this.style.textDecoration='none'" onclick="event.stopPropagation()">${url}</a>`
-  );
+const linkifyText = (text: string): ReactNode[] => {
+  const urlPattern = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+  const parts = text.split(urlPattern);
+  
+  return parts.map((part, i) => {
+    if (part?.match(urlPattern)) {
+      const url = part.startsWith('www.') ? `https://${part}` : part;
+      return (
+        <a 
+          key={i}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
 };
 
 const CreatorsPage = () => {
@@ -292,10 +309,8 @@ const CreatorsPage = () => {
                     />
                     <div className="text-left">
                       <p className="text-white font-semibold">{profile.username}</p>
-                      <p className="text-gray-400 text-sm truncate w-[200px]" 
-                         dangerouslySetInnerHTML={{ 
-                           __html: formatAboutText(profile.about)
-                         }}>
+                      <p className="text-gray-400 text-sm truncate w-[200px]">
+                        {linkifyText(profile.about)}
                       </p>
                     </div>
                   </div>
@@ -366,8 +381,8 @@ const CreatorsPage = () => {
                                   <span>📍</span> {currentProfile.country}
                                 </p>
                               )}
-                              <p className='text-gray-300 text-left text-sm' 
-                                 dangerouslySetInnerHTML={{ __html: formatAboutText(currentProfile.about) }}>
+                              <p className='text-gray-300 text-left text-sm'>
+                                {linkifyText(currentProfile.about)}
                               </p>
                             </div>
                             <div className="space-y-2 pt-4">
