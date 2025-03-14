@@ -143,7 +143,7 @@ const NavBar = () => {
             alt='logo'
             height={50}
             width={50}
-            className='hidden md:block -ml-4'
+            className='hidden rounded-full md:block -ml-4'
           />
 
           <Image
@@ -151,7 +151,7 @@ const NavBar = () => {
             alt='logo'
             height={40}
             width={40}
-            className='md:hidden block -ml-4'
+            className='md:hidden rounded-full block -ml-4'
           />
 
           <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>

@@ -57,7 +57,7 @@ const App = () => {
                     width: '100%'
                 }} className='mb-14 h-[480px] flex justify-center items-center md:hidden'>
                     <div className='absolute top-5 left-3 md:hidden'>
-                        <Image src='/crtp.jpg' alt='logo' height={45} width={45} />
+                        <Image className='rounded-full' src='/crtp.jpg' alt='logo' height={45} width={45} />
                     </div>
                     {/* <div className='absolute top-6 right-4 md:hidden'>
                         <Image src='/sol.png' height={45} width={45} alt='profile' className='rounded-lg' />
