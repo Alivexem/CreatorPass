@@ -239,7 +239,7 @@ const Page = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className='text-4xl md:text-7xl mt-[50px] md:mt-[80px] text-start font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
+                        className='text-3xl md:text-7xl mt-[50px] md:mt-[80px] text-start font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text'
                     >
                         Empowering Creators & Rewarding Fans
                     </motion.h1>
@@ -247,7 +247,7 @@ const Page = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.4 }}
-                        className='text-lg md:text-2xl text-gray-300 text-start max-w-2xl'
+                        className='text-md md:text-2xl text-gray-300 text-start max-w-2xl'
                     >
                         Join the next generation of content creators and viewers. Access exclusive posts, videos, and experiences from your favorite creators.
                     </motion.p>
@@ -259,7 +259,7 @@ const Page = () => {
                     >
                         <Link href='/passes'>
                             <button className="mt-8 text-[0.8rem] px-5 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-transparent border md:border-[2px] border-blue-600">
+  shadow-sm bg-transparent whitespace-nowrap border md:border-[2px] border-blue-600">
                                 Explore Passes
                             </button>
 
@@ -267,7 +267,7 @@ const Page = () => {
 
                         <Link href='/creators'>
                             <button className="mt-8 px-5 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-transparent border md:border-[2px] text-[0.8rem] border-purple-600">
+  shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[0.8rem] border-purple-600">
                                 Visit creators
                             </button>
 
