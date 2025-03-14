@@ -236,7 +236,7 @@ const CreatorsPage = () => {
         >
           <div className='flex flex-col md:flex-row gap-8 items-start justify-center'>
             {/* Search and Filter Box */}
-            {/* <div className='w-[80vw] md:w-[500px] bg-[#080e0e] rounded-xl p-4 border border-gray-800 relative md:sticky top-[25%] mt-10 md:mt-0 mb-10'>
+             <div className='w-[80vw] md:w-[500px] bg-[#080e0e] rounded-xl p-4 border border-gray-800 relative md:sticky top-[25%] mt-10 md:mt-0 mb-10'>
               <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
                 Find Creators
               </h1>
@@ -282,7 +282,7 @@ const CreatorsPage = () => {
                   </div>
                 ))}
               </div>
-            </div> */}
+            </div> 
 
             {/* Creator Card */}
             <div className='flex justify-center items-center w-full'>
@@ -291,7 +291,7 @@ const CreatorsPage = () => {
                   <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
                 </div>
               ) : (
-                <div className='relative max-w-6xl px-4 pb-20 md:pt-20'>
+                <div className='relative md:max-w-6xl px-4 pb-20 md:pt-20'>
                   <div className='flex items-center justify-center gap-8'>
                     <button
                       onClick={handlePrevious}
@@ -308,12 +308,12 @@ const CreatorsPage = () => {
                           x: selectedChat ? -100 : 0
                         }}
                         transition={{ duration: 0.5 }}
-                      >
+                       >
                         <div
                           onTouchStart={handleTouchStart}
                           onTouchMove={handleTouchMove}
                           onTouchEnd={handleTouchEnd}
-                          className={`w-[80vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
+                          className={`w-[75vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
                             bg-gradient-to-r from-blue-500 to-purple-600 
                             transform hover:scale-105 transition-all duration-300
                             ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
