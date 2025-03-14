@@ -28,7 +28,14 @@ export async function POST(request) {
         return NextResponse.json({ 
             message: 'Profile updated', 
             profile 
-        }, { status: 200 });
+        }, { 
+            status: 200,
+            headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
     } catch (error) {
         console.error('Profile update error:', error);
         return NextResponse.json({ 
@@ -48,9 +55,24 @@ export async function GET(request) {
         }
 
         const profile = await Profile.findOne({ address });
-        return NextResponse.json({ profile });
+        return NextResponse.json({ profile }, { 
+            headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
     } catch (error) {
         console.error('Get profile error:', error);
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
+
+// Add these options to your fetch calls on the client side:
+export const fetchOptions = {
+    cache: 'no-store',
+    headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+    }
+};
