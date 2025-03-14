@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
 import { FaCommentMedical } from "react-icons/fa6";
@@ -10,6 +10,9 @@ import PostCard from '@/components/PostCard';
 import { CommentModal } from '@/components/CommentModal';
 import { CommentItem } from '@/components/CommentItem';
 import { Post, Comment, Profile } from '@/types/interfaces';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
+import { BsEmojiSmile } from 'react-icons/bs';
 
 interface ContentProps {
   setToast: (toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
@@ -56,6 +59,29 @@ const Content = ({ setToast }: ContentProps) => {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [replyTo, setReplyTo] = useState<Comment | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showEmoji, setShowEmoji] = useState(false);
+    const emojiRef = useRef<HTMLDivElement>(null);
+    const emojiButtonRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                emojiRef.current && 
+                !emojiRef.current.contains(event.target as Node) &&
+                emojiButtonRef.current &&
+                !emojiButtonRef.current.contains(event.target as Node)
+            ) {
+                setShowEmoji(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const onEmojiSelect = (emoji: any) => {
+        setNote(prev => prev + emoji.native);
+    };
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -795,16 +821,37 @@ const Content = ({ setToast }: ContentProps) => {
                                         </div>
                                     </div>
 
-                                    <textarea 
-                                        value={note}
-                                        onChange={typing}
-                                        placeholder='Express yourself...' 
-                                        className='w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none resize-none'
-                                        rows={4}
-                                        maxLength={650}
-                                    />
-                                    <div className="text-right text-gray-400 text-sm">
-                                        {note.length}/650 characters
+                                    <div className="relative">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <button
+                                                ref={emojiButtonRef}
+                                                type="button"
+                                                onClick={() => setShowEmoji(!showEmoji)}
+                                                className="text-gray-400 hover:text-white p-2 rounded transition-colors"
+                                            >
+                                                <BsEmojiSmile size={20} />
+                                            </button>
+                                        </div>
+                                        <textarea 
+                                            value={note}
+                                            onChange={typing}
+                                            placeholder='Express yourself...' 
+                                            className='w-full bg-[#1A1D1F] text-white p-4 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none resize-none'
+                                            rows={4}
+                                            maxLength={650}
+                                        />
+                                        {showEmoji && (
+                                            <div ref={emojiRef} className="absolute bottom-full left-0 mb-2">
+                                                <Picker
+                                                    data={data}
+                                                    onEmojiSelect={onEmojiSelect}
+                                                    theme="dark"
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="text-right text-gray-400 text-sm">
+                                            {note.length}/650 characters
+                                        </div>
                                     </div>
 
                                     <button
