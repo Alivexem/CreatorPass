@@ -258,7 +258,7 @@ const Page = () => {
                         className='flex items-center gap-x-8'
                     >
                         <Link href='/passes'>
-                            <button className="mt-8 text-[15px] md:text-[18px] px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
+                            <button className="mt-8 text-[13.5px] md:text-[18px] px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
   shadow-sm bg-transparent whitespace-nowrap border md:border-[2px] border-blue-600">
                                 Explore Passes
                             </button>
@@ -267,7 +267,7 @@ const Page = () => {
 
                         <Link href='/creators'>
                             <button className="mt-8 px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
-  shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[15px] md:text-[18px] border-purple-600">
+  shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[13.5px] md:text-[18px] border-purple-600">
                                 Visit creators
                             </button>
 
@@ -541,7 +541,7 @@ const AccessCard = ({ image, name, className }: AccessCardProps) => (
 )
 
 const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
-    <div className='bg-[#232629] box-border h-[240px] border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
+    <div className='bg-[#232629] box-border h-auto border border-blue-500/30 p-8 rounded-xl hover:border-blue-500 transition-colors duration-300'>
         <div className='text-blue-400 mb-4'>{icon}</div>
         <h3 className='text-lg md:text-xl font-bold text-white mb-2'>{title}</h3>
         <p className='text-gray-300 text-[0.8rem] md:text-[0.9rem]'>{description}</p>

@@ -209,11 +209,20 @@ const CreatorPage = ({ params }: PageProps) => {
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
 
+                // Filter posts by creator username and map to include required fields
                 const creatorPosts = postsData.creator
                     .filter((post: Post) => post.username === id)
                     .map((post: Post) => ({
-                        ...post,
-                        tier: post.tier || 'Free' // Set default tier to 'Free' if not specified
+                        _id: post._id,
+                        username: post.username,
+                        note: post.note,
+                        image: post.image || '',
+                        tier: post.tier || 'Free',
+                        comments: post.comments || [],
+                        likes: post.likes || [],
+                        likeCount: post.likeCount || 0,
+                        createdAt: post.createdAt,
+                        __v: post.__v
                     }));
 
                 // Get user's access level based on passes
@@ -222,7 +231,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 // Filter posts based on user's access
                 const accessiblePosts = creatorPosts.filter((post: Post) => userTiers.has(post.tier));
 
-                // Set access notification if there are inaccessible posts
+                // Handle access notification for inaccessible posts
                 const inaccessibleTiers = new Set<string>(
                     creatorPosts
                         .filter((post: Post) => !userTiers.has(post.tier))
@@ -235,15 +244,6 @@ const CreatorPage = ({ params }: PageProps) => {
                         message: `${profile?.username || 'Anonymous'} has ${Array.from(inaccessibleTiers).join(', ')} tier post(s), get pass here to gain access!`,
                         availableTiers: Array.from(inaccessibleTiers) as string[]
                     });
-                }
-
-                // Handle case where no free posts exist
-                if (!creatorPosts.some((post: Post) => post.tier === 'Free')) {
-                    setAccessNotification(prev => ({
-                        ...prev,
-                        show: true,
-                        message: `${profile?.username || 'Anonymous'} doesn't have any free posts. Available pass tiers: ${accessNotification.availableTiers.join(', ')}`
-                    }));
                 }
 
                 // Initialize states for accessible posts
@@ -260,6 +260,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 setLikes(initialLikes);
                 setHasLiked(initialHasLiked);
                 setLoadedPosts(true);
+
             } catch (error) {
                 console.error('Error fetching posts:', error);
             } finally {
