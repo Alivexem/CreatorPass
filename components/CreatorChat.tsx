@@ -18,6 +18,8 @@ import { GiftCardTemplate } from '@/utils/giftTemplate'; // We'll create this ne
 import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProgram, PublicKey, Provider } from '../utils/reown';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import ReactCrop, { Crop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 interface Message {
   id: string;
@@ -84,6 +86,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   const { walletProvider } = useAppKitProvider<Provider>('solana');
   const { connection } = useAppKitConnection();
   const { isConnected } = useAppKitAccount();
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState<Crop>();
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -278,50 +284,83 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
     const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onloadend = async () => {
-      try {
-        const base64data = reader.result;
-        const res = await fetch("/api/imageApi", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: base64data }),
-        });
-
-        if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-        const data = await res.json();
-        
-        // Send image message
-        const messageData = {
-          text: '',
-          type: 'image',
-          imageUrl: data.url,
-          sender: {
-            address: userAddress,
-            username: userProfile?.username || 'Anonymous',
-            profileImage: userProfile?.profileImage || '/empProfile.png'
-          },
-          timestamp: Date.now()
-        };
-
-        const chatId = [creatorAddress, userAddress].sort().join('-');
-        const messagesRef = ref(database, `chats/${chatId}/messages`);
-        await push(messagesRef, messageData);
-
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        setToast({
-          show: true,
-          message: 'Failed to upload image',
-          type: 'error'
-        });
-      } finally {
-        setIsUploading(false);
-      }
+    reader.onload = () => {
+      setImageSrc(reader.result as string);
+      setShowImagePreview(true);
     };
+    reader.readAsDataURL(file);
+  };
+
+  const sendImage = async () => {
+    if (!imageSrc || !imageRef.current || !crop) return;
+
+    setIsUploading(true);
+    
+    try {
+      // Create canvas for cropped image
+      const canvas = document.createElement('canvas');
+      const scaleX = imageRef.current.naturalWidth / imageRef.current.width;
+      const scaleY = imageRef.current.naturalHeight / imageRef.current.height;
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) throw new Error('No 2d context');
+
+      ctx.drawImage(
+        imageRef.current,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width,
+        crop.height
+      );
+
+      const base64data = canvas.toDataURL('image/jpeg');
+
+      const res = await fetch("/api/imageApi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: base64data }),
+      });
+
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      const data = await res.json();
+      
+      // Send image message
+      const messageData = {
+        text: '',
+        type: 'image',
+        imageUrl: data.url,
+        sender: {
+          address: userAddress,
+          username: userProfile?.username || 'Anonymous',
+          profileImage: userProfile?.profileImage || '/empProfile.png'
+        },
+        timestamp: Date.now()
+      };
+
+      const chatId = [creatorAddress, userAddress].sort().join('-');
+      const messagesRef = ref(database, `chats/${chatId}/messages`);
+      await push(messagesRef, messageData);
+
+      setShowImagePreview(false);
+      setImageSrc(null);
+      setCrop(undefined);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setToast({
+        show: true,
+        message: 'Failed to upload image',
+        type: 'error'
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleGift = async () => {
@@ -359,9 +398,9 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
       if (giftCardRef.current) {
         const giftImage = await toPng(giftCardRef.current);
         
-        // Send gift message
+        // Send gift message with updated text format
         const messageData = {
-          text: `Sent ${giftAmount} SOL`,
+          text: `${userProfile?.username || 'Anonymous'} sent ${giftAmount} SOL`,
           type: 'gift',
           giftAmount: parseFloat(giftAmount),
           imageUrl: giftImage,
@@ -462,13 +501,43 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                   <span className="text-xs text-gray-400">{message.sender.username}</span>
                 </div>
                 <div className={`rounded-2xl px-4 py-2 ${
-                  message.sender.address === userAddress
-                    ? 'bg-blue-600 rounded-tr-none'
-                    : 'bg-gray-700 rounded-tl-none'
+                  message.type === 'gift' 
+                    ? 'bg-purple-700 bg-opacity-90' 
+                    : message.sender.address === userAddress
+                      ? 'bg-blue-600 rounded-tr-none'
+                      : 'bg-gray-700 rounded-tl-none'
                 }`}>
-                  <p className="text-white text-sm whitespace-pre-wrap break-words">
-                    <span dangerouslySetInnerHTML={{ __html: wrapUrlsInLinks(message.text) }} />
-                  </p>
+                  {message.type === 'image' ? (
+                    <div className="relative">
+                      <Image
+                        src={message.imageUrl || ''}
+                        alt="Shared image"
+                        width={300}
+                        height={200}
+                        className="rounded-lg max-w-full"
+                      />
+                    </div>
+                  ) : message.type === 'gift' ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <FaGift className="text-purple-300" size={24} />
+                      <p className="text-purple-200 text-sm font-medium text-center">
+                        {message.text}
+                      </p>
+                      {message.imageUrl && (
+                        <Image
+                          src={message.imageUrl}
+                          alt="Gift card"
+                          width={200}
+                          height={100}
+                          className="rounded-lg mt-2"
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-white text-sm whitespace-pre-wrap break-words">
+                      <span dangerouslySetInnerHTML={{ __html: wrapUrlsInLinks(message.text) }} />
+                    </p>
+                  )}
                 </div>
                 <span className={`text-xs text-gray-400 mt-1 block ${
                   message.sender.address === userAddress ? 'text-right' : 'text-left'
@@ -590,6 +659,45 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             recipient={creatorProfile.username}
           />
         </div>
+
+        {/* Image Preview Modal */}
+        {showImagePreview && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+            <div className="bg-[#1A1D1F] p-6 rounded-lg w-[90%] max-w-2xl">
+              <h3 className="text-white text-xl font-bold mb-4">Crop Image</h3>
+              <ReactCrop
+                crop={crop}
+                onChange={c => setCrop(c)}
+                aspect={16/9}
+              >
+                <img
+                  ref={imageRef}
+                  src={imageSrc || ''}
+                  alt="Preview"
+                  className="max-w-full h-auto"
+                />
+              </ReactCrop>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={sendImage}
+                  disabled={isUploading}
+                  className="flex-1 bg-purple-600 text-white p-3 rounded-lg disabled:opacity-50"
+                >
+                  {isUploading ? 'Uploading...' : 'Send'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowImagePreview(false);
+                    setImageSrc(null);
+                  }}
+                  className="flex-1 bg-gray-600 text-white p-3 rounded-lg"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
     </>
   );
