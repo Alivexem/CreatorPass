@@ -55,6 +55,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [replyTo, setReplyTo] = useState<Comment | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const fetchPosts = async () => {
         setIsLoadingPosts(true);
@@ -166,6 +167,7 @@ const Content = ({ setToast }: ContentProps) => {
 
     const confirmDelete = async () => {
         try {
+            setIsDeleting(true);
             const res = await fetch(`/api/${postToDelete}`, {
                 method: 'DELETE'
             });
@@ -189,6 +191,8 @@ const Content = ({ setToast }: ContentProps) => {
                 message: 'Failed to delete post. Please try again.',
                 type: 'error'
             });
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -269,12 +273,11 @@ const Content = ({ setToast }: ContentProps) => {
                 throw new Error('Profile not found, setup your profile');
             }
 
-            // Create the post data with explicit tier typing
             const postData = {
                 username: myAddress,
                 note: note.trim(),
                 image: image || '',
-                tier: selectedTier as 'Free' | 'Regular' | 'Special' | 'VIP',  // Explicitly type the tier
+                tier: selectedTier,
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
@@ -286,11 +289,11 @@ const Content = ({ setToast }: ContentProps) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+'Accept': 'application/json',
                     'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
+                    'Pragma': 'no-cache',
                 },
-                body: JSON.stringify({ ...postData, tier: selectedTier })  // Ensure tier is included in stringified body
+                body: JSON.stringify(postData)  // Send postData directly without spreading
             });
 
             if (!res.ok) {
@@ -629,16 +632,25 @@ const Content = ({ setToast }: ContentProps) => {
                             <div className='flex gap-4'>
                                 <button
                                     onClick={confirmDelete}
-                                    className='flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors'
+                                    disabled={isDeleting}
+                                    className='flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2'
                                 >
-                                    Delete
+                                    {isDeleting ? (
+                                        <>
+                                            <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                                            <span>Deleting...</span>
+                                        </>
+                                    ) : (
+                                        'Delete'
+                                    )}
                                 </button>
                                 <button
                                     onClick={() => {
                                         setShowDeleteModal(false);
                                         setPostToDelete(null);
                                     }}
-                                    className='flex-1 bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors'
+                                    disabled={isDeleting}
+                                    className='flex-1 bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                                 >
                                     Cancel
                                 </button>
