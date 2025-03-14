@@ -28,6 +28,13 @@ interface Profile {
   country?: string;
 }
 
+const formatAboutText = (text: string) => {
+  return text.replace(
+    /(https?:\/\/[^\s]+)/g,
+    (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #60A5FA; text-decoration: none; display: inline-block;" onMouseOver="this.style.textDecoration='underline'" onMouseOut="this.style.textDecoration='none'" onclick="event.stopPropagation()">${url}</a>`
+  );
+};
+
 const CreatorsPage = () => {
   const creatorCardRef = useRef<HTMLDivElement>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -287,10 +294,7 @@ const CreatorsPage = () => {
                       <p className="text-white font-semibold">{profile.username}</p>
                       <p className="text-gray-400 text-sm truncate w-[200px]" 
                          dangerouslySetInnerHTML={{ 
-                           __html: profile.about.replace(
-                             /(https?:\/\/[^\s]+)/g, 
-                             '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline" onclick="event.stopPropagation()">$1</a>'
-                           )
+                           __html: formatAboutText(profile.about)
                          }}>
                       </p>
                     </div>
@@ -362,7 +366,9 @@ const CreatorsPage = () => {
                                   <span>📍</span> {currentProfile.country}
                                 </p>
                               )}
-                              <p className='text-gray-300 text-left text-sm'>{currentProfile.about}</p>
+                              <p className='text-gray-300 text-left text-sm' 
+                                 dangerouslySetInnerHTML={{ __html: formatAboutText(currentProfile.about) }}>
+                              </p>
                             </div>
                             <div className="space-y-2 pt-4">
                               <button
