@@ -246,7 +246,7 @@ const CreatorsPage = () => {
         >
           <div className='flex flex-col md:flex-row gap-8 items-start justify-center'>
             {/* Search and Filter Box */}
-             <div className='w-[80vw] md:w-[500px] bg-[#080e0e] rounded-xl p-4 border border-gray-800 relative md:sticky top-[25%] mt-10 md:mt-0 mb-10'>
+             <div className='w-[85vw] md:w-[500px] bg-[#080e0e] rounded-xl p-4 border border-gray-800 relative md:sticky top-[25%] mt-10 md:mt-0 mb-10'>
               <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
                 Find Creators
               </h1>
