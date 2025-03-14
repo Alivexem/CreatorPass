@@ -231,14 +231,14 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
             <div className='grid lg:grid-cols-12 gap-8'>
               {/* Left Column - Creator Card */}
               <div className='lg:col-span-4 space-y-6'>
-                {/* Creator Pass Preview */}
-                <div className='bg-gray-600 p-6 rounded-2xl shadow-xl'>
+
+                {/* <div className='bg-gray-600 p-6 rounded-xl md:rounded-2xl shadow-xl'>
                   <div className='bg-slate-800 rounded-xl p-4'>
                     <div className='flex justify-between items-center mb-4'>
                       <Image src='/sol.png' alt='sol' width={24} height={24} />
                       <p className='text-white font-bold'>Access Card</p>
                     </div>
-                    <div className='relative h-48 w-full mb-4'>
+                    <div className='relative h-60 md:h-48 w-full mb-4'>
                       <Image
                         src={profile?.profileImage || '/emptProfile.jpg'}
                         fill
@@ -251,14 +251,14 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                       <p className='text-white font-mono'>{profile?.username || 'Anonymous'}</p>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Action Buttons */}
                 <div className='flex gap-4'>
                   <button
                     onClick={handleCreatePassClick}
                     disabled={!canCreateMorePasses()}
-                    className='flex-1 mb-[60px] md:mb-0 bg-green-600 md:bg-purple-600 hover:bg-purple-700 h-[50px] transition-all py-3 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                    className='flex-1 mb-[80px] md:mb-0 mt-5 bg-green-600 md:bg-purple-600 hover:bg-purple-700 h-[70px] transition-all py-3 px-4 rounded-md text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
                   >
                     <IoTicketSharp size={20} />
                     {canCreateMorePasses() ? 'Create Pass' : 'Max Passes Created'}
@@ -295,7 +295,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                         <div className={`${stat.bgColor} p-3 rounded-lg`}>
                           {stat.icon}
                         </div>
-                        <span className='text-gray-400 text-sm'>Coming Soon</span>
+                        <span className='text-gray-400 text-sm'>$300</span>
                       </div>
                       <h3 className='text-white text-lg font-semibold'>{stat.title}</h3>
                       <p className='text-gray-400 text-sm mt-2'>{stat.description}</p>

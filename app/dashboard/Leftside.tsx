@@ -99,7 +99,7 @@ const Leftbar = ({ onShowContent, onShowDashboard, onShowProfile }: { onShowCont
             className={`flex items-center gap-x-1 cursor-pointer ${isActive('dashboard')} hover:text-blue-500`}
           >
             <RxDashboard />
-            <p>Dashboard</p>
+            <p>NFT Pass Management</p>
           </div>
         </Link>
 

@@ -394,7 +394,7 @@ const Page = () => {
             </motion.div>
 
             {/* Community Section */}
-            <div className='container mt-10 mx-auto px-4 md:py-20'>
+            <div className='container md:mt-10 mx-auto px-4 md:py-20'>
                 <div className='flex flex-col md:flex-row gap-8 max-w-7xl mx-auto'>
                     {/* World Chat */}
                     <div className='w-full md:w-2/3 bg-[#252729] rounded-xl p-6'>
