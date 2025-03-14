@@ -139,19 +139,20 @@ const NavBar = () => {
           }}
           className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center md:w-[95%] w-full md:rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
           <Image
+            src='/whiteLogo.png'
+            alt='logo'
+            height={40}
+            width={140}
+            className='md:w-[180px] hidden md:block md:h-[80px] -ml-4'
+          />
+
+          <Image
+            style={{borderRadius: '50%'}}
             src='/crtp.jpg'
             alt='logo'
             height={50}
             width={50}
-            className='hidden md:block -ml-4'
-          />
-
-          <Image
-            src='/crtp.jpg'
-            alt='logo'
-            height={40}
-            width={40}
-            className='md:hidden block -ml-4'
+            className='md:hidden rounded-[50%] block -ml-4'
           />
 
           <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
