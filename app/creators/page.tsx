@@ -285,8 +285,13 @@ const CreatorsPage = () => {
                     />
                     <div className="text-left">
                       <p className="text-white font-semibold">{profile.username}</p>
-                      <p className="text-gray-400 text-sm truncate w-[200px]">
-                        {profile.about}
+                      <p className="text-gray-400 text-sm truncate w-[200px]" 
+                         dangerouslySetInnerHTML={{ 
+                           __html: profile.about.replace(
+                             /(https?:\/\/[^\s]+)/g, 
+                             '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline" onclick="event.stopPropagation()">$1</a>'
+                           )
+                         }}>
                       </p>
                     </div>
                   </div>
