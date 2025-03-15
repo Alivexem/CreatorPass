@@ -73,6 +73,25 @@ const CommentSection = ({
     return (
         <div className='px-10 py-5 border-t border-gray-700 transition-all duration-300'>
             <form onSubmit={handleSubmit} className='mb-4 space-y-3'>
+                {imagePreview && (
+                    <div className="relative w-full max-w-[200px] mb-3">
+                        <Image
+                            src={imagePreview}
+                            alt="Preview"
+                            width={200}
+                            height={200}
+                            className="rounded-lg object-cover"
+                        />
+                        <button
+                            type="button"
+                            onClick={removeImage}
+                            className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 font-bold w-6 h-6 flex items-center justify-center"
+                        >
+                            ×
+                        </button>
+                    </div>
+                )}
+
                 <div className='flex gap-2'>
                     <input
                         type="text"
@@ -94,25 +113,6 @@ const CommentSection = ({
                         />
                     </label>
                 </div>
-
-                {imagePreview && (
-                    <div className="relative w-full max-w-[200px]">
-                        <Image
-                            src={imagePreview}
-                            alt="Preview"
-                            width={200}
-                            height={200}
-                            className="rounded-lg object-cover"
-                        />
-                        <button
-                            type="button"
-                            onClick={removeImage}
-                            className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70"
-                        >
-                            ×
-                        </button>
-                    </div>
-                )}
 
                 <button 
                     type="submit"
