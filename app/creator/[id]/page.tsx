@@ -329,14 +329,6 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleLike = async (postId: string) => {
-        if (!userPermissions.likeCommentAccess) {
-            setToast({
-                show: true,
-                message: 'Sorry, you don\'t have permission to like posts',
-                type: 'error'
-            });
-            return;
-        }
         try {
             const address = localStorage.getItem('address');
             if (!address) return;
@@ -370,14 +362,6 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleComment = async (postId: string, comment: string, replyToId?: string): Promise<void> => {
-        if (!userPermissions.likeCommentAccess) {
-            setToast({
-                show: true,
-                message: 'Sorry, you don\'t have permission to comment',
-                type: 'error'
-            });
-            return;
-        }
         if (!comment.trim()) return;
 
         try {
@@ -710,7 +694,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 {posts.map((post) => (
                     <CreatorPost
                         key={post._id}
-                        post={post}  // Remove the note replacement here
+                        post={post}
                         profile={profile}
                         hasLiked={hasLiked[post._id]}
                         likes={likes[post._id]}
@@ -722,13 +706,15 @@ const CreatorPage = ({ params }: PageProps) => {
                         onDownload={handleDownload}
                         downloadedStates={downloadedStates}
                         copiedStates={copiedStates}
-                        date={post.timestamp} // Add this line
+                        date={post.timestamp}
                         disabled={{
-                            like: !userPermissions.likeCommentAccess,
-                            comment: !userPermissions.likeCommentAccess,
-                            download: !userPermissions.downloadAccess,
-                            copy: !userPermissions.downloadAccess,
-                            gift: !userPermissions.giftAccess
+                            // For free tier posts, everything is enabled
+                            // For other tiers, check user permissions
+                            like: post.tier !== 'Free' ? !userPermissions.likeCommentAccess : false,
+                            comment: post.tier !== 'Free' ? !userPermissions.likeCommentAccess : false,
+                            download: post.tier !== 'Free' ? !userPermissions.downloadAccess : false,
+                            copy: post.tier !== 'Free' ? !userPermissions.downloadAccess : false,
+                            gift: post.tier !== 'Free' ? !userPermissions.giftAccess : false
                         }}
                     />
                 ))}
