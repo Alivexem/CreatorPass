@@ -59,11 +59,37 @@ export async function PUT(request, { params }) {
         await connectDB();
         const { id } = params;
         const body = await request.json();
-        const { action, address, comment } = body;
+        const { action, address, commentId, comment } = body;
 
         const post = await Creates.findById(id);
         if (!post) {
             return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+        }
+
+        // Handle comment likes
+        if (action === 'likeComment' && commentId) {
+            const comment = post.comments.id(commentId);
+            if (!comment) {
+                return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+            }
+
+            const hasLiked = comment.likes?.includes(address);
+            
+            if (hasLiked) {
+                comment.likes = comment.likes.filter(like => like !== address);
+                comment.likeCount = Math.max(0, (comment.likeCount || 1) - 1);
+            } else {
+                if (!comment.likes) comment.likes = [];
+                comment.likes.push(address);
+                comment.likeCount = (comment.likeCount || 0) + 1;
+            }
+
+            await post.save();
+            return NextResponse.json({ 
+                success: true,
+                liked: !hasLiked,
+                likeCount: comment.likeCount
+            });
         }
 
         // Handle likes

@@ -915,7 +915,7 @@ const Content = ({ setToast }: ContentProps) => {
                     }}
                     onComment={handleComment}
                     onLike={handleCommentLike}
-                    onReply={handleReply}
+                    // onReply={handleReply}
                     userProfile={userProfile}
                 />
             )}

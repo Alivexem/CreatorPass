@@ -822,7 +822,7 @@ const CreatorPage = ({ params }: PageProps) => {
                     }}
                     onComment={handleComment}
                     onLike={handleCommentLike}
-                    onReply={handleComment}
+                    // onReply={handleComment}
                     userProfile={userProfile || null}
                 />
             )}
