@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import { IoSend } from "react-icons/io5";
 import { TbWorldCheck } from "react-icons/tb";
 import Toast from '@/components/Toast';
-import { getDatabase, ref, onValue, query, orderByChild, get, push, set, serverTimestamp } from 'firebase/database';
+import { getDatabase, ref, onValue, query, orderByChild, get } from 'firebase/database';
 import { app as firebaseApp } from '@/utils/firebase';
 
 interface AccessCardProps {
@@ -33,12 +33,10 @@ interface FeatureCardProps {
 interface WorldChat {
     address: string;
     message: string;
-    timestamp: number;
-    sender: {
-        address: string;
-        username: string;
-        profileImage: string;
-    };
+    profileImage: string;
+    timestamp: string;
+    country?: string;
+    username?: string; // Add username to interface
 }
 
 interface Profile {
@@ -89,77 +87,67 @@ const Page = () => {
     const [personalChats, setPersonalChats] = useState<ChatHistoryItem[]>([]);
     const [isLoadingPersonalChats, setIsLoadingPersonalChats] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>(''); // Add error message state
-    const [userProfiles, setUserProfiles] = useState<{[key: string]: Profile}>({});
 
-    // Replace the useEffect data fetching with Firebase implementation
+    // Consolidate data fetching into a single useEffect
     useEffect(() => {
         const address = localStorage.getItem('address');
         setUserAddress(address);
 
         let isSubscribed = true;
 
-        // Set up Firebase listener for world chat
-        const database = getDatabase(firebaseApp);
-        const worldChatRef = ref(database, 'worldChat');
-        const worldChatQuery = query(worldChatRef, orderByChild('timestamp'));
-
-        const unsubscribe = onValue(worldChatQuery, async (snapshot) => {
-            if (!isSubscribed) return;
-
-            const messages: WorldChat[] = [];
-            const profilePromises: Promise<void>[] = [];
-            const newProfiles: {[key: string]: Profile} = {};
-
-            snapshot.forEach((childSnapshot) => {
-                const message = childSnapshot.val();
-                messages.push(message);
-
-                // Fetch profile if not already in state
-                if (!userProfiles[message.sender.address]) {
-                    const profilePromise = get(ref(database, `profiles/${message.sender.address}`))
-                        .then((profileSnapshot) => {
-                            if (profileSnapshot.exists()) {
-                                newProfiles[message.sender.address] = profileSnapshot.val();
-                            }
-                        });
-                    profilePromises.push(profilePromise);
-                }
-            });
-
-            // Wait for all profile fetches to complete
-            await Promise.all(profilePromises);
-
-            // Update profiles and messages
-            setUserProfiles(prev => ({ ...prev, ...newProfiles }));
-            setChats(messages.reverse());
-
-            // Scroll chat to bottom
-            if (chatRef.current) {
-                chatRef.current.scrollTop = chatRef.current.scrollHeight;
-            }
-        });
-
-        // Fetch hot creators
-        const fetchHotCreators = async () => {
+        const fetchAllData = async () => {
             try {
-                const creatorsRef = ref(database, 'profiles');
-                const creatorsSnapshot = await get(creatorsRef);
-                if (creatorsSnapshot.exists()) {
-                    const profiles = Object.values(creatorsSnapshot.val()) as Profile[];
-                    setHotCreators(profiles.slice(0, 1));
+                // Fetch all data in parallel
+                const [chatsRes, creatorsRes] = await Promise.all([
+                    fetch('/api/worldchat'),
+                    fetch('/api/profiles')
+                ]);
+
+                const [chatsData, creatorsData] = await Promise.all([
+                    chatsRes.json(),
+                    creatorsRes.json()
+                ]);
+
+                if (!isSubscribed) return;
+
+                // Sort chats by timestamp
+                const sortedChats = [...chatsData.chats].sort((a, b) =>
+                    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+                );
+
+                setChats(sortedChats);
+                setHotCreators(creatorsData.profiles.slice(0, 1));
+
+                // Scroll chat to bottom
+                if (chatRef.current) {
+                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                }
+
+                // Only fetch personal chats if we have an address
+                if (address) {
+                    const personalChatsRes = await fetch(`/api/chat-history?address=${address}`);
+                    const personalChatsData = await personalChatsRes.json();
+                    
+                    if (!isSubscribed) return;
+                    
+                    if (personalChatsData.chatHistory) {
+                        setPersonalChats(personalChatsData.chatHistory);
+                    }
                 }
             } catch (error) {
-                console.error('Error fetching hot creators:', error);
+                console.error('Error fetching data:', error);
+            } finally {
+                setIsLoadingPersonalChats(false);
             }
         };
 
-        fetchHotCreators();
+        fetchAllData();
 
+        // Cleanup function
         return () => {
             isSubscribed = false;
-            unsubscribe();
         };
-    }, []);
+    }, []); // Empty dependency array since we only want this to run once
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -172,30 +160,31 @@ const Page = () => {
                 return;
             }
 
-            // Get user profile from Firebase
-            const database = getDatabase(firebaseApp);
-            const profileSnapshot = await get(ref(database, `profiles/${address}`));
-            if (!profileSnapshot.exists()) {
+            // Check if user has profile
+            const profileRes = await fetch(`/api/profile?address=${address}`);
+            const profileData = await profileRes.json();
+
+            if (!profileData.profile) {
                 setErrorMessage('Please create a profile in Dashboard before chatting');
                 return;
             }
 
-            const userProfile = profileSnapshot.val();
-            const worldChatRef = ref(database, 'worldChat');
-            const newMessageRef = push(worldChatRef);
-
-            await set(newMessageRef, {
-                message: message.trim(),
-                timestamp: serverTimestamp(),
-                sender: {
-                    address: address,
-                    username: userProfile.username,
-                    profileImage: userProfile.profileImage || '/empProfile.png'
-                }
+            const response = await fetch('/api/worldchat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address, message: message.trim() })
             });
 
+            const data = await response.json();
+
+            if (!response.ok) {
+                setErrorMessage(data.error);
+                return;
+            }
+
+            setChats(prevChats => [...prevChats, data.chat]);
             setMessage('');
-            setErrorMessage('');
+            setErrorMessage(''); // Clear error message on success
         } catch (error) {
             console.error('Error sending message:', error);
             setErrorMessage('Failed to send message');
@@ -209,7 +198,7 @@ const Page = () => {
         return username;
     };
 
-    const formatDate = (timestamp: number) => {
+    const formatDate = (timestamp: string) => {
         const date = new Date(timestamp);
         const today = new Date();
         const yesterday = new Date(today);
@@ -441,7 +430,7 @@ const Page = () => {
                             {chats.map((chat, index) => (
                                 <div key={index} className='flex items-start gap-3'>
                                     <Image
-                                        src={chat.sender.profileImage || '/empProfile.png'}
+                                        src={chat.profileImage}
                                         alt='Profile'
                                         width={35}
                                         height={35}
@@ -449,11 +438,11 @@ const Page = () => {
                                     />
                                     <div>
                                         <p className='text-purple-100 text-sm'>
-                                            {chat.sender.username}
+                                            {formatUserInfo(chat.username, chat.country)}
                                         </p>
                                         {renderChatMessage(chat.message)}
                                         <p className='text-gray-500 text-[0.7rem] mt-1'>
-                                            {chat.timestamp ? formatDate(chat.timestamp) : 'Just now'}
+                                            {formatDate(chat.timestamp)}
                                         </p>
                                     </div>
                                 </div>
