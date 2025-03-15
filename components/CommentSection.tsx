@@ -24,16 +24,37 @@ const CommentSection = ({
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setSelectedImage(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onloadend = async () => {
+            const base64data = reader.result;
+
+            try {
+                const res = await fetch("/api/imageApi", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ data: base64data }),
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Upload failed: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setSelectedImage(file);
+                setImagePreview(URL.createObjectURL(file));
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Failed to upload image. Please try again.');
+            }
+        };
     };
 
     const removeImage = () => {
@@ -50,23 +71,27 @@ const CommentSection = ({
 
         let imageUrl = '';
         if (selectedImage) {
-            const formData = new FormData();
-            formData.append('image', selectedImage);
+            const reader = new FileReader();
+            reader.readAsDataURL(selectedImage);
             
+            const base64data = await new Promise((resolve) => {
+                reader.onloadend = () => resolve(reader.result);
+            });
+
             try {
-                const res = await fetch('/api/imageApi', {
-                    method: 'POST',
-                    body: formData,
+                const res = await fetch("/api/imageApi", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ data: base64data }),
                 });
                 
                 if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
+                    throw new Error(`Upload failed: ${res.status}`);
                 }
                 
                 const data = await res.json();
-                if (!data.url) {
-                    throw new Error('No URL in response');
-                }
                 imageUrl = data.url;
             } catch (error) {
                 console.error('Error uploading image:', error);

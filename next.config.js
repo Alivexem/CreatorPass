@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['res.cloudinary.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
   },
   webpack: (config) => {
     config.resolve.fallback = {
@@ -14,11 +19,11 @@ const nextConfig = {
     };
     return config;
   },
-  api: {
-    bodyParser: {
-      sizeLimit: '100mb',
+  // Modern way to handle API configuration using middleware
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
     },
-    responseLimit: '100mb',
   },
 };
 
