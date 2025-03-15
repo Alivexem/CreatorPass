@@ -174,13 +174,13 @@ const NavBar = () => {
             </div>
 
             <Link href='/welcome' className='hidden md:block'>
-              <p className={`cursor-pointer ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Home</p>
+              <p className={`cursor-pointer  ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Home</p>
             </Link>
             <Link href='/creators' className='hidden md:block'>
-              <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Creators</p>
+              <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Creators</p>
             </Link>
             <Link href='/dashboard' className='hidden md:block'>
-              <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} p-2`}>Dashboard</p>
+              <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Dashboard</p>
             </Link>
 
             <div className="flex items-center gap-2 md:gap-4">
