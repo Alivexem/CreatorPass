@@ -14,6 +14,12 @@ const nextConfig = {
     };
     return config;
   },
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb',
+    },
+    responseLimit: '100mb',
+  },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

@@ -11,9 +11,9 @@ interface CreatorFunChatProps {
     funChats: FunChat[];
     onSendChat: (message: string) => Promise<void>;
     profileUsername?: string;
-    creatorId: string; // Add this
-    disabled?: boolean;
-    restrictionMessage?: string; // Add this prop
+    creatorId: string;
+    disabled?: boolean;  // Add this back
+    restrictionMessage?: string;
 }
 
 const CreatorFunChat = ({ 
@@ -23,8 +23,8 @@ const CreatorFunChat = ({
     onSendChat,
     profileUsername,
     creatorId,
-    disabled = true,
-    restrictionMessage // Add this prop
+    disabled = false,  // Add default value
+    restrictionMessage
 }: CreatorFunChatProps) => {
     const [funChatMessage, setFunChatMessage] = useState('');
     const [funChats, setFunChats] = useState(initialFunChats);
@@ -119,7 +119,7 @@ const CreatorFunChat = ({
                         <IoFlash className="text-white text-xl" />
                     </div>
 
-                    {/* Chat Messages */}
+                    {/* Chat Messages - Always visible regardless of permissions */}
                     <div
                         ref={chatRef}
                         className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2"
@@ -148,7 +148,7 @@ const CreatorFunChat = ({
                         ))}
                     </div>
 
-                    {/* Chat Input */}
+                    {/* Chat Input - Only disabled when user doesn't have permission */}
                     <form onSubmit={handleSendFunChat} className="mt-auto">
                         {restrictionMessage ? (
                             <div className="mb-2 text-sm text-red-400">
@@ -159,11 +159,11 @@ const CreatorFunChat = ({
                             type="text"
                             value={funChatMessage}
                             onChange={(e) => setFunChatMessage(e.target.value)}
-                            placeholder={disabled ? "Get a pass to unlock chat" : "Type your message..."}
+                            placeholder={restrictionMessage ? "Get a pass to unlock chat" : "Type your message..."}
                             className={`w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50 ${
-                                disabled ? 'opacity-50 cursor-not-allowed' : ''
+                                restrictionMessage ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
-                            disabled={disabled || !!restrictionMessage}
+                            disabled={!!restrictionMessage}
                         />
                     </form>
                 </div>
