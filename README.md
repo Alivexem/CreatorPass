@@ -134,7 +134,7 @@ CLOUDINARY_API_SECRET=your_cloudinary_secret_key
 
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 
-CLOUDINARY_NAME=your_cloudinary_name
+NEXT_PUBLIC_CLOUDINARY_NAME=your_cloudinary_name
 
 NEXT_PUBLIC_REOWN_API_KEY=your_reown_api_key
 ```

@@ -259,7 +259,7 @@ const Content = ({ setToast }: ContentProps) => {
                 formData.append('resource_type', 'video');
 
                 const response = await fetch(
-                    `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_NAME}/video/upload`,
+                    `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_NAME}/video/upload`,
                     {
                         method: 'POST',
                         body: formData
