@@ -75,43 +75,60 @@ const PassesPage = () => {
 
   const PASSES_PER_PAGE = 3;
 
-  useEffect(() => {
-    const fetchPassesAndOwnership = async () => {
-      try {
-        setLoading(true);
-        const userAddress = localStorage.getItem('address');
-        
-        // First fetch all passes
-        const passesRes = await fetch('/api/passes');
-        const passesData = await passesRes.json();
+  const sortAndFilterPasses = async (passes: Pass[], highlightedCreator: string | null) => {
+    // Get all creator posts to check pass usage
+    const usedPasses = new Set<string>();
 
-        if (passesData.passes) {
-          setPasses(passesData.passes);
-          
-          // Initialize minting states
-          const states = passesData.passes.reduce((acc: any, pass: Pass) => {
+    // Check each pass
+    for (const pass of passes) {
+      // Fetch creator's posts
+      const res = await fetch(`/api/posts/user/${pass.creatorAddress}`);
+      if (!res.ok) continue;
+      
+      const data = await res.json();
+      const creatorPosts = data.posts || [];
+
+      // Check if the pass type is used in any posts
+      const isPassUsed = creatorPosts.some((post: any) => post.tier === pass.type);
+      
+      if (isPassUsed) {
+        usedPasses.add(pass._id);
+      }
+    }
+
+    // Filter out unused passes and sort by highlighted creator
+    return passes
+      .filter(pass => usedPasses.has(pass._id))
+      .sort((a, b) => {
+        if (highlightedCreator) {
+          if (a.creatorAddress === highlightedCreator && b.creatorAddress !== highlightedCreator) return -1;
+          if (b.creatorAddress === highlightedCreator && a.creatorAddress !== highlightedCreator) return 1;
+        }
+        return 0;
+      });
+  };
+
+  useEffect(() => {
+    const fetchPasses = async () => {
+      try {
+        const highlightedCreator = sessionStorage.getItem('highlightCreator');
+        const res = await fetch('/api/passes');
+        const data = await res.json();
+        
+        if (data.passes) {
+          // Filter and sort passes based on usage
+          const filteredAndSortedPasses = await sortAndFilterPasses(data.passes, highlightedCreator);
+          setPasses(filteredAndSortedPasses);
+
+          // Initialize minting states for filtered passes
+          const states = filteredAndSortedPasses.reduce((acc: any, pass: Pass) => {
             acc[pass._id] = false;
             return acc;
           }, {});
           setMintingStates(states);
-
-          // Then check ownership for each pass if user is connected
-          if (userAddress) {
-            const ownershipChecks = await Promise.all(
-              passesData.passes.map(async (pass: Pass) => {
-                const res = await fetch(`/api/passholders/check/${pass.creatorAddress}?address=${userAddress}`);
-                const data = await res.json();
-                return { passId: pass._id, ownedPasses: data.ownedPasses || [] };
-              })
-            );
-
-            // Combine all owned passes into a single set
-            const allOwnedPasses = new Set(
-              ownershipChecks.flatMap(check => check.ownedPasses)
-            );
-            setOwnedPasses(allOwnedPasses);
-          }
         }
+
+        sessionStorage.removeItem('highlightCreator');
       } catch (error) {
         console.error('Error fetching passes:', error);
       } finally {
@@ -119,22 +136,16 @@ const PassesPage = () => {
       }
     };
 
-    if (isConnected) {
-      fetchPassesAndOwnership();
-    } else {
-      // If not connected, just fetch passes without ownership check
-      fetch('/api/passes')
-        .then(res => res.json())
-        .then(data => {
-          if (data.passes) {
-            setPasses(data.passes);
-            setOwnedPasses(new Set());
-          }
-        })
-        .catch(console.error)
-        .finally(() => setLoading(false));
+    fetchPasses();
+
+    // Show swipe toast on mobile devices
+    if (window.innerWidth <= 768) {
+      setShowSwipeModal(true);
+      setTimeout(() => {
+        setShowSwipeModal(false);
+      }, 8000);
     }
-  }, [isConnected]);
+  }, []);
 
   useEffect(() => {
     const fetchPlatformAddress = async () => {
@@ -166,33 +177,22 @@ const PassesPage = () => {
 
   useEffect(() => {
     const checkOwnedPasses = async () => {
-      const userAddress = localStorage.getItem('address');
-      if (!userAddress || !passes.length) {
-        setOwnedPasses(new Set());
-        return;
-      }
+      const address = localStorage.getItem('address');
+      if (!address) return;
 
       try {
-        const ownershipChecks = await Promise.all(
-          passes.map(async (pass) => {
-            const res = await fetch(`/api/passholders/check/${pass.creatorAddress}?address=${userAddress}`);
-            const data = await res.json();
-            return { passId: pass._id, ownedPasses: data.ownedPasses || [] };
-          })
-        );
-
-        const allOwnedPasses = new Set(
-          ownershipChecks.flatMap(check => check.ownedPasses)
-        );
-        setOwnedPasses(allOwnedPasses);
+        const res = await fetch(`/api/passholders/check/${address}`);
+        const data = await res.json();
+        if (data.passes) {
+          setOwnedPasses(new Set(data.passes.map((pass: Pass) => pass._id)));
+        }
       } catch (error) {
         console.error('Error checking owned passes:', error);
-        setOwnedPasses(new Set());
       }
     };
 
     checkOwnedPasses();
-  }, [address, passes]);
+  }, []);
 
   const totalPasses = passes.length;
   const totalPages = Math.ceil(totalPasses / PASSES_PER_PAGE);
@@ -246,18 +246,7 @@ const PassesPage = () => {
 
   const mintNFT = async (pass: Pass) => {
     console.log('Starting mint process for pass:', pass);
-    
-    // Check if pass is already owned
-    if (ownedPasses.has(pass._id)) {
-      console.log('Pass already owned:', pass._id);
-      setToast({
-        show: true,
-        message: 'You already own this pass',
-        type: 'error'
-      });
-      return;
-    }
-  
+
     if (!isConnected) {
         console.log('Wallet not connected');
         setToast({
@@ -267,7 +256,7 @@ const PassesPage = () => {
         });
         return;
     }
-  
+
     if (!cardRef.current || !connection || !walletProvider) {
         console.error('Missing dependencies:', {
             hasCardRef: !!cardRef.current,
@@ -276,7 +265,7 @@ const PassesPage = () => {
         });
         return;
     }
-  
+
     try {
         setMintingStates(prev => ({...prev, [pass._id]: true}));
         setIsMinting(true);
@@ -286,7 +275,7 @@ const PassesPage = () => {
         if (!hiddenCard) {
             throw new Error('Card template not found');
         }
-  
+
         // Pre-load the pass image using the native Image constructor
         console.log('Pre-loading pass image...');
         const preloadImage = new window.Image();
@@ -295,7 +284,7 @@ const PassesPage = () => {
             preloadImage.onerror = reject;
             preloadImage.src = pass.image;
         });
-  
+
         // Update template elements
         const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
         const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
@@ -303,7 +292,7 @@ const PassesPage = () => {
         if (!profileImage || !username) {
             throw new Error('Card template elements not found');
         }
-  
+
         // Update template with pass data
         profileImage.src = pass.image;
         username.textContent = pass.creatorName;
@@ -317,7 +306,7 @@ const PassesPage = () => {
             pixelRatio: 2,
             cacheBust: true
         });
-  
+
         const response = await fetch(dataUrl);
         const blob = await response.blob();
         const file = new File([blob], `${pass.creatorName.replace(/\s+/g, '_')}_access_card.png`, { type: 'image/png' });
@@ -355,7 +344,7 @@ const PassesPage = () => {
             throw new Error('Failed to upload metadata to IPFS');
         }
         console.log('Metadata uploaded:', metadataUrl);
-  
+
         console.log('Getting wallet address...');
         const walletAddress = localStorage.getItem('address');
         if (!walletAddress) {
@@ -370,7 +359,7 @@ const PassesPage = () => {
         console.log('Creating mint account...');
         const mintKeypair = Keypair.generate();
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
-  
+
         // Get token account and metadata addresses
         console.log('Deriving token addresses...');
         const [associatedTokenAddress] = await PublicKey.findProgramAddress(
@@ -381,7 +370,7 @@ const PassesPage = () => {
             ],
             ASSOCIATED_TOKEN_PROGRAM_ID
         );
-  
+
         const [metadataAddress] = PublicKey.findProgramAddressSync(
             [
                 Buffer.from('metadata'),
@@ -390,25 +379,25 @@ const PassesPage = () => {
             ],
             TOKEN_METADATA_PROGRAM_ID
         );
-  
+
         console.log('Creating transaction...');
         const transaction = new Transaction();
         const blockHash = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockHash.blockhash;
         transaction.feePayer = walletPubkey;
-  
+
         // Calculate payment splits
         const totalPayment = Math.floor(pass.price * LAMPORTS_PER_SOL);
         const platformPayment = Math.floor(totalPayment * 0.2); // 20%
         const creatorPayment = totalPayment - platformPayment; // 80%
-  
+
         if (!platformAddress) {
             throw new Error('Platform address not available');
         }
-  
+
         // Add this validation after getting platformAddress
         console.log('Current platform address:', platformAddress); // Debug log
-  
+
         let validPlatformAddress;
         try {
           // Validate and clean up platform address - it seems to be duplicated
@@ -424,23 +413,23 @@ const PassesPage = () => {
           });
           return;
         }
-  
+
         // Replace the single payment instruction with split payments
         const creatorPaymentInstruction = SystemProgram.transfer({
             fromPubkey: walletPubkey,
             toPubkey: new PublicKey(pass.creatorAddress),
             lamports: creatorPayment,
         });
-  
+
         // Replace the platform payment instruction with validated address
         const platformPaymentInstruction = SystemProgram.transfer({
             fromPubkey: walletPubkey,
             toPubkey: validPlatformAddress, // Use validated address
             lamports: platformPayment,
         });
-  
+
         transaction.add(creatorPaymentInstruction, platformPaymentInstruction);
-  
+
         // Add the rest of the minting instructions
         transaction.add(
             SystemProgram.createAccount({
@@ -497,7 +486,7 @@ const PassesPage = () => {
                 },
             )
         );
-  
+
         console.log('Signing transaction with mint keypair...');
         transaction.sign(mintKeypair);
         
@@ -516,7 +505,7 @@ const PassesPage = () => {
             setIsMinting(false);
             setMintingStates(prev => ({...prev, [pass._id]: false}));
         }, 5000); // 5 seconds
-  
+
         try {
             console.log('Confirming transaction...');
             const confirmation = await connection.confirmTransaction(signature, 'processed');
@@ -549,7 +538,7 @@ const PassesPage = () => {
                 });
             }
         }
-  
+
         // After successful transaction confirmation, update the pass holders
         try {
           const response = await fetch(`/api/passholders/${pass._id}`, { // Updated endpoint
@@ -568,7 +557,7 @@ const PassesPage = () => {
         } catch (error) {
           console.warn('Error updating pass holders:', error);
         }
-  
+
     } catch (err) {
         console.error('Transaction error:', err);
         setToast({
@@ -582,11 +571,10 @@ const PassesPage = () => {
         // Increase toast display time to 5 seconds
         setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 5000);
     }
-  };
+};
 
   const renderPassButton = (pass: Pass) => {
     const isOwned = ownedPasses.has(pass._id);
-    console.log('Pass ownership status:', pass._id, isOwned); // Debug log
     
     return (
       <button 
@@ -594,7 +582,7 @@ const PassesPage = () => {
         disabled={mintingStates[pass._id] || isOwned}
         className={`w-full py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 
           ${isOwned 
-            ? 'bg-gray-800 text-gray-400 cursor-not-allowed' 
+            ? 'bg-gray-600 text-gray-300' 
             : 'bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white'
           } disabled:opacity-50`}
       >
@@ -622,7 +610,7 @@ const PassesPage = () => {
       <NavBar />
       
       {/* Hero Section */}
-      <div className='container mx-auto mt-14 mb-32 px-4 pt-20'>
+      <div className='container mx-auto mt-14 mb-10 px-4 pt-20'>
         <div className='max-w-4xl mx-auto text-center space-y-6'>
           <div className='md:w-[350px] w-[90vw] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
             <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>

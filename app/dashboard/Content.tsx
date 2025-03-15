@@ -343,14 +343,15 @@ const Content = ({ setToast }: ContentProps) => {
             const postData = {
                 username: myAddress,
                 note: note.trim(),
-                image: image || '',
+                image: mediaType === 'image' ? image : '',
+                video: mediaType === 'video' ? image : '', // Using separate field for video
                 tier: selectedTier, // Make sure tier is explicitly included
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
                 likeCount: 0,
                 creatorAddress: myAddress,
-                mediaType: image ? mediaType : undefined,
+                mediaType,
             };
 
             console.log('Frontend - Complete postData being sent:', JSON.stringify(postData, null, 2));

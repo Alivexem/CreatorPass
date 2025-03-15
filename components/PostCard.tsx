@@ -109,7 +109,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
                         className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
-                        onClick={() => post.mediaType !== 'video' && props.onImageClick(post.image)}
+                        onClick={() => {
+                            if (post.image && post.mediaType !== 'video') {
+                                props.onImageClick(post.image);
+                            }
+                        }}
                     >
                         {post.mediaType === 'video' ? (
                             <video

@@ -144,7 +144,7 @@ const CreatorPost = ({
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
                         className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
-                        onClick={() => post.mediaType !== 'video' && onImageClick(post.image)}
+                        onClick={() => post.mediaType !== 'video' && post.image && onImageClick(post.image)}
                     >
                         {post.mediaType === 'video' ? (
                             <video
@@ -198,7 +198,7 @@ const CreatorPost = ({
                     <FaGift className='text-[1.1rem] md:text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
                 </button>
                 <button
-                    onClick={() => onCopy(post.note, post._id)}
+                    onClick={() => onCopy(post.note || '', post._id)}
                     className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${
                         post.tier !== 'Free' && disabled.copy ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
@@ -212,7 +212,7 @@ const CreatorPost = ({
                 </button>
                 {post.image && (
                     <button
-                        onClick={() => onDownload(post.image, post._id)}
+                        onClick={() => post.image && onDownload(post.image, post._id)}
                         className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${
                             post.tier !== 'Free' && disabled.download ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                         }`}

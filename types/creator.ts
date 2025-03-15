@@ -15,14 +15,14 @@ export interface Post {
     _id: string;
     username: string;
     note: string;
-    image: string;
-    tier: 'Free' | 'Regular' | 'Special' | 'VIP';
+    image?: string;
+    tier: string;
+    comments: Comment[];
+    likes: string[];
+    likeCount: number;
     createdAt: string;
-    comments?: Comment[];
-    likes?: string[];
-    likeCount?: number;
-    timestamp?: string;  // Add this line to support post dates
-    __v: number; // Add this line to fix the TypeScript error
+    timestamp?: string;
+    __v: number;
 }
 
 export interface Profile {
