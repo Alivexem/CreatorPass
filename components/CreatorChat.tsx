@@ -233,7 +233,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
     if (!newMessage.trim()) return;
 
-    // Check if user has profile
     if (!userProfile?.username) {
         setToast({
             show: true,
@@ -245,8 +244,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
     const chatId = [creatorAddress, userAddress].sort().join('-');
     const messagesRef = ref(database, `chats/${chatId}/messages`);
+    const chatHistoryRef = ref(database, `chatHistory`);
 
-    // Store complete message data
     const messageData = {
         text: newMessage,
         sender: {
@@ -254,21 +253,12 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             username: userProfile.username,
             profileImage: userProfile.profileImage || '/empProfile.png'
         },
-        receiver: {
-            address: creatorAddress,
-            username: creatorProfile.username,
-            profileImage: creatorProfile.profileImage || '/empProfile.png'
-        },
-        participants: [userAddress, creatorAddress], // Add both participants
+        participants: [userAddress, creatorAddress],
         timestamp: Date.now()
     };
 
     try {
         await push(messagesRef, messageData);
-
-        // Create chat history entries for both users
-        const userChatHistoryRef = ref(database, `chatHistory/${userAddress}`);
-        const creatorChatHistoryRef = ref(database, `chatHistory/${creatorAddress}`);
 
         const chatHistoryData = {
             lastMessage: newMessage,
@@ -276,43 +266,17 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             participants: [userAddress, creatorAddress]
         };
 
-        // For user's chat history
-        await update(userChatHistoryRef, {
-            [chatId]: {
-                ...chatHistoryData,
-                recipientAddress: creatorAddress,
-                username: creatorProfile.username,
-                profileImage: creatorProfile.profileImage || '/empProfile.png'
-            }
-        });
-
-        // For creator's chat history
-        await update(creatorChatHistoryRef, {
-            [chatId]: {
-                ...chatHistoryData,
-                recipientAddress: userAddress,
-                username: userProfile.username,
-                profileImage: userProfile.profileImage || '/empProfile.png'
-            }
-        });
-
-        // Create notification for the recipient
-        await fetch('/api/notifications', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                recipientAddress: creatorAddress,
-                senderAddress: userAddress,
-                senderName: userProfile.username,
-                senderImage: userProfile.profileImage,
-                message: newMessage,
-                type: 'message'
-            })
+        // Update chat history for both participants
+        await update(ref(database, `chatHistory/${chatId}`), {
+            ...chatHistoryData,
+            recipientAddress: creatorAddress,
+            username: creatorProfile.username,
+            profileImage: creatorProfile.profileImage || '/empProfile.png'
         });
 
         setNewMessage('');
     } catch (error) {
-        console.error('Failed to send message or create notification:', error);
+        console.error('Failed to send message:', error);
         setToast({
             show: true,
             message: 'Failed to send message',
