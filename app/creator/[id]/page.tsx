@@ -557,6 +557,15 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
+            if (!userPermissions.funForumAccess) {
+                setToast({
+                    show: true,
+                    message: 'Group chat is for only tier pass holders',
+                    type: 'error'
+                });
+                return;
+            }
+
             const newChat = {
                 message,
                 username: userProfile.username,
@@ -765,16 +774,16 @@ const CreatorPage = ({ params }: PageProps) => {
                 </div>
             )}
 
-            {userPermissions.funForumAccess && (
-                <CreatorFunChat 
-                    showFunChat={showFunChat}
-                    setShowFunChat={setShowFunChat}
-                    funChats={funChats}
-                    onSendChat={handleSendFunChat}
-                    profileUsername={profile?.username}
-                    creatorId={id}
-                />
-            )}
+            {/* Always show Fun Chat */}
+            <CreatorFunChat 
+                showFunChat={showFunChat}
+                setShowFunChat={setShowFunChat}
+                funChats={funChats}
+                onSendChat={handleSendFunChat}
+                profileUsername={profile?.username}
+                creatorId={id}
+                restrictionMessage={!userPermissions.funForumAccess ? "Group chat is for only tier pass holders" : ""}
+            />
 
             {/* Profile Required Modal */}
             {showProfileModal && (

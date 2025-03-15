@@ -13,6 +13,7 @@ interface CreatorFunChatProps {
     profileUsername?: string;
     creatorId: string; // Add this
     disabled?: boolean;
+    restrictionMessage?: string; // Add this prop
 }
 
 const CreatorFunChat = ({ 
@@ -22,7 +23,8 @@ const CreatorFunChat = ({
     onSendChat,
     profileUsername,
     creatorId,
-    disabled = true
+    disabled = true,
+    restrictionMessage // Add this prop
 }: CreatorFunChatProps) => {
     const [funChatMessage, setFunChatMessage] = useState('');
     const [funChats, setFunChats] = useState(initialFunChats);
@@ -148,6 +150,11 @@ const CreatorFunChat = ({
 
                     {/* Chat Input */}
                     <form onSubmit={handleSendFunChat} className="mt-auto">
+                        {restrictionMessage ? (
+                            <div className="mb-2 text-sm text-red-400">
+                                {restrictionMessage}
+                            </div>
+                        ) : null}
                         <input
                             type="text"
                             value={funChatMessage}
@@ -156,7 +163,7 @@ const CreatorFunChat = ({
                             className={`w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50 ${
                                 disabled ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
-                            disabled={disabled}
+                            disabled={disabled || !!restrictionMessage}
                         />
                     </form>
                 </div>

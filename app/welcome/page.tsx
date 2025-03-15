@@ -17,6 +17,7 @@ import { TbWorldCheck } from "react-icons/tb";
 import Toast from '@/components/Toast';
 import { getDatabase, ref, push, onValue, query, orderByChild } from 'firebase/database';
 import { app } from '@/utils/firebase';
+import { BiLoaderAlt } from "react-icons/bi";
 
 interface AccessCardProps {
     image: string;
@@ -96,33 +97,14 @@ const Page = () => {
 
         let isSubscribed = true;
 
-        const fetchAllData = async () => {
+        const fetchData = async () => {
             try {
-                // Fetch all data in parallel
-                const [chatsRes, creatorsRes] = await Promise.all([
-                    fetch('/api/worldchat'),
-                    fetch('/api/profiles')
-                ]);
-
-                const [chatsData, creatorsData] = await Promise.all([
-                    chatsRes.json(),
-                    creatorsRes.json()
-                ]);
+                const creatorsRes = await fetch('/api/profiles');
+                const creatorsData = await creatorsRes.json();
 
                 if (!isSubscribed) return;
 
-                // Sort chats by timestamp
-                const sortedChats = [...chatsData.chats].sort((a, b) =>
-                    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-                );
-
-                setChats(sortedChats);
                 setHotCreators(creatorsData.profiles.slice(0, 1));
-
-                // Scroll chat to bottom
-                if (chatRef.current) {
-                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
-                }
 
                 // Only fetch personal chats if we have an address
                 if (address) {
@@ -142,16 +124,9 @@ const Page = () => {
             }
         };
 
-        fetchAllData();
+        fetchData();
 
-        // Cleanup function
-        return () => {
-            isSubscribed = false;
-        };
-    }, []); // Empty dependency array since we only want this to run once
-
-    // Update useEffect for realtime chat
-    useEffect(() => {
+        // Initialize Firebase listener
         const database = getDatabase(app);
         const worldChatRef = ref(database, 'worldChat');
         const chatQuery = query(worldChatRef, orderByChild('timestamp'));
@@ -164,7 +139,9 @@ const Page = () => {
                     ...childSnapshot.val()
                 });
             });
-            setChats(messages);
+            // Sort messages by timestamp
+            const sortedMessages = messages.sort((a, b) => a.timestamp - b.timestamp);
+            setChats(sortedMessages);
 
             // Scroll to bottom
             if (chatRef.current) {
@@ -172,8 +149,11 @@ const Page = () => {
             }
         });
 
-        return () => unsubscribe();
-    }, []);
+        return () => {
+            isSubscribed = false;
+            unsubscribe();
+        };
+    }, []); // Empty dependency array since we only want this to run once
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -354,7 +334,7 @@ const Page = () => {
                     <div className='border-gray-500/30 border-t w-full flex flex-col space-y-2 overflow-auto h-full px-2'>
                         {isLoadingPersonalChats ? (
                             <div className="flex justify-center items-center h-full">
-                                <p className="text-gray-400 animate-pulse">Loading chats...</p>
+                                <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
                             </div>
                         ) : personalChats.length > 0 ? (
                             personalChats.map((chat) => (
