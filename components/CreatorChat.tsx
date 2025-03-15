@@ -233,93 +233,57 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
     if (!newMessage.trim()) return;
 
-    // Check if user has profile
+    // Check if user has a profile
     if (!userProfile?.username) {
-        setToast({
-            show: true,
-            message: 'Please create a profile first',
-            type: 'warning'
-        });
-        return;
+      setToast({
+        show: true,
+        message: 'Please create a profile first',
+        type: 'warning'
+      });
+      return;
     }
 
     const chatId = [creatorAddress, userAddress].sort().join('-');
     const messagesRef = ref(database, `chats/${chatId}/messages`);
 
-    // Store complete message data
+    // Store complete user info with the message
     const messageData = {
-        text: newMessage,
-        sender: {
-            address: userAddress,
-            username: userProfile.username,
-            profileImage: userProfile.profileImage || '/empProfile.png'
-        },
-        receiver: {
-            address: creatorAddress,
-            username: creatorProfile.username,
-            profileImage: creatorProfile.profileImage || '/empProfile.png'
-        },
-        participants: [userAddress, creatorAddress], // Add both participants
-        timestamp: Date.now()
+      text: newMessage,
+      sender: {
+        address: userAddress,
+        username: userProfile.username,
+        profileImage: userProfile.profileImage || '/empProfile.png'
+      },
+      timestamp: Date.now()
     };
 
     try {
-        await push(messagesRef, messageData);
+      await push(messagesRef, messageData);
 
-        // Create chat history entries for both users
-        const userChatHistoryRef = ref(database, `chatHistory/${userAddress}`);
-        const creatorChatHistoryRef = ref(database, `chatHistory/${creatorAddress}`);
+      // Create notification for the recipient
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientAddress: creatorAddress,
+          senderAddress: userAddress,
+          senderName: userProfile.username,
+          senderImage: userProfile.profileImage,
+          message: newMessage,
+          type: 'message'
+        })
+      });
 
-        const chatHistoryData = {
-            lastMessage: newMessage,
-            timestamp: Date.now(),
-            participants: [userAddress, creatorAddress]
-        };
-
-        // For user's chat history
-        await update(userChatHistoryRef, {
-            [chatId]: {
-                ...chatHistoryData,
-                recipientAddress: creatorAddress,
-                username: creatorProfile.username,
-                profileImage: creatorProfile.profileImage || '/empProfile.png'
-            }
-        });
-
-        // For creator's chat history
-        await update(creatorChatHistoryRef, {
-            [chatId]: {
-                ...chatHistoryData,
-                recipientAddress: userAddress,
-                username: userProfile.username,
-                profileImage: userProfile.profileImage || '/empProfile.png'
-            }
-        });
-
-        // Create notification for the recipient
-        await fetch('/api/notifications', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                recipientAddress: creatorAddress,
-                senderAddress: userAddress,
-                senderName: userProfile.username,
-                senderImage: userProfile.profileImage,
-                message: newMessage,
-                type: 'message'
-            })
-        });
-
-        setNewMessage('');
+      setNewMessage('');
     } catch (error) {
-        console.error('Failed to send message or create notification:', error);
-        setToast({
-            show: true,
-            message: 'Failed to send message',
-            type: 'error'
-        });
+      console.error('Failed to send message or create notification:', error);
+      setToast({
+        show: true,
+        message: 'Failed to send message',
+        type: 'error'
+      });
     }
-};
+  };
 
   const onEmojiSelect = (emoji: any) => {
     setNewMessage(prev => prev + emoji.native);
@@ -362,48 +326,34 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   };
 
   const sendImage = async () => {
-    if (!imageSrc || !imageRef.current) return;
+    if (!imageSrc || !imageRef.current || !crop) return;
 
     setIsUploading(true);
     
     try {
-      let base64data;
-      
-      if (crop) {
-        // Create canvas for cropped image
-        const canvas = document.createElement('canvas');
-        const scaleX = imageRef.current.naturalWidth / imageRef.current.width;
-        const scaleY = imageRef.current.naturalHeight / imageRef.current.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-        const ctx = canvas.getContext('2d');
+      // Create canvas for cropped image
+      const canvas = document.createElement('canvas');
+      const scaleX = imageRef.current.naturalWidth / imageRef.current.width;
+      const scaleY = imageRef.current.naturalHeight / imageRef.current.height;
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+      const ctx = canvas.getContext('2d');
 
-        if (!ctx) throw new Error('No 2d context');
+      if (!ctx) throw new Error('No 2d context');
 
-        ctx.drawImage(
-          imageRef.current,
-          crop.x * scaleX,
-          crop.y * scaleY,
-          crop.width * scaleX,
-          crop.height * scaleY,
-          0,
-          0,
-          crop.width,
-          crop.height
-        );
-        base64data = canvas.toDataURL('image/jpeg');
-      } else {
-        // Use full image if no crop
-        const canvas = document.createElement('canvas');
-        canvas.width = imageRef.current.naturalWidth;
-        canvas.height = imageRef.current.naturalHeight;
-        const ctx = canvas.getContext('2d');
-        
-        if (!ctx) throw new Error('No 2d context');
-        
-        ctx.drawImage(imageRef.current, 0, 0);
-        base64data = canvas.toDataURL('image/jpeg');
-      }
+      ctx.drawImage(
+        imageRef.current,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width,
+        crop.height
+      );
+
+      const base64data = canvas.toDataURL('image/jpeg');
 
       const res = await fetch("/api/imageApi", {
         method: "POST",
@@ -414,7 +364,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
       if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
       const data = await res.json();
       
-      // Send image message with receiver info
+      // Send image message
       const messageData = {
         text: '',
         type: 'image',
@@ -424,48 +374,12 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           username: userProfile?.username || 'Anonymous',
           profileImage: userProfile?.profileImage || '/empProfile.png'
         },
-        receiver: {
-          address: creatorAddress,
-          username: creatorProfile.username,
-          profileImage: creatorProfile.profileImage || '/empProfile.png'
-        },
-        participants: [userAddress, creatorAddress],
         timestamp: Date.now()
       };
 
       const chatId = [creatorAddress, userAddress].sort().join('-');
       const messagesRef = ref(database, `chats/${chatId}/messages`);
       await push(messagesRef, messageData);
-
-      // Update chat history for both users
-      const userChatHistoryRef = ref(database, `chatHistory/${userAddress}`);
-      const creatorChatHistoryRef = ref(database, `chatHistory/${creatorAddress}`);
-
-      const chatHistoryData = {
-        lastMessage: 'Sent an image',
-        timestamp: Date.now(),
-        participants: [userAddress, creatorAddress]
-      };
-
-      // For user's chat history
-      await update(userChatHistoryRef, {
-        [chatId]: {
-          ...chatHistoryData,
-          recipientAddress: creatorAddress,
-          username: creatorProfile.username,
-          profileImage: creatorProfile.profileImage || '/empProfile.png'
-        }
-      });
-
-      // For creator's chat history
-      await update(creatorChatHistoryRef, {
-        [chatId]: {
-          ...chatHistoryData,
-          recipientAddress: userAddress,
-          username: userProfile?.username || 'Anonymous',
-          profileImage: userProfile?.profileImage || '/empProfile.png'
-        }
-      });
 
       setShowImagePreview(false);
       setImageSrc(null);
@@ -621,24 +535,24 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                     {userProfiles[message.sender.address]?.username || 'Anonymous'}
                   </span>
                 </div>
-                <div className={`${
+                <div className={`rounded-2xl px-4 py-2 ${
                   message.type === 'gift' 
-                    ? 'bg-purple-700 bg-opacity-90 rounded-2xl px-4 py-2' 
-                    : message.type === 'image'
-                      ? 'p-0'
-                      : message.sender.address === userAddress
-                        ? 'bg-blue-600 rounded-2xl rounded-tr-none px-4 py-2'
-                        : 'bg-gray-700 rounded-2xl rounded-tl-none px-4 py-2'
+                    ? 'bg-purple-700 bg-opacity-90' 
+                    : message.sender.address === userAddress
+                      ? 'bg-blue-600 rounded-tr-none'
+                      : 'bg-gray-700 rounded-tl-none'
                 }`}>
                   {message.type === 'image' ? (
-                    <Image
-                      src={message.imageUrl || ''}
-                      alt="Shared image"
-                      width={300}
-                      height={200}
-                      className="w-full h-full object-cover cursor-pointer"
-                      onClick={() => setSelectedImage(message.imageUrl || '')}
-                    />
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={message.imageUrl || ''}
+                        alt="Shared image"
+                        width={300}
+                        height={200}
+                        className="rounded-lg w-full h-full object-cover cursor-pointer"
+                        onClick={() => setSelectedImage(message.imageUrl || '')}
+                      />
+                    </div>
                   ) : message.type === 'gift' ? (
                     <div className="flex flex-col items-center gap-2 py-2">
                       <FaGift className="text-purple-300" size={24} />
@@ -754,20 +668,17 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                 placeholder="Amount in SOL"
                 step="0.01"
                 min="0"
-                disabled={isUploading}
               />
               <div className="flex gap-3">
                 <button
                   onClick={handleGift}
-                  disabled={isUploading || !giftAmount}
-                  className="flex-1 bg-purple-600 text-white p-2 rounded-lg disabled:opacity-50"
+                  className="flex-1 bg-purple-600 text-white p-2 rounded-lg"
                 >
-                  {isUploading ? 'Sending Gift...' : 'Send Gift'}
+                  Send Gift
                 </button>
                 <button
                   onClick={() => setShowGiftModal(false)}
-                  disabled={isUploading}
-                  className="flex-1 bg-gray-600 text-white p-2 rounded-lg disabled:opacity-50"
+                  className="flex-1 bg-gray-600 text-white p-2 rounded-lg"
                 >
                   Cancel
                 </button>
@@ -789,7 +700,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         {showImagePreview && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
             <div className="bg-[#1A1D1F] p-6 rounded-lg w-[90%] max-w-2xl">
-              <h3 className="text-white text-xl font-bold mb-4">Crop Image (Optional)</h3>
+              <h3 className="text-white text-xl font-bold mb-4">Crop Image</h3>
               <ReactCrop
                 crop={crop}
                 onChange={c => setCrop(c)}
@@ -805,19 +716,17 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={sendImage}
-                  disabled={isUploading || !imageSrc}
+                  disabled={isUploading}
                   className="flex-1 bg-purple-600 text-white p-3 rounded-lg disabled:opacity-50"
                 >
-                  {isUploading ? 'Uploading Image...' : 'Send'}
+                  {isUploading ? 'Uploading...' : 'Send'}
                 </button>
                 <button
                   onClick={() => {
                     setShowImagePreview(false);
                     setImageSrc(null);
-                    setCrop(undefined);
                   }}
-                  disabled={isUploading}
-                  className="flex-1 bg-gray-600 text-white p-3 rounded-lg disabled:opacity-50"
+                  className="flex-1 bg-gray-600 text-white p-3 rounded-lg"
                 >
                   Cancel
                 </button>
