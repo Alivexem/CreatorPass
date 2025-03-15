@@ -196,21 +196,28 @@ const PassesPage = () => {
   useEffect(() => {
     const checkOwnedPasses = async () => {
       const address = localStorage.getItem('address');
-      if (!address) return;
-
+      if (!address) {
+        setOwnedPasses(new Set());
+        return;
+      }
+  
       try {
         const res = await fetch(`/api/passholders/check/${address}`);
         const data = await res.json();
         if (data.passes) {
-          setOwnedPasses(new Set(data.passes.map((pass: Pass) => pass._id)));
+          // Create a Set with explicit string type and ensure proper type casting
+          const ownedPassIds = new Set<string>(data.passes.map((pass: Pass) => String(pass._id)));
+          console.log('Owned passes:', ownedPassIds);
+          setOwnedPasses(ownedPassIds);
         }
       } catch (error) {
         console.error('Error checking owned passes:', error);
+        setOwnedPasses(new Set<string>());
       }
     };
-
+  
     checkOwnedPasses();
-  }, []);
+  }, [address]);
 
   const totalPasses = passes.length;
   const totalPages = Math.ceil(totalPasses / PASSES_PER_PAGE);
@@ -264,7 +271,18 @@ const PassesPage = () => {
 
   const mintNFT = async (pass: Pass) => {
     console.log('Starting mint process for pass:', pass);
-
+    
+    // Check if pass is already owned
+    if (ownedPasses.has(pass._id)) {
+      console.log('Pass already owned:', pass._id);
+      setToast({
+        show: true,
+        message: 'You already own this pass',
+        type: 'error'
+      });
+      return;
+    }
+  
     if (!isConnected) {
         console.log('Wallet not connected');
         setToast({
@@ -274,7 +292,7 @@ const PassesPage = () => {
         });
         return;
     }
-
+  
     if (!cardRef.current || !connection || !walletProvider) {
         console.error('Missing dependencies:', {
             hasCardRef: !!cardRef.current,
@@ -283,7 +301,7 @@ const PassesPage = () => {
         });
         return;
     }
-
+  
     try {
         setMintingStates(prev => ({...prev, [pass._id]: true}));
         setIsMinting(true);
@@ -293,7 +311,7 @@ const PassesPage = () => {
         if (!hiddenCard) {
             throw new Error('Card template not found');
         }
-
+  
         // Pre-load the pass image using the native Image constructor
         console.log('Pre-loading pass image...');
         const preloadImage = new window.Image();
@@ -302,7 +320,7 @@ const PassesPage = () => {
             preloadImage.onerror = reject;
             preloadImage.src = pass.image;
         });
-
+  
         // Update template elements
         const profileImage = hiddenCard.querySelector('img[alt="profile"]') as HTMLImageElement;
         const username = hiddenCard.querySelector('p.font-mono') as HTMLElement;
@@ -310,7 +328,7 @@ const PassesPage = () => {
         if (!profileImage || !username) {
             throw new Error('Card template elements not found');
         }
-
+  
         // Update template with pass data
         profileImage.src = pass.image;
         username.textContent = pass.creatorName;
@@ -324,7 +342,7 @@ const PassesPage = () => {
             pixelRatio: 2,
             cacheBust: true
         });
-
+  
         const response = await fetch(dataUrl);
         const blob = await response.blob();
         const file = new File([blob], `${pass.creatorName.replace(/\s+/g, '_')}_access_card.png`, { type: 'image/png' });
@@ -362,7 +380,7 @@ const PassesPage = () => {
             throw new Error('Failed to upload metadata to IPFS');
         }
         console.log('Metadata uploaded:', metadataUrl);
-
+  
         console.log('Getting wallet address...');
         const walletAddress = localStorage.getItem('address');
         if (!walletAddress) {
@@ -377,7 +395,7 @@ const PassesPage = () => {
         console.log('Creating mint account...');
         const mintKeypair = Keypair.generate();
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
-
+  
         // Get token account and metadata addresses
         console.log('Deriving token addresses...');
         const [associatedTokenAddress] = await PublicKey.findProgramAddress(
@@ -388,7 +406,7 @@ const PassesPage = () => {
             ],
             ASSOCIATED_TOKEN_PROGRAM_ID
         );
-
+  
         const [metadataAddress] = PublicKey.findProgramAddressSync(
             [
                 Buffer.from('metadata'),
@@ -397,25 +415,25 @@ const PassesPage = () => {
             ],
             TOKEN_METADATA_PROGRAM_ID
         );
-
+  
         console.log('Creating transaction...');
         const transaction = new Transaction();
         const blockHash = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockHash.blockhash;
         transaction.feePayer = walletPubkey;
-
+  
         // Calculate payment splits
         const totalPayment = Math.floor(pass.price * LAMPORTS_PER_SOL);
         const platformPayment = Math.floor(totalPayment * 0.2); // 20%
         const creatorPayment = totalPayment - platformPayment; // 80%
-
+  
         if (!platformAddress) {
             throw new Error('Platform address not available');
         }
-
+  
         // Add this validation after getting platformAddress
         console.log('Current platform address:', platformAddress); // Debug log
-
+  
         let validPlatformAddress;
         try {
           // Validate and clean up platform address - it seems to be duplicated
@@ -431,23 +449,23 @@ const PassesPage = () => {
           });
           return;
         }
-
+  
         // Replace the single payment instruction with split payments
         const creatorPaymentInstruction = SystemProgram.transfer({
             fromPubkey: walletPubkey,
             toPubkey: new PublicKey(pass.creatorAddress),
             lamports: creatorPayment,
         });
-
+  
         // Replace the platform payment instruction with validated address
         const platformPaymentInstruction = SystemProgram.transfer({
             fromPubkey: walletPubkey,
             toPubkey: validPlatformAddress, // Use validated address
             lamports: platformPayment,
         });
-
+  
         transaction.add(creatorPaymentInstruction, platformPaymentInstruction);
-
+  
         // Add the rest of the minting instructions
         transaction.add(
             SystemProgram.createAccount({
@@ -504,7 +522,7 @@ const PassesPage = () => {
                 },
             )
         );
-
+  
         console.log('Signing transaction with mint keypair...');
         transaction.sign(mintKeypair);
         
@@ -523,7 +541,7 @@ const PassesPage = () => {
             setIsMinting(false);
             setMintingStates(prev => ({...prev, [pass._id]: false}));
         }, 5000); // 5 seconds
-
+  
         try {
             console.log('Confirming transaction...');
             const confirmation = await connection.confirmTransaction(signature, 'processed');
@@ -556,7 +574,7 @@ const PassesPage = () => {
                 });
             }
         }
-
+  
         // After successful transaction confirmation, update the pass holders
         try {
           const response = await fetch(`/api/passholders/${pass._id}`, { // Updated endpoint
@@ -575,7 +593,7 @@ const PassesPage = () => {
         } catch (error) {
           console.warn('Error updating pass holders:', error);
         }
-
+  
     } catch (err) {
         console.error('Transaction error:', err);
         setToast({
@@ -589,10 +607,11 @@ const PassesPage = () => {
         // Increase toast display time to 5 seconds
         setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 5000);
     }
-};
+  };
 
   const renderPassButton = (pass: Pass) => {
     const isOwned = ownedPasses.has(pass._id);
+    console.log('Pass ownership status:', pass._id, isOwned); // Debug log
     
     return (
       <button 
