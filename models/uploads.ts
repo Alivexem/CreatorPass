@@ -15,7 +15,10 @@ const uploadsSchema = new mongoose.Schema({
     comments: [{
         address: String,
         comment: String,
-        timestamp: { type: Date, default: Date.now }
+        imageUrl: String,
+        timestamp: { type: Date, default: Date.now },
+        likes: [{ type: String }],  // Add likes array
+        likeCount: { type: Number, default: 0 }  // Add likeCount
     }],
     createdAt: { type: Date, default: Date.now }
 });

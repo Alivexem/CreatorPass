@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
     try {
         await connectDB();
-        const { address, comment, replyToId } = await request.json();
+        const { address, comment, imageUrl } = await request.json();
 
         // Fetch user profile
         const profile = await Profile.findOne({ address }).select('username profileImage address');
@@ -21,42 +21,17 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             username: profile.username,
             profileImage: profile.profileImage || '/empProfile.png',
             comment,
+            imageUrl: imageUrl || '',
             timestamp: new Date(),
             likes: [],
-            likeCount: 0,
-            replies: []
+            likeCount: 0
         };
 
-        let post;
-        if (replyToId) {
-            post = await Post.findOneAndUpdate(
-                { _id: params.id, "comments._id": replyToId },
-                { 
-                    $push: { 
-                        "comments.$.replies": newComment 
-                    }
-                },
-                { new: true }
-            ).populate({
-                path: 'comments',
-                populate: {
-                    path: 'replies'
-                }
-            });
-        } else {
-            post = await Post.findByIdAndUpdate(
-                params.id,
-                { 
-                    $push: { comments: newComment } 
-                },
-                { new: true }
-            ).populate({
-                path: 'comments',
-                populate: {
-                    path: 'replies'
-                }
-            });
-        }
+        const post = await Post.findByIdAndUpdate(
+            params.id,
+            { $push: { comments: newComment } },
+            { new: true }
+        );
 
         if (!post) {
             return NextResponse.json({ error: 'Post not found' }, { status: 404 });

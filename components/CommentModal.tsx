@@ -9,15 +9,13 @@ import Image from 'next/image';
 interface CommentModalProps {
     post: Post;
     onClose: () => void;
-    onComment: (postId: string, comment: string, imageUrl?: string, replyToId?: string) => Promise<void>;
+    onComment: (postId: string, comment: string, imageUrl?: string) => Promise<void>;
     onLike: (postId: string, commentId: string) => Promise<void>;
-    onReply: (postId: string, comment: string, replyToId: string, imageUrl?: string) => Promise<void>;
     userProfile: Profile | null;
 }
 
-export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onComment, onLike, onReply, userProfile }) => {
+export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onComment, onLike, userProfile }) => {
     const [newComment, setNewComment] = useState('');
-    const [replyTo, setReplyTo] = useState<Comment | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -71,7 +69,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
         setIsSubmitting(true);
         try {
             let imageUrl = '';
-            if (selectedImage && imagePreview) {
+            if (selectedImage) {
                 const reader = new FileReader();
                 reader.readAsDataURL(selectedImage);
                 
@@ -95,15 +93,10 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                 imageUrl = data.url;
             }
 
-            if (replyTo && replyTo._id) {
-                await onReply(post._id, newComment, replyTo._id, imageUrl);
-            } else {
-                await onComment(post._id, newComment, imageUrl);
-            }
+            await onComment(post._id, newComment.trim(), imageUrl);
             
             setNewComment('');
             removeImage();
-            setReplyTo(null);
         } catch (error) {
             console.error('Error submitting comment:', error);
             alert('Failed to submit comment. Please try again.');
@@ -116,7 +109,6 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
     useEffect(() => {
         return () => {
             setNewComment('');
-            setReplyTo(null);
         };
     }, []);
 
@@ -157,7 +149,6 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                                 key={comment._id}
                                 comment={comment}
                                 onLike={onLike}
-                                onReply={(c) => setReplyTo(c)}
                                 postId={post._id}
                                 userProfile={userProfile}
                             />
@@ -170,20 +161,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                 </div>
 
                 <div className="p-4 border-t border-gray-800">
-                    {replyTo && (
-                        <div className="text-sm text-gray-400 mb-2 flex justify-between">
-                            <span>Replying to {replyTo.username}</span>
-                            <button 
-                                onClick={() => setReplyTo(null)}
-                                className="text-gray-500 hover:text-white"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    )}
                     <form onSubmit={handleSubmit} className="space-y-3">
-                    
-
                         <div className="flex gap-2">
                             <input
                                 type="text"

@@ -1,25 +1,14 @@
 import mongoose from 'mongoose';
 
-const ReplySchema = new mongoose.Schema({
-    address: String,
-    username: String,
-    profileImage: String,
-    comment: String,
-    timestamp: { type: Date, default: Date.now },
-    likes: [String],
-    likeCount: { type: Number, default: 0 }
-});
-
 const CommentSchema = new mongoose.Schema({
     address: String,
     username: String,
     profileImage: String,
     comment: String,
+    imageUrl: String,
     timestamp: { type: Date, default: Date.now },
     likes: [String],
-    likeCount: { type: Number, default: 0 },
-    replies: [ReplySchema],
-    hasReplies: { type: Boolean, default: false }
+    likeCount: { type: Number, default: 0 }
 });
 
 const PostSchema = new mongoose.Schema({
