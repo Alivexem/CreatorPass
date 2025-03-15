@@ -53,11 +53,20 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
             if (selectedImage) {
                 const formData = new FormData();
                 formData.append('image', selectedImage);
-                const res = await fetch('/api/imageUpload', {
+                
+                const res = await fetch('/api/imageApi', {
                     method: 'POST',
                     body: formData,
                 });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
                 const data = await res.json();
+                if (!data.url) {
+                    throw new Error('No URL in response');
+                }
                 imageUrl = data.url;
             }
 
@@ -72,6 +81,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
             setReplyTo(null);
         } catch (error) {
             console.error('Error submitting comment:', error);
+            alert('Failed to submit comment. Please try again.');
         } finally {
             setIsSubmitting(false);
         }

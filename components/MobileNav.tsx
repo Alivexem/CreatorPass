@@ -24,6 +24,7 @@ const MobileNav = () => {
   const [toast, setToast] = useState({ show: false, message: '' });
   const searchRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,6 +47,7 @@ const MobileNav = () => {
     const db = getDatabase(app);
     const chatHistoryRef = ref(db, 'chatHistory');
     
+    setIsLoadingMessages(true);
     const unsubscribe = onValue(chatHistoryRef, (snapshot) => {
       const chatHistory = snapshot.val();
       if (chatHistory) {
@@ -66,6 +68,7 @@ const MobileNav = () => {
 
         setPersonalChats(personalChatsArray);
       }
+      setIsLoadingMessages(false);
     });
 
     return () => unsubscribe();
@@ -179,8 +182,8 @@ const MobileNav = () => {
               <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
             </div>
             <div className='border-gray-500/30 border-t w-full flex flex-col space-y-2 overflow-auto max-h-[calc(70vh-80px)] p-4'>
-              {isLoadingPersonalChats ? (
-                <div className="flex justify-center items-center h-full">
+              {isLoadingMessages ? (
+                <div className="flex justify-center items-center py-8">
                   <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
                 </div>
               ) : personalChats.length > 0 ? (

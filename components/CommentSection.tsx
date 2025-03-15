@@ -54,14 +54,23 @@ const CommentSection = ({
             formData.append('image', selectedImage);
             
             try {
-                const res = await fetch('/api/imageUpload', {
+                const res = await fetch('/api/imageApi', {
                     method: 'POST',
                     body: formData,
                 });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
                 const data = await res.json();
+                if (!data.url) {
+                    throw new Error('No URL in response');
+                }
                 imageUrl = data.url;
             } catch (error) {
                 console.error('Error uploading image:', error);
+                alert('Failed to upload image. Please try again.');
                 return;
             }
         }

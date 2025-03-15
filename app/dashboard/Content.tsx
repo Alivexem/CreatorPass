@@ -29,6 +29,12 @@ interface Pass {
     creatorAddress: string;
 }
 
+// Update the interface to add videoThumbnail
+interface PostData {
+    // ...existing code...
+    videoThumbnail?: string;
+}
+
 const Content = ({ setToast }: ContentProps) => {
     const [showUploader, setShowUploader] = useState(false);
     const [note, setNote] = useState('');
@@ -759,19 +765,27 @@ const Content = ({ setToast }: ContentProps) => {
                                     >
                                         {selectedImage ? (
                                             <div className='relative h-full'>
-                                                <Image 
-                                                    src={selectedImage}
-                                                    alt="Preview"
-                                                    fill
-                                                    style={{ objectFit: 'cover' }}
-                                                    className='rounded-xl'
-                                                />
+                                                {mediaType === 'video' ? (
+                                                    <video 
+                                                        src={selectedImage}
+                                                        className='w-full h-full object-cover rounded-xl'
+                                                        controls
+                                                    />
+                                                ) : (
+                                                    <Image 
+                                                        src={selectedImage}
+                                                        alt="Preview"
+                                                        fill
+                                                        style={{ objectFit: 'cover' }}
+                                                        className='rounded-xl'
+                                                    />
+                                                )}
                                                 <div className='absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
                                                     <button
                                                         type="button"
                                                         onClick={() => {
                                                             setSelectedImage('');
-                                                            const input = document.getElementById('image-upload') as HTMLInputElement;
+                                                            const input = document.getElementById('media-upload') as HTMLInputElement;
                                                             if (input) {
                                                                 input.value = '';
                                                                 input.click();
@@ -779,21 +793,22 @@ const Content = ({ setToast }: ContentProps) => {
                                                         }}
                                                         className='bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors'
                                                     >
-                                                        Change Image
+                                                        Change Media
                                                     </button>
                                                 </div>
                                             </div>
                                         ) : (
-                                            <label htmlFor="image-upload" className='block h-full'>
+                                            <label htmlFor="media-upload" className='block h-full'>
                                                 <div className='h-full border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
                                                     <FaImages className="text-4xl text-gray-400" />
-                                                    <p className='text-gray-400 text-center'>Click or drag image to upload</p>
+                                                    <p className='text-gray-400 text-center'>Click or drag image/video to upload</p>
+                                                    <p className='text-gray-500 text-sm'>Max size: 80MB</p>
                                                 </div>
                                                 <input 
                                                     type="file"
-                                                    id="image-upload"
+                                                    id="media-upload"
                                                     className='hidden'
-                                                    accept="image/*"
+                                                    accept="image/*,video/*"
                                                     onChange={handleMediaChange}
                                                 />
                                             </label>

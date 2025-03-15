@@ -89,6 +89,7 @@ const Page = () => {
     const [personalChats, setPersonalChats] = useState<ChatHistoryItem[]>([]);
     const [isLoadingPersonalChats, setIsLoadingPersonalChats] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>(''); // Add error message state
+    const [isLoadingWorldChat, setIsLoadingWorldChat] = useState(true);
 
     // Consolidate data fetching into a single useEffect
     useEffect(() => {
@@ -131,6 +132,7 @@ const Page = () => {
         const worldChatRef = ref(database, 'worldChat');
         const chatQuery = query(worldChatRef, orderByChild('timestamp'));
 
+        setIsLoadingWorldChat(true);
         const unsubscribe = onValue(chatQuery, (snapshot) => {
             const messages: WorldChat[] = [];
             snapshot.forEach((childSnapshot) => {
@@ -142,6 +144,7 @@ const Page = () => {
             // Sort messages by timestamp
             const sortedMessages = messages.sort((a, b) => a.timestamp - b.timestamp);
             setChats(sortedMessages);
+            setIsLoadingWorldChat(false);
 
             // Scroll to bottom
             if (chatRef.current) {
@@ -243,26 +246,36 @@ const Page = () => {
             ref={chatRef}
             className='h-[400px] overflow-y-auto mb-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent'
         >
-            {chats.map((chat) => (
-                <div key={chat.id} className='flex items-start gap-3'>
-                    <Image
-                        src={chat.profileImage || '/empProfile.png'}
-                        alt='Profile'
-                        width={35}
-                        height={35}
-                        className='rounded-full object-cover w-[40px] h-[40px]'
-                    />
-                    <div>
-                        <p className='text-purple-100 text-sm'>
-                            {chat.username || 'Anonymous'}
-                        </p>
-                        {renderChatMessage(chat.message)}
-                        <p className='text-gray-500 text-[0.7rem] mt-1'>
-                            {new Date(chat.timestamp).toLocaleString()}
-                        </p>
-                    </div>
+            {isLoadingWorldChat ? (
+                <div className="flex justify-center items-center h-full">
+                    <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
                 </div>
-            ))}
+            ) : chats.length > 0 ? (
+                chats.map((chat) => (
+                    <div key={chat.id} className='flex items-start gap-3'>
+                        <Image
+                            src={chat.profileImage || '/empProfile.png'}
+                            alt='Profile'
+                            width={35}
+                            height={35}
+                            className='rounded-full object-cover w-[40px] h-[40px]'
+                        />
+                        <div>
+                            <p className='text-purple-100 text-sm'>
+                                {chat.username || 'Anonymous'}
+                            </p>
+                            {renderChatMessage(chat.message)}
+                            <p className='text-gray-500 text-[0.7rem] mt-1'>
+                                {new Date(chat.timestamp).toLocaleString()}
+                            </p>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <div className="flex justify-center items-center h-full text-gray-400">
+                    No messages yet. Be the first to chat!
+                </div>
+            )}
         </div>
     );
 
