@@ -21,6 +21,12 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import ReactCrop, { Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
+interface Profile {
+  username: string;
+  profileImage: string;
+  address: string;
+}
+
 interface Message {
   id: string;
   text: string;
@@ -90,6 +96,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   const [crop, setCrop] = useState<Crop>();
   const [showImagePreview, setShowImagePreview] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [userProfiles, setUserProfiles] = useState<{[key: string]: Profile}>({});
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -181,6 +189,31 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    const fetchProfile = async (address: string) => {
+      try {
+        const res = await fetch(`/api/profile?address=${address}`);
+        const data = await res.json();
+        if (data.profile) {
+          setUserProfiles(prev => ({
+            ...prev,
+            [address]: data.profile
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    // Fetch profiles for all unique addresses in messages
+    const uniqueAddresses = new Set(messages.map(msg => msg.sender.address));
+    uniqueAddresses.forEach(address => {
+      if (!userProfiles[address]) {
+        fetchProfile(address);
+      }
+    });
+  }, [messages]);
 
   const handleMouseEnter = (messageId: string) => {
     setHoveredMessage(messageId);
@@ -492,13 +525,15 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               }`}>
                 <div className="flex items-center gap-2 mb-1">
                   <Image
-                    src={message.sender.profileImage || '/empProfile.png'}
-                    alt={message.sender.username}
+                    src={userProfiles[message.sender.address]?.profileImage || '/empProfile.png'}
+                    alt={userProfiles[message.sender.address]?.username || 'Anonymous'}
                     width={24}
                     height={24}
                     className="rounded-full h-[24px] w-[24px] object-cover"
                   />
-                  <span className="text-xs text-gray-400">{message.sender.username}</span>
+                  <span className="text-xs text-gray-400">
+                    {userProfiles[message.sender.address]?.username || 'Anonymous'}
+                  </span>
                 </div>
                 <div className={`rounded-2xl px-4 py-2 ${
                   message.type === 'gift' 
@@ -508,19 +543,20 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                       : 'bg-gray-700 rounded-tl-none'
                 }`}>
                   {message.type === 'image' ? (
-                    <div className="relative">
+                    <div className="relative w-full h-full">
                       <Image
                         src={message.imageUrl || ''}
                         alt="Shared image"
                         width={300}
                         height={200}
-                        className="rounded-lg max-w-full"
+                        className="rounded-lg w-full h-full object-cover cursor-pointer"
+                        onClick={() => setSelectedImage(message.imageUrl || '')}
                       />
                     </div>
                   ) : message.type === 'gift' ? (
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-2 py-2">
                       <FaGift className="text-purple-300" size={24} />
-                      <p className="text-purple-200 text-sm font-medium text-center">
+                      <p className="text-purple-200 text-lg font-semibold text-center">
                         {message.text}
                       </p>
                       {message.imageUrl && (
@@ -623,12 +659,12 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         {showGiftModal && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
             <div className="bg-[#1A1D1F] p-6 rounded-lg w-[90%] max-w-md">
-              <h3 className="text-white text-xl font-bold mb-4">Send Gift</h3>
+              <h3 className="text-white text-xl font-bold mb-3">Send Gift</h3>
               <input
                 type="number"
                 value={giftAmount}
                 onChange={(e) => setGiftAmount(e.target.value)}
-                className="w-full bg-[#2A2D2F] text-white p-3 rounded-lg mb-4"
+                className="w-full bg-[#2A2D2F] text-white p-2 rounded-lg mb-3"
                 placeholder="Amount in SOL"
                 step="0.01"
                 min="0"
@@ -636,13 +672,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               <div className="flex gap-3">
                 <button
                   onClick={handleGift}
-                  className="flex-1 bg-purple-600 text-white p-3 rounded-lg"
+                  className="flex-1 bg-purple-600 text-white p-2 rounded-lg"
                 >
                   Send Gift
                 </button>
                 <button
                   onClick={() => setShowGiftModal(false)}
-                  className="flex-1 bg-gray-600 text-white p-3 rounded-lg"
+                  className="flex-1 bg-gray-600 text-white p-2 rounded-lg"
                 >
                   Cancel
                 </button>
@@ -695,6 +731,33 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Image Modal */}
+        {selectedImage && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
+              <Image
+                src={selectedImage}
+                alt="Full size image"
+                layout="contain"
+                objectFit="contain"
+                className="rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+                width={1200}
+                height={800}
+              />
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute top-4 right-4 text-white hover:text-gray-300"
+              >
+                <IoMdClose size={24} />
+              </button>
             </div>
           </div>
         )}
