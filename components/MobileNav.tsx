@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from 'react';
 import { IoMdMail } from "react-icons/io";
 import Image from 'next/image';
 import { ChatHistoryItem } from '@/types/chat'; // Add this type to your project if not exists
+import { getDatabase, ref, get, onValue } from 'firebase/database';
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -37,26 +38,37 @@ const MobileNav = () => {
   }, []);
 
   useEffect(() => {
-    const fetchPersonalChats = async () => {
-      const address = localStorage.getItem('address');
-      if (!address) return;
+    const address = localStorage.getItem('address');
+    if (!address) return;
 
-      setIsLoadingPersonalChats(true);
-      try {
-        const res = await fetch(`/api/chat-history?address=${address}`);
-        const data = await res.json();
-        if (data.chatHistory) {
-          setPersonalChats(data.chatHistory);
-        }
-      } catch (error) {
-        console.error('Error fetching chats:', error);
-      } finally {
-        setIsLoadingPersonalChats(false);
+    setIsLoadingPersonalChats(true);
+    const db = getDatabase();
+    const chatHistoryRef = ref(db, `chatHistory/${address}`);
+    
+    // Set up real-time listener
+    const unsubscribe = onValue(chatHistoryRef, (snapshot) => {
+      setIsLoadingPersonalChats(false);
+      if (snapshot.exists()) {
+        const chatData = snapshot.val();
+        const formattedChats = Object.entries(chatData).map(([id, chat]: [string, any]) => ({
+          id,
+          ...chat
+        }));
+        
+        // Sort by timestamp in descending order
+        const sortedChats = formattedChats.sort((a, b) => b.timestamp - a.timestamp);
+        setPersonalChats(sortedChats);
+      } else {
+        setPersonalChats([]);
       }
-    };
+    }, (error) => {
+      console.error('Error fetching chats:', error);
+      setIsLoadingPersonalChats(false);
+    });
 
-    fetchPersonalChats();
-  }, []);
+    // Cleanup listener on unmount
+    return () => unsubscribe();
+  }, []); // Only run once on mount
 
   useEffect(() => {
     if (toast.show) {

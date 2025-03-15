@@ -2,6 +2,8 @@
 import React, { useState, useRef } from 'react';
 import { FaImages } from "react-icons/fa6";
 import Image from 'next/image';
+import ReactCrop, { Crop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 interface CommentSectionProps {
     post: any;
@@ -22,7 +24,11 @@ const CommentSection = ({
 }: CommentSectionProps) => {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const [crop, setCrop] = useState<Crop>();
+    const [showCropModal, setShowCropModal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -31,6 +37,7 @@ const CommentSection = ({
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
+                setShowCropModal(true);
             };
             reader.readAsDataURL(file);
         }
@@ -39,6 +46,8 @@ const CommentSection = ({
     const removeImage = () => {
         setSelectedImage(null);
         setImagePreview(null);
+        setCrop(undefined);
+        setShowCropModal(false);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -47,27 +56,53 @@ const CommentSection = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newComment.trim() && !selectedImage) return;
+        setIsUploading(true);
 
         let imageUrl = '';
-        if (selectedImage) {
-            const formData = new FormData();
-            formData.append('image', selectedImage);
-            
+        if (selectedImage && imageRef.current) {
             try {
+                let imageData;
+                if (crop) {
+                    const canvas = document.createElement('canvas');
+                    const scaleX = imageRef.current.naturalWidth / imageRef.current.width;
+                    const scaleY = imageRef.current.naturalHeight / imageRef.current.height;
+                    canvas.width = crop.width;
+                    canvas.height = crop.height;
+                    const ctx = canvas.getContext('2d');
+
+                    if (ctx) {
+                        ctx.drawImage(
+                            imageRef.current,
+                            crop.x * scaleX,
+                            crop.y * scaleY,
+                            crop.width * scaleX,
+                            crop.height * scaleY,
+                            0,
+                            0,
+                            crop.width,
+                            crop.height
+                        );
+                        imageData = canvas.toDataURL('image/jpeg');
+                    }
+                } else {
+                    imageData = imagePreview;
+                }
+
                 const res = await fetch('/api/imageUpload', {
                     method: 'POST',
-                    body: formData,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: imageData }),
                 });
                 const data = await res.json();
                 imageUrl = data.url;
             } catch (error) {
                 console.error('Error uploading image:', error);
-                return;
             }
         }
 
         await handleComment(e, imageUrl);
         removeImage();
+        setIsUploading(false);
     };
 
     return (
@@ -95,7 +130,43 @@ const CommentSection = ({
                     </label>
                 </div>
 
-                {imagePreview && (
+                {showCropModal && imagePreview && (
+                    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                        <div className="bg-[#1A1D1F] p-6 rounded-lg max-w-2xl w-full">
+                            <h3 className="text-white text-lg font-semibold mb-4">Crop Image (Optional)</h3>
+                            <ReactCrop
+                                crop={crop}
+                                onChange={c => setCrop(c)}
+                                aspect={16/9}
+                            >
+                                <img
+                                    ref={imageRef}
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    className="max-w-full h-auto"
+                                />
+                            </ReactCrop>
+                            <div className="flex gap-3 mt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCropModal(false)}
+                                    className="flex-1 bg-purple-600 text-white p-2 rounded-lg"
+                                >
+                                    Done
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={removeImage}
+                                    className="flex-1 bg-gray-600 text-white p-2 rounded-lg"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {imagePreview && !showCropModal && (
                     <div className="relative w-full max-w-[200px]">
                         <Image
                             src={imagePreview}
@@ -117,9 +188,9 @@ const CommentSection = ({
                 <button 
                     type="submit"
                     className='w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50'
-                    disabled={isCommentLoading || (!newComment.trim() && !selectedImage)}
+                    disabled={isUploading || (!newComment.trim() && !selectedImage)}
                 >
-                    {isCommentLoading ? 'Posting...' : 'Post'}
+                    {isUploading ? 'Uploading...' : isCommentLoading ? 'Posting...' : 'Post'}
                 </button>
             </form>
 
