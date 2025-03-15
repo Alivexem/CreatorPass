@@ -10,7 +10,9 @@ import { Post, Profile } from '@/types/interfaces';
 import { linkifyText } from '@/utils/linkify';
 
 interface PostCardProps {
-    post: Post;
+    post: Post & {
+        mediaType?: 'image' | 'video';
+    };
     userProfile: Profile;
     hasLiked: boolean;
     likes: number;
@@ -102,20 +104,29 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                 </div>
             </div>
 
-            {/* Image */}
+            {/* Media Content */}
             {post.image && (
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
                         className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
-                        onClick={() => props.onImageClick(post.image)}
+                        onClick={() => post.mediaType !== 'video' && props.onImageClick(post.image)}
                     >
-                        <Image
-                            src={post.image}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            className='rounded-lg shadow-md'
-                            alt='post image'
-                        />
+                        {post.mediaType === 'video' ? (
+                            <video
+                                src={post.image}
+                                className='w-full h-full rounded-lg object-contain'
+                                controls
+                                controlsList='nodownload'
+                            />
+                        ) : (
+                            <Image
+                                src={post.image}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                className='rounded-lg shadow-md'
+                                alt='post media'
+                            />
+                        )}
                     </div>
                 </div>
             )}
