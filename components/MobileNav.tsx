@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { ChatHistoryItem } from '@/types/chat'; // Add this type to your project if not exists
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { app } from '../utils/firebase'; // Make sure to import your Firebase app
+import { BiLoaderAlt } from "react-icons/bi"; // Add this import
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -180,7 +181,7 @@ const MobileNav = () => {
             <div className='border-gray-500/30 border-t w-full flex flex-col space-y-2 overflow-auto max-h-[calc(70vh-80px)] p-4'>
               {isLoadingPersonalChats ? (
                 <div className="flex justify-center items-center h-full">
-                  <p className="text-gray-400 animate-pulse">Loading chats...</p>
+                  <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
                 </div>
               ) : personalChats.length > 0 ? (
                 personalChats.map((chat) => (

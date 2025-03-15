@@ -597,6 +597,16 @@ const Content = ({ setToast }: ContentProps) => {
         <div className='min-h-screen bg-black px-4 py-8'>
             <div className='max-w-4xl mx-auto'>
                 {/* Header Section */}
+                <div className='mb-10'>
+                    <button
+                        onClick={() => setShowUploader(true)}
+                        className='w-full max-w-md mx-auto flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-lg shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300'
+                    >
+                        <MdAddCircle className="text-2xl" />
+                        <span className="font-medium text-md">Create New Post</span>
+                    </button>
+                </div>
+
                 {/* Posts Section */}
                 {isLoadingPosts ? (
                     <div className='flex justify-center items-center py-20'>
