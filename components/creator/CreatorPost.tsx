@@ -170,8 +170,10 @@ const CreatorPost = ({
             <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
                 <button
                     onClick={onLike}
-                    className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${disabled.like ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={disabled.like}
+                    className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${
+                        post.tier !== 'Free' && disabled.like ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={post.tier !== 'Free' && disabled.like}
                 >
                     <IoHeartHalf
                         className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${hasLiked ? 'text-purple-500' : ''}`}
@@ -180,23 +182,29 @@ const CreatorPost = ({
                 </button>
                 <button
                     onClick={onComment}
-                    className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${disabled.comment ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={disabled.comment}
+                    className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${
+                        post.tier !== 'Free' && disabled.comment ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={post.tier !== 'Free' && disabled.comment}
                 >
                     <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
                     <p>{post.comments?.length || 0} comments</p>
                 </button>
                 <button
                     onClick={onGift}
-                    className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity ${disabled.gift ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={disabled.gift}
+                    className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity ${
+                        post.tier !== 'Free' && disabled.gift ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={post.tier !== 'Free' && disabled.gift}
                 >
                     <FaGift className='text-[1.1rem] md:text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
                 </button>
                 <button
                     onClick={() => onCopy(post.note, post._id)}
-                    className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${disabled.copy ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={disabled.copy}
+                    className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${
+                        post.tier !== 'Free' && disabled.copy ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={post.tier !== 'Free' && disabled.copy}
                 >
                     <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
                         <p className='whitespace-nowrap'>{copiedStates[post._id] && 'Text Copied!'}</p>
@@ -207,8 +215,10 @@ const CreatorPost = ({
                 {post.image && (
                     <button
                         onClick={() => onDownload(post.image, post._id)}
-                        className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${disabled.download ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={disabled.download}
+                        className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${
+                            post.tier !== 'Free' && disabled.download ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={post.tier !== 'Free' && disabled.download}
                     >
                         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
                             {downloadedStates[post._id] && 'Downloading!'}
