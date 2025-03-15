@@ -246,44 +246,68 @@ const Content = ({ setToast }: ContentProps) => {
         // Determine media type
         const type = file.type.startsWith('video/') ? 'video' : 'image';
         setMediaType(type);
-
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
         setLoading(true);
 
-        reader.onloadend = async () => {
-            const base64data = reader.result;
+        try {
+            let uploadedUrl;
 
-            try {
-                const res = await fetch("/api/imageApi", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ 
-                        data: base64data,
-                        mediaType: type 
-                    }),
+            if (type === 'video') {
+                // Direct upload to Cloudinary for videos
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', 'ifndk7tr'); // Your upload preset
+                formData.append('resource_type', 'video');
+
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_NAME}/video/upload`,
+                    {
+                        method: 'POST',
+                        body: formData
+                    }
+                );
+
+                if (!response.ok) throw new Error('Video upload failed');
+                const data = await response.json();
+                uploadedUrl = data.secure_url;
+            } else {
+                // Existing image upload flow through Next.js API
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+
+                uploadedUrl = await new Promise((resolve, reject) => {
+                    reader.onloadend = async () => {
+                        try {
+                            const res = await fetch("/api/imageApi", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ 
+                                    data: reader.result,
+                                    mediaType: 'image'
+                                }),
+                            });
+
+                            if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+                            const data = await res.json();
+                            resolve(data.url);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
                 });
-
-                if (!res.ok) {
-                    throw new Error(`Upload failed: ${res.status}`);
-                }
-
-                const data = await res.json();
-                setimage(data.url);
-                setSelectedImage(URL.createObjectURL(file));
-            } catch (error) {
-                console.error('Error uploading media:', error);
-                setToast({
-                    show: true,
-                    message: 'Failed to upload media. Please try again.',
-                    type: 'error'
-                });
-            } finally {
-                setLoading(false);
             }
-        };
+
+            setimage(uploadedUrl);
+            setSelectedImage(URL.createObjectURL(file));
+        } catch (error) {
+            console.error('Error uploading media:', error);
+            setToast({
+                show: true,
+                message: 'Failed to upload media. Please try again.',
+                type: 'error'
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {

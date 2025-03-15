@@ -75,72 +75,43 @@ const PassesPage = () => {
 
   const PASSES_PER_PAGE = 3;
 
-  const sortAndFilterPasses = async (passes: Pass[], highlightedCreator: string | null) => {
-    // Get all creator posts to check pass usage
-    const usedPasses = new Set<string>();
-
-    // Check each pass
-    for (const pass of passes) {
-      // Fetch creator's posts
-      const res = await fetch(`/api/posts/user/${pass.creatorAddress}`);
-      if (!res.ok) continue;
-      
-      const data = await res.json();
-      const creatorPosts = data.posts || [];
-
-      // Check if the pass type is used in any posts
-      const isPassUsed = creatorPosts.some((post: any) => post.tier === pass.type);
-      
-      if (isPassUsed) {
-        usedPasses.add(pass._id);
-      }
-    }
-
-    // Filter out unused passes and sort by highlighted creator
-    return passes
-      .filter(pass => usedPasses.has(pass._id))
-      .sort((a, b) => {
-        if (highlightedCreator) {
-          if (a.creatorAddress === highlightedCreator && b.creatorAddress !== highlightedCreator) return -1;
-          if (b.creatorAddress === highlightedCreator && a.creatorAddress !== highlightedCreator) return 1;
-        }
-        return 0;
-      });
-  };
-
   useEffect(() => {
     const fetchPassesAndOwnership = async () => {
       try {
         setLoading(true);
-        const [passesRes, userPassesRes] = await Promise.all([
-          fetch('/api/passes'),
-          fetch(`/api/passholders/check/${localStorage.getItem('address')}`)
-        ]);
-
+        const userAddress = localStorage.getItem('address');
+        
+        // First fetch all passes
+        const passesRes = await fetch('/api/passes');
         const passesData = await passesRes.json();
-        const userPassesData = await userPassesRes.json();
 
         if (passesData.passes) {
-          const filteredAndSortedPasses = await sortAndFilterPasses(
-            passesData.passes, 
-            sessionStorage.getItem('highlightCreator')
-          );
-          setPasses(filteredAndSortedPasses);
-
+          setPasses(passesData.passes);
+          
           // Initialize minting states
-          const states = filteredAndSortedPasses.reduce((acc: any, pass: Pass) => {
+          const states = passesData.passes.reduce((acc: any, pass: Pass) => {
             acc[pass._id] = false;
             return acc;
           }, {});
           setMintingStates(states);
-        }
 
-        // Set owned passes
-        if (userPassesData.passes) {
-          setOwnedPasses(new Set(userPassesData.passes.map((pass: Pass) => pass._id)));
-        }
+          // Then check ownership for each pass if user is connected
+          if (userAddress) {
+            const ownershipChecks = await Promise.all(
+              passesData.passes.map(async (pass: Pass) => {
+                const res = await fetch(`/api/passholders/check/${pass.creatorAddress}?address=${userAddress}`);
+                const data = await res.json();
+                return { passId: pass._id, ownedPasses: data.ownedPasses || [] };
+              })
+            );
 
-        sessionStorage.removeItem('highlightCreator');
+            // Combine all owned passes into a single set
+            const allOwnedPasses = new Set(
+              ownershipChecks.flatMap(check => check.ownedPasses)
+            );
+            setOwnedPasses(allOwnedPasses);
+          }
+        }
       } catch (error) {
         console.error('Error fetching passes:', error);
       } finally {
@@ -195,29 +166,33 @@ const PassesPage = () => {
 
   useEffect(() => {
     const checkOwnedPasses = async () => {
-      const address = localStorage.getItem('address');
-      if (!address) {
+      const userAddress = localStorage.getItem('address');
+      if (!userAddress || !passes.length) {
         setOwnedPasses(new Set());
         return;
       }
-  
+
       try {
-        const res = await fetch(`/api/passholders/check/${address}`);
-        const data = await res.json();
-        if (data.passes) {
-          // Create a Set with explicit string type and ensure proper type casting
-          const ownedPassIds = new Set<string>(data.passes.map((pass: Pass) => String(pass._id)));
-          console.log('Owned passes:', ownedPassIds);
-          setOwnedPasses(ownedPassIds);
-        }
+        const ownershipChecks = await Promise.all(
+          passes.map(async (pass) => {
+            const res = await fetch(`/api/passholders/check/${pass.creatorAddress}?address=${userAddress}`);
+            const data = await res.json();
+            return { passId: pass._id, ownedPasses: data.ownedPasses || [] };
+          })
+        );
+
+        const allOwnedPasses = new Set(
+          ownershipChecks.flatMap(check => check.ownedPasses)
+        );
+        setOwnedPasses(allOwnedPasses);
       } catch (error) {
         console.error('Error checking owned passes:', error);
-        setOwnedPasses(new Set<string>());
+        setOwnedPasses(new Set());
       }
     };
-  
+
     checkOwnedPasses();
-  }, [address]);
+  }, [address, passes]);
 
   const totalPasses = passes.length;
   const totalPages = Math.ceil(totalPasses / PASSES_PER_PAGE);
