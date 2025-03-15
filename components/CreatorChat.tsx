@@ -572,7 +572,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         }}
       >
         {/* Header */}
-        <div className="bg-purple-900 p-4 mb-5 flex items-center justify-between">
+        <div className="md:bg-purple-900 bg-gray-800 p-4 mb-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
               src={creatorProfile.profileImage || '/empProfile.png'}

@@ -96,6 +96,26 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                 </div>
 
                 <div className="h-[calc(75vh-180px)] overflow-y-auto p-4 space-y-4">
+                    {imagePreview && (
+                        <div className="relative w-full max-w-[200px] mb-3">
+                            <div className="relative w-[200px] h-[200px]">
+                                <Image
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    fill
+                                    className="rounded-lg object-cover"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={removeImage}
+                                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 font-bold w-6 h-6 flex items-center justify-center"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    )}
+
                     {post.comments && post.comments.length > 0 ? (
                         post.comments.map((comment) => (
                             <CommentItem 
