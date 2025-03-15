@@ -19,6 +19,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,6 +48,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                 const data = await res.json();
                 setSelectedImage(file);
                 setImagePreview(URL.createObjectURL(file));
+                setUploadedImageUrl(data.url); // Store the uploaded URL
             } catch (error) {
                 console.error('Error uploading image:', error);
                 alert('Failed to upload image. Please try again.');
@@ -57,6 +59,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
     const removeImage = () => {
         setSelectedImage(null);
         setImagePreview(null);
+        setUploadedImageUrl(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -68,32 +71,8 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
 
         setIsSubmitting(true);
         try {
-            let imageUrl = '';
-            if (selectedImage) {
-                const reader = new FileReader();
-                reader.readAsDataURL(selectedImage);
-                
-                const base64data = await new Promise((resolve) => {
-                    reader.onloadend = () => resolve(reader.result);
-                });
-
-                const res = await fetch("/api/imageApi", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ data: base64data }),
-                });
-
-                if (!res.ok) {
-                    throw new Error(`Upload failed: ${res.status}`);
-                }
-
-                const data = await res.json();
-                imageUrl = data.url;
-            }
-
-            await onComment(post._id, newComment.trim(), imageUrl);
+            // Use the already uploaded image URL
+            await onComment(post._id, newComment.trim(), uploadedImageUrl || undefined);
             
             setNewComment('');
             removeImage();
