@@ -67,3 +67,44 @@ export async function GET(request) {
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
+
+export async function PUT(request) {
+    try {
+        await connectDB();
+        const { address, metricType, value, action } = await request.json();
+
+        if (!address || !metricType) {
+            return NextResponse.json({ message: 'Address and metric type are required' }, { status: 400 });
+        }
+
+        const profile = await Profile.findOne({ address });
+        if (!profile) {
+            return NextResponse.json({ message: 'Profile not found' }, { status: 404 });
+        }
+
+        switch (metricType) {
+            case 'passesOwned':
+                await profile.updatePassesOwned(value);
+                break;
+            case 'revenue':
+                await profile.addRevenue(value);
+                break;
+            case 'crtp':
+                await profile.updateCRTP(action); // 'like' or 'unlike'
+                break;
+            case 'totalPasses':
+                await profile.updateTotalPasses(value);
+                break;
+            default:
+                return NextResponse.json({ message: 'Invalid metric type' }, { status: 400 });
+        }
+
+        return NextResponse.json({ 
+            message: 'Metrics updated',
+            profile
+        });
+    } catch (error) {
+        console.error('Update metrics error:', error);
+        return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+}

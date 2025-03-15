@@ -53,6 +53,14 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Add new state for metrics
+  const [metrics, setMetrics] = useState({
+    passesOwned: 0,
+    revenueGenerated: 0,
+    crtpPoints: 0,
+    totalPasses: 0
+  });
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -64,6 +72,13 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
 
         if (data.profile) {
           setProfile(data.profile);
+          // Set metrics from profile data
+          setMetrics(data.profile.metrics || {
+            passesOwned: 0,
+            revenueGenerated: 0,
+            crtpPoints: 0,
+            totalPasses: 0
+          });
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -200,6 +215,10 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
     setShowPassModal(true);
   };
 
+  const formatSOL = (lamports: number) => {
+    return (lamports / 1000000000).toFixed(2);
+  };
+
   return (
     <div className='bg-black min-h-screen pb-[100px] md:pb-4'>
       {/* NFT Toast */}
@@ -274,18 +293,21 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                     {
                       title: 'Total Passes',
                       description: 'Track your NFT pass sales',
+                      value: metrics.totalPasses,
                       icon: <SiSolana className='text-purple-500 text-2xl' />,
                       bgColor: 'bg-purple-500/20'
                     },
                     {
                       title: 'Revenue',
                       description: 'Monitor your earnings',
+                      value: `${formatSOL(metrics.revenueGenerated)} SOL`,
                       icon: <SiSolana className='text-green-500 text-2xl' />,
                       bgColor: 'bg-green-500/20'
                     },
                     {
                       title: 'Total CRTP',
                       description: 'Your Creator Reputation Points',
+                      value: metrics.crtpPoints,
                       icon: <SiSolana className='text-blue-500 text-2xl' />,
                       bgColor: 'bg-blue-800/20'
                     }
@@ -295,7 +317,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                         <div className={`${stat.bgColor} p-3 rounded-lg`}>
                           {stat.icon}
                         </div>
-                        <span className='text-gray-400 text-sm'>$300</span>
+                        <span className='text-gray-400 text-sm'>{stat.value}</span>
                       </div>
                       <h3 className='text-white text-lg font-semibold'>{stat.title}</h3>
                       <p className='text-gray-400 text-sm mt-2'>{stat.description}</p>
