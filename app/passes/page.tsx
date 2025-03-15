@@ -109,23 +109,35 @@ const PassesPage = () => {
   };
 
   useEffect(() => {
-    const fetchPasses = async () => {
+    const fetchPassesAndOwnership = async () => {
       try {
-        const highlightedCreator = sessionStorage.getItem('highlightCreator');
-        const res = await fetch('/api/passes');
-        const data = await res.json();
-        
-        if (data.passes) {
-          // Filter and sort passes based on usage
-          const filteredAndSortedPasses = await sortAndFilterPasses(data.passes, highlightedCreator);
+        setLoading(true);
+        const [passesRes, userPassesRes] = await Promise.all([
+          fetch('/api/passes'),
+          fetch(`/api/passholders/check/${localStorage.getItem('address')}`)
+        ]);
+
+        const passesData = await passesRes.json();
+        const userPassesData = await userPassesRes.json();
+
+        if (passesData.passes) {
+          const filteredAndSortedPasses = await sortAndFilterPasses(
+            passesData.passes, 
+            sessionStorage.getItem('highlightCreator')
+          );
           setPasses(filteredAndSortedPasses);
 
-          // Initialize minting states for filtered passes
+          // Initialize minting states
           const states = filteredAndSortedPasses.reduce((acc: any, pass: Pass) => {
             acc[pass._id] = false;
             return acc;
           }, {});
           setMintingStates(states);
+        }
+
+        // Set owned passes
+        if (userPassesData.passes) {
+          setOwnedPasses(new Set(userPassesData.passes.map((pass: Pass) => pass._id)));
         }
 
         sessionStorage.removeItem('highlightCreator');
@@ -136,16 +148,22 @@ const PassesPage = () => {
       }
     };
 
-    fetchPasses();
-
-    // Show swipe toast on mobile devices
-    if (window.innerWidth <= 768) {
-      setShowSwipeModal(true);
-      setTimeout(() => {
-        setShowSwipeModal(false);
-      }, 8000);
+    if (isConnected) {
+      fetchPassesAndOwnership();
+    } else {
+      // If not connected, just fetch passes without ownership check
+      fetch('/api/passes')
+        .then(res => res.json())
+        .then(data => {
+          if (data.passes) {
+            setPasses(data.passes);
+            setOwnedPasses(new Set());
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
     }
-  }, []);
+  }, [isConnected]);
 
   useEffect(() => {
     const fetchPlatformAddress = async () => {
@@ -582,7 +600,7 @@ const PassesPage = () => {
         disabled={mintingStates[pass._id] || isOwned}
         className={`w-full py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 
           ${isOwned 
-            ? 'bg-gray-600 text-gray-300' 
+            ? 'bg-gray-800 text-gray-400 cursor-not-allowed' 
             : 'bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white'
           } disabled:opacity-50`}
       >
@@ -610,7 +628,7 @@ const PassesPage = () => {
       <NavBar />
       
       {/* Hero Section */}
-      <div className='container mx-auto mt-14 mb-10 px-4 pt-20'>
+      <div className='container mx-auto mt-14 mb-20 px-4 pt-20'>
         <div className='max-w-4xl mx-auto text-center space-y-6'>
           <div className='md:w-[350px] w-[90vw] mx-auto bg-[#080e0e] rounded-xl p-4 border border-gray-800'>
             <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>

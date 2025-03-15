@@ -557,6 +557,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 return;
             }
 
+            // Only check permission when sending, not for viewing
             if (!userPermissions.funForumAccess) {
                 setToast({
                     show: true,
@@ -782,6 +783,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 onSendChat={handleSendFunChat}
                 profileUsername={profile?.username}
                 creatorId={id}
+                disabled={!userPermissions.funForumAccess}
                 restrictionMessage={!userPermissions.funForumAccess ? "Group chat is for only tier pass holders" : ""}
             />
 

@@ -642,7 +642,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <form 
           ref={formRef}
           onSubmit={sendMessage} 
-          className={`p-4 bg-[#232629] transition-all duration-300 ${
+          className={`p-4 bg-[#232629] md:rounded-bl-xl transition-all duration-300 ${
             isKeyboardVisible ? 'fixed bottom-0 left-0 right-0 md:relative z-50' : ''
           }`}
           style={{
