@@ -62,6 +62,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [showEmoji, setShowEmoji] = useState(false);
     const emojiRef = useRef<HTMLDivElement>(null);
     const emojiButtonRef = useRef<HTMLButtonElement>(null);
+    const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -222,9 +223,23 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        // Check file size (80MB limit)
+        if (file.size > 80 * 1024 * 1024) {
+            setToast({
+                show: true,
+                message: 'File size must be less than 80MB',
+                type: 'error'
+            });
+            return;
+        }
+
+        // Determine media type
+        const type = file.type.startsWith('video/') ? 'video' : 'image';
+        setMediaType(type);
 
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -239,7 +254,10 @@ const Content = ({ setToast }: ContentProps) => {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ data: base64data }),
+                    body: JSON.stringify({ 
+                        data: base64data,
+                        mediaType: type 
+                    }),
                 });
 
                 if (!res.ok) {
@@ -250,24 +268,15 @@ const Content = ({ setToast }: ContentProps) => {
                 setimage(data.url);
                 setSelectedImage(URL.createObjectURL(file));
             } catch (error) {
-                console.error('Error uploading image:', error);
+                console.error('Error uploading media:', error);
                 setToast({
                     show: true,
-                    message: 'Failed to upload image. Please try again.',
+                    message: 'Failed to upload media. Please try again.',
                     type: 'error'
                 });
             } finally {
                 setLoading(false);
             }
-        };
-
-        reader.onerror = () => {
-            setToast({
-                show: true,
-                message: 'Error reading file. Please try again.',
-                type: 'error'
-            });
-            setLoading(false);
         };
     };
 
@@ -310,7 +319,8 @@ const Content = ({ setToast }: ContentProps) => {
                 comments: [],
                 likes: [],
                 likeCount: 0,
-                creatorAddress: myAddress
+                creatorAddress: myAddress,
+                mediaType: image ? mediaType : undefined,
             };
 
             console.log('Frontend - Complete postData being sent:', JSON.stringify(postData, null, 2));
@@ -587,16 +597,6 @@ const Content = ({ setToast }: ContentProps) => {
         <div className='min-h-screen bg-black px-4 py-8'>
             <div className='max-w-4xl mx-auto'>
                 {/* Header Section */}
-                <div className='mb-10'>
-                    <button
-                        onClick={() => setShowUploader(true)}
-                        className='w-full max-w-md mx-auto flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-lg shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300'
-                    >
-                        <MdAddCircle className="text-2xl" />
-                        <span className="font-medium text-md">Create New Post</span>
-                    </button>
-                </div>
-
                 {/* Posts Section */}
                 {isLoadingPosts ? (
                     <div className='flex justify-center items-center py-20'>
@@ -743,7 +743,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 const input = document.createElement('input');
                                                 input.type = 'file';
                                                 input.files = e.dataTransfer.files;
-                                                handleImageChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
+                                                handleMediaChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
                                             }
                                         }}
                                     >
@@ -784,7 +784,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                     id="image-upload"
                                                     className='hidden'
                                                     accept="image/*"
-                                                    onChange={handleImageChange}
+                                                    onChange={handleMediaChange}
                                                 />
                                             </label>
                                         )}

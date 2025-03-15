@@ -9,6 +9,8 @@ import { useState, useRef, useEffect } from 'react';
 import { IoMdMail } from "react-icons/io";
 import Image from 'next/image';
 import { ChatHistoryItem } from '@/types/chat'; // Add this type to your project if not exists
+import { getDatabase, ref, onValue } from 'firebase/database';
+import { app } from '../utils/firebase'; // Make sure to import your Firebase app
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -37,25 +39,35 @@ const MobileNav = () => {
   }, []);
 
   useEffect(() => {
-    const fetchPersonalChats = async () => {
-      const address = localStorage.getItem('address');
-      if (!address) return;
+    const address = localStorage.getItem('address');
+    if (!address) return;
 
-      setIsLoadingPersonalChats(true);
-      try {
-        const res = await fetch(`/api/chat-history?address=${address}`);
-        const data = await res.json();
-        if (data.chatHistory) {
-          setPersonalChats(data.chatHistory);
-        }
-      } catch (error) {
-        console.error('Error fetching chats:', error);
-      } finally {
-        setIsLoadingPersonalChats(false);
+    const db = getDatabase(app);
+    const chatHistoryRef = ref(db, 'chatHistory');
+    
+    const unsubscribe = onValue(chatHistoryRef, (snapshot) => {
+      const chatHistory = snapshot.val();
+      if (chatHistory) {
+        const personalChatsArray = Object.entries(chatHistory)
+          .filter(([chatId]) => {
+            const [addr1, addr2] = chatId.split('-');
+            return addr1 === address || addr2 === address;
+          })
+          .map(([chatId, data]: [string, any]) => ({
+            id: chatId,
+            recipientAddress: data.recipientAddress,
+            username: data.username,
+            profileImage: data.profileImage,
+            lastMessage: data.lastMessage,
+            timestamp: data.timestamp
+          }))
+          .sort((a, b) => b.timestamp - a.timestamp);
+
+        setPersonalChats(personalChatsArray);
       }
-    };
+    });
 
-    fetchPersonalChats();
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {

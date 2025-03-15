@@ -12,6 +12,7 @@ interface CreatorFunChatProps {
     onSendChat: (message: string) => Promise<void>;
     profileUsername?: string;
     creatorId: string; // Add this
+    disabled?: boolean;
 }
 
 const CreatorFunChat = ({ 
@@ -20,7 +21,8 @@ const CreatorFunChat = ({
     funChats: initialFunChats, 
     onSendChat,
     profileUsername,
-    creatorId 
+    creatorId,
+    disabled = true
 }: CreatorFunChatProps) => {
     const [funChatMessage, setFunChatMessage] = useState('');
     const [funChats, setFunChats] = useState(initialFunChats);
@@ -150,8 +152,11 @@ const CreatorFunChat = ({
                             type="text"
                             value={funChatMessage}
                             onChange={(e) => setFunChatMessage(e.target.value)}
-                            placeholder="Type your message..."
-                            className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50"
+                            placeholder={disabled ? "Get a pass to unlock chat" : "Type your message..."}
+                            className={`w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50 ${
+                                disabled ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                            disabled={disabled}
                         />
                     </form>
                 </div>

@@ -15,8 +15,8 @@ import { motion } from "framer-motion";
 import { IoSend } from "react-icons/io5";
 import { TbWorldCheck } from "react-icons/tb";
 import Toast from '@/components/Toast';
-import { getDatabase, ref, onValue, query, orderByChild, get } from 'firebase/database';
-import { app as firebaseApp } from '@/utils/firebase';
+import { getDatabase, ref, push, onValue, query, orderByChild } from 'firebase/database';
+import { app } from '@/utils/firebase';
 
 interface AccessCardProps {
     image: string;
@@ -31,10 +31,11 @@ interface FeatureCardProps {
 }
 
 interface WorldChat {
+    id: string; // Add this
     address: string;
     message: string;
     profileImage: string;
-    timestamp: string;
+    timestamp: number; // Change to number
     country?: string;
     username?: string; // Add username to interface
 }
@@ -149,6 +150,31 @@ const Page = () => {
         };
     }, []); // Empty dependency array since we only want this to run once
 
+    // Update useEffect for realtime chat
+    useEffect(() => {
+        const database = getDatabase(app);
+        const worldChatRef = ref(database, 'worldChat');
+        const chatQuery = query(worldChatRef, orderByChild('timestamp'));
+
+        const unsubscribe = onValue(chatQuery, (snapshot) => {
+            const messages: WorldChat[] = [];
+            snapshot.forEach((childSnapshot) => {
+                messages.push({
+                    id: childSnapshot.key as string,
+                    ...childSnapshot.val()
+                });
+            });
+            setChats(messages);
+
+            // Scroll to bottom
+            if (chatRef.current) {
+                chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!message.trim()) return;
@@ -169,22 +195,21 @@ const Page = () => {
                 return;
             }
 
-            const response = await fetch('/api/worldchat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address, message: message.trim() })
-            });
+            const database = getDatabase(app);
+            const worldChatRef = ref(database, 'worldChat');
 
-            const data = await response.json();
+            // Use the profile data from the API
+            const messageData = {
+                message: message.trim(),
+                address,
+                username: profileData.profile.username,
+                profileImage: profileData.profile.profileImage || '/empProfile.png',
+                timestamp: Date.now()
+            };
 
-            if (!response.ok) {
-                setErrorMessage(data.error);
-                return;
-            }
-
-            setChats(prevChats => [...prevChats, data.chat]);
+            await push(worldChatRef, messageData);
             setMessage('');
-            setErrorMessage(''); // Clear error message on success
+            setErrorMessage('');
         } catch (error) {
             console.error('Error sending message:', error);
             setErrorMessage('Failed to send message');
@@ -232,6 +257,34 @@ const Page = () => {
             />
         );
     };
+
+    const renderMessages = () => (
+        <div
+            ref={chatRef}
+            className='h-[400px] overflow-y-auto mb-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent'
+        >
+            {chats.map((chat) => (
+                <div key={chat.id} className='flex items-start gap-3'>
+                    <Image
+                        src={chat.profileImage || '/empProfile.png'}
+                        alt='Profile'
+                        width={35}
+                        height={35}
+                        className='rounded-full object-cover w-[40px] h-[40px]'
+                    />
+                    <div>
+                        <p className='text-purple-100 text-sm'>
+                            {chat.username || 'Anonymous'}
+                        </p>
+                        {renderChatMessage(chat.message)}
+                        <p className='text-gray-500 text-[0.7rem] mt-1'>
+                            {new Date(chat.timestamp).toLocaleString()}
+                        </p>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 
     return (
         <div className='min-h-screen bg-black'>
@@ -423,31 +476,7 @@ const Page = () => {
                             {/* <p className='text-gray-400 text-sm'>All Countries</p> */}
                         </div>
 
-                        <div
-                            ref={chatRef}
-                            className='h-[400px] overflow-y-auto mb-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent'
-                        >
-                            {chats.map((chat, index) => (
-                                <div key={index} className='flex items-start gap-3'>
-                                    <Image
-                                        src={chat.profileImage}
-                                        alt='Profile'
-                                        width={35}
-                                        height={35}
-                                        className='rounded-full object-cover w-[40px] h-[40px]'
-                                    />
-                                    <div>
-                                        <p className='text-purple-100 text-sm'>
-                                            {formatUserInfo(chat.username, chat.country)}
-                                        </p>
-                                        {renderChatMessage(chat.message)}
-                                        <p className='text-gray-500 text-[0.7rem] mt-1'>
-                                            {formatDate(chat.timestamp)}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        {renderMessages()}
 
                         <form onSubmit={handleSendMessage} className='flex flex-col gap-2'>
                             <div className='flex gap-2'>

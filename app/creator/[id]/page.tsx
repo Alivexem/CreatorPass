@@ -93,6 +93,12 @@ const CreatorPage = ({ params }: PageProps) => {
         message: '',
         availableTiers: []
     });
+    const [userPermissions, setUserPermissions] = useState({
+        funForumAccess: false,
+        likeCommentAccess: false,
+        downloadAccess: false,
+        giftAccess: false
+    });
 
     const { isConnected, address } = useAppKitAccount();
     const { connection } = useAppKitConnection();
@@ -273,6 +279,23 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     }, [id, isProfileFetched, profile?.username, userPasses]);
 
+    useEffect(() => {
+        // Combine permissions from all passes the user holds
+        const combinedPermissions = userPasses.reduce((acc, pass) => ({
+            funForumAccess: acc.funForumAccess || pass.rules.funForumAccess,
+            likeCommentAccess: acc.likeCommentAccess || pass.rules.likeCommentAccess,
+            downloadAccess: acc.downloadAccess || pass.rules.downloadAccess,
+            giftAccess: acc.giftAccess || pass.rules.giftAccess
+        }), {
+            funForumAccess: false,
+            likeCommentAccess: false,
+            downloadAccess: false,
+            giftAccess: false
+        });
+
+        setUserPermissions(combinedPermissions);
+    }, [userPasses]);
+
     const fetchPostComments = async (postId: string) => {
         try {
             const res = await fetch(`/api/posts/${postId}/comments`);
@@ -306,6 +329,14 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleLike = async (postId: string) => {
+        if (!userPermissions.likeCommentAccess) {
+            setToast({
+                show: true,
+                message: 'Sorry, you don\'t have permission to like posts',
+                type: 'error'
+            });
+            return;
+        }
         try {
             const address = localStorage.getItem('address');
             if (!address) return;
@@ -339,6 +370,14 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleComment = async (postId: string, comment: string, replyToId?: string): Promise<void> => {
+        if (!userPermissions.likeCommentAccess) {
+            setToast({
+                show: true,
+                message: 'Sorry, you don\'t have permission to comment',
+                type: 'error'
+            });
+            return;
+        }
         if (!comment.trim()) return;
 
         try {
@@ -494,6 +533,14 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleGift = () => {
+        if (!userPermissions.giftAccess) {
+            setToast({
+                show: true,
+                message: 'Sorry, you don\'t have permission to send gifts',
+                type: 'error'
+            });
+            return;
+        }
         open();
         setShowGiftModal(false);
     };
@@ -557,6 +604,14 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleDownload = async (imageUrl: string, postId: string) => {
+        if (!userPermissions.downloadAccess) {
+            setToast({
+                show: true,
+                message: 'Sorry, you don\'t have permission to download',
+                type: 'error'
+            });
+            return;
+        }
         try {
             const response = await fetch(imageUrl);
             const blob = await response.blob();
@@ -578,6 +633,14 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleCopy = (text: string, postId: string) => {
+        if (!userPermissions.downloadAccess) {
+            setToast({
+                show: true,
+                message: 'Sorry, you don\'t have permission to copy',
+                type: 'error'
+            });
+            return;
+        }
         navigator.clipboard.writeText(text);
         setCopiedStates(prev => ({ ...prev, [postId]: true }));
         setTimeout(() => {
@@ -650,6 +713,13 @@ const CreatorPage = ({ params }: PageProps) => {
                         downloadedStates={downloadedStates}
                         copiedStates={copiedStates}
                         date={post.timestamp} // Add this line
+                        disabled={{
+                            like: !userPermissions.likeCommentAccess,
+                            comment: !userPermissions.likeCommentAccess,
+                            download: !userPermissions.downloadAccess,
+                            copy: !userPermissions.downloadAccess,
+                            gift: !userPermissions.giftAccess
+                        }}
                     />
                 ))}
             </div>
@@ -695,14 +765,16 @@ const CreatorPage = ({ params }: PageProps) => {
                 </div>
             )}
 
-            <CreatorFunChat 
-                showFunChat={showFunChat}
-                setShowFunChat={setShowFunChat}
-                funChats={funChats}
-                onSendChat={handleSendFunChat}
-                profileUsername={profile?.username}
-                creatorId={id}
-            />
+            {userPermissions.funForumAccess && (
+                <CreatorFunChat 
+                    showFunChat={showFunChat}
+                    setShowFunChat={setShowFunChat}
+                    funChats={funChats}
+                    onSendChat={handleSendFunChat}
+                    profileUsername={profile?.username}
+                    creatorId={id}
+                />
+            )}
 
             {/* Profile Required Modal */}
             {showProfileModal && (
