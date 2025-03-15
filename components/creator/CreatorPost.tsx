@@ -171,7 +171,7 @@ const CreatorPost = ({
                 <button
                     onClick={() => !disabled.like && onLike()}
                     className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${
-                        disabled.like ? 'opacity-50 cursor-not-allowed' : ''
+                        post.tier !== 'Free' && disabled.like ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                 >
                     <IoHeartHalf
@@ -182,7 +182,7 @@ const CreatorPost = ({
                 <button
                     onClick={() => !disabled.comment && onComment()}
                     className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${
-                        disabled.comment ? 'opacity-50 cursor-not-allowed' : ''
+                        post.tier !== 'Free' && disabled.comment ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                 >
                     <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
@@ -191,7 +191,7 @@ const CreatorPost = ({
                 <button
                     onClick={onGift}
                     className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity ${
-                        post.tier !== 'Free' && disabled.gift ? 'opacity-50 cursor-not-allowed' : ''
+                        post.tier !== 'Free' && disabled.gift ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                     disabled={post.tier !== 'Free' && disabled.gift}
                 >
@@ -200,7 +200,7 @@ const CreatorPost = ({
                 <button
                     onClick={() => onCopy(post.note, post._id)}
                     className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${
-                        post.tier !== 'Free' && disabled.copy ? 'opacity-50 cursor-not-allowed' : ''
+                        post.tier !== 'Free' && disabled.copy ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                     disabled={post.tier !== 'Free' && disabled.copy}
                 >
@@ -214,7 +214,7 @@ const CreatorPost = ({
                     <button
                         onClick={() => onDownload(post.image, post._id)}
                         className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${
-                            post.tier !== 'Free' && disabled.download ? 'opacity-50 cursor-not-allowed' : ''
+                            post.tier !== 'Free' && disabled.download ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                         }`}
                         disabled={post.tier !== 'Free' && disabled.download}
                     >
