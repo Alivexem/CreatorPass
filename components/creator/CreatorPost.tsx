@@ -169,23 +169,21 @@ const CreatorPost = ({
             {/* Actions */}
             <div className='mt-10 space-x-3 w-[100%] flex text-[0.8rem] md:[1rem] mb-5 px-10 justify-between items-center'>
                 <button
-                    onClick={onLike}
+                    onClick={() => !disabled.like && onLike()}
                     className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${
-                        post.tier !== 'Free' && disabled.like ? 'opacity-50 cursor-not-allowed' : ''
+                        disabled.like ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
-                    disabled={post.tier !== 'Free' && disabled.like}
                 >
                     <IoHeartHalf
                         className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${hasLiked ? 'text-purple-500' : ''}`}
                     />
-                    <p>{likes || post.likeCount || 0} likes</p>
+                    <p>{likes} likes</p>
                 </button>
                 <button
-                    onClick={onComment}
+                    onClick={() => !disabled.comment && onComment()}
                     className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${
-                        post.tier !== 'Free' && disabled.comment ? 'opacity-50 cursor-not-allowed' : ''
+                        disabled.comment ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
-                    disabled={post.tier !== 'Free' && disabled.comment}
                 >
                     <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
                     <p>{post.comments?.length || 0} comments</p>

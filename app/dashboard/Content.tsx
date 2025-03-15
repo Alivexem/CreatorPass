@@ -818,7 +818,7 @@ const Content = ({ setToast }: ContentProps) => {
                                     {loading && (
                                         <div className='text-green-500 flex items-center gap-2'>
                                             <div className='animate-spin h-4 w-4 border-2 border-green-500 border-t-transparent rounded-full'></div>
-                                            Processing image...
+                                            Processing media...
                                         </div>
                                     )}
 
