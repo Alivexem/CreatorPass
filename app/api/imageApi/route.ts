@@ -2,22 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { UploadApiOptions } from 'cloudinary';
 
-// Configure body parser for Next.js
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '100mb' // Increase the size limit to handle larger files
-        }
-    }
-};
-
+// Remove the deprecated config export
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Add size limit using middleware pattern
 export async function POST(req: NextRequest) {
+    // Check content length
+    const contentLength = parseInt(req.headers.get('content-length') || '0');
+    if (contentLength > 100 * 1024 * 1024) { // 100MB limit
+        return NextResponse.json(
+            { error: 'File size too large' },
+            { status: 413 }
+        );
+    }
+
     try {
         const body = await req.json();
         const { data, mediaType } = body;
