@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
         const requestData = await request.json();
         console.log('Server - Received post data:', JSON.stringify(requestData, null, 2));
         
-        const { username, note, image, tier, timestamp } = requestData;
-        console.log('Server - Destructured tier:', tier); // Add this log
+        const { username, note, image, video, tier, mediaType, timestamp } = requestData;
+        console.log('Server - Destructured tier:', tier);
         
         if (!username || !note) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -19,7 +19,9 @@ export async function POST(request: NextRequest) {
             username,
             note,
             image: image || '',
-            tier: tier || 'Free', // Default to 'Free' if not specified
+            video: video || '',
+            mediaType: mediaType || 'image',
+            tier: tier || 'Free',
             createdAt: timestamp || new Date().toISOString(),
             likes: [],
             likeCount: 0,
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
         console.log('Server - Final post data before saving:', JSON.stringify(postData, null, 2));
 
         const post = new Creates(postData);
-        console.log('Server - Created model instance:', post); // Add this log
+        console.log('Server - Created model instance:', post);
         
         const savedPost = await post.save();
         console.log('Server - Saved post document:', JSON.stringify(savedPost.toObject(), null, 2));

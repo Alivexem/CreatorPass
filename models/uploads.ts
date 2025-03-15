@@ -4,6 +4,11 @@ const uploadsSchema = new mongoose.Schema({
     username: { type: String, required: true },
     note: { type: String, required: true },
     image: { type: String },
+    video: { type: String }, // Add video field
+    mediaType: { 
+        type: String,
+        enum: ['image', 'video'],
+    },
     tier: { 
         type: String, 
         enum: ['Free', 'Regular', 'Special', 'VIP'],

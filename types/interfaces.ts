@@ -14,12 +14,14 @@ export interface Post {
     _id: string;
     username: string;
     note: string;
-    image: string;
-    tier: 'Free' | 'Regular' | 'Special' | 'VIP';
+    image?: string;
+    video?: string;
+    mediaType?: 'image' | 'video';
+    tier: string;
     createdAt: string;
-    comments?: Comment[];
-    likes?: string[];
-    likeCount?: number;
+    comments: Comment[];
+    likes: string[];
+    likeCount: number;
     profileImage?: string;
 }
 
