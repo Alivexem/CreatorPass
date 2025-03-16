@@ -70,6 +70,7 @@ const Content = ({ setToast }: ContentProps) => {
     const emojiButtonRef = useRef<HTMLButtonElement>(null);
     const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [imageUrl, setImageUrl] = useState<string>('');
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -332,10 +333,19 @@ const Content = ({ setToast }: ContentProps) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!note || !userProfile) {
+        if (!note && !image) {
             setToast({
                 show: true,
-                message: !note ? 'Type a post before submitting!' : 'Please set up your profile first',
+                message: 'Please add some content (text or media) before submitting!',
+                type: 'warning'
+            });
+            return;
+        }
+
+        if (!userProfile) {
+            setToast({
+                show: true,
+                message: 'Please set up your profile first',
                 type: 'warning'
             });
             return;
@@ -465,7 +475,7 @@ const Content = ({ setToast }: ContentProps) => {
     };
 
     const handleComment = async (postId: string, comment: string, replyToId?: string): Promise<void> => {
-        if (!comment.trim() || !userProfile) return;
+        if ((!comment.trim() && !imageUrl) || !userProfile) return;
 
         try {
             const address = localStorage.getItem('address');
@@ -480,7 +490,6 @@ const Content = ({ setToast }: ContentProps) => {
 
             setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
 
-            // Update to match the creator page API route
             const res = await fetch(`/api/posts/${postId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -488,6 +497,7 @@ const Content = ({ setToast }: ContentProps) => {
                     action: 'comment',
                     address,
                     comment: comment.trim(),
+                    imageUrl,  // Now imageUrl is defined
                     replyToId,
                     username: userProfile.username,
                     profileImage: userProfile.profileImage
@@ -497,6 +507,9 @@ const Content = ({ setToast }: ContentProps) => {
             if (!res.ok) throw new Error('Failed to add comment');
             const data = await res.json();
 
+            // Reset imageUrl after successful comment
+            setImageUrl('');
+            
             // Update posts with new comments
             setPosts(prevPosts =>
                 prevPosts.map(post =>
