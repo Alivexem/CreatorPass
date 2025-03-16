@@ -122,7 +122,7 @@ export async function PUT(request, { params }) {
             const newComment = {
                 address,
                 comment,
-                imageUrl,  // Add the imageUrl to the comment object
+                imageUrl,  // Now properly included in the comment object
                 timestamp: new Date(),
                 likes: [],
                 likeCount: 0

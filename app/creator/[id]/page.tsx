@@ -363,9 +363,9 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
-    const handleComment = async (postId: string, comment: string, replyToId?: string): Promise<void> => {
-        if (!comment.trim()) return;
-
+    const handleComment = async (postId: string, comment: string, imageUrl?: string): Promise<void> => {
+        if (!comment.trim() && !imageUrl) return;
+    
         try {
             const address = localStorage.getItem('address');
             if (!address || !userProfile) {
@@ -376,10 +376,9 @@ const CreatorPage = ({ params }: PageProps) => {
                 });
                 return;
             }
-
+    
             setIsCommenting(prev => ({ ...prev, [postId]: true }));
-
-            // Update to match the API route - use PUT with action
+    
             const res = await fetch(`/api/posts/${postId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -387,15 +386,15 @@ const CreatorPage = ({ params }: PageProps) => {
                     action: 'comment',
                     address,
                     comment: comment.trim(),
-                    replyToId,
+                    imageUrl, // Include the imageUrl in the request
                     username: userProfile.username,
                     profileImage: userProfile.profileImage
                 })
             });
-
+    
             if (!res.ok) throw new Error('Failed to add comment');
             const data = await res.json();
-
+    
             // Update the posts state with the new comments
             setPosts(prevPosts =>
                 prevPosts.map(post =>
@@ -404,18 +403,18 @@ const CreatorPage = ({ params }: PageProps) => {
                         : post
                 )
             );
-
+    
             // Update selected post if modal is open
             if (selectedPost && selectedPost._id === postId) {
                 setSelectedPost(prev => prev ? { ...prev, comments: data.comments } : null);
             }
-
+    
             // Reset states
             setNewComment(prev => ({ ...prev, [postId]: '' }));
-            if (replyToId) {
+            if (replyTo) {
                 setReplyTo(null);
             }
-
+    
         } catch (error) {
             console.error('Error adding comment:', error);
             setToast({

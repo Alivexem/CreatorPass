@@ -67,15 +67,13 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Changed condition to allow image-only comments
         if ((!newComment.trim() && !uploadedImageUrl) || isSubmitting) return;
 
         setIsSubmitting(true);
         try {
-            // Send both comment text and image URL
             await onComment(
-                post._id, 
-                newComment.trim() || "", // Send empty string if no text
+                post._id,
+                newComment.trim(),
                 uploadedImageUrl || undefined
             );
             

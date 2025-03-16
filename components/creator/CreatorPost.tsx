@@ -156,6 +156,8 @@ const CreatorPost = ({
                                 src={post.video}
                                 className='w-full h-full rounded-lg object-contain'
                                 controls
+                                autoPlay
+                                muted
                                 controlsList='nodownload'
                                                             />
                         ) : post.image && (
