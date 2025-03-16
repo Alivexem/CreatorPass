@@ -17,7 +17,13 @@ export async function GET() {
             _id: 0
         });
 
-        return NextResponse.json({ profiles });
+        return NextResponse.json({ profiles }, {
+            headers: {
+                'Cache-Control': 'no-store, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
+        });
     } catch (error) {
         console.error('Get profiles error:', error);
         return NextResponse.json({ 
