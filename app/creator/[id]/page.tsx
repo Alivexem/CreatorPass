@@ -599,7 +599,8 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleDownload = async (imageUrl: string, postId: string) => {
-        if (!userPermissions.downloadAccess) {
+        const post = posts.find(p => p._id === postId);
+        if (post?.tier !== 'Free' && !userPermissions.downloadAccess) {
             setToast({
                 show: true,
                 message: 'Sorry, you don\'t have permission to download',
@@ -628,7 +629,8 @@ const CreatorPage = ({ params }: PageProps) => {
     };
 
     const handleCopy = (text: string, postId: string) => {
-        if (!userPermissions.downloadAccess) {
+        const post = posts.find(p => p._id === postId);
+        if (post?.tier !== 'Free' && !userPermissions.downloadAccess) {
             setToast({
                 show: true,
                 message: 'Sorry, you don\'t have permission to copy',
@@ -707,15 +709,15 @@ const CreatorPage = ({ params }: PageProps) => {
                         onDownload={handleDownload}
                         downloadedStates={downloadedStates}
                         copiedStates={copiedStates}
-                        date={post.createdAt} // Change this line
+                        date={post.createdAt}
                         disabled={{
-                            // For free tier posts, everything is enabled
+                            // Free tier posts are always accessible
                             // For other tiers, check user permissions
-                            like: post.tier !== 'Free' ? !userPermissions.likeCommentAccess : false,
-                            comment: post.tier !== 'Free' ? !userPermissions.likeCommentAccess : false,
-                            download: post.tier !== 'Free' ? !userPermissions.downloadAccess : false,
-                            copy: post.tier !== 'Free' ? !userPermissions.downloadAccess : false,
-                            gift: post.tier !== 'Free' ? !userPermissions.giftAccess : false
+                            like: post.tier !== 'Free' && !userPermissions.likeCommentAccess,
+                            comment: post.tier !== 'Free' && !userPermissions.likeCommentAccess,
+                            download: post.tier !== 'Free' && !userPermissions.downloadAccess,
+                            copy: post.tier !== 'Free' && !userPermissions.downloadAccess,
+                            gift: post.tier !== 'Free' && !userPermissions.giftAccess
                         }}
                     />
                 ))}

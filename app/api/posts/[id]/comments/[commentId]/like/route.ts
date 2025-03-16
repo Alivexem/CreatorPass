@@ -1,7 +1,7 @@
 // app/api/posts/[postId]/comments/[commentId]/like/route.ts
 import { NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
-import Post from '@/models/post';
+import Creates from '@/models/uploads';
 import mongoose from 'mongoose';
 
 export async function PUT(
@@ -14,18 +14,19 @@ export async function PUT(
     const { postId, commentId } = params;
     const { address } = await request.json();
 
-    // Validate ObjectId format
-    // if (!mongoose.Types.ObjectId.isValid(postId)) {
-    //   return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
-    // }
+    // Validate ObjectId format for both IDs
+    if (!mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(commentId)) {
+      return NextResponse.json({ error: 'Invalid post ID or comment ID' }, { status: 400 });
+    }
 
-    const post = await Post.findById(postId);
-    if (!post) {
+    // Find the post document by its ID
+    const targetPost = await Creates.findById(postId);
+    if (!targetPost) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
     // Find the comment in the comments array
-    const commentIndex = post.comments.findIndex(
+    const commentIndex = targetPost.comments.findIndex(
       (comment: any) => comment._id.toString() === commentId
     );
     
@@ -34,7 +35,7 @@ export async function PUT(
     }
 
     // Get the comment and initialize likes array if needed
-    const comment = post.comments[commentIndex];
+    const comment = targetPost.comments[commentIndex];
     if (!comment.likes) {
       comment.likes = [];
     }
@@ -50,8 +51,8 @@ export async function PUT(
     }
 
     // Update the comment in the array
-    post.comments[commentIndex] = comment;
-    await post.save();
+    targetPost.comments[commentIndex] = comment;
+    await targetPost.save();
 
     return NextResponse.json({
       success: true,
