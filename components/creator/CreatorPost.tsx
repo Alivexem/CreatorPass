@@ -144,7 +144,12 @@ const CreatorPost = ({
             {(post.image || post.video) && (
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
-                        className='relative md:h-[350px] h-[300px] w-[95%] mt-7'
+                        className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
+                        onClick={() => {
+                            if (post.image && !post.video) {
+                                onImageClick(post.image);
+                            }
+                        }}
                     >
                         {post.video ? (
                             <video
@@ -152,20 +157,15 @@ const CreatorPost = ({
                                 className='w-full h-full rounded-lg object-contain'
                                 controls
                                 controlsList='nodownload'
-                            />
+                                                            />
                         ) : post.image && (
-                            <div 
-                                className='cursor-pointer hover:opacity-90 transition-opacity'
-                                onClick={() => typeof post.image === 'string' && onImageClick(post.image)}
-                            >
-                                <Image
-                                    src={post.image}
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                    className='rounded-lg shadow-md'
-                                    alt='post media'
-                                />
-                            </div>
+                            <Image
+                                src={post.image}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                className='rounded-lg shadow-md'
+                                alt='post media'
+                            />
                         )}
                     </div>
                 </div>
