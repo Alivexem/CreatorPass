@@ -317,7 +317,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                         <div className={`${stat.bgColor} p-3 rounded-lg`}>
                           {stat.icon}
                         </div>
-                        <span className='text-gray-400 text-sm'>{stat.value}</span>
+                        <span className='text-gray-400 text-xl'>{stat.value}</span>
                       </div>
                       <h3 className='text-white text-lg font-semibold'>{stat.title}</h3>
                       <p className='text-gray-400 text-sm mt-2'>{stat.description}</p>

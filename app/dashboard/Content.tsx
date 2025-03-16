@@ -474,9 +474,16 @@ const Content = ({ setToast }: ContentProps) => {
         }
     };
 
-    const handleComment = async (postId: string, comment: string, replyToId?: string): Promise<void> => {
-        if ((!comment.trim() && !imageUrl) || !userProfile) return;
-
+    const handleComment = async (postId: string, comment: string, imageUrl?: string): Promise<void> => {
+        if ((!comment.trim() && !imageUrl) || !userProfile) {
+            setToast({
+                show: true,
+                message: 'Please connect your wallet and create a profile first',
+                type: 'error'
+            });
+            return;
+        }
+    
         try {
             const address = localStorage.getItem('address');
             if (!address) {
@@ -487,9 +494,7 @@ const Content = ({ setToast }: ContentProps) => {
                 });
                 return;
             }
-
-            setIsCommentLoading(prev => ({ ...prev, [postId]: true }));
-
+    
             const res = await fetch(`/api/posts/${postId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -497,19 +502,15 @@ const Content = ({ setToast }: ContentProps) => {
                     action: 'comment',
                     address,
                     comment: comment.trim(),
-                    imageUrl,  // Now imageUrl is defined
-                    replyToId,
+                    imageUrl, // Include imageUrl in the request
                     username: userProfile.username,
                     profileImage: userProfile.profileImage
                 })
             });
-
+    
             if (!res.ok) throw new Error('Failed to add comment');
             const data = await res.json();
-
-            // Reset imageUrl after successful comment
-            setImageUrl('');
-            
+    
             // Update posts with new comments
             setPosts(prevPosts =>
                 prevPosts.map(post =>
@@ -518,22 +519,19 @@ const Content = ({ setToast }: ContentProps) => {
                         : post
                 )
             );
-
+    
             // Update selected post if modal is open
             if (selectedPost && selectedPost._id === postId) {
                 setSelectedPost(prev => prev ? { ...prev, comments: data.comments } : null);
             }
-
-            setNewComment(prev => ({ ...prev, [postId]: '' }));
+    
         } catch (error) {
             console.error('Error adding comment:', error);
             setToast({
                 show: true,
-                message: 'Failed to add comment',
+                message: 'Failed to add comment. Please try again.',
                 type: 'error'
             });
-        } finally {
-            setIsCommentLoading(prev => ({ ...prev, [postId]: false }));
         }
     };
 

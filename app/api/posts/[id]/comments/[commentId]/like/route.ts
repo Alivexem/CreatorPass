@@ -15,9 +15,9 @@ export async function PUT(
     const { address } = await request.json();
 
     // Validate ObjectId format
-    if (!mongoose.Types.ObjectId.isValid(postId)) {
-      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
-    }
+    // if (!mongoose.Types.ObjectId.isValid(postId)) {
+    //   return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
+    // }
 
     const post = await Post.findById(postId);
     if (!post) {

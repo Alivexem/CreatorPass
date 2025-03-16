@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { IoHeart, IoHeartOutline } from "react-icons/io5";
+import { IoMdClose } from "react-icons/io";
 import { Comment, Profile } from '@/types/interfaces';
 
 interface CommentItemProps {
@@ -13,6 +14,7 @@ interface CommentItemProps {
 
 export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postId, userProfile }) => {
     const [commentProfile, setCommentProfile] = useState<Profile | null>(null);
+    const [showImagePreview, setShowImagePreview] = useState(false);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -96,7 +98,8 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
                                 alt="Comment image"
                                 width={300}
                                 height={200}
-                                className="rounded-lg object-cover"
+                                className="rounded-lg object-cover cursor-pointer"
+                                onClick={() => setShowImagePreview(true)}
                             />
                         </div>
                     )}
@@ -117,6 +120,27 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
                     </button>
                 </div>
             </div>
+
+            {/* Full screen image preview */}
+            {showImagePreview && comment.imageUrl && (
+                <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+                    <button 
+                        onClick={() => setShowImagePreview(false)}
+                        className="absolute top-4 right-4 text-white hover:text-gray-300"
+                    >
+                        <IoMdClose size={24} />
+                    </button>
+                    <div className="relative w-full h-full flex items-center justify-center p-4">
+                        <Image
+                            src={comment.imageUrl}
+                            alt="Full size preview"
+                            fill
+                            className="object-contain"
+                            onClick={() => setShowImagePreview(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
