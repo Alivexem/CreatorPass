@@ -111,7 +111,7 @@ const CreatorPost = ({
                             className='rounded-lg'
                         />
                     </div>
-                    <p className='text-[1.1rem] font-medium'>{profile?.username || 'Anonymous'}</p>
+                    <p className='text-[1rem] font-medium'>{profile?.username || 'Anonymous'}</p>
                 </div>
                 <div className='flex items-center gap-x-2'>
                 <div className='flex items-center gap-x-2'>
@@ -186,7 +186,7 @@ const CreatorPost = ({
                     <IoHeartHalf
                         className={`text-[1rem] md:text-[1.7rem] transition-colors ${hasLiked ? 'text-purple-500' : ''}`}
                     />
-                    <p className='text-gray-300 text-[0.7rem]'>{likes} likes</p>
+                    <p className='text-[0.8rem]'>{likes} likes</p>
                 </button>
                 <button
                     onClick={() => !disabled.comment && onComment()}
@@ -195,7 +195,7 @@ const CreatorPost = ({
                     }`}
                 >
                     <MdInsertComment  className='text-[1rem] md:text-[1.7rem]' />
-                    <p className='text-gray-300 text-[0.7rem]'>{post.comments?.length || 0} comments</p>
+                    <p className='text-[0.8rem]'>{post.comments?.length || 0} comments</p>
                 </button>
                 <button
                     onClick={onGift}
