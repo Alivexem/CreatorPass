@@ -618,7 +618,41 @@ const Content = ({ setToast }: ContentProps) => {
             });
 
             if (!res.ok) throw new Error('Failed to like comment');
-            // await updatePostComments(postId);
+            
+            const data = await res.json();
+
+            // Update the comments in both posts and selectedPost states
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post._id === postId ? {
+                        ...post,
+                        comments: post.comments?.map(comment =>
+                            comment._id === commentId ? {
+                                ...comment,
+                                likeCount: data.likeCount,
+                                likes: data.liked ? 
+                                    [...(comment.likes || []), address] :
+                                    (comment.likes || []).filter(like => like !== address)
+                            } : comment
+                        )
+                    } : post
+                )
+            );
+
+            if (selectedPost && selectedPost._id === postId) {
+                setSelectedPost(prev => prev ? {
+                    ...prev,
+                    comments: prev.comments?.map(comment =>
+                        comment._id === commentId ? {
+                            ...comment,
+                            likeCount: data.likeCount,
+                            likes: data.liked ? 
+                                [...(comment.likes || []), address] :
+                                (comment.likes || []).filter(like => like !== address)
+                        } : comment
+                    )
+                } : null);
+            }
 
         } catch (error) {
             console.error('Error liking comment:', error);
