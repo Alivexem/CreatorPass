@@ -54,23 +54,20 @@ export async function GET(request: NextRequest) {
         await connectDB();
         const posts = await Creates.find().sort({ createdAt: -1 });
         
-        return new NextResponse(JSON.stringify({ creator: posts }), {
+        return NextResponse.json({ creator: posts }, {
             headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Cache-Control': 'no-store, must-revalidate, proxy-revalidate',
                 'Pragma': 'no-cache',
                 'Expires': '0',
             }
         });
     } catch (error: any) {
-        console.error('Get posts error:', error);
-        return new NextResponse(JSON.stringify({ 
+        return NextResponse.json({ 
             message: error.message || 'An error occurred'
-        }), {
+        }, {
             status: 500,
             headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Cache-Control': 'no-store, must-revalidate, proxy-revalidate',
                 'Pragma': 'no-cache',
                 'Expires': '0',
             }
