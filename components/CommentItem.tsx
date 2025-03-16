@@ -18,6 +18,12 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
     const [localLikeCount, setLocalLikeCount] = useState(comment.likeCount || 0);
     const [hasLiked, setHasLiked] = useState(userProfile && comment.likes?.includes(userProfile.address));
 
+    // Update local state when comment data changes
+    useEffect(() => {
+        setLocalLikeCount(comment.likeCount || 0);
+        setHasLiked(userProfile && comment.likes?.includes(userProfile.address));
+    }, [comment.likeCount, comment.likes, userProfile]);
+
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
@@ -68,19 +74,18 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
     
     const handleLike = async () => {
         try {
-            const currentHasLiked = hasLiked;
-            // Optimistic update
-            setHasLiked(!currentHasLiked);
-            setLocalLikeCount(prev => currentHasLiked ? prev - 1 : prev + 1);
-
             await onLike(postId, comment._id);
+            // No need for optimistic updates since we'll use the server response
         } catch (error) {
-            // Revert on error
-            setHasLiked(hasLiked);
-            setLocalLikeCount(comment.likeCount || 0);
             console.error('Error liking comment:', error);
         }
     };
+
+    // Add an effect to update the like state when comment changes
+    useEffect(() => {
+        setLocalLikeCount(comment.likeCount || 0);
+        setHasLiked(userProfile && comment.likes?.includes(userProfile.address));
+    }, [comment, userProfile]);
 
     return (
         <div className="flex gap-3">
