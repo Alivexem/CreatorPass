@@ -15,6 +15,8 @@ interface CommentItemProps {
 export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postId, userProfile }) => {
     const [commentProfile, setCommentProfile] = useState<Profile | null>(null);
     const [showImagePreview, setShowImagePreview] = useState(false);
+    const [localLikeCount, setLocalLikeCount] = useState(comment.likeCount || 0);
+    const [hasLiked, setHasLiked] = useState(userProfile && comment.likes?.includes(userProfile.address));
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -64,6 +66,22 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
         );
     };
     
+    const handleLike = async () => {
+        try {
+            const currentHasLiked = hasLiked;
+            // Optimistic update
+            setHasLiked(!currentHasLiked);
+            setLocalLikeCount(prev => currentHasLiked ? prev - 1 : prev + 1);
+
+            await onLike(postId, comment._id);
+        } catch (error) {
+            // Revert on error
+            setHasLiked(hasLiked);
+            setLocalLikeCount(comment.likeCount || 0);
+            console.error('Error liking comment:', error);
+        }
+    };
+
     return (
         <div className="flex gap-3">
             <div className="relative h-8 w-8 flex-shrink-0">
@@ -108,15 +126,15 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
                 
                 <div className="flex gap-4 mt-2">
                     <button
-                        onClick={() => onLike(postId, comment._id)}
+                        onClick={handleLike}
                         className="text-gray-400 hover:text-white flex items-center gap-1"
                     >
-                        {userProfile && comment.likes?.includes(userProfile.address) ? (
+                        {hasLiked ? (
                             <IoHeart className="text-pink-700" size={18} />
                         ) : (
                             <IoHeartOutline size={18} />
                         )}
-                        <span className="text-sm">{comment.likeCount || 0}</span>
+                        <span className="text-sm">{localLikeCount}</span>
                     </button>
                 </div>
             </div>

@@ -26,6 +26,7 @@ interface PostCardProps {
     isCommentLoading: boolean;
     censorAddress: (address: string) => string;
     onImageClick: (imageUrl: string) => void;
+    onComment: () => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
@@ -150,6 +151,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                 </button>
                 <button
                     className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
+                    onClick={props.onComment}
                 >
                     <MdInsertComment className='text-[1rem] md:text-[1.7rem]' />
                     <p className='text-gray-300 text-[0.7rem]'>{post.comments?.length || 0} comments</p>
