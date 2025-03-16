@@ -54,11 +54,11 @@ export async function PUT(
     targetPost.comments[commentIndex] = comment;
     await targetPost.save();
 
+    // Update the response to be more concise
     return NextResponse.json({
       success: true,
-      liked: !hasLiked,
       likeCount: comment.likeCount,
-      commentId: commentId
+      liked: !hasLiked
     });
 
   } catch (error) {

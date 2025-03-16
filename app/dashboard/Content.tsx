@@ -565,27 +565,39 @@ const Content = ({ setToast }: ContentProps) => {
     //     }
     // };
 
-    // const handleCommentClick = async (post: Post) => {
-    //     try {
-    //         setSelectedPost({...post});
-    //         setShowCommentModal(true);
-            
-    //         const comments = await fetchPostComments(post._id);
-    //         if (!showCommentModal) return;
+    const fetchPostComments = async (postId: string) => {
+        try {
+            const res = await fetch(`/api/posts/${postId}/comments`);
+            if (!res.ok) throw new Error('Failed to fetch comments');
+            const data = await res.json();
+            return data.comments || [];
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            return [];
+        }
+    };
 
-    //         setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments } : prev);
-    //         setPosts(prevPosts =>
-    //             prevPosts.map(p => p._id === post._id ? { ...p, comments } : p)
-    //         );
-    //     } catch (error) {
-    //         console.error('Error fetching comments:', error);
-    //         setToast({
-    //             show: true,
-    //             message: 'Failed to load comments. Please try again.',
-    //             type: 'error'
-    //         });
-    //     }
-    // };
+    const handleCommentClick = async (post: Post) => {
+        try {
+            setSelectedPost({...post});
+            setShowCommentModal(true);
+            
+            const comments = await fetchPostComments(post._id);
+            if (!showCommentModal) return;
+
+            setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments } : prev);
+            setPosts(prevPosts =>
+                prevPosts.map(p => p._id === post._id ? { ...p, comments } : p)
+            );
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            setToast({
+                show: true,
+                message: 'Failed to load comments. Please try again.',
+                type: 'error'
+            });
+        }
+    };
 
     const handleCommentLike = async (postId: string, commentId: string) => {
         try {
@@ -697,7 +709,7 @@ const Content = ({ setToast }: ContentProps) => {
                                 showComments={showComments[post._id]}
                                 onLike={() => handleLike(post._id)}
                                 onDelete={() => handleDelete(post._id)}
-                               
+                                onComment={() => handleCommentClick(post)}
                                 handleComment={(e: React.FormEvent) => {
                                     e.preventDefault();
                                     const form = e.target as HTMLFormElement;
