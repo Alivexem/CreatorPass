@@ -20,7 +20,6 @@ interface PostCardProps {
     showComments: boolean;
     onLike: () => void;
     onDelete: () => void;
-    onToggleComments: () => void;
     handleComment: (e: React.FormEvent) => void;
     newComment: string;
     setNewComment: (value: string) => void;
@@ -150,7 +149,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                     <p className='text-gray-300 text-[0.7rem]'>{props.likes} likes</p>
                 </button>
                 <button
-                    onClick={props.onToggleComments}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
                     <MdInsertComment className='text-[1rem] md:text-[1.7rem]' />

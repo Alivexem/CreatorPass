@@ -15,9 +15,9 @@ export async function PUT(
     const { address } = await request.json();
 
     // Validate ObjectId format for both IDs
-    // if (!mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(commentId)) {
-    //   return NextResponse.json({ error: 'Invalid post ID or comment ID' }, { status: 400 });
-    // }
+    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(commentId)) {
+      return NextResponse.json({ error: 'Invalid post ID or comment ID' }, { status: 400 });
+    }
 
     // Find the post document by its ID
     const targetPost = await Creates.findById(id);

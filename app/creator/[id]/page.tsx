@@ -310,25 +310,25 @@ const CreatorPage = ({ params }: PageProps) => {
         }
     };
 
-    const updatePostComments = async (postId: string) => {
-        const comments = await fetchPostComments(postId);
+    // const updatePostComments = async (postId: string) => {
+    //     const comments = await fetchPostComments(postId);
         
-        // Update selected post if it matches
-        setSelectedPost(prev => 
-            prev && prev._id === postId
-                ? { ...prev, comments }
-                : prev
-        );
+    //     // Update selected post if it matches
+    //     setSelectedPost(prev => 
+    //         prev && prev._id === postId
+    //             ? { ...prev, comments }
+    //             : prev
+    //     );
 
-        // Update posts list
-        setPosts(prevPosts =>
-            prevPosts.map(post =>
-                post._id === postId
-                    ? { ...post, comments }
-                    : post
-            )
-        );
-    };
+    //     // Update posts list
+    //     setPosts(prevPosts =>
+    //         prevPosts.map(post =>
+    //             post._id === postId
+    //                 ? { ...post, comments }
+    //                 : post
+    //         )
+    //     );
+    // };
 
     const handleLike = async (postId: string) => {
         try {
@@ -471,7 +471,7 @@ const CreatorPage = ({ params }: PageProps) => {
             if (!res.ok) throw new Error('Failed to like comment');
 
             // Update comments immediately after liking
-            await updatePostComments(postId);
+            // await updatePostComments(postId);
 
         } catch (error) {
             console.error('Error liking comment:', error);
