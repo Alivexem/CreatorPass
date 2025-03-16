@@ -18,6 +18,12 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
     const [localLikeCount, setLocalLikeCount] = useState(comment.likeCount || 0);
     const [hasLiked, setHasLiked] = useState(userProfile && comment.likes?.includes(userProfile.address));
 
+    // Update local state when comment data changes
+    useEffect(() => {
+        setLocalLikeCount(comment.likeCount || 0);
+        setHasLiked(userProfile && comment.likes?.includes(userProfile.address));
+    }, [comment.likeCount, comment.likes, userProfile]);
+
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
