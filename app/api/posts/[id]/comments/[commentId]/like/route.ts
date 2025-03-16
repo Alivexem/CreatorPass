@@ -1,17 +1,17 @@
 // app/api/posts/[postId]/comments/[commentId]/like/route.ts
 import { NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
-import creates from '@/models/uploads';
+import Creates from '@/models/uploads';
 import mongoose from 'mongoose';
 
 export async function PUT(
   request: Request,
-  { params }: { params: { postId: string; commentId: string } }
+  { params }: { params: { id: string; commentId: string } }
 ) {
   try {
     await connectDB();
     
-    const { postId, commentId } = params;
+    const { id, commentId } = params;
     const { address } = await request.json();
 
     // Validate ObjectId format for both IDs
@@ -20,7 +20,7 @@ export async function PUT(
     // }
 
     // Find the post document by its ID
-    const targetPost = await creates.findById(postId);
+    const targetPost = await Creates.findById(id);
     if (!targetPost) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
