@@ -124,9 +124,8 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                             No comments yet. Be the first to comment!
                         </div>
                     )}
-                </div>
 
-                {imagePreview && (
+{imagePreview && (
                         <div className="relative w-full max-w-[200px] mb-3">
                             <div className="relative w-[200px] h-[200px]">
                                 <Image
@@ -145,6 +144,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                             </button>
                         </div>
                     )}
+                </div>
 
                 <div className="p-4 border-t border-gray-800">
                     <form onSubmit={handleSubmit} className="space-y-3">
