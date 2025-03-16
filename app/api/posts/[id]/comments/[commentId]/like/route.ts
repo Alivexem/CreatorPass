@@ -1,7 +1,7 @@
 // app/api/posts/[postId]/comments/[commentId]/like/route.ts
 import { NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
-import Creates from '@/models/uploads';
+import creates from '@/models/uploads';
 import mongoose from 'mongoose';
 
 export async function PUT(
@@ -15,12 +15,12 @@ export async function PUT(
     const { address } = await request.json();
 
     // Validate ObjectId format for both IDs
-    if (!mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(commentId)) {
-      return NextResponse.json({ error: 'Invalid post ID or comment ID' }, { status: 400 });
-    }
+    // if (!mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(commentId)) {
+    //   return NextResponse.json({ error: 'Invalid post ID or comment ID' }, { status: 400 });
+    // }
 
     // Find the post document by its ID
-    const targetPost = await Creates.findById(postId);
+    const targetPost = await creates.findById(postId);
     if (!targetPost) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
