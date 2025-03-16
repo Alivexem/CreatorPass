@@ -114,6 +114,7 @@ const CreatorPost = ({
                     <p className='text-[1.1rem] font-medium'>{profile?.username || 'Anonymous'}</p>
                 </div>
                 <div className='flex items-center gap-x-2'>
+                <div className='flex items-center gap-x-2'>
                     <Image src='/sol.png' height={20} width={20} alt='solana' className='rounded-lg' />
                     <div className='flex flex-col items-end'>
                         <span className={`text-[0.7rem] ${getTierColor(post.tier)}`}>
@@ -122,6 +123,7 @@ const CreatorPost = ({
                     </div>
                 </div>
                 {date && <span className="text-sm text-gray-400">{formatDate(date)}</span>}
+                </div>
             </div>
 
             {/* Content */}
@@ -182,9 +184,9 @@ const CreatorPost = ({
                     }`}
                 >
                     <IoHeartHalf
-                        className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${hasLiked ? 'text-purple-500' : ''}`}
+                        className={`text-[1rem] md:text-[1.7rem] transition-colors ${hasLiked ? 'text-purple-500' : ''}`}
                     />
-                    <p>{likes} likes</p>
+                    <p className='text-gray-300 text-[0.7rem]'>{likes} likes</p>
                 </button>
                 <button
                     onClick={() => !disabled.comment && onComment()}
@@ -192,8 +194,8 @@ const CreatorPost = ({
                         post.tier !== 'Free' && disabled.comment ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                 >
-                    <MdInsertComment  className='text-[1.1rem] md:text-[1.7rem]' />
-                    <p>{post.comments?.length || 0} comments</p>
+                    <MdInsertComment  className='text-[1rem] md:text-[1.7rem]' />
+                    <p className='text-gray-300 text-[0.7rem]'>{post.comments?.length || 0} comments</p>
                 </button>
                 <button
                     onClick={onGift}
@@ -202,7 +204,7 @@ const CreatorPost = ({
                     }`}
                     disabled={post.tier !== 'Free' && disabled.gift}
                 >
-                    <FaGift className='text-[1.1rem] md:text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
+                    <FaGift className='text-[1rem] md:text-[1.7rem]' /><p className='hidden md:block'>Gift</p>
                 </button>
                 <button
                     onClick={() => onCopy(post.note || '', post._id)}
@@ -214,7 +216,7 @@ const CreatorPost = ({
                     <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
                         <p className='whitespace-nowrap'>{copiedStates[post._id] && 'Text Copied!'}</p>
                     </div>
-                    <MdContentCopy className='text-[1.1rem] md:text-[1.7rem]' />
+                    <MdContentCopy className='text-[1rem] md:text-[1.7rem]' />
                     <p className='hidden md:block'>Copy</p>
                 </button>
                 {post.image && (
@@ -228,7 +230,7 @@ const CreatorPost = ({
                         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity">
                             {downloadedStates[post._id] && 'Downloading!'}
                         </div>
-                        <IoMdDownload className='text-[1.1rem] md:text-[1.7rem]' />
+                        <IoMdDownload className='text-[1rem] md:text-[1.7rem]' />
                         <p className='hidden md:block'>Download</p>
                     </button>
                 )}

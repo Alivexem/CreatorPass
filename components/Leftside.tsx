@@ -31,7 +31,7 @@ const SideNav = () => {
     return (
     <div style={{
         backgroundImage: 'url(/gifimage.gif)', objectFit: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'
-    }} className='h-[100vh] w-[100%] px-10 pb-5 relative text-white box-border p-10 flex flex-col md:items-start'>
+    }} className='h-[100vh] w-[100%] px-10 pb-5 relative rounded-lg text-white box-border p-10 flex flex-col md:items-start'>
             <div className='flex items-center justify-between w-full space-x-4'>
                 <Image style={{borderRadius: '50%'}} className='rounded-[50%]' src='/crtp.jpg' alt='logo' height={50} width={50} />
                 <Link href='/'><button className='bg-[#cbd5e1] cursor-text lg:h-[45px] h-[35px] text-[0.8rem] lg:text-[0.9rem] w-[100px] lg:w-[150px] text-black border-[1px] rounded-[40px] border-[#cbd5e1]'>

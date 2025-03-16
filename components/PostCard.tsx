@@ -145,16 +145,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                     className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
                     <IoHeartHalf
-                        className={`text-[1.1rem] md:text-[1.7rem] transition-colors ${props.hasLiked ? 'text-purple-500' : ''}`}
+                        className={`text-[1rem] md:text-[1.7rem] transition-colors ${props.hasLiked ? 'text-purple-500' : ''}`}
                     />
-                    <p>{props.likes} likes</p>
+                    <p className='text-gray-300 text-[0.7rem]'>{props.likes} likes</p>
                 </button>
                 <button
                     onClick={props.onToggleComments}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
-                    <MdInsertComment className='text-[1.1rem] md:text-[1.7rem]' />
-                    <p>{post.comments?.length || 0} comments</p>
+                    <MdInsertComment className='text-[1rem] md:text-[1.7rem]' />
+                    <p className='text-gray-300 text-[0.7rem]'>{post.comments?.length || 0} comments</p>
                 </button>
                 <button
                     onClick={props.onDelete}
