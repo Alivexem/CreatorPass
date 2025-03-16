@@ -59,36 +59,41 @@ export async function PUT(request, { params }) {
         await connectDB();
         const { id } = params;
         const body = await request.json();
-        const { action, address, commentId, comment } = body;
+        const { action, address, commentId, comment, imageUrl } = body;
 
         const post = await Creates.findById(id);
         if (!post) {
             return NextResponse.json({ error: 'Post not found' }, { status: 404 });
         }
 
-        // Handle comment likes
+        // Handle comment likes - improved error handling and response
         if (action === 'likeComment' && commentId) {
-            const comment = post.comments.id(commentId);
-            if (!comment) {
+            const commentToLike = post.comments.id(commentId);
+            if (!commentToLike) {
                 return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
             }
 
-            const hasLiked = comment.likes?.includes(address);
+            // Initialize likes array if it doesn't exist
+            if (!commentToLike.likes) {
+                commentToLike.likes = [];
+            }
+
+            const hasLiked = commentToLike.likes.includes(address);
             
             if (hasLiked) {
-                comment.likes = comment.likes.filter(like => like !== address);
-                comment.likeCount = Math.max(0, (comment.likeCount || 1) - 1);
+                commentToLike.likes = commentToLike.likes.filter(like => like !== address);
+                commentToLike.likeCount = Math.max(0, (commentToLike.likeCount || 1) - 1);
             } else {
-                if (!comment.likes) comment.likes = [];
-                comment.likes.push(address);
-                comment.likeCount = (comment.likeCount || 0) + 1;
+                commentToLike.likes.push(address);
+                commentToLike.likeCount = (commentToLike.likeCount || 0) + 1;
             }
 
             await post.save();
             return NextResponse.json({ 
                 success: true,
                 liked: !hasLiked,
-                likeCount: comment.likeCount
+                likeCount: commentToLike.likeCount,
+                commentId: commentId
             });
         }
 
@@ -114,7 +119,16 @@ export async function PUT(request, { params }) {
 
         // Handle comments
         if (action === 'comment') {
-            post.comments.push({ address, comment, timestamp: new Date() });
+            const newComment = {
+                address,
+                comment,
+                imageUrl,  // Add the imageUrl to the comment object
+                timestamp: new Date(),
+                likes: [],
+                likeCount: 0
+            };
+            
+            post.comments.push(newComment);
             await post.save();
             return NextResponse.json({ success: true, comments: post.comments });
         }
