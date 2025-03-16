@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { IoHeartHalf } from "react-icons/io5";
-import { FaCommentMedical } from "react-icons/fa6";
+import { MdInsertComment } from "react-icons/md";
 import { MdDeleteForever } from "react-icons/md";
 import { MdContentCopy } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
@@ -153,7 +153,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                     onClick={props.onToggleComments}
                     className='flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors'
                 >
-                    <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
+                    <MdInsertComment className='text-[1.1rem] md:text-[1.7rem]' />
                     <p>{post.comments?.length || 0} comments</p>
                 </button>
                 <button

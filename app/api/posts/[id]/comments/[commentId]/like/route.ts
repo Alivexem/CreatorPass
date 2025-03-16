@@ -24,13 +24,17 @@ export async function PUT(
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    // Find the comment
-    const comment = post.comments.id(commentId);
-    if (!comment) {
+    // Find the comment in the comments array
+    const commentIndex = post.comments.findIndex(
+      (comment: any) => comment._id.toString() === commentId
+    );
+    
+    if (commentIndex === -1) {
       return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
     }
 
-    // Initialize likes array if it doesn't exist
+    // Get the comment and initialize likes array if needed
+    const comment = post.comments[commentIndex];
     if (!comment.likes) {
       comment.likes = [];
     }
@@ -45,6 +49,8 @@ export async function PUT(
       comment.likeCount = (comment.likeCount || 0) + 1;
     }
 
+    // Update the comment in the array
+    post.comments[commentIndex] = comment;
     await post.save();
 
     return NextResponse.json({

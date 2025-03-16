@@ -6,7 +6,7 @@ import { MdContentCopy } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
-
+import { MdInsertComment } from "react-icons/md";
 interface CreatorPostProps {
     post: Post & {
         mediaType?: 'image' | 'video';
@@ -192,7 +192,7 @@ const CreatorPost = ({
                         post.tier !== 'Free' && disabled.comment ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                 >
-                    <FaCommentMedical className='text-[1.1rem] md:text-[1.7rem]' />
+                    <MdInsertComment  className='text-[1.1rem] md:text-[1.7rem]' />
                     <p>{post.comments?.length || 0} comments</p>
                 </button>
                 <button

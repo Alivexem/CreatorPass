@@ -86,7 +86,7 @@ const CreatorFunChat = ({
         <>
             {/* Mobile Fun Chat Toggle */}
             {!showFunChat && (
-                <div className="md:hidden fixed left-4 bottom-[10vh] transform -translate-y-1/2 z-40 md:z-0">
+                <div className="md:hidden fixed left-4 bottom-[11vh] transform -translate-y-1/2 z-40 md:z-0">
                     <button
                         onClick={() => setShowFunChat(true)}
                         className="bg-indigo-600 animate bounce p-3 rounded-full shadow-lg"
@@ -97,7 +97,7 @@ const CreatorFunChat = ({
             )}
 
             {/* Fun Chat Section */}
-            <div className={`fixed top-[45%] z-50 md:z-0 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[88vh] md:h-[70vh] md:w-[400px] w-full 
+            <div className={`fixed top-[44%] z-50 md:z-0 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[88vh] md:h-[70vh] md:w-[400px] w-full 
                 bg-gradient-to-b from-gray-600 to-gray-800
                 ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
                 transition-transform duration-300 z-30 shadow-xl md:rounded-r-lg`}
