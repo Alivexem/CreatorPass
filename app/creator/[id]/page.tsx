@@ -223,6 +223,8 @@ const CreatorPage = ({ params }: PageProps) => {
                         username: post.username,
                         note: post.note,
                         image: post.image || '',
+                        video: post.video || '',
+                        mediaType: post.video ? 'video' : (post.image ? 'image' : undefined),
                         tier: post.tier || 'Free',
                         comments: post.comments || [],
                         likes: post.likes || [],
@@ -706,7 +708,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         onDownload={handleDownload}
                         downloadedStates={downloadedStates}
                         copiedStates={copiedStates}
-                        date={post.timestamp}
+                        date={post.createdAt} // Change this line
                         disabled={{
                             // For free tier posts, everything is enabled
                             // For other tiers, check user permissions

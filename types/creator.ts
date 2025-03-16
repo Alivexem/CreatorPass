@@ -16,12 +16,14 @@ export interface Post {
     username: string;
     note: string;
     image?: string;
+    video?: string;
+    mediaType?: 'image' | 'video';
     tier: string;
     comments: Comment[];
     likes: string[];
     likeCount: number;
     createdAt: string;
-    timestamp?: string;
+    timestamp?: string; // Add this line
     __v: number;
 }
 
