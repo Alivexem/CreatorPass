@@ -143,24 +143,29 @@ const CreatorPost = ({
             {post.image && (
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
-                        className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
-                        onClick={() => post.mediaType !== 'video' && post.image && onImageClick(post.image)}
+                        className='relative md:h-[350px] h-[300px] w-[95%] mt-7'
                     >
-                        {post.mediaType === 'video' ? (
+                        {(post.mediaType === 'video' || (typeof post.image === 'string' && post.image.endsWith('.mp4'))) ? (
                             <video
                                 src={post.image}
                                 className='w-full h-full rounded-lg object-contain'
                                 controls
                                 controlsList='nodownload'
+                                onClick={(e) => e.stopPropagation()}
                             />
                         ) : (
-                            <Image
-                                src={post.image}
-                                fill
-                                style={{ objectFit: 'cover' }}
-                                className='rounded-lg shadow-md'
-                                alt='post media'
-                            />
+                            <div 
+                                className='cursor-pointer hover:opacity-90 transition-opacity'
+                                onClick={() => typeof post.image === 'string' && onImageClick(post.image)}
+                            >
+                                <Image
+                                    src={post.image}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    className='rounded-lg shadow-md'
+                                    alt='post media'
+                                />
+                            </div>
                         )}
                     </div>
                 </div>
@@ -212,7 +217,7 @@ const CreatorPost = ({
                 </button>
                 {post.image && (
                     <button
-                        onClick={() => post.image && onDownload(post.image, post._id)}
+                        onClick={() => typeof post.image === 'string' && onDownload(post.image, post._id)}
                         className={`text-white flex items-center justify-center gap-x-3 hover:opacity-90 transition-opacity relative ${
                             post.tier !== 'Free' && disabled.download ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                         }`}

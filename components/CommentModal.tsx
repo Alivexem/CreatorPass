@@ -67,12 +67,17 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if ((!newComment.trim() && !selectedImage) || isSubmitting) return;
+        // Changed condition to allow image-only comments
+        if ((!newComment.trim() && !uploadedImageUrl) || isSubmitting) return;
 
         setIsSubmitting(true);
         try {
-            // Use the already uploaded image URL
-            await onComment(post._id, newComment.trim(), uploadedImageUrl || undefined);
+            // Send both comment text and image URL
+            await onComment(
+                post._id, 
+                newComment.trim() || "", // Send empty string if no text
+                uploadedImageUrl || undefined
+            );
             
             setNewComment('');
             removeImage();
@@ -102,7 +107,26 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                 </div>
 
                 <div className="h-[calc(75vh-180px)] overflow-y-auto p-4 space-y-4">
-                    {imagePreview && (
+                    
+
+                    {post.comments && post.comments.length > 0 ? (
+                        post.comments.map((comment) => (
+                            <CommentItem 
+                                key={comment._id}
+                                comment={comment}
+                                onLike={onLike}
+                                postId={post._id}
+                                userProfile={userProfile}
+                            />
+                        ))
+                    ) : (
+                        <div className="text-center text-gray-400 py-4">
+                            No comments yet. Be the first to comment!
+                        </div>
+                    )}
+                </div>
+
+                {imagePreview && (
                         <div className="relative w-full max-w-[200px] mb-3">
                             <div className="relative w-[200px] h-[200px]">
                                 <Image
@@ -121,23 +145,6 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                             </button>
                         </div>
                     )}
-
-                    {post.comments && post.comments.length > 0 ? (
-                        post.comments.map((comment) => (
-                            <CommentItem 
-                                key={comment._id}
-                                comment={comment}
-                                onLike={onLike}
-                                postId={post._id}
-                                userProfile={userProfile}
-                            />
-                        ))
-                    ) : (
-                        <div className="text-center text-gray-400 py-4">
-                            No comments yet. Be the first to comment!
-                        </div>
-                    )}
-                </div>
 
                 <div className="p-4 border-t border-gray-800">
                     <form onSubmit={handleSubmit} className="space-y-3">
@@ -166,7 +173,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                         <button
                             type="submit"
                             className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
-                            disabled={isSubmitting || (!newComment.trim() && !selectedImage)}
+                            disabled={isSubmitting || (!newComment.trim() && !uploadedImageUrl)}
                         >
                             {isSubmitting ? 'Posting...' : 'Post'}
                         </button>
