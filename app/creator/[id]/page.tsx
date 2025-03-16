@@ -247,7 +247,7 @@ const CreatorPage = ({ params }: PageProps) => {
                 if (inaccessibleTiers.size > 0) {
                     setAccessNotification({
                         show: true,
-                        message: `${profile?.username || 'Anonymous'} has ${Array.from(inaccessibleTiers).join(', ')} tier post(s), get pass here to gain access!`,
+                        message: `${profile?.username || 'Anonymous'} has ${Array.from(inaccessibleTiers).join(', ')} tier post(s), gain access here!`,
                         availableTiers: Array.from(inaccessibleTiers) as string[]
                     });
                 }

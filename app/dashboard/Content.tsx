@@ -69,6 +69,7 @@ const Content = ({ setToast }: ContentProps) => {
     const emojiRef = useRef<HTMLDivElement>(null);
     const emojiButtonRef = useRef<HTMLButtonElement>(null);
     const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -243,38 +244,53 @@ const Content = ({ setToast }: ContentProps) => {
             return;
         }
 
-        // Determine media type
+        // Preview first
+        setSelectedImage(URL.createObjectURL(file));
         const type = file.type.startsWith('video/') ? 'video' : 'image';
         setMediaType(type);
+    };
+
+    const handleUploadMedia = async (file: File) => {
         setLoading(true);
+        setUploadProgress(0);
+        const type = file.type.startsWith('video/') ? 'video' : 'image';
 
         try {
-            let uploadedUrl;
+            let uploadedUrl: string;
 
             if (type === 'video') {
-                // Direct upload to Cloudinary for videos
                 const formData = new FormData();
                 formData.append('file', file);
-                formData.append('upload_preset', 'ifndk7tr'); // Your upload preset
+                formData.append('upload_preset', 'ifndk7tr');
                 formData.append('resource_type', 'video');
 
-                const response = await fetch(
-                    `https://api.cloudinary.com/v1_1/dh5vxmfvp/video/upload`,
-                    {
-                        method: 'POST',
-                        body: formData
-                    }
-                );
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://api.cloudinary.com/v1_1/dh5vxmfvp/video/upload');
 
-                if (!response.ok) throw new Error('Video upload failed');
-                const data = await response.json();
-                uploadedUrl = data.secure_url;
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const progress = Math.round((event.loaded / event.total) * 100);
+                        setUploadProgress(progress);
+                    }
+                };
+
+                uploadedUrl = await new Promise<string>((resolve, reject) => {
+                    xhr.onload = () => {
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+                            resolve(response.secure_url);
+                        } else {
+                            reject(new Error('Upload failed'));
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error('Upload failed'));
+                    xhr.send(formData);
+                });
             } else {
-                // Existing image upload flow through Next.js API
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
 
-                uploadedUrl = await new Promise((resolve, reject) => {
+                uploadedUrl = await new Promise<string>((resolve, reject) => {
                     reader.onloadend = async () => {
                         try {
                             const res = await fetch("/api/imageApi", {
@@ -297,7 +313,7 @@ const Content = ({ setToast }: ContentProps) => {
             }
 
             setimage(uploadedUrl);
-            setSelectedImage(URL.createObjectURL(file));
+            setUploadProgress(100);
         } catch (error) {
             console.error('Error uploading media:', error);
             setToast({
@@ -305,6 +321,7 @@ const Content = ({ setToast }: ContentProps) => {
                 message: 'Failed to upload media. Please try again.',
                 type: 'error'
             });
+            setUploadProgress(0);
         } finally {
             setLoading(false);
         }
@@ -770,82 +787,86 @@ const Content = ({ setToast }: ContentProps) => {
                                         </button>
                                     </div>
 
-                                    <div 
-                                        className='relative group cursor-pointer rounded-xl overflow-hidden h-[150px]'
-                                        onDragOver={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                        }}
-                                        onDrop={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            const files = Array.from(e.dataTransfer.files);
-                                            if (files[0]) {
-                                                const input = document.createElement('input');
-                                                input.type = 'file';
-                                                input.files = e.dataTransfer.files;
-                                                handleMediaChange({ target: input } as React.ChangeEvent<HTMLInputElement>);
-                                            }
-                                        }}
-                                    >
-                                        {selectedImage ? (
-                                            <div className='relative h-full'>
-                                                {mediaType === 'video' ? (
-                                                    <video 
-                                                        src={selectedImage}
-                                                        className='w-full h-full object-cover rounded-xl'
-                                                        controls
-                                                    />
-                                                ) : (
-                                                    <Image 
-                                                        src={selectedImage}
-                                                        alt="Preview"
-                                                        fill
-                                                        style={{ objectFit: 'cover' }}
-                                                        className='rounded-xl'
-                                                    />
-                                                )}
-                                                <div className='absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
+                                    <div className='flex flex-col gap-4'>
+                                        <div className='relative rounded-xl overflow-hidden'>
+                                            {selectedImage && (
+                                                <div className='relative h-[300px]'>
+                                                    {mediaType === 'video' ? (
+                                                        <video 
+                                                            src={selectedImage}
+                                                            className='w-full h-full object-contain bg-black'
+                                                            controls
+                                                        />
+                                                    ) : (
+                                                        <Image 
+                                                            src={selectedImage}
+                                                            alt="Preview"
+                                                            fill
+                                                            style={{ objectFit: 'contain' }}
+                                                            className='bg-black'
+                                                        />
+                                                    )}
+                                                </div>
+                                            )}
+                                            
+                                            {!selectedImage && (
+                                                <label htmlFor="media-upload" className='block cursor-pointer'>
+                                                    <div className='h-[200px] border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
+                                                        <FaImages className="text-4xl text-gray-400" />
+                                                        <p className='text-gray-400 text-center'>Click or drag image/video to upload</p>
+                                                        <p className='text-gray-500 text-sm'>Max size: 80MB</p>
+                                                    </div>
+                                                </label>
+                                            )}
+                                        </div>
+
+                                        {loading && (
+                                            <div className='w-full bg-gray-700 rounded-full h-2 overflow-hidden'>
+                                                <div 
+                                                    className='h-full bg-green-500 transition-all duration-300'
+                                                    style={{ width: `${uploadProgress}%` }}
+                                                />
+                                            </div>
+                                        )}
+
+                                        <div className='flex gap-4 justify-end'>
+                                            <input 
+                                                type="file"
+                                                id="media-upload"
+                                                className='hidden'
+                                                accept="image/*,video/*"
+                                                onChange={handleMediaChange}
+                                            />
+                                            {selectedImage && !loading && (
+                                                <>
                                                     <button
                                                         type="button"
                                                         onClick={() => {
                                                             setSelectedImage('');
+                                                            setimage('');
                                                             const input = document.getElementById('media-upload') as HTMLInputElement;
-                                                            if (input) {
-                                                                input.value = '';
-                                                                input.click();
+                                                            if (input) input.value = '';
+                                                        }}
+                                                        className='px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors'
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const input = document.getElementById('media-upload') as HTMLInputElement;
+                                                            if (input.files?.[0]) {
+                                                                handleUploadMedia(input.files[0]);
                                                             }
                                                         }}
-                                                        className='bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors'
+                                                        className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'
                                                     >
-                                                        Change Media
+                                                        Upload
                                                     </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <label htmlFor="media-upload" className='block h-full'>
-                                                <div className='h-full border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
-                                                    <FaImages className="text-4xl text-gray-400" />
-                                                    <p className='text-gray-400 text-center'>Click or drag image/video to upload</p>
-                                                    <p className='text-gray-500 text-sm'>Max size: 80MB</p>
-                                                </div>
-                                                <input 
-                                                    type="file"
-                                                    id="media-upload"
-                                                    className='hidden'
-                                                    accept="image/*,video/*"
-                                                    onChange={handleMediaChange}
-                                                />
-                                            </label>
-                                        )}
-                                    </div>
-
-                                    {loading && (
-                                        <div className='text-green-500 flex items-center gap-2'>
-                                            <div className='animate-spin h-4 w-4 border-2 border-green-500 border-t-transparent rounded-full'></div>
-                                            Processing media...
+                                                </>
+                                            )}
                                         </div>
-                                    )}
+                                    </div>
 
                                     <div className="relative">
                                         <select

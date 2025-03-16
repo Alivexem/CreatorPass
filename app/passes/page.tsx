@@ -678,7 +678,7 @@ const PassesPage = () => {
           <div className='text-white text-xl text-center py-20'>No passes available</div>
         ) : (
           <>
-            <div className="relative overflow-x-auto">
+            <div className="relative overflow-x-auto mt-36">
               <div className="flex gap-8 md:grid md:grid-cols-3 md:gap-8 snap-x snap-mandatory">
                 {(window.innerWidth <= 768 ? passes : paginatedPasses).map((pass, index) => {
                   const highlightedCreator = sessionStorage.getItem('highlightCreator');
@@ -785,11 +785,11 @@ const PassesPage = () => {
       </AnimatePresence>
 
       {/* Remove the old Swipe Modal and replace with Toast */}
-      {showSwipeModal && (
+      {/* {showSwipeModal && (
         <div className="fixed top-2 right-2 md:hidden bg-orange-500 text-white p-4 rounded-md shadow-lg z-50">
           <p className="text-sm">Swipe left to see more passes</p>
         </div>
-      )}
+      )} */}
 
       {/* Hidden card template for conversion - Simplified version */}
       <div style={{ position: 'absolute', left: '-9999px' }}>

@@ -88,6 +88,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
                             <span className="text-xs text-blue-400">Me</span>
                         )}
                     </div>
+                    {/* Moved image before text for better visual hierarchy */}
                     {comment.imageUrl && (
                         <div className="mt-2 relative w-full">
                             <Image
@@ -99,7 +100,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, postI
                             />
                         </div>
                     )}
-                    {comment.comment && renderCommentText(comment.comment)}
+                    {comment.comment && comment.comment.trim() !== "" && renderCommentText(comment.comment)}
                 </div>
                 
                 <div className="flex gap-4 mt-2">
