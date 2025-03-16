@@ -233,7 +233,7 @@ const Content = ({ setToast }: ContentProps) => {
     const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
+    
         // Check file size (80MB limit)
         if (file.size > 80 * 1024 * 1024) {
             setToast({
@@ -243,11 +243,14 @@ const Content = ({ setToast }: ContentProps) => {
             });
             return;
         }
-
-        // Preview first
+    
+        // Set preview and media type
         setSelectedImage(URL.createObjectURL(file));
         const type = file.type.startsWith('video/') ? 'video' : 'image';
         setMediaType(type);
+    
+        // Automatically start upload
+        await handleUploadMedia(file);
     };
 
     const handleUploadMedia = async (file: File) => {
@@ -850,18 +853,6 @@ const Content = ({ setToast }: ContentProps) => {
                                                         className='px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors'
                                                     >
                                                         Remove
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const input = document.getElementById('media-upload') as HTMLInputElement;
-                                                            if (input.files?.[0]) {
-                                                                handleUploadMedia(input.files[0]);
-                                                            }
-                                                        }}
-                                                        className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'
-                                                    >
-                                                        Upload
                                                     </button>
                                                 </>
                                             )}
