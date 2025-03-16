@@ -152,7 +152,6 @@ const CreatorPost = ({
                                 className='w-full h-full rounded-lg object-contain'
                                 controls
                                 controlsList='nodownload'
-                                onClick={(e) => e.stopPropagation()}
                             />
                         ) : post.image && (
                             <div 
