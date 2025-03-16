@@ -10,6 +10,7 @@ import { useState } from 'react';
 interface CreatorPostProps {
     post: Post & {
         mediaType?: 'image' | 'video';
+        video?: string;
     };
     profile: Profile | null;
     hasLiked: boolean;
@@ -140,20 +141,20 @@ const CreatorPost = ({
             </div>
 
             {/* Media Content */}
-            {post.image && (
+            {(post.image || post.video) && (
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
                         className='relative md:h-[350px] h-[300px] w-[95%] mt-7'
                     >
-                        {(post.mediaType === 'video' || (typeof post.image === 'string' && post.image.endsWith('.mp4'))) ? (
+                        {post.video ? (
                             <video
-                                src={post.image}
+                                src={post.video}
                                 className='w-full h-full rounded-lg object-contain'
                                 controls
                                 controlsList='nodownload'
                                 onClick={(e) => e.stopPropagation()}
                             />
-                        ) : (
+                        ) : post.image && (
                             <div 
                                 className='cursor-pointer hover:opacity-90 transition-opacity'
                                 onClick={() => typeof post.image === 'string' && onImageClick(post.image)}

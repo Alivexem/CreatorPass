@@ -12,6 +12,7 @@ import { linkifyText } from '@/utils/linkify';
 interface PostCardProps {
     post: Post & {
         mediaType?: 'image' | 'video';
+        video?: string;
     };
     userProfile: Profile;
     hasLiked: boolean;
@@ -105,24 +106,24 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
             </div>
 
             {/* Media Content */}
-            {post.image && (
+            {(post.image || post.video) && (
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
                         className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
                         onClick={() => {
-                            if (post.image && post.mediaType !== 'video') {
+                            if (post.image && !post.video) {
                                 props.onImageClick(post.image);
                             }
                         }}
                     >
-                        {post.mediaType === 'video' ? (
+                        {post.video ? (
                             <video
-                                src={post.image}
+                                src={post.video}
                                 className='w-full h-full rounded-lg object-contain'
                                 controls
                                 controlsList='nodownload'
                             />
-                        ) : (
+                        ) : post.image && (
                             <Image
                                 src={post.image}
                                 fill
