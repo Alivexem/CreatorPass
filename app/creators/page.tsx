@@ -403,14 +403,14 @@ const CreatorsPage = () => {
                                   e.preventDefault();
                                   handleChatClick(currentProfile.address);
                                 }}
-                                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                                className="w-full border border-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
                               >
                                 <IoChatbubbleEllipsesOutline className="text-xl" />
                                 <span>Chat {currentProfile.username}</span>
                               </button>
 
                               <Link href={`/creator/${currentProfile.address}`} className="block">
-                                <button className="w-full bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors flex items-center justify-center gap-2">
+                                <button className="w-full border-purple-700 border text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors flex items-center justify-center gap-2">
                                   <RiGalleryFill className="text-xl" />
                                   <span>View Posts</span>
                                 </button>
