@@ -71,7 +71,7 @@ export async function GET(request) {
 export async function PUT(request) {
     try {
         await connectDB();
-        const { address, metricType, value } = await request.json();
+        const { address, metricType, value, action } = await request.json();
 
         if (!address || !metricType) {
             return NextResponse.json({ message: 'Address and metric type are required' }, { status: 400 });
@@ -82,25 +82,27 @@ export async function PUT(request) {
             return NextResponse.json({ message: 'Profile not found' }, { status: 404 });
         }
 
+        let success = false;
         switch (metricType) {
             case 'passesOwned':
-                // Initialize if undefined and add the new value
-                profile.passesOwned = (profile.passesOwned || 0) + value;
+                success = await profile.updatePassesOwned(value);
                 break;
             case 'revenue':
-                // Initialize if undefined and add the new value
-                profile.revenue = (profile.revenue || 0) + value;
+                success = await profile.addRevenue(value);
                 break;
             case 'crtp':
-                // Adjusted CRTP handling for +15 for likes and +30 for posts
-                if (!profile.crtp) profile.crtp = 0;
-                profile.crtp = Math.max(0, profile.crtp + value); // value should be either 15 or 30
+                success = await profile.updateCRTP(action);
                 break;
             default:
                 return NextResponse.json({ message: 'Invalid metric type' }, { status: 400 });
         }
 
-        await profile.save();
+        if (!success) {
+            return NextResponse.json({ message: 'Failed to update metrics' }, { status: 500 });
+        }
+
+        // Fetch fresh profile data
+        profile = await Profile.findOne({ address });
 
         return NextResponse.json({ 
             message: 'Profile metrics updated successfully',

@@ -75,11 +75,11 @@ const CreatorsPage = () => {
     const fetchProfiles = async () => {
       try {
         const res = await fetch('/api/profiles', {
-          next: { revalidate: 0 },
           cache: 'no-store',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
+            'Expires': '0'
           }
         });
         const data = await res.json();
@@ -151,11 +151,11 @@ const CreatorsPage = () => {
   const fetchUserProfile = async (address: string) => {
     try {
       const res = await fetch(`/api/profile?address=${address}`, {
-        next: { revalidate: 0 },
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
+          'Expires': '0'
         }
       });
       const data = await res.json();

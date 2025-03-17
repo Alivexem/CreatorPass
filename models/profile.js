@@ -65,20 +65,41 @@ const CRTP_POINTS = {
 
 // Add methods to handle metric updates
 profileSchema.methods.updatePassesOwned = async function(count) {
-    this.metrics.passesOwned = count;
-    return this.save();
+    try {
+        // Increment the count instead of overwriting
+        this.metrics.passesOwned += count;
+        await this.save();
+        return true;
+    } catch (error) {
+        console.error('Error updating passes owned:', error);
+        return false;
+    }
 };
 
 profileSchema.methods.addRevenue = async function(amount) {
-    this.metrics.revenueGenerated += amount;
-    return this.save();
+    try {
+        // Convert amount to lamports and add to existing revenue
+        const revenueInLamports = Math.floor(amount * 1000000000); // Convert SOL to lamports
+        this.metrics.revenueGenerated += revenueInLamports;
+        await this.save();
+        return true;
+    } catch (error) {
+        console.error('Error updating revenue:', error);
+        return false;
+    }
 };
 
 // Update method to handle all CRTP point actions
 profileSchema.methods.updateCRTP = async function(action) {
-    const points = CRTP_POINTS[action] || 0;
-    this.metrics.crtpPoints += points;
-    return this.save();
+    try {
+        const points = CRTP_POINTS[action] || 0;
+        this.metrics.crtpPoints += points;
+        await this.save();
+        return true;
+    } catch (error) {
+        console.error('Error updating CRTP points:', error);
+        return false;
+    }
 };
 
 profileSchema.methods.updateTotalPasses = async function(count) {
