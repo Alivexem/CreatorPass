@@ -5,23 +5,22 @@ import Profile from "../../../models/profile";
 export async function GET() {
     try {
         await connectDB();
-        
-        // Fetch all profiles with all fields explicitly selected
         const profiles = await Profile.find({}).select({
             address: 1,
             username: 1,
             about: 1,
             profileImage: 1,
-            isAdultContent: 1, // Make sure these fields are included
+            isAdultContent: 1,
             country: 1,
             _id: 0
-        });
+        }).lean();
 
-        return NextResponse.json({ profiles }, {
+        return NextResponse.json({ profiles }, { 
             headers: {
-                'Cache-Control': 'no-store, no-cache, must-revalidate',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, private',
                 'Pragma': 'no-cache',
-                'Expires': '0'
+                'Expires': '0',
+                'Surrogate-Control': 'no-store'
             }
         });
     } catch (error) {

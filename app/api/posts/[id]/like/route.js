@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/libs/mongodb";
-import Post from "@/models/post";
+import Creates from "@/models/uploads";
 
 export async function PUT(request, { params }) {
     try {
@@ -12,7 +12,7 @@ export async function PUT(request, { params }) {
             return NextResponse.json({ message: 'Address is required' }, { status: 400 });
         }
 
-        const post = await Post.findById(id);
+        const post = await Creates.findById(id);
         if (!post) {
             return NextResponse.json({ message: 'Post not found' }, { status: 404 });
         }
