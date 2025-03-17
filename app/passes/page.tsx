@@ -495,11 +495,53 @@ const PassesPage = () => {
         console.log('Transaction sent:', signature);
         
         // Start a timer for success case - reduced to 5 seconds
-        const successTimer = setTimeout(() => {
+        const successTimer = setTimeout(async () => {
             console.log('No error after 5 seconds, assuming success');
+
+            // Update creator's revenue and buyer's passes owned
+            try {
+                // Update creator's revenue in SOL (80% of total payment)
+                await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        address: pass.creatorAddress,
+                        metricType: 'revenue',
+                        value: pass.price * 0.8
+                    })
+                });
+
+                // Update buyer's passes owned count and award CRTP points
+                const userAddress = localStorage.getItem('address');
+                if (userAddress) {
+                    await Promise.all([
+                        fetch('/api/profile', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                address: userAddress,
+                                metricType: 'passesOwned',
+                                value: 1
+                            })
+                        }),
+                        fetch('/api/profile', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                address: userAddress,
+                                metricType: 'crtp',
+                                value: 100 // Award 100 CRTP points for minting a pass
+                            })
+                        })
+                    ]);
+                }
+            } catch (profileError) {
+                console.error('Error updating profiles:', profileError);
+            }
+
             setToast({
                 show: true,
-                message: 'Transaction sent! Check your wallet for the NFT',
+                message: 'Transaction sent! Check your wallet for the NFT (+100 CRTP)',
                 type: 'success'
             });
             setIsMinting(false);
@@ -511,43 +553,37 @@ const PassesPage = () => {
             const confirmation = await connection.confirmTransaction(signature, 'processed');
             console.log('Transaction confirmed:', confirmation);
             
-            // Clear the success timer
+            // Clear the success timer since we got confirmation
             clearTimeout(successTimer);
             
-            // After successful transaction, update profiles
+            // Move profile updates here for confirmed transactions
             try {
-                // Update creator's revenue in SOL (80% of total payment)
-                await fetch('/api/profile', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        address: pass.creatorAddress,
-                        metricType: 'revenue',
-                        value: pass.price * 0.8 // Pass the actual SOL amount, not lamports
-                    })
-                });
-
-                // Update buyer's passes owned count
-                const userAddress = localStorage.getItem('address');
-                if (userAddress) {
+                // Update metrics only if we haven't already updated them in the timer
+                if (mintingStates[pass._id]) {
+                    // Update creator's revenue in SOL (80% of total payment)
                     await fetch('/api/profile', {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            address: userAddress,
-                            metricType: 'passesOwned',
-                            value: 1
+                            address: pass.creatorAddress,
+                            metricType: 'revenue',
+                            value: pass.price * 0.8
                         })
                     });
-                }
 
-                // Only show confirmation message if we haven't shown success message yet
-                if (mintingStates[pass._id]) {
-                    setToast({
-                        show: true,
-                        message: 'Access Card minted successfully!',
-                        type: 'success'
-                    });
+                    // Update buyer's passes owned count
+                    const userAddress = localStorage.getItem('address');
+                    if (userAddress) {
+                        await fetch('/api/profile', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                address: userAddress,
+                                metricType: 'passesOwned',
+                                value: 1
+                            })
+                        });
+                    }
                 }
             } catch (profileError) {
                 console.error('Error updating profiles:', profileError);

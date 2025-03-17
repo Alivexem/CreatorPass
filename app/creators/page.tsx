@@ -1,4 +1,5 @@
 'use client'
+
 import React, { useState, useEffect, TouchEvent, useRef, ReactNode } from 'react'
 import NavBar from '@/components/NavBar'
 import Image from 'next/image';
@@ -31,12 +32,12 @@ interface Profile {
 const linkifyText = (text: string): ReactNode[] => {
   const urlPattern = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
   const parts = text.split(urlPattern);
-  
+
   return parts.map((part, i) => {
     if (part?.match(urlPattern)) {
       const url = part.startsWith('www.') ? `https://${part}` : part;
       return (
-        <a 
+        <a
           key={i}
           href={url}
           target="_blank"
@@ -74,9 +75,10 @@ const CreatorsPage = () => {
     const fetchProfiles = async () => {
       try {
         const res = await fetch('/api/profiles', {
+          next: { revalidate: 0 },
           cache: 'no-store',
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate, proxy-revalidate',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
           }
         });
@@ -133,7 +135,7 @@ const CreatorsPage = () => {
     const filtered = profiles.filter(profile => {
       const matchesSearch = profile.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         profile.about.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       switch (contentFilter) {
         case '18+':
           return matchesSearch && profile.isAdultContent;
@@ -149,9 +151,10 @@ const CreatorsPage = () => {
   const fetchUserProfile = async (address: string) => {
     try {
       const res = await fetch(`/api/profile?address=${address}`, {
+        next: { revalidate: 0 },
         cache: 'no-store',
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, proxy-revalidate',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
         }
       });
@@ -278,7 +281,7 @@ const CreatorsPage = () => {
         >
           <div className='flex flex-col md:flex-row gap-8 items-start justify-center'>
             {/* Search and Filter Box */}
-             <div className='w-[85vw] md:w-[500px] bg-[#080e0e] rounded-xl p-4 border border-gray-800 relative md:sticky top-[25%] mt-10 md:mt-0 mb-10'>
+            <div className='w-[85vw] md:w-[500px] bg-[#080e0e] rounded-xl p-4 border border-gray-800 relative md:sticky top-[25%] mt-10 md:mt-0 mb-10'>
               <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-4'>
                 Find Creators
               </h1>
@@ -291,7 +294,7 @@ const CreatorsPage = () => {
               />
               <div className="mb-4">
                 <label className="text-white mb-2 block">Content Filter</label>
-                <select 
+                <select
                   value={contentFilter}
                   onChange={(e) => setContentFilter(e.target.value as 'all' | '18+' | 'normal')}
                   className="w-full bg-gray-900 pr-2 text-white px-4 py-2 rounded-lg"
@@ -313,9 +316,9 @@ const CreatorsPage = () => {
                       alt={profile.username}
                       width={40}
                       height={40}
-                      style={{borderRadius: '50%'}}
-                      className="object-fit"
+                      className="rounded-full object-cover w-10 h-10"
                     />
+
                     <div className="text-left">
                       <p className="text-white font-semibold">{profile.username}</p>
                       <p className="text-gray-400 text-sm truncate w-[200px]">
@@ -325,7 +328,7 @@ const CreatorsPage = () => {
                   </div>
                 ))}
               </div>
-            </div> 
+            </div>
 
             {/* Creator Card */}
             <div className='flex justify-center items-center w-full' ref={creatorCardRef}>
@@ -351,7 +354,7 @@ const CreatorsPage = () => {
                           x: selectedChat ? -100 : 0
                         }}
                         transition={{ duration: 0.5 }}
-                       >
+                      >
                         <div
                           onTouchStart={handleTouchStart}
                           onTouchMove={handleTouchMove}
@@ -405,7 +408,7 @@ const CreatorsPage = () => {
                                 <IoChatbubbleEllipsesOutline className="text-xl" />
                                 <span>Chat {currentProfile.username}</span>
                               </button>
-                              
+
                               <Link href={`/creator/${currentProfile.address}`} className="block">
                                 <button className="w-full bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors flex items-center justify-center gap-2">
                                   <RiGalleryFill className="text-xl" />

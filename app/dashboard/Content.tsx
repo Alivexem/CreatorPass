@@ -211,12 +211,26 @@ const Content = ({ setToast }: ContentProps) => {
                 throw new Error('Failed to delete post');
             }
 
+            // Deduct CRTP points for deleting a post
+            const address = localStorage.getItem('address');
+            if (address) {
+                await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        address,
+                        metricType: 'crtp',
+                        value: -30 // -30 points for deleting a post
+                    })
+                });
+            }
+
             await fetchPosts();
             setShowDeleteModal(false);
             setPostToDelete(null);
             setToast({
                 show: true,
-                message: 'Post deleted successfully!',
+                message: 'Post deleted successfully! (-30 CRTP)',
                 type: 'success'
             });
         } catch (error) {
@@ -405,9 +419,20 @@ const Content = ({ setToast }: ContentProps) => {
             console.log('Frontend - Response from server:', JSON.stringify(data, null, 2));
 
             if (data.message === 'Post uploaded') {
+                // Update CRTP points
+                await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        address: myAddress,
+                        metricType: 'crtp',
+                        value: 30 // +30 points for creating a post
+                    })
+                });
+
                 setToast({
                     show: true,
-                    message: 'Posted successfully!',
+                    message: 'Posted successfully! (+30 CRTP)',
                     type: 'success'
                 });
                 setNote('');
