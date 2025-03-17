@@ -92,9 +92,9 @@ export async function PUT(request) {
                 profile.revenue = (profile.revenue || 0) + value;
                 break;
             case 'crtp':
-                // Handle CRTP updates separately
+                // Adjusted CRTP handling for +15 for likes and +30 for posts
                 if (!profile.crtp) profile.crtp = 0;
-                profile.crtp = Math.max(0, profile.crtp + value);
+                profile.crtp = Math.max(0, profile.crtp + value); // value should be either 15 or 30
                 break;
             default:
                 return NextResponse.json({ message: 'Invalid metric type' }, { status: 400 });

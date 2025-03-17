@@ -1,53 +1,66 @@
-import { NextResponse } from 'next/server';
-import connectDB from '../../../../../libs/mongodb';
-import Creates from '../../../../../models/uploads';
-import Profile from '../../../../../models/profile';
+import { NextResponse } from "next/server";
+import connectDB from "@/libs/mongodb";
+import Post from "@/models/post";
 
 export async function PUT(request, { params }) {
-  try {
-    await connectDB();
-    const { id } = params;
-    const { address } = await request.json();
+    try {
+        await connectDB();
+        const { address } = await request.json();
+        const { id } = params;
 
-    const post = await Creates.findById(id);
-    if (!post) {
-      return new NextResponse(JSON.stringify({ error: 'Post not found' }), { 
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
-      });
+        if (!address) {
+            return NextResponse.json({ message: 'Address is required' }, { status: 400 });
+        }
+
+        const post = await Post.findById(id);
+        if (!post) {
+            return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+        }
+
+        // Toggle like status
+        const isLiked = post.likes.includes(address);
+        
+        if (!isLiked) {
+            // Add like and update CRTP
+            post.likes.push(address);
+            post.likeCount = (post.likeCount || 0) + 1;
+            
+            // Update CRTP points for the user who liked the post
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    address: address, // Changed to liker's address
+                    metricType: 'crtp',
+                    value: 15 // +15 points for liking a post
+                })
+            });
+        } else {
+            // Remove like and deduct CRTP
+            post.likes = post.likes.filter(like => like !== address);
+            post.likeCount = Math.max(0, (post.likeCount || 0) - 1);
+            
+            // Update CRTP points for the user who unliked the post
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    address: address, // Changed to liker's address
+                    metricType: 'crtp',
+                    value: -15 // -15 points when unliking
+                })
+            });
+        }
+
+        await post.save();
+
+        return NextResponse.json({
+            message: isLiked ? 'Like removed' : 'Post liked',
+            likes: post.likes,
+            likeCount: post.likeCount
+        });
+    } catch (error) {
+        console.error('Like update error:', error);
+        return NextResponse.json({ message: error.message }, { status: 500 });
     }
-
-    // Handle like logic
-    const hasLiked = post.likes.includes(address);
-    
-    // Update user's CRTP points who is liking/unliking
-    const userProfile = await Profile.findOne({ address });
-    if (userProfile) {
-      await userProfile.updateCRTP(hasLiked ? 'unlike' : 'like');
-    }
-
-    if (hasLiked) {
-      post.likes = post.likes.filter(like => like !== address);
-      post.likeCount = Math.max(0, post.likeCount - 1);
-    } else {
-      post.likes.push(address);
-      post.likeCount = (post.likeCount || 0) + 1;
-    }
-
-    await post.save();
-
-    return new NextResponse(JSON.stringify({ 
-      success: true,
-      liked: !hasLiked,
-      likeCount: post.likeCount
-    }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (error) {
-    console.error('Error updating like:', error);
-    return new NextResponse(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
 }
