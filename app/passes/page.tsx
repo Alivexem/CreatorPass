@@ -516,19 +516,18 @@ const PassesPage = () => {
             
             // After successful transaction, update profiles
             try {
-                // Update creator's revenue (80% of total payment)
-                const creatorRevenue = (pass.price * LAMPORTS_PER_SOL) * 0.8;
+                // Update creator's revenue in SOL (80% of total payment)
                 await fetch('/api/profile', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         address: pass.creatorAddress,
                         metricType: 'revenue',
-                        value: creatorRevenue
+                        value: pass.price * 0.8 // Pass the actual SOL amount, not lamports
                     })
                 });
 
-                // Update user's passes owned count
+                // Update buyer's passes owned count
                 const userAddress = localStorage.getItem('address');
                 if (userAddress) {
                     await fetch('/api/profile', {
@@ -537,7 +536,7 @@ const PassesPage = () => {
                         body: JSON.stringify({
                             address: userAddress,
                             metricType: 'passesOwned',
-                            value: 1  // Increment by 1
+                            value: 1
                         })
                     });
                 }
@@ -552,7 +551,6 @@ const PassesPage = () => {
                 }
             } catch (profileError) {
                 console.error('Error updating profiles:', profileError);
-                // Don't throw error here to avoid disrupting the user experience
             }
 
             // After successful transaction confirmation, update the pass holders

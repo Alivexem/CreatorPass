@@ -313,7 +313,8 @@ const CreatorsPage = () => {
                       alt={profile.username}
                       width={40}
                       height={40}
-                      className="rounded-[50%] object-fit"
+                      style={{borderRadius: '50%'}}
+                      className="object-fit"
                     />
                     <div className="text-left">
                       <p className="text-white font-semibold">{profile.username}</p>

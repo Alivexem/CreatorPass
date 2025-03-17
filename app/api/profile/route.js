@@ -71,40 +71,43 @@ export async function GET(request) {
 export async function PUT(request) {
     try {
         await connectDB();
-        const { address, metricType, value, action } = await request.json();
+        const { address, metricType, value } = await request.json();
 
         if (!address || !metricType) {
             return NextResponse.json({ message: 'Address and metric type are required' }, { status: 400 });
         }
 
-        const profile = await Profile.findOne({ address });
+        let profile = await Profile.findOne({ address });
         if (!profile) {
             return NextResponse.json({ message: 'Profile not found' }, { status: 404 });
         }
 
         switch (metricType) {
             case 'passesOwned':
-                await profile.updatePassesOwned(value);
+                // Initialize if undefined and add the new value
+                profile.passesOwned = (profile.passesOwned || 0) + value;
                 break;
             case 'revenue':
-                await profile.addRevenue(value);
+                // Initialize if undefined and add the new value
+                profile.revenue = (profile.revenue || 0) + value;
                 break;
             case 'crtp':
-                await profile.updateCRTP(action); // 'like' or 'unlike'
-                break;
-            case 'totalPasses':
-                await profile.updateTotalPasses(value);
+                // Handle CRTP updates separately
+                if (!profile.crtp) profile.crtp = 0;
+                profile.crtp = Math.max(0, profile.crtp + value);
                 break;
             default:
                 return NextResponse.json({ message: 'Invalid metric type' }, { status: 400 });
         }
 
+        await profile.save();
+
         return NextResponse.json({ 
-            message: 'Metrics updated',
+            message: 'Profile metrics updated successfully',
             profile
         });
     } catch (error) {
-        console.error('Update metrics error:', error);
+        console.error('Update profile metrics error:', error);
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
