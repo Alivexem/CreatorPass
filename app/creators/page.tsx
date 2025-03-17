@@ -1,12 +1,4 @@
 'use client'
-// Remove these lines
-// export const dynamic = 'force-dynamic';
-// export const revalidate = 0;
-
-// Add metadata export
-export const metadata = {
-    dynamic: 'force-dynamic'
-};
 
 import React, { useState, useEffect, TouchEvent, useRef, ReactNode } from 'react'
 import NavBar from '@/components/NavBar'
