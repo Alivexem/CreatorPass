@@ -26,7 +26,7 @@ export async function PUT(request, { params }) {
             post.likeCount = (post.likeCount || 0) + 1;
             
             // Update CRTP points for the user who liked the post
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+            await fetch(`/api/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -41,7 +41,7 @@ export async function PUT(request, { params }) {
             post.likeCount = Math.max(0, (post.likeCount || 0) - 1);
             
             // Update CRTP points for the user who unliked the post
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+            await fetch(`/api/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
