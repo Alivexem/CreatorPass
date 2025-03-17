@@ -530,7 +530,7 @@ const PassesPage = () => {
                             body: JSON.stringify({
                                 address: userAddress,
                                 metricType: 'crtp',
-                                value: 100 // Award 100 CRTP points for minting a pass
+                                action: 'PASS_MINT'  // Changed from value: 100
                             })
                         })
                     ]);
@@ -541,7 +541,7 @@ const PassesPage = () => {
 
             setToast({
                 show: true,
-                message: 'Transaction sent! Check your wallet for the NFT (+100 CRTP)',
+                message: 'Transaction sent! Check your wallet for the NFT (+100 CRTP)',  // Keep message same as points are same
                 type: 'success'
             });
             setIsMinting(false);

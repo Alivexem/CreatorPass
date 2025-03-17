@@ -54,6 +54,15 @@ const profileSchema = new mongoose.Schema({
     }
 });
 
+// CRTP point constants
+const CRTP_POINTS = {
+    POST_CREATE: 35,
+    POST_DELETE: -35,
+    LIKE: 15,
+    UNLIKE: -15,
+    PASS_MINT: 100
+};
+
 // Add methods to handle metric updates
 profileSchema.methods.updatePassesOwned = async function(count) {
     this.metrics.passesOwned = count;
@@ -65,9 +74,10 @@ profileSchema.methods.addRevenue = async function(amount) {
     return this.save();
 };
 
+// Update method to handle all CRTP point actions
 profileSchema.methods.updateCRTP = async function(action) {
-    const CRTP_PER_ACTION = 75;
-    this.metrics.crtpPoints += action === 'like' ? CRTP_PER_ACTION : -CRTP_PER_ACTION;
+    const points = CRTP_POINTS[action] || 0;
+    this.metrics.crtpPoints += points;
     return this.save();
 };
 

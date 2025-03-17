@@ -19,9 +19,9 @@ export async function GET() {
 
         return NextResponse.json({ profiles }, {
             headers: {
-                'Cache-Control': 'no-store, must-revalidate, proxy-revalidate',
+                'Cache-Control': 'no-store, no-cache, must-revalidate',
                 'Pragma': 'no-cache',
-                'Expires': '0',
+                'Expires': '0'
             }
         });
     } catch (error) {
