@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../libs/mongodb';
 import Creates from '../../../../../models/uploads';
+import Profile from '../../../../../models/profile';
 
 export async function PUT(request, { params }) {
   try {
@@ -19,6 +20,12 @@ export async function PUT(request, { params }) {
     // Handle like logic
     const hasLiked = post.likes.includes(address);
     
+    // Update user's CRTP points who is liking/unliking
+    const userProfile = await Profile.findOne({ address });
+    if (userProfile) {
+      await userProfile.updateCRTP(hasLiked ? 'unlike' : 'like');
+    }
+
     if (hasLiked) {
       post.likes = post.likes.filter(like => like !== address);
       post.likeCount = Math.max(0, post.likeCount - 1);

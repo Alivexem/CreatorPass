@@ -786,7 +786,7 @@ const CreatorPage = ({ params }: PageProps) => {
 
             {/* Mobile Fun Chat Toggle */}
             {!showFunChat && (
-                <div className="md:hidden fixed left-4 bottom-[10vh] transform -translate-y-1/2 z-40">
+                <div className="md:hidden fixed left-4 bottom-[11vh] transform -translate-y-1/2 z-40">
                     <button
                         onClick={() => setShowFunChat(true)}
                         className="bg-indigo-600 animate bounce p-3 rounded-full shadow-lg"

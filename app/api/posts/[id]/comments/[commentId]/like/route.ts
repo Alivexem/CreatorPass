@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
 import Creates from '@/models/uploads';
+import Profile from '@/models/profile';
 import mongoose from 'mongoose';
 
 export async function PUT(
@@ -40,8 +41,21 @@ export async function PUT(
       comment.likes = [];
     }
 
-    // Toggle like
+    // Toggle like and update CRTP
     const hasLiked = comment.likes.includes(address);
+    
+    // Update creator's CRTP points
+    const creatorProfile = await Profile.findOne({ address: targetPost.username });
+    if (creatorProfile) {
+      await creatorProfile.updateCRTP(hasLiked ? 'unlike' : 'like');
+    }
+
+    // Update user's CRTP points who is liking/unliking
+    const userProfile = await Profile.findOne({ address });
+    if (userProfile) {
+      await userProfile.updateCRTP(hasLiked ? 'unlike' : 'like');
+    }
+
     if (hasLiked) {
       comment.likes = comment.likes.filter((like: string) => like !== address);
       comment.likeCount = Math.max(0, (comment.likeCount || 1) - 1);
