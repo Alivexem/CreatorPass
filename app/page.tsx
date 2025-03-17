@@ -4,10 +4,7 @@ const page = () => {
   return (
     <div>
 
-      <div className='p-3 box-border bg-black' >
-        <div className='absolute lg:hidden top-[5%] left-[5%]'>
-          {/* <Whitelogo /> */}
-        </div>
+      <div className='box-border bg-black' >
         <Align />
       </div>
     </div>
