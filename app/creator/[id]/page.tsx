@@ -333,7 +333,21 @@ const CreatorPage = ({ params }: PageProps) => {
     const handleLike = async (postId: string) => {
         try {
             const address = localStorage.getItem('address');
-            if (!address) return;
+            if (!address) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'error'
+                });
+                return;
+            }
+
+            // Optimistic update
+            setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] }));
+            setLikes(prev => ({
+                ...prev,
+                [postId]: prev[postId] + (hasLiked[postId] ? -1 : 1)
+            }));
 
             const res = await fetch(`/api/posts/${postId}/like`, {
                 method: 'PUT',
@@ -342,11 +356,18 @@ const CreatorPage = ({ params }: PageProps) => {
             });
 
             if (!res.ok) {
+                // Revert optimistic update if request fails
+                setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] }));
+                setLikes(prev => ({
+                    ...prev,
+                    [postId]: prev[postId] + (hasLiked[postId] ? 1 : -1)
+                }));
                 throw new Error('Failed to update like');
             }
 
             const data = await res.json();
 
+            // Update with actual server data
             setPosts(prevPosts =>
                 prevPosts.map(post =>
                     post._id === postId
@@ -354,12 +375,15 @@ const CreatorPage = ({ params }: PageProps) => {
                         : post
                 )
             );
-
             setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
-            setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] }));
 
         } catch (error) {
             console.error('Error updating like:', error);
+            setToast({
+                show: true,
+                message: 'Failed to update like',
+                type: 'error'
+            });
         }
     };
 

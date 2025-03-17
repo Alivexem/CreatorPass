@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/libs/mongodb";
 import Creates from "@/models/uploads";
+import Profile from "@/models/profile";
 
 export async function PUT(request, { params }) {
     try {
@@ -19,42 +20,24 @@ export async function PUT(request, { params }) {
 
         const baseUrl = new URL(request.url).origin;
 
-
         // Toggle like status
         const isLiked = post.likes.includes(address);
-        
+
+        // Only update CRTP points for the user doing the liking
+        const liker = await Profile.findOne({ address });
+
         if (!isLiked) {
-            // Add like and update CRTP
             post.likes.push(address);
             post.likeCount = (post.likeCount || 0) + 1;
             
-            // Update CRTP points for the user who liked the post
-            await fetch(`
-${baseUrl}/api/profile`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    address: address, // Changed to liker's address
-                    metricType: 'crtp',
-                    value: 15 // +15 points for liking a post
-                })
-            });
+            // Update only liker's CRTP points
+            if (liker) await liker.updateCRTP('LIKE');
         } else {
-            // Remove like and deduct CRTP
             post.likes = post.likes.filter(like => like !== address);
             post.likeCount = Math.max(0, (post.likeCount || 0) - 1);
             
-            // Update CRTP points for the user who unliked the post
-            await fetch(`
-${baseUrl}/api/profile`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    address: address, // Changed to liker's address
-                    metricType: 'crtp',
-                    value: -15 // -15 points when unliking
-                })
-            });
+            // Update only liker's CRTP points
+            if (liker) await liker.updateCRTP('UNLIKE');
         }
 
         await post.save();

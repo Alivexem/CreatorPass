@@ -44,16 +44,10 @@ export async function PUT(
     // Toggle like and update CRTP
     const hasLiked = comment.likes.includes(address);
     
-    // Update creator's CRTP points
-    const creatorProfile = await Profile.findOne({ address: targetPost.username });
-    if (creatorProfile) {
-      await creatorProfile.updateCRTP(hasLiked ? 'unlike' : 'like');
-    }
-
-    // Update user's CRTP points who is liking/unliking
+    // Only update CRTP points for the user doing the liking
     const userProfile = await Profile.findOne({ address });
     if (userProfile) {
-      await userProfile.updateCRTP(hasLiked ? 'unlike' : 'like');
+      await userProfile.updateCRTP(hasLiked ? 'UNLIKE' : 'LIKE');
     }
 
     if (hasLiked) {
