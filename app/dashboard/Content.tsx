@@ -220,7 +220,7 @@ const Content = ({ setToast }: ContentProps) => {
                     body: JSON.stringify({
                         address,
                         metricType: 'crtp',
-                        value: -30 // -30 points for deleting a post
+                        action: 'POST_DELETE'  // Changed from value: -30
                     })
                 });
             }
@@ -230,7 +230,7 @@ const Content = ({ setToast }: ContentProps) => {
             setPostToDelete(null);
             setToast({
                 show: true,
-                message: 'Post deleted successfully! (-30 CRTP)',
+                message: 'Post deleted successfully! (-35 CRTP)',  // Updated points message
                 type: 'success'
             });
         } catch (error) {
@@ -426,13 +426,13 @@ const Content = ({ setToast }: ContentProps) => {
                     body: JSON.stringify({
                         address: myAddress,
                         metricType: 'crtp',
-                        value: 30 // +30 points for creating a post
+                        action: 'POST_CREATE'  // Changed from value: 30
                     })
                 });
 
                 setToast({
                     show: true,
-                    message: 'Posted successfully! (+30 CRTP)',
+                    message: 'Posted successfully! (+35 CRTP)',  // Updated points message
                     type: 'success'
                 });
                 setNote('');
@@ -489,6 +489,21 @@ const Content = ({ setToast }: ContentProps) => {
                 )
             );
             setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
+
+            await fetch('/api/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    address,
+                    metricType: 'crtp',
+                    action: hasLiked[postId] ? 'UNLIKE' : 'LIKE'  // Changed from value: ±75
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to update like');
+            }
+
         } catch (error) {
             console.error('Error updating like:', error);
             setToast({
