@@ -293,7 +293,7 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                     {
                       title: 'Total Passes',
                       description: 'Track your NFT pass sales',
-                      value: metrics.totalPasses,
+                      value: metrics.passesOwned,
                       icon: <SiSolana className='text-purple-500 text-2xl' />,
                       bgColor: 'bg-purple-500/20'
                     },
