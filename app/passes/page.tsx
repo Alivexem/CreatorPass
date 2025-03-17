@@ -511,17 +511,69 @@ const PassesPage = () => {
             const confirmation = await connection.confirmTransaction(signature, 'processed');
             console.log('Transaction confirmed:', confirmation);
             
-            // If we get here before the timer, clear it and show success
+            // Clear the success timer
             clearTimeout(successTimer);
             
-            // Only show confirmation message if we haven't shown success message yet
-            if (mintingStates[pass._id]) {
-                setToast({
-                    show: true,
-                    message: 'Access Card minted successfully!',
-                    type: 'success'
+            // After successful transaction, update profiles
+            try {
+                // Update creator's revenue (80% of total payment)
+                const creatorRevenue = (pass.price * LAMPORTS_PER_SOL) * 0.8;
+                await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        address: pass.creatorAddress,
+                        metricType: 'revenue',
+                        value: creatorRevenue
+                    })
                 });
+
+                // Update user's passes owned count
+                const userAddress = localStorage.getItem('address');
+                if (userAddress) {
+                    await fetch('/api/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            address: userAddress,
+                            metricType: 'passesOwned',
+                            value: 1  // Increment by 1
+                        })
+                    });
+                }
+
+                // Only show confirmation message if we haven't shown success message yet
+                if (mintingStates[pass._id]) {
+                    setToast({
+                        show: true,
+                        message: 'Access Card minted successfully!',
+                        type: 'success'
+                    });
+                }
+            } catch (profileError) {
+                console.error('Error updating profiles:', profileError);
+                // Don't throw error here to avoid disrupting the user experience
             }
+
+            // After successful transaction confirmation, update the pass holders
+            try {
+              const response = await fetch(`/api/passholders/${pass._id}`, { // Updated endpoint
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  holderAddress: walletAddress
+                }),
+              });
+          
+              if (!response.ok) {
+                console.warn('Failed to update pass holders:', await response.text());
+              }
+            } catch (error) {
+              console.warn('Error updating pass holders:', error);
+            }
+
         } catch (confirmError) {
             // Clear the success timer if we get a confirmation error
             clearTimeout(successTimer);
@@ -537,25 +589,6 @@ const PassesPage = () => {
                     type: 'success'
                 });
             }
-        }
-
-        // After successful transaction confirmation, update the pass holders
-        try {
-          const response = await fetch(`/api/passholders/${pass._id}`, { // Updated endpoint
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              holderAddress: walletAddress
-            }),
-          });
-      
-          if (!response.ok) {
-            console.warn('Failed to update pass holders:', await response.text());
-          }
-        } catch (error) {
-          console.warn('Error updating pass holders:', error);
         }
 
     } catch (err) {
