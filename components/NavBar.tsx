@@ -139,7 +139,7 @@ const NavBar = () => {
           }}
           className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center md:w-[95%] w-full md:rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
           <Image
-            src='/ctrpNo.jpg'
+            src='/ctrp.jpg'
             alt='logo'
             height={80}
             width={80}
@@ -148,7 +148,7 @@ const NavBar = () => {
 
           <Image
             style={{borderRadius: '50%'}}
-            src='/ctrpNo.jpg'
+            src='/ctrp.jpg'
             alt='logo'
             height={60}
             width={60}
