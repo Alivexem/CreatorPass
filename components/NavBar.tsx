@@ -139,16 +139,16 @@ const NavBar = () => {
           }}
           className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center md:w-[95%] w-full md:rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
           <Image
-            src='/ctrp.jpg'
+            src='/ctrpNo.jpg'
             alt='logo'
-            height={100}
-            width={100}
+            height={80}
+            width={80}
             className='hidden md:block rounded-full object-cover md:h-[80px] -ml-4'
           />
 
           <Image
             style={{borderRadius: '50%'}}
-            src='/ctrp.jpg'
+            src='/ctrpNo.jpg'
             alt='logo'
             height={60}
             width={60}
