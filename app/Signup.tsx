@@ -57,7 +57,7 @@ const App = () => {
                     width: '100%'
                 }} className='mb-14 h-[480px] flex justify-center items-center md:hidden'>
                     <div className='absolute top-5 left-3 md:hidden'>
-                        <Image style={{borderRadius: '50%'}} className='rounded-full' src='/crtp.jpg' alt='logo' height={50} width={50} />
+                        <Image style={{borderRadius: '50%'}} className='rounded-full' src='/ctrp.jpg' alt='logo' height={50} width={50} />
                     </div>
                     {/* <div className='absolute top-6 right-4 md:hidden'>
                         <Image src='/sol.png' height={45} width={45} alt='profile' className='rounded-lg' />
@@ -95,7 +95,7 @@ const App = () => {
 
                 </div>
 
-                <div className='md:hidden mt-[500px] bg-black'>
+                <div className='md:hidden p-2 mt-[500px] bg-black'>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4'>
                         <div className='text-[2.5rem] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
                             <p>CreatorPass</p>
