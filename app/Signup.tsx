@@ -119,7 +119,7 @@ const App = () => {
                         <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly in-app to top-up balance.</p>
                     </div>
                 </div>
-                <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg cursor-pointer md:ml-4 flex justify-center mb-14 md:mb-0 mt-6'>
+                <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg cursor-pointer p-2 md:p-0 md:ml-4 flex justify-center mb-14 md:mb-0 mt-6'>
                     <button className='w-full md:max-w-[250px] lg:max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>
                         <Image src='/sol.png' alt='sol' height={20} width={20} /> {isConnected ? 'Go in' : 'Connect wallet'}
                     </button>
