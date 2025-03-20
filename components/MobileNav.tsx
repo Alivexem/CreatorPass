@@ -57,10 +57,10 @@ const MobileNav = () => {
                     return {
                         id: chatId,
                         recipientAddress: isUser1 ? addr2 : addr1,
-                        username: isUser1 ? data.otherUsername : data.username,
-                        profileImage: isUser1 ? data.otherProfileImage : data.profileImage,
-                        lastMessage: data.lastMessage,
-                        timestamp: data.timestamp
+                        username: data.username || 'Anonymous',
+                        profileImage: data.profileImage || '/empProfile.png',
+                        lastMessage: data.lastMessage || '',
+                        timestamp: data.timestamp || Date.now()
                     };
                 })
                 .sort((a, b) => b.timestamp - a.timestamp);

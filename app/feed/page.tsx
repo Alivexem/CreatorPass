@@ -362,7 +362,7 @@ const FeedPage = () => {
 
     const AdsSidebar = () => (
         <div className="hidden md:block w-[350px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
-            <div className="h-screen sticky flex items-center justify-center">
+            <div className="flex h-screen sticky items-center justify-center">
                 PLACE ADS
             </div>
         </div>
@@ -388,16 +388,16 @@ const FeedPage = () => {
             </div>
 
             {/* Mobile Ads Banner */}
-            <div className="md:hidden sticky top-0 z-10">
+        
                 <AdsBanner />
-            </div>
+       
 
-            <div className='pt-[100px]'></div>
+            <div className='pt-[100px] md:pt-[150px]'></div>
 
             <div className='flex md:justify-start justify-center w-full'>
                 {/* Main Content */}
                 <AdsSidebar />
-                <div className='flex md:ml-[200px] flex-col space-y-10 items-center pb-[60px] w-full md:w-auto'>
+                <div className='flex md:ml-[150px] flex-col space-y-10 items-center pb-[60px] w-full md:w-auto'>
                     {posts.map((post) => (
                         <CreatorPost
                             key={post._id}
