@@ -7,6 +7,8 @@ import CreatorPost from '@/components/creator/CreatorPost';
 import { CommentModal } from '@/components/CommentModal';
 import Image from 'next/image';
 import { IoMdClose } from "react-icons/io";
+import GiftModal from '@/components/creator/GiftModal';
+import { useAppKit } from '@/utils/reown';
 
 const FeedPage = () => {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -19,12 +21,15 @@ const FeedPage = () => {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [downloadedStates, setDownloadedStates] = useState<{ [key: string]: boolean }>({});
     const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>({});
-    const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'error'}>({
+    const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({
         show: false,
         message: '',
         type: 'success'
     });
-    const [creatorProfiles, setCreatorProfiles] = useState<{[key: string]: Profile}>({});
+    const [creatorProfiles, setCreatorProfiles] = useState<{ [key: string]: Profile }>({});
+    const [showGiftModal, setShowGiftModal] = useState(false);
+    const [selectedCreator, setSelectedCreator] = useState<{ id: string; profile: Profile | null }>({ id: '', profile: null });
+    const { open } = useAppKit();
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -93,20 +98,20 @@ const FeedPage = () => {
                 });
                 return;
             }
-    
+
             // Optimistic update
             setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] }));
             setLikes(prev => ({
                 ...prev,
                 [postId]: prev[postId] + (hasLiked[postId] ? -1 : 1)
             }));
-    
+
             const res = await fetch(`/api/posts/${postId}/like`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ address })
             });
-    
+
             if (!res.ok) {
                 // Revert optimistic update if request fails
                 setHasLiked(prev => ({ ...prev, [postId]: !prev[postId] }));
@@ -116,9 +121,9 @@ const FeedPage = () => {
                 }));
                 throw new Error('Failed to update like');
             }
-    
+
             const data = await res.json();
-    
+
             // Update with actual server data
             setPosts(prevPosts =>
                 prevPosts.map(post =>
@@ -128,7 +133,7 @@ const FeedPage = () => {
                 )
             );
             setLikes(prev => ({ ...prev, [postId]: data.likeCount }));
-    
+
         } catch (error) {
             console.error('Error updating like:', error);
             setToast({
@@ -138,10 +143,10 @@ const FeedPage = () => {
             });
         }
     };
-    
+
     const handleComment = async (postId: string, comment: string, imageUrl?: string): Promise<void> => {
         if (!comment.trim() && !imageUrl) return;
-    
+
         try {
             const address = localStorage.getItem('address');
             if (!address || !userProfile) {
@@ -152,7 +157,7 @@ const FeedPage = () => {
                 });
                 return;
             }
-    
+
             const res = await fetch(`/api/posts/${postId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -165,10 +170,10 @@ const FeedPage = () => {
                     profileImage: userProfile.profileImage
                 })
             });
-    
+
             if (!res.ok) throw new Error('Failed to add comment');
             const data = await res.json();
-    
+
             setPosts(prevPosts =>
                 prevPosts.map(post =>
                     post._id === postId
@@ -176,11 +181,11 @@ const FeedPage = () => {
                         : post
                 )
             );
-    
+
             if (selectedPost && selectedPost._id === postId) {
                 setSelectedPost(prev => prev ? { ...prev, comments: data.comments } : null);
             }
-    
+
         } catch (error) {
             console.error('Error adding comment:', error);
             setToast({
@@ -190,32 +195,32 @@ const FeedPage = () => {
             });
         }
     };
-    
+
     const handleCommentClick = async (post: Post) => {
-        try {
-            setSelectedPost({...post});
-            setShowCommentModal(true);
-            
-            const res = await fetch(`/api/posts/${post._id}/comments`);
-            if (!res.ok) throw new Error('Failed to fetch comments');
-            const data = await res.json();
-            
-            if (!showCommentModal) return;
-    
-            setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments: data.comments } : prev);
-            setPosts(prevPosts =>
-                prevPosts.map(p => p._id === post._id ? { ...p, comments: data.comments } : p)
-            );
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-            setToast({
-                show: true,
-                message: 'Failed to load comments. Please try again.',
-                type: 'error'
-            });
-        }
+        // try {
+        //     setSelectedPost({ ...post });
+        //     setShowCommentModal(true);
+
+        //     const res = await fetch(`/api/posts/${post._id}/comments`);
+        //     if (!res.ok) throw new Error('Failed to fetch comments');
+        //     const data = await res.json();
+
+        //     if (!showCommentModal) return;
+
+        //     setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments: data.comments } : prev);
+        //     setPosts(prevPosts =>
+        //         prevPosts.map(p => p._id === post._id ? { ...p, comments: data.comments } : p)
+        //     );
+        // } catch (error) {
+        //     console.error('Error fetching comments:', error);
+        //     setToast({
+        //         show: true,
+        //         message: 'Failed to load comments. Please try again.',
+        //         type: 'error'
+        //     });
+        // }
     };
-    
+
     const handleCommentLike = async (postId: string, commentId: string) => {
         try {
             const address = localStorage.getItem('address');
@@ -227,17 +232,17 @@ const FeedPage = () => {
                 });
                 return;
             }
-    
+
             const res = await fetch(`/api/posts/${postId}/comments/${commentId}/like`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ address })
             });
-    
+
             if (!res.ok) throw new Error('Failed to like comment');
-            
+
             const data = await res.json();
-    
+
             setPosts(prevPosts =>
                 prevPosts.map(post =>
                     post._id === postId ? {
@@ -246,7 +251,7 @@ const FeedPage = () => {
                             comment._id === commentId ? {
                                 ...comment,
                                 likeCount: data.likeCount,
-                                likes: data.liked ? 
+                                likes: data.liked ?
                                     [...(comment.likes || []), address] :
                                     (comment.likes || []).filter(like => like !== address)
                             } : comment
@@ -254,7 +259,7 @@ const FeedPage = () => {
                     } : post
                 )
             );
-    
+
             if (selectedPost && selectedPost._id === postId) {
                 setSelectedPost(prev => prev ? {
                     ...prev,
@@ -262,14 +267,14 @@ const FeedPage = () => {
                         comment._id === commentId ? {
                             ...comment,
                             likeCount: data.likeCount,
-                            likes: data.liked ? 
+                            likes: data.liked ?
                                 [...(comment.likes || []), address] :
                                 (comment.likes || []).filter(like => like !== address)
                         } : comment
                     )
                 } : null);
             }
-    
+
         } catch (error) {
             console.error('Error liking comment:', error);
             setToast({
@@ -279,7 +284,7 @@ const FeedPage = () => {
             });
         }
     };
-    
+
     const handleDownload = async (imageUrl: string, postId: string) => {
         try {
             const response = await fetch(imageUrl);
@@ -291,7 +296,7 @@ const FeedPage = () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             setDownloadedStates(prev => ({ ...prev, [postId]: true }));
             setTimeout(() => {
                 setDownloadedStates(prev => ({ ...prev, [postId]: false }));
@@ -300,7 +305,7 @@ const FeedPage = () => {
             console.error('Error downloading image:', error);
         }
     };
-    
+
     const handleCopy = (text: string, postId: string) => {
         navigator.clipboard.writeText(text);
         setCopiedStates(prev => ({ ...prev, [postId]: true }));
@@ -309,8 +314,46 @@ const FeedPage = () => {
         }, 2000);
     };
 
+    const handleSendTx = async (amount: number, receiver: string) => {
+        try {
+            const address = localStorage.getItem('address');
+            if (!address) {
+                setToast({
+                    show: true,
+                    message: 'Please connect your wallet first',
+                    type: 'error'
+                });
+                return;
+            }
+
+            // Rest of the transaction logic will be handled by the GiftModal component
+            setToast({
+                show: true,
+                message: 'Gift sent successfully!',
+                type: 'success'
+            });
+
+            setTimeout(() => {
+                setToast({ show: false, message: '', type: 'success' });
+            }, 3000);
+
+        } catch (error) {
+            console.error('Error sending gift:', error);
+            setToast({
+                show: true,
+                message: 'Failed to send gift',
+                type: 'error'
+            });
+        }
+    };
+
+    const handleGift = () => {
+        open();
+        setShowGiftModal(false);
+    };
+
     const AdsBanner = () => (
-        <div className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-center">
+        <div className="w-full h-[80px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-center">
             <div className="py-4">
                 PLACE ADS
             </div>
@@ -319,7 +362,7 @@ const FeedPage = () => {
 
     const AdsSidebar = () => (
         <div className="hidden md:block w-[300px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
-            <div className="h-screen sticky top-0 flex items-center justify-center">
+            <div className="h-screen sticky flex items-center justify-center">
                 PLACE ADS
             </div>
         </div>
@@ -328,7 +371,9 @@ const FeedPage = () => {
     if (loading) {
         return (
             <div className='bg-black min-h-screen flex flex-col'>
-                <NavBar />
+                <div className='p-0 m-0 hidden md:block'>
+                    <NavBar />
+                </div>
                 <div className='flex-1 flex justify-center items-center'>
                     <p className='text-white text-2xl animate-pulse'>Loading posts...</p>
                 </div>
@@ -338,17 +383,20 @@ const FeedPage = () => {
 
     return (
         <div className='bg-black min-h-screen pb-[80px] md:pb-0'>
-            <NavBar />
-            
+            <div className='p-0 m-0 hidden md:block'>
+                <NavBar />
+            </div>
+
             {/* Mobile Ads Banner */}
-            <div className="md:hidden sticky top-[60px] z-10">
+            <div className="md:hidden sticky top-0 z-10">
                 <AdsBanner />
             </div>
 
             <div className='pt-[100px]'></div>
-            
-            <div className='flex justify-center'>
+
+            <div className='flex justify-center md:justify-between w-full'>
                 {/* Main Content */}
+                <AdsSidebar />
                 <div className='flex flex-col space-y-10 items-center pb-[60px] w-full md:w-auto'>
                     {posts.map((post) => (
                         <CreatorPost
@@ -359,7 +407,13 @@ const FeedPage = () => {
                             likes={likes[post._id]}
                             onLike={() => handleLike(post._id)}
                             onComment={() => handleCommentClick(post)}
-                            onGift={() => {}}
+                            onGift={() => {
+                                setSelectedCreator({ 
+                                    id: post.username, 
+                                    profile: creatorProfiles[post.username] 
+                                });
+                                setShowGiftModal(true);
+                            }}
                             onImageClick={setSelectedImage}
                             onCopy={handleCopy}
                             onDownload={handleDownload}
@@ -403,7 +457,7 @@ const FeedPage = () => {
 
             {/* Comment Modal */}
             {showCommentModal && selectedPost && userProfile && (
-                <CommentModal 
+                <CommentModal
                     post={selectedPost}
                     onClose={() => {
                         setShowCommentModal(false);
@@ -417,16 +471,26 @@ const FeedPage = () => {
                 />
             )}
 
+            {/* Gift Modal */}
+            {showGiftModal && (
+                <GiftModal
+                    profile={selectedCreator.profile}
+                    creatorId={selectedCreator.id}
+                    onClose={() => setShowGiftModal(false)}
+                    onSendTx={handleSendTx}
+                    onBuySol={handleGift}
+                />
+            )}
+
             {/* Toast Notifications */}
             {toast.show && (
-                <div className={`fixed bottom-4 right-4 p-4 rounded-lg text-white ${
-                    toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'
-                }`}>
+                <div className={`fixed bottom-4 right-4 p-4 rounded-lg text-white ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+                    }`}>
                     {toast.message}
                 </div>
             )}
 
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };

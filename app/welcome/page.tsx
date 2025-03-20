@@ -323,7 +323,7 @@ const Page = () => {
                         <Link href='/passes'>
                             <button className="mt-8 text-[15px] px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
   shadow-sm bg-transparent whitespace-nowrap border md:border-[2px] border-blue-600">
-                                Explore Passes
+                                Check Passes
                             </button>
 
                         </Link>
@@ -331,7 +331,7 @@ const Page = () => {
                         <Link href='/feed'>
                             <button className="mt-8 px-4 md:px-8 py-3 md:py-4 rounded-xl md:mb-[50px] text-white text-lg font-medium transform hover:scale-105 transition-all duration-200 
   shadow-sm bg-transparent border whitespace-nowrap md:border-[2px] text-[15px] border-purple-600">
-                                Post Feed
+                                Explore Feed
                             </button>
 
                         </Link>
