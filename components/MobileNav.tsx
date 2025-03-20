@@ -44,30 +44,34 @@ const MobileNav = () => {
 
     setIsLoadingMessages(true);
     const unsubscribe = onValue(chatHistoryRef, (snapshot) => {
-      const chatHistory = snapshot.val();
-      if (chatHistory) {
-        const personalChatsArray = Object.entries(chatHistory)
-          .filter(([chatId]) => {
-            const [addr1, addr2] = chatId.split('-');
-            return addr1 === address || addr2 === address;
-          })
-          .map(([chatId, data]: [string, any]) => ({
-            id: chatId,
-            recipientAddress: data.recipientAddress,
-            username: data.username,
-            profileImage: data.profileImage,
-            lastMessage: data.lastMessage,
-            timestamp: data.timestamp
-          }))
-          .sort((a, b) => b.timestamp - a.timestamp);
+        const chatHistory = snapshot.val();
+        if (chatHistory) {
+            const personalChatsArray = Object.entries(chatHistory)
+                .filter(([chatId]) => {
+                    const [addr1, addr2] = chatId.split('-');
+                    return addr1 === address || addr2 === address;
+                })
+                .map(([chatId, data]: [string, any]) => {
+                    const [addr1, addr2] = chatId.split('-');
+                    const isUser1 = addr1 === address;
+                    return {
+                        id: chatId,
+                        recipientAddress: isUser1 ? addr2 : addr1,
+                        username: isUser1 ? data.otherUsername : data.username,
+                        profileImage: isUser1 ? data.otherProfileImage : data.profileImage,
+                        lastMessage: data.lastMessage,
+                        timestamp: data.timestamp
+                    };
+                })
+                .sort((a, b) => b.timestamp - a.timestamp);
 
-        setPersonalChats(personalChatsArray);
-      }
-      setIsLoadingMessages(false);
+            setPersonalChats(personalChatsArray);
+        }
+        setIsLoadingMessages(false);
     });
 
     return () => unsubscribe();
-  }, []);
+}, []);
 
   useEffect(() => {
     if (toast.show) {

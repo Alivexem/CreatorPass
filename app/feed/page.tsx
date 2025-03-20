@@ -197,28 +197,28 @@ const FeedPage = () => {
     };
 
     const handleCommentClick = async (post: Post) => {
-        // try {
-        //     setSelectedPost({ ...post });
-        //     setShowCommentModal(true);
+        try {
+            setSelectedPost({ ...post });
+            setShowCommentModal(true);
 
-        //     const res = await fetch(`/api/posts/${post._id}/comments`);
-        //     if (!res.ok) throw new Error('Failed to fetch comments');
-        //     const data = await res.json();
+            const res = await fetch(`/api/posts/${post._id}/comments`);
+            if (!res.ok) throw new Error('Failed to fetch comments');
+            const data = await res.json();
 
-        //     if (!showCommentModal) return;
+            if (!showCommentModal) return;
 
-        //     setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments: data.comments } : prev);
-        //     setPosts(prevPosts =>
-        //         prevPosts.map(p => p._id === post._id ? { ...p, comments: data.comments } : p)
-        //     );
-        // } catch (error) {
-        //     console.error('Error fetching comments:', error);
-        //     setToast({
-        //         show: true,
-        //         message: 'Failed to load comments. Please try again.',
-        //         type: 'error'
-        //     });
-        // }
+            setSelectedPost(prev => prev && prev._id === post._id ? { ...prev, comments: data.comments } : prev);
+            setPosts(prevPosts =>
+                prevPosts.map(p => p._id === post._id ? { ...p, comments: data.comments } : p)
+            );
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            // setToast({
+            //     show: true,
+            //     message: 'Failed to load comments. Please try again.',
+            //     type: 'error'
+            // });
+        }
     };
 
     const handleCommentLike = async (postId: string, commentId: string) => {
@@ -361,7 +361,7 @@ const FeedPage = () => {
     );
 
     const AdsSidebar = () => (
-        <div className="hidden md:block w-[300px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
+        <div className="hidden md:block w-[350px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
             <div className="h-screen sticky flex items-center justify-center">
                 PLACE ADS
             </div>
@@ -394,10 +394,10 @@ const FeedPage = () => {
 
             <div className='pt-[100px]'></div>
 
-            <div className='flex justify-center md:justify-between w-full'>
+            <div className='flex md:justify-start justify-center w-full'>
                 {/* Main Content */}
                 <AdsSidebar />
-                <div className='flex flex-col space-y-10 items-center pb-[60px] w-full md:w-auto'>
+                <div className='flex md:ml-[200px] flex-col space-y-10 items-center pb-[60px] w-full md:w-auto'>
                     {posts.map((post) => (
                         <CreatorPost
                             key={post._id}
@@ -432,7 +432,7 @@ const FeedPage = () => {
                 </div>
 
                 {/* Desktop Ads Sidebar */}
-                <AdsSidebar />
+                {/* <AdsSidebar /> */}
             </div>
 
             {/* Image Preview Modal */}
