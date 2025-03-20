@@ -141,8 +141,8 @@ const NavBar = () => {
           <Image
             src='/ctrp.jpg'
             alt='logo'
-            height={80}
-            width={80}
+            height={75}
+            width={75}
             className='hidden md:block rounded-full object-cover md:h-[80px] -ml-4'
           />
 
