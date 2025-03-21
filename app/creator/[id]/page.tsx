@@ -144,18 +144,22 @@ const CreatorPage = ({ params }: PageProps) => {
     // Consolidate profile fetching into a single useEffect
     useEffect(() => {
         const fetchCreatorData = async () => {
-            if (isProfileFetched) return; // Prevent duplicate fetches
+            if (!id || isProfileFetched) return; // Add id check
             
             try {
                 setLoading(true);
                 const myAddress = localStorage.getItem('address') || '';
 
-                // Fetch profiles in parallel
+                // Ensure id is properly passed as the address parameter
                 const [profileRes, userProfileRes, passesRes] = await Promise.all([
-                    fetch(`/api/profile?address=${id}`),
-                    myAddress ? fetch(`/api/profile?address=${myAddress}`) : Promise.resolve(null),
-                    fetch(`/api/passes?address=${id}`)
+                    fetch(`/api/profile?address=${encodeURIComponent(id)}`),
+                    myAddress ? fetch(`/api/profile?address=${encodeURIComponent(myAddress)}`) : Promise.resolve(null),
+                    fetch(`/api/passes?address=${encodeURIComponent(id)}`)
                 ]);
+
+                if (!profileRes.ok) {
+                    throw new Error('Failed to fetch creator profile');
+                }
 
                 const profileData = await profileRes.json();
                 const passesData = await passesRes.json();
@@ -197,11 +201,13 @@ const CreatorPage = ({ params }: PageProps) => {
         };
 
         fetchCreatorData();
-    }, [id]); // Only depend on id
+    }, [id, isProfileFetched]); // Add id to dependencies
 
     // Separate useEffect for posts
     useEffect(() => {
         const fetchPosts = async () => {
+            if (!id || !isProfileFetched) return; // Add id check
+            
             try {
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
