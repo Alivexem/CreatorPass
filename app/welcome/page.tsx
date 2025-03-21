@@ -109,111 +109,56 @@ const Page = () => {
 
                 setHotCreators(creatorsData.profiles.slice(0, 1));
 
-                // Initialize chat history
-                setIsLoadingPersonalChats(true);
-                const db = getDatabase(app);
-                const chatHistoryRef = ref(db, 'chatHistory');
-
-                onValue(chatHistoryRef, (snapshot) => {
-                    const chatHistory = snapshot.val();
-                    if (chatHistory && address) {
-                        const personalChatsArray = Object.entries(chatHistory)
-                            .filter(([chatId]) => {
-                                const [addr1, addr2] = chatId.split('-');
-                                return addr1 === address || addr2 === address;
-                            })
-                            .map(([chatId, data]: [string, any]) => {
-                                const [addr1, addr2] = chatId.split('-');
-                                const isUser1 = addr1 === address;
-                                return {
-                                    id: chatId,
-                                    recipientAddress: isUser1 ? addr2 : addr1,
-                                    username: data.username || 'Anonymous',
-                                    profileImage: data.profileImage || '/empProfile.png',
-                                    lastMessage: data.lastMessage,
-                                    timestamp: data.timestamp
-                                };
-                            })
-                            .sort((a, b) => b.timestamp - a.timestamp);
-
-                        setPersonalChats(personalChatsArray);
-                        setIsLoadingPersonalChats(false);
+                // Only fetch personal chats if we have an address
+                if (address) {
+                    const personalChatsRes = await fetch(`/api/chat-history?address=${address}`);
+                    const personalChatsData = await personalChatsRes.json();
+                    
+                    if (!isSubscribed) return;
+                    
+                    if (personalChatsData.chatHistory) {
+                        setPersonalChats(personalChatsData.chatHistory);
                     }
-                });
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
+            } finally {
                 setIsLoadingPersonalChats(false);
             }
         };
 
         fetchData();
 
-        return () => {
-            isSubscribed = false;
-        };
-    }, []); // Empty dependency array since we only want this to run once
-
-    useEffect(() => {
-        const address = localStorage.getItem('address');
-        setUserAddress(address);
-        if (!address) return;
-
-        const db = getDatabase(app);
-        const chatHistoryRef = ref(db, 'chatHistory');
-
-        setIsLoadingPersonalChats(true);
-        const unsubscribe = onValue(chatHistoryRef, (snapshot) => {
-            const chatHistory = snapshot.val();
-            if (chatHistory) {
-                const personalChatsArray = Object.entries(chatHistory)
-                    .filter(([chatId]) => {
-                        const [addr1, addr2] = chatId.split('-');
-                        return addr1 === address || addr2 === address;
-                    })
-                    .map(([chatId, data]: [string, any]) => {
-                        const [addr1, addr2] = chatId.split('-');
-                        const isUser1 = addr1 === address;
-                        return {
-                            id: chatId,
-                            recipientAddress: isUser1 ? addr2 : addr1,
-                            username: isUser1 ? data.otherUsername : data.username,
-                            profileImage: isUser1 ? data.otherProfileImage : data.profileImage,
-                            lastMessage: data.lastMessage,
-                            timestamp: data.timestamp
-                        };
-                    })
-                    .sort((a, b) => b.timestamp - a.timestamp);
-
-                setPersonalChats(personalChatsArray);
-            }
-            setIsLoadingPersonalChats(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    // Add useEffect for world chat
-    useEffect(() => {
-        setIsLoadingWorldChat(true);
+        // Initialize Firebase listener
         const database = getDatabase(app);
         const worldChatRef = ref(database, 'worldChat');
         const chatQuery = query(worldChatRef, orderByChild('timestamp'));
 
+        setIsLoadingWorldChat(true);
         const unsubscribe = onValue(chatQuery, (snapshot) => {
-            const chatData = snapshot.val();
-            if (chatData) {
-                const chatArray = Object.entries(chatData).map(([id, data]: [string, any]) => ({
-                    id,
-                    ...data
-                }))
-                .sort((a, b) => b.timestamp - a.timestamp);
-                setChats(chatArray);
-            }
+            const messages: WorldChat[] = [];
+            snapshot.forEach((childSnapshot) => {
+                messages.push({
+                    id: childSnapshot.key as string,
+                    ...childSnapshot.val()
+                });
+            });
+            // Sort messages by timestamp
+            const sortedMessages = messages.sort((a, b) => a.timestamp - b.timestamp);
+            setChats(sortedMessages);
             setIsLoadingWorldChat(false);
+
+            // Scroll to bottom
+            if (chatRef.current) {
+                chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            }
         });
 
-        return () => unsubscribe();
-    }, []);
+        return () => {
+            isSubscribed = false;
+            unsubscribe();
+        };
+    }, []); // Empty dependency array since we only want this to run once
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -308,7 +253,11 @@ const Page = () => {
             ref={chatRef}
             className='h-[400px] overflow-y-auto mb-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent'
         >
-            {chats.length > 0 ? (
+            {isLoadingWorldChat ? (
+                <div className="flex justify-center items-center h-full">
+                    <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
+                </div>
+            ) : chats.length > 0 ? (
                 chats.map((chat) => (
                     <div key={chat.id} className='flex items-start gap-3'>
                         <Image
