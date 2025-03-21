@@ -93,7 +93,7 @@ const Page = () => {
 
     const router = useRouter();
     
-    // Consolidate data fetching into a single useEffect
+    // Update the useEffect that fetches data
     useEffect(() => {
         const address = localStorage.getItem('address');
         setUserAddress(address);
@@ -108,34 +108,22 @@ const Page = () => {
                 if (!isSubscribed) return;
 
                 setHotCreators(creatorsData.profiles.slice(0, 1));
-
-                // Only fetch personal chats if we have an address
-                if (address) {
-                    const personalChatsRes = await fetch(`/api/chat-history?address=${address}`);
-                    const personalChatsData = await personalChatsRes.json();
-                    
-                    if (!isSubscribed) return;
-                    
-                    if (personalChatsData.chatHistory) {
-                        setPersonalChats(personalChatsData.chatHistory);
-                    }
-                }
             } catch (error) {
                 console.error('Error fetching data:', error);
-            } finally {
-                setIsLoadingPersonalChats(false);
             }
         };
 
         fetchData();
 
-        // Initialize Firebase listener
+        // Initialize Firebase listeners
         const database = getDatabase(app);
+        
+        // World Chat listener
         const worldChatRef = ref(database, 'worldChat');
         const chatQuery = query(worldChatRef, orderByChild('timestamp'));
 
         setIsLoadingWorldChat(true);
-        const unsubscribe = onValue(chatQuery, (snapshot) => {
+        const worldChatUnsubscribe = onValue(chatQuery, (snapshot) => {
             const messages: WorldChat[] = [];
             snapshot.forEach((childSnapshot) => {
                 messages.push({
@@ -143,20 +131,57 @@ const Page = () => {
                     ...childSnapshot.val()
                 });
             });
-            // Sort messages by timestamp
             const sortedMessages = messages.sort((a, b) => a.timestamp - b.timestamp);
             setChats(sortedMessages);
             setIsLoadingWorldChat(false);
 
-            // Scroll to bottom
             if (chatRef.current) {
                 chatRef.current.scrollTop = chatRef.current.scrollHeight;
             }
         });
 
+        // Personal Chats listener
+        if (address) {
+            const chatHistoryRef = ref(database, 'chatHistory');
+            setIsLoadingPersonalChats(true);
+
+            const personalChatsUnsubscribe = onValue(chatHistoryRef, (snapshot) => {
+                const chatHistory = snapshot.val();
+                if (chatHistory) {
+                    const personalChatsArray = Object.entries(chatHistory)
+                        .filter(([chatId]) => {
+                            const [addr1, addr2] = chatId.split('-');
+                            return addr1 === address || addr2 === address;
+                        })
+                        .map(([chatId, data]: [string, any]) => {
+                            const [addr1, addr2] = chatId.split('-');
+                            const isUser1 = addr1 === address;
+                            return {
+                                id: chatId,
+                                recipientAddress: isUser1 ? addr2 : addr1,
+                                username: data.username || 'Anonymous',
+                                profileImage: data.profileImage || '/empProfile.png',
+                                lastMessage: data.lastMessage || '',
+                                timestamp: data.timestamp || Date.now()
+                            };
+                        })
+                        .sort((a, b) => b.timestamp - a.timestamp);
+
+                    setPersonalChats(personalChatsArray);
+                }
+                setIsLoadingPersonalChats(false);
+            });
+
+            return () => {
+                isSubscribed = false;
+                worldChatUnsubscribe();
+                personalChatsUnsubscribe();
+            };
+        }
+
         return () => {
             isSubscribed = false;
-            unsubscribe();
+            worldChatUnsubscribe();
         };
     }, []); // Empty dependency array since we only want this to run once
 
