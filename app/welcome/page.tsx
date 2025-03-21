@@ -511,7 +511,7 @@ const Page = () => {
             <div className='container -mt-10 md:mt-10 mx-auto px-4 md:py-20'>
                 <div className='flex flex-col md:flex-row gap-8 max-w-7xl mx-auto'>
                     {/* World Chat */}
-                    <div className='w-[85vw] md:w-2/3 bg-[#252729] rounded-xl p-6'>
+                    <div className='w-full md:w-2/3 bg-[#252729] rounded-xl p-6'>
                         <div className='flex items-center flex-col'>
                             <div className='flex items-center gap-2'>
                                 <h2 className='text-xl md:text-4xl font-bold text-white mb-6'>Creators World Chat</h2>
