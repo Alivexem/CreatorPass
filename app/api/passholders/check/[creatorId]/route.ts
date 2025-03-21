@@ -9,8 +9,7 @@ export async function GET(
   try {
     await connectDB();
     const { searchParams } = new URL(request.url);
-    const address = searchParams.get('address');
-    const creatorId = params.creatorId;
+    const address = searchParams.get('address') || params.creatorId;
 
     if (!address) {
       return NextResponse.json(
@@ -19,9 +18,8 @@ export async function GET(
       );
     }
 
-    // Find all passes where the creator matches and the user is a holder
+    // Find all passes where the address is in holders array
     const passes = await Pass.find({
-      creatorAddress: creatorId,
       holders: address
     });
 

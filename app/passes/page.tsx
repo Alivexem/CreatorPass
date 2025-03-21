@@ -120,9 +120,16 @@ const PassesPage = () => {
           // Check pass ownership
           const address = localStorage.getItem('address');
           if (address) {
+            // Updated API call to use the address directly as the creatorId parameter
             const ownershipRes = await fetch(`/api/passholders/check/${address}`);
+            if (!ownershipRes.ok) {
+              console.error('Failed to check pass ownership:', await ownershipRes.text());
+              return;
+            }
             const ownershipData = await ownershipRes.json();
-            setOwnedPasses(new Set(ownershipData.passes?.map((pass: Pass) => pass._id) || []));
+            if (ownershipData.success && ownershipData.passes) {
+              setOwnedPasses(new Set(ownershipData.passes.map((pass: Pass) => pass._id)));
+            }
           }
         }
 

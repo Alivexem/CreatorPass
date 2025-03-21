@@ -54,7 +54,14 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
   };
 
   if (!creatorProfile || !userProfile || !userProfile.username) {
-    return <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
+    return (
+      <div className='h-full w-full flex items-center justify-center bg-gray-800'>
+
+        <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
+
+      </div>
+    )
+
   }
 
   return (
