@@ -14,8 +14,8 @@ export async function GET(request) {
         }
 
         const profile = await Profile.findOne({ 
-            username,
-            address: { $ne: currentAddress } // Exclude current user's address
+            username: { $regex: new RegExp(`^${username}$`, 'i') },
+            address: { $ne: currentAddress }
         });
 
         return NextResponse.json({ 

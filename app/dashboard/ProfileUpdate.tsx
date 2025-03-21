@@ -23,6 +23,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   const [isAdultContent, setIsAdultContent] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [usernameExists, setUsernameExists] = useState(false);
+  const [usernameCheckLoading, setUsernameCheckLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -183,12 +184,15 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   const checkUsername = async (username: string) => {
     if (!username.trim()) return;
     const address = localStorage.getItem('address');
+    setUsernameCheckLoading(true);
     try {
       const res = await fetch(`/api/profile/check-username?username=${username}&address=${address}`);
       const data = await res.json();
       setUsernameExists(data.exists);
     } catch (error) {
       console.error('Error checking username:', error);
+    } finally {
+      setUsernameCheckLoading(false);
     }
   };
 
@@ -247,14 +251,17 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
                       setUsername(e.target.value);
                       setUsernameExists(false); // Reset the check when typing
                       setErrors((prev) => ({ ...prev, username: '' }));
+                      checkUsername(e.target.value); // Check on every change
                     }}
-                    onBlur={(e) => checkUsername(e.target.value)}
                     className={`w-full bg-[#1A1D1F] text-white pl-10 pr-4 py-3 rounded-lg border ${
                       errors.username || usernameExists ? 'border-red-500' : 'border-gray-700'
                     } focus:border-purple-500 focus:outline-none`}
                     placeholder="Enter your username" 
                   />
                 </div>
+                {usernameCheckLoading && (
+                  <p className="text-gray-400 text-sm mt-1">Checking username availability...</p>
+                )}
                 {errors.username && <p className="text-red-400 text-sm mt-1">{errors.username}</p>}
               </div>
 
@@ -306,7 +313,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
           <div className="flex justify-end pt-4">
             <button 
               type="submit"
-              disabled={loading}
+              disabled={loading || usernameCheckLoading}
               className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
