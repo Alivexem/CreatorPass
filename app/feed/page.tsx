@@ -353,7 +353,7 @@ const FeedPage = () => {
     };
 
     const AdsBanner = () => (
-        <div className="w-full h-[80px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-center">
+        <div className="w-full fixed md:hidden top-0 h-[80px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-center">
             <div className="py-4">
                 PLACE ADS
             </div>
@@ -361,8 +361,8 @@ const FeedPage = () => {
     );
 
     const AdsSidebar = () => (
-        <div className="hidden md:block w-[350px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
-            <div className="flex h-screen sticky items-center justify-center">
+        <div className="hidden md:sticky w-[350px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
+            <div className="flex items-center justify-center">
                 PLACE ADS
             </div>
         </div>

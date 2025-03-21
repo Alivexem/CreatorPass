@@ -7,7 +7,7 @@ import { IoTicketSharp } from "react-icons/io5";
 import { useState, useRef, useEffect } from 'react';
 import { IoMdMail } from "react-icons/io";
 import Image from 'next/image';
-import { BsPostcardFill } from "react-icons/bs";
+import { IoIosCompass } from "react-icons/io";
 import { ChatHistoryItem } from '@/types/chat'; // Add this type to your project if not exists
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { app } from '../utils/firebase'; // Make sure to import your Firebase app
@@ -112,7 +112,7 @@ const MobileNav = () => {
 
         <Link href='/feed' className={pathname === '/feed' ? 'text-purple-500' : ''}>
           <div className='flex cursor-pointer flex-col items-center space-y-2 relative'>
-            <BsPostcardFill className='text-xl' />
+            <IoIosCompass className='text-xl' />
             <p className={`text-[0.7rem] ${pathname === '/feed' ? 'text-purple-500' : ''}`}>Feed</p>
           </div>
         </Link>
