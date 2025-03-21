@@ -31,6 +31,8 @@ interface CreatorPostProps {
         copy: boolean;
         gift: boolean;
     };
+    onProfileClick?: () => void;
+    hasProfile?: boolean; // Add this prop
 }
 
 const CreatorPost = ({
@@ -47,7 +49,9 @@ const CreatorPost = ({
     downloadedStates,
     copiedStates,
     date,
-    disabled
+    disabled,
+    onProfileClick,
+    hasProfile = false, // Add this with default value
 }: CreatorPostProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -108,7 +112,8 @@ const CreatorPost = ({
                             fill
                             style={{ objectFit: 'cover' }}
                             alt='profile'
-                            className='rounded-lg'
+                            className='rounded-lg cursor-pointer hover:opacity-80 transition-opacity'
+                            onClick={onProfileClick}
                         />
                     </div>
                     <p className='text-[1rem] font-medium'>{profile?.username || 'Anonymous'}</p>
@@ -189,11 +194,14 @@ const CreatorPost = ({
                     <p className='text-[0.8rem]'>{likes} likes</p>
                 </button>
                 <button
-                    onClick={() => !disabled.comment && onComment()}
-                    className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors ${
-                        post.tier !== 'Free' && disabled.comment ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    onClick={() => !disabled.comment && hasProfile && onComment()}
+                    className={`flex flex-col md:flex-row items-center gap-x-3 text-gray-300 hover:text-white transition-colors relative ${
+                        (post.tier !== 'Free' && disabled.comment) || !hasProfile ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                 >
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm bg-gray-800 px-2 py-1 rounded transition-opacity whitespace-nowrap">
+                        {!hasProfile && 'Create profile to comment'}
+                    </div>
                     <MdInsertComment  className='text-[1rem] md:text-[1.7rem]' />
                     <p className='text-[0.8rem]'>{post.comments?.length || 0} comments</p>
                 </button>

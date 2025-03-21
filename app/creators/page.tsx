@@ -6,14 +6,15 @@ import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
 import Footer from '@/components/Footer';
 import Link from 'next/link'
+import { BiLoaderAlt } from "react-icons/bi";
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import { FaArrowAltCircleRight } from "react-icons/fa";
-import { FaFire } from "react-icons/fa6";
+
 import { FaUnlockKeyhole } from "react-icons/fa6";
 import { FaBridgeCircleCheck } from "react-icons/fa6";
 import { SiFueler } from "react-icons/si";
 import { RiVipCrown2Fill } from "react-icons/ri";
-import { IoMdClose } from "react-icons/io";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { RiGalleryFill } from "react-icons/ri";
@@ -334,7 +335,7 @@ const CreatorsPage = () => {
             <div className='flex justify-center items-center w-full' ref={creatorCardRef}>
               {loading ? (
                 <div className='flex justify-center items-center h-[500px]'>
-                  <p className='text-white text-2xl animate-pulse'>Loading creators...</p>
+                  <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
                 </div>
               ) : (
                 <div className='relative md:max-w-6xl px-4 pb-20 md:pt-20'>

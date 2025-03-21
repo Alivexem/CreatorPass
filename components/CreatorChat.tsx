@@ -517,6 +517,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     }
   };
 
+  const handleProfileClick = (address: string) => {
+    router.push(`/creators?highlight=${address}`);
+  };
+
   return (
     <>
       {toast.show && (
@@ -579,7 +583,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                     alt={userProfiles[message.sender.address]?.username || 'Anonymous'}
                     width={24}
                     height={24}
-                    className="rounded-full h-[24px] w-[24px] object-cover"
+                    className="rounded-full h-[24px] w-[24px] object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => handleProfileClick(message.sender.address)}
                   />
                   <span className="text-xs text-gray-400">
                     {userProfiles[message.sender.address]?.username || 'Anonymous'}

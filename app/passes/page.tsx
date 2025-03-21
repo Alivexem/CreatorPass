@@ -2,15 +2,12 @@
 import React, { useState, useEffect, TouchEvent, useRef } from 'react'
 import NavBar from '@/components/NavBar'
 import Image from 'next/image';
-import { RiHeart2Line } from "react-icons/ri";
+import { BiLoaderAlt } from "react-icons/bi";
 import Footer from '@/components/Footer';
-import { FaArrowAltCircleLeft } from "react-icons/fa";
-import { FaArrowAltCircleRight } from "react-icons/fa";
 import { RiNftFill } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
 import { toPng } from 'html-to-image';
 import { uploadToIPFS, uploadMetadataToIPFS } from '@/utils/ipfsService';
-import { AccessCardTemplate } from '@/utils/cardTemplate';
 import { useAppKit, useAppKitProvider, useAppKitAccount, Transaction, SystemProgram, PublicKey, Provider } from '../../utils/reown';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { motion, AnimatePresence } from "framer-motion";
@@ -739,7 +736,7 @@ const PassesPage = () => {
       <div className='max-w-7xl mx-auto px-4 -mt-20 mb-20'>
         {loading ? (
           <div className='flex justify-center items-center py-20'>
-            <div className='text-white text-xl animate-pulse'>Loading passes...</div>
+            <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
           </div>
         ) : passes.length === 0 ? (
           <div className='text-white text-xl text-center py-20'>No passes available</div>

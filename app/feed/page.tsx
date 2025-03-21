@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Post, Profile } from '@/types/creator';
@@ -11,6 +12,7 @@ import GiftModal from '@/components/creator/GiftModal';
 import { useAppKit } from '@/utils/reown';
 
 const FeedPage = () => {
+    const router = useRouter();
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
@@ -352,8 +354,12 @@ const FeedPage = () => {
         setShowGiftModal(false);
     };
 
+    const handleProfileClick = (address: string) => {
+        router.push(`/creators?highlight=${address}`);
+    };
+
     const AdsBanner = () => (
-        <div className="w-full fixed md:hidden top-0 h-[80px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-center">
+        <div className="w-full z-20 fixed md:hidden top-0 h-[80px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-center">
             <div className="py-4">
                 PLACE ADS
             </div>
@@ -361,8 +367,8 @@ const FeedPage = () => {
     );
 
     const AdsSidebar = () => (
-        <div className="hidden md:sticky w-[350px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
-            <div className="flex items-center justify-center">
+        <div className="hidden md:block w-[300px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
+            <div className="flex fixed items-center justify-center">
                 PLACE ADS
             </div>
         </div>
@@ -427,6 +433,8 @@ const FeedPage = () => {
                                 copy: false,
                                 gift: false
                             }}
+                            onProfileClick={() => handleProfileClick(post.username)} // Add this prop
+                            hasProfile={!!userProfile} // Add this line
                         />
                     ))}
                 </div>

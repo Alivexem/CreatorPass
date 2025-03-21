@@ -4,6 +4,7 @@ import { IoFlash } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
 import Image from 'next/image';
 import { FunChat } from '@/types/creator';
+import { useRouter } from 'next/router';
 
 interface CreatorFunChatProps {
     showFunChat: boolean;
@@ -29,6 +30,7 @@ const CreatorFunChat = ({
     const [funChatMessage, setFunChatMessage] = useState('');
     const [funChats, setFunChats] = useState(initialFunChats);
     const chatRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     const fetchFunChats = async () => {
         try {
@@ -63,6 +65,10 @@ const CreatorFunChat = ({
         if (chatRef.current) {
             chatRef.current.scrollTop = chatRef.current.scrollHeight;
         }
+    };
+
+    const handleProfileClick = (address: string) => {
+        router.push(`/creators?highlight=${address}`);
     };
 
     const renderChatMessage = (message: string) => {
@@ -131,7 +137,8 @@ const CreatorFunChat = ({
                                     alt="Profile"
                                     width={32}
                                     height={32}
-                                    className="rounded-full h-[40px] w-[40px] object-cover"
+                                    className="rounded-full h-[40px] w-[40px] object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleProfileClick(chat.address)}
                                 />
                                 <div className="flex-1">
                                     <div className="flex justify-between items-center">
