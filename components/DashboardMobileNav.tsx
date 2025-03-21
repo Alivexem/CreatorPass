@@ -1,6 +1,6 @@
 'use client'
 import { RxDashboard } from "react-icons/rx";
-import { FaDatabase } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import { RiProfileFill } from "react-icons/ri";
 import { GoHomeFill } from "react-icons/go";
 import Link from "next/link";
@@ -47,7 +47,7 @@ const DashboardMobileNav = ({
       </div>
 
       <div onClick={onShowContent} className='flex flex-col cursor-pointer items-center space-y-2'>
-        <FaDatabase className={`${activeSection === 'content' ? 'text-purple-500' : 'text-gray-300'}`} />
+        <FaPlus className={`${activeSection === 'content' ? 'text-purple-500' : 'text-gray-300'}text-[1.3rem] `} />
         <p className={`text-[0.7rem] ${activeSection === 'content' ? 'text-purple-500' : ''}`}>Content</p>
       </div>
 

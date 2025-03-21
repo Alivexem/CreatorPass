@@ -407,14 +407,14 @@ const CreatorsPage = () => {
                                 disabled={currentProfile.address === userAddress}
                                 className={`w-full border border-blue-600 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 ${
                                   currentProfile.address === userAddress 
-                                    ? 'opacity-50 cursor-not-allowed bg-gray-700' 
-                                    : 'hover:bg-green-600'
+                                    ? 'opacity-50 cursor-not-allowed bg-gray-700 hidden' 
+                                    : 'hover:bg-blue-600'
                                 }`}
-                              >
+                               >
                                 <IoChatbubbleEllipsesOutline className="text-xl" />
                                 <span>
                                   {currentProfile.address === userAddress 
-                                    ? "Can't chat with yourself" 
+                                    ? "My Profile" 
                                     : `Chat ${currentProfile.username}`}
                                 </span>
                               </button>

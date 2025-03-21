@@ -41,6 +41,9 @@ const CreatorFunChat = ({
     const chatRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const database = getDatabase(app);
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         // Set up realtime listener for fun chats
@@ -63,9 +66,37 @@ const CreatorFunChat = ({
 
     useEffect(() => {
         if (chatRef.current) {
-            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            // Ensure scroll to bottom happens after content is rendered
+            setTimeout(() => {
+                chatRef.current?.scrollTo({
+                    top: chatRef.current.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
         }
     }, [funChats]);
+
+    useEffect(() => {
+        // Detect keyboard visibility changes
+        const initialHeight = window.innerHeight;
+        
+        const handleResize = () => {
+            const currentHeight = window.innerHeight;
+            if (initialHeight > currentHeight) {
+                // Keyboard is shown
+                const difference = initialHeight - currentHeight;
+                setKeyboardHeight(difference);
+                setIsKeyboardVisible(true);
+            } else {
+                // Keyboard is hidden
+                setKeyboardHeight(0);
+                setIsKeyboardVisible(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleSendFunChat = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -130,7 +161,10 @@ const CreatorFunChat = ({
                 bg-gradient-to-b from-gray-600 to-gray-800
                 ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
                 transition-transform duration-300 z-30 shadow-xl md:rounded-r-lg`}
-             >
+                style={{
+                    height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '88vh'
+                }}
+            >
                 <div className="p-4 h-full flex flex-col bg-black/30 md:bg-transparent">
                     {/* Mobile Close Button */}
                     <button
@@ -152,6 +186,9 @@ const CreatorFunChat = ({
                     <div
                         ref={chatRef}
                         className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2"
+                        style={{
+                            height: isKeyboardVisible ? `calc(100% - ${keyboardHeight}px)` : 'auto'
+                        }}
                     >
                         {funChats.map((chat, index) => (
                             <div key={chat.timestamp + index} className="flex items-start gap-2 bg-white/5 p-2 rounded-lg">
@@ -179,7 +216,20 @@ const CreatorFunChat = ({
                     </div>
 
                     {/* Chat Input - Only disabled when user doesn't have permission */}
-                    <form onSubmit={handleSendFunChat} className="mt-auto">
+                    <form 
+                        ref={formRef}
+                        onSubmit={handleSendFunChat} 
+                        className={`mt-auto ${
+                            isKeyboardVisible 
+                                ? 'fixed bottom-0 left-0 right-0 md:relative bg-gray-800 p-4' 
+                                : 'relative'
+                        }`}
+                        style={{
+                            position: isKeyboardVisible ? 'fixed' : 'relative',
+                            bottom: isKeyboardVisible ? `${keyboardHeight}px` : 'auto',
+                            transform: 'translateZ(0)', // Force hardware acceleration
+                        }}
+                    >
                         {shouldShowRestriction ? (
                             <div className="mb-2 text-sm text-red-400">
                                 {restrictionMessage}
