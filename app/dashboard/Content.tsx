@@ -70,6 +70,10 @@ const Content = ({ setToast }: ContentProps) => {
     const [imageUrl, setImageUrl] = useState<string>('');
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 emojiRef.current && 

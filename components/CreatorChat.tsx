@@ -592,7 +592,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                 </div>
                 <div className={`${
                   message.type === 'gift' 
-                    ? 'bg-purple-700 bg-opacity-90 rounded-2xl px-4 py-2' 
+                    ? 'bg-purple-800 bg-opacity-90 rounded-2xl px-4 py-2' 
                     : message.type === 'image'
                       ? 'p-0'
                       : message.sender.address === userAddress
@@ -614,15 +614,15 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                       <p className="text-purple-200 text-lg font-semibold text-center">
                         {message.text}
                       </p>
-                      {message.imageUrl && (
+                
                         <Image
-                          src={message.imageUrl}
+                          src='/giftgif.gif'
                           alt="Gift card"
                           width={200}
                           height={100}
                           className="rounded-lg mt-2"
                         />
-                      )}
+                   
                     </div>
                   ) : (
                     <p className="text-white text-sm whitespace-pre-wrap break-words">
@@ -647,14 +647,18 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <form 
           ref={formRef}
           onSubmit={sendMessage} 
-          className={`p-4 bg-[#232629] md:rounded-bl-xl transition-all duration-300 ${
-            isKeyboardVisible ? 'fixed bottom-0 left-0 right-0 md:relative z-50' : ''
+          className={`p-4 bg-[#232629] md:rounded-bl-xl w-full ${
+            isKeyboardVisible 
+              ? 'fixed bottom-0 left-0 right-0 md:relative z-50' 
+              : 'relative'
           }`}
           style={{
-            transform: isKeyboardVisible ? `translateY(-${keyboardHeight}px)` : 'none'
+            position: isKeyboardVisible ? 'fixed' : 'relative',
+            bottom: isKeyboardVisible ? `${keyboardHeight}px` : 'auto',
+            transform: 'translateZ(0)', // Force hardware acceleration
           }}
         >
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center max-w-[500px] mx-auto">
             <button
               ref={emojiButtonRef}
               type="button"
@@ -700,7 +704,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           </div>
 
           {showEmoji && (
-            <div ref={emojiRef} className="absolute bottom-20 right-4">
+            <div 
+              ref={emojiRef} 
+              className="absolute bottom-full right-4 mb-2"
+              style={{
+                transform: isKeyboardVisible ? `translateY(-${keyboardHeight}px)` : 'none'
+              }}
+            >
               <Picker
                 data={data}
                 onEmojiSelect={onEmojiSelect}

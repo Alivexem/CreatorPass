@@ -22,11 +22,13 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isAdultContent, setIsAdultContent] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [usernameExists, setUsernameExists] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
     if (!username.trim()) newErrors.username = 'Username is required';
+    if (usernameExists) newErrors.username = 'Username is taken';
     if (!country.trim()) newErrors.country = 'Country is required';
     if (!about.trim()) newErrors.about = 'About section is required';
     if (!profileImage && !selectedImagePreview) newErrors.image = 'Profile image is required';
@@ -178,6 +180,18 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
     };
   }, [selectedImagePreview]);
 
+  const checkUsername = async (username: string) => {
+    if (!username.trim()) return;
+    const address = localStorage.getItem('address');
+    try {
+      const res = await fetch(`/api/profile/check-username?username=${username}&address=${address}`);
+      const data = await res.json();
+      setUsernameExists(data.exists);
+    } catch (error) {
+      console.error('Error checking username:', error);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-[#272B30] rounded-2xl p-8 shadow-xl">
@@ -229,8 +243,15 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
                   <input 
                     type="text" 
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className={`w-full bg-[#1A1D1F] text-white pl-10 pr-4 py-3 rounded-lg border ${errors.username ? 'border-red-500' : 'border-gray-700'} focus:border-purple-500 focus:outline-none`}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      setUsernameExists(false); // Reset the check when typing
+                      setErrors((prev) => ({ ...prev, username: '' }));
+                    }}
+                    onBlur={(e) => checkUsername(e.target.value)}
+                    className={`w-full bg-[#1A1D1F] text-white pl-10 pr-4 py-3 rounded-lg border ${
+                      errors.username || usernameExists ? 'border-red-500' : 'border-gray-700'
+                    } focus:border-purple-500 focus:outline-none`}
                     placeholder="Enter your username" 
                   />
                 </div>

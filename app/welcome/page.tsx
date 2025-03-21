@@ -135,9 +135,15 @@ const Page = () => {
             setChats(sortedMessages);
             setIsLoadingWorldChat(false);
 
-            if (chatRef.current) {
-                chatRef.current.scrollTop = chatRef.current.scrollHeight;
-            }
+            // Scroll to bottom after new messages are added
+            setTimeout(() => {
+                if (chatRef.current) {
+                    chatRef.current.scrollTo({
+                        top: chatRef.current.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
         });
 
         // Personal Chats listener
@@ -184,6 +190,18 @@ const Page = () => {
             worldChatUnsubscribe();
         };
     }, []); // Empty dependency array since we only want this to run once
+
+    useEffect(() => {
+        if (chatRef.current) {
+            // Ensure scroll to bottom happens after content is rendered
+            setTimeout(() => {
+                chatRef.current?.scrollTo({
+                    top: chatRef.current.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+    }, [chats]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
