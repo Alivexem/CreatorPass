@@ -827,6 +827,8 @@ const CreatorPage = ({ params }: PageProps) => {
                 creatorId={id}
                 disabled={!userPermissions.funForumAccess}
                 restrictionMessage={!userPermissions.funForumAccess ? "Group chat is for only tier pass holders" : ""}
+                userProfile={userProfile || undefined}
+                userAddress={localStorage.getItem('address') || ''}
             />
 
             {/* Profile Required Modal */}

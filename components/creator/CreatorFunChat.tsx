@@ -5,6 +5,8 @@ import { IoMdClose } from "react-icons/io";
 import Image from 'next/image';
 import { FunChat } from '@/types/creator';
 import { useRouter } from 'next/navigation';
+import { getDatabase, ref, push, onValue, query, orderByChild } from 'firebase/database';
+import { app } from '@/utils/firebase';
 
 interface CreatorFunChatProps {
     showFunChat: boolean;
@@ -15,6 +17,11 @@ interface CreatorFunChatProps {
     creatorId: string;
     disabled?: boolean;  // Add this back
     restrictionMessage?: string;
+    userProfile?: {
+        username: string;
+        profileImage: string;
+    };
+    userAddress: string;
 }
 
 const CreatorFunChat = ({ 
@@ -25,26 +32,33 @@ const CreatorFunChat = ({
     profileUsername,
     creatorId,
     disabled = false,  // Add default value
-    restrictionMessage
+    restrictionMessage,
+    userProfile,
+    userAddress
 }: CreatorFunChatProps) => {
     const [funChatMessage, setFunChatMessage] = useState('');
     const [funChats, setFunChats] = useState(initialFunChats);
     const chatRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
-
-    const fetchFunChats = async () => {
-        try {
-            const res = await fetch(`/api/creator/${creatorId}/funchat`);
-            if (!res.ok) throw new Error('Failed to fetch fun chats');
-            const data = await res.json();
-            setFunChats([...data.chats].reverse());
-        } catch (error) {
-            console.error('Error fetching fun chats:', error);
-        }
-    };
+    const database = getDatabase(app);
 
     useEffect(() => {
-        fetchFunChats();
+        // Set up realtime listener for fun chats
+        const chatRef = ref(database, `funChats/${creatorId}`);
+        const chatsQuery = query(chatRef, orderByChild('timestamp'));
+
+        const unsubscribe = onValue(chatsQuery, (snapshot) => {
+            const chatsData = snapshot.val();
+            if (chatsData) {
+                const chatsList = Object.entries(chatsData).map(([id, data]: [string, any]) => ({
+                    id,
+                    ...data,
+                }));
+                setFunChats([...chatsList].reverse());
+            }
+        });
+
+        return () => unsubscribe();
     }, [creatorId]);
 
     useEffect(() => {
@@ -57,13 +71,20 @@ const CreatorFunChat = ({
         e.preventDefault();
         if (!funChatMessage.trim()) return;
 
-        await onSendChat(funChatMessage.trim());
-        setFunChatMessage('');
-        
-        fetchFunChats();
+        const chatRef = ref(database, `funChats/${creatorId}`);
+        const newChat = {
+            message: funChatMessage.trim(),
+            timestamp: Date.now(),
+            username: userProfile?.username || 'Anonymous',
+            address: userAddress,
+            profileImage: userProfile?.profileImage || '/empProfile.png'
+        };
 
-        if (chatRef.current) {
-            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        try {
+            await push(chatRef, newChat);
+            setFunChatMessage('');
+        } catch (error) {
+            console.error('Error sending fun chat:', error);
         }
     };
 
@@ -87,6 +108,8 @@ const CreatorFunChat = ({
             />
         );
     };
+
+    const shouldShowRestriction = creatorId !== userAddress && restrictionMessage;
 
     return (
         <>
@@ -157,7 +180,7 @@ const CreatorFunChat = ({
 
                     {/* Chat Input - Only disabled when user doesn't have permission */}
                     <form onSubmit={handleSendFunChat} className="mt-auto">
-                        {restrictionMessage ? (
+                        {shouldShowRestriction ? (
                             <div className="mb-2 text-sm text-red-400">
                                 {restrictionMessage}
                             </div>
@@ -166,11 +189,11 @@ const CreatorFunChat = ({
                             type="text"
                             value={funChatMessage}
                             onChange={(e) => setFunChatMessage(e.target.value)}
-                            placeholder={restrictionMessage ? "Get a pass to unlock chat" : "Type your message..."}
+                            placeholder={shouldShowRestriction ? "Get a pass to unlock chat" : "Type your message..."}
                             className={`w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/50 ${
-                                restrictionMessage ? 'opacity-50 cursor-not-allowed' : ''
+                                shouldShowRestriction ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
-                            disabled={!!restrictionMessage}
+                            disabled={!!shouldShowRestriction}
                         />
                     </form>
                 </div>

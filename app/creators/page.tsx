@@ -404,10 +404,19 @@ const CreatorsPage = () => {
                                   e.preventDefault();
                                   handleChatClick(currentProfile.address);
                                 }}
-                                className="w-full border border-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                                disabled={currentProfile.address === userAddress}
+                                className={`w-full border border-blue-600 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                                  currentProfile.address === userAddress 
+                                    ? 'opacity-50 cursor-not-allowed bg-gray-700' 
+                                    : 'hover:bg-green-600'
+                                }`}
                               >
                                 <IoChatbubbleEllipsesOutline className="text-xl" />
-                                <span>Chat {currentProfile.username}</span>
+                                <span>
+                                  {currentProfile.address === userAddress 
+                                    ? "Can't chat with yourself" 
+                                    : `Chat ${currentProfile.username}`}
+                                </span>
                               </button>
 
                               <Link href={`/creator/${currentProfile.address}`} className="block">
