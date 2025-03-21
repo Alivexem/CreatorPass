@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
+import { BiLoaderAlt } from "react-icons/bi";
 import { Post, Profile } from '@/types/creator';
 import CreatorPost from '@/components/creator/CreatorPost';
 import { CommentModal } from '@/components/CommentModal';
@@ -367,8 +367,8 @@ const FeedPage = () => {
     );
 
     const AdsSidebar = () => (
-        <div className="hidden md:block w-[300px] bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
-            <div className="flex fixed items-center justify-center">
+        <div className="hidden md:block ml-4 w-[350px] h-screen fixed left-5">
+            <div className="w-full h-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold flex items-center justify-center">
                 PLACE ADS
             </div>
         </div>
@@ -381,7 +381,7 @@ const FeedPage = () => {
                     <NavBar />
                 </div>
                 <div className='flex-1 flex justify-center items-center'>
-                    <p className='text-white text-2xl animate-pulse'>Loading posts...</p>
+                    <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
                 </div>
             </div>
         );
@@ -394,9 +394,9 @@ const FeedPage = () => {
             </div>
 
             {/* Mobile Ads Banner */}
-        
-                <AdsBanner />
-       
+
+            <AdsBanner />
+
 
             <div className='pt-[100px] md:pt-[150px]'></div>
 
@@ -414,9 +414,9 @@ const FeedPage = () => {
                             onLike={() => handleLike(post._id)}
                             onComment={() => handleCommentClick(post)}
                             onGift={() => {
-                                setSelectedCreator({ 
-                                    id: post.username, 
-                                    profile: creatorProfiles[post.username] 
+                                setSelectedCreator({
+                                    id: post.username,
+                                    profile: creatorProfiles[post.username]
                                 });
                                 setShowGiftModal(true);
                             }}
