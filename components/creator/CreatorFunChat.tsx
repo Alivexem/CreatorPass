@@ -4,7 +4,7 @@ import { IoFlash } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
 import Image from 'next/image';
 import { FunChat } from '@/types/creator';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface CreatorFunChatProps {
     showFunChat: boolean;
