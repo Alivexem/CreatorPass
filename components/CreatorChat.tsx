@@ -98,6 +98,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   const imageRef = useRef<HTMLImageElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [userProfiles, setUserProfiles] = useState<{[key: string]: Profile}>({});
+  const [isGiftProcessing, setIsGiftProcessing] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -456,6 +457,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
       return;
     }
 
+    setIsGiftProcessing(true);
     try {
       if (!isConnected || !connection || !walletProvider) {
         throw new Error('Wallet not connected');
@@ -514,6 +516,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         message: error instanceof Error ? error.message : 'Failed to send gift',
         type: 'error'
       });
+    } finally {
+      setIsGiftProcessing(false);
     }
   };
 
@@ -592,7 +596,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                 </div>
                 <div className={`${
                   message.type === 'gift' 
-                    ? 'bg-purple-800 bg-opacity-90 rounded-2xl px-4 py-2' 
+                    ? 'bg-blue-800 bg-opacity-90 rounded-2xl px-4 py-2' 
                     : message.type === 'image'
                       ? 'p-0'
                       : message.sender.address === userAddress
@@ -733,19 +737,19 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
                 placeholder="Amount in SOL"
                 step="0.01"
                 min="0"
-                disabled={isUploading}
+                disabled={isGiftProcessing}
               />
               <div className="flex gap-3">
                 <button
                   onClick={handleGift}
-                  disabled={isUploading || !giftAmount}
+                  disabled={isGiftProcessing || !giftAmount}
                   className="flex-1 bg-purple-600 text-white p-2 rounded-lg disabled:opacity-50"
                 >
-                  {isUploading ? 'Sending Gift...' : 'Send Gift'}
+                  {isGiftProcessing ? 'Processing...' : 'Send Gift'}
                 </button>
                 <button
                   onClick={() => setShowGiftModal(false)}
-                  disabled={isUploading}
+                  disabled={isGiftProcessing}
                   className="flex-1 bg-gray-600 text-white p-2 rounded-lg disabled:opacity-50"
                 >
                   Cancel
