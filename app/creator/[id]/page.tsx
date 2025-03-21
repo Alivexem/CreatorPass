@@ -1,25 +1,16 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { IoHeartHalf } from "react-icons/io5";
-import { FaCommentMedical } from "react-icons/fa6";
-import { FaGift } from "react-icons/fa6";
-import { FaCopy } from "react-icons/fa";
+
 import { IoMdClose } from "react-icons/io";
-import { GiFlowerPot, GiRing } from "react-icons/gi";
-import { FaLaptopHouse } from "react-icons/fa";
-import { IoArrowBack } from "react-icons/io5";
+import { BiLoaderAlt } from "react-icons/bi";
 import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
+
 import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect, PublicKey, Transaction, SystemProgram, Provider } from '../../../utils/reown';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
-import { FaCar } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import { IoFlash } from "react-icons/io5";
-import { IoSend } from "react-icons/io5";
-import { IoMdDownload } from "react-icons/io"; // Add this import
-import { MdContentCopy } from "react-icons/md"; // Add this import
-import { IoHeart, IoHeartOutline } from "react-icons/io5"; // Add this import
+
 
 import { CommentModal } from '@/components/CommentModal';
 import { CommentItem } from '@/components/CommentItem';
@@ -721,7 +712,7 @@ const CreatorPage = ({ params }: PageProps) => {
             <div className='bg-black pb-[100px] md:pb-0 min-h-screen flex flex-col'>
                 <NavBar />
                 <div className='flex-1 flex justify-center items-center'>
-                    <p className='text-white text-2xl animate-pulse'>Loading creator content...</p>
+                    <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
                 </div>
             </div>
         );

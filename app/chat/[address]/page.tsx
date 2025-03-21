@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import CreatorChat from '@/components/CreatorChat';
 import { useRouter } from 'next/navigation';
-
+import { BiLoaderAlt } from "react-icons/bi";
 interface Profile {
   address: string;
   username: string;
@@ -54,7 +54,7 @@ const ChatPage = ({ params }: { params: { address: string } }) => {
   };
 
   if (!creatorProfile || !userProfile || !userProfile.username) {
-    return <div className='flex justify-center items-center h-[100vh] w-[100vw] bg-gray-900'><p className='text-white text-2xl font-bold animate-pulse'>Loading chat</p></div>;
+    return <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
   }
 
   return (

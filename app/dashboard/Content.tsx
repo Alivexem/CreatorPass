@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { IoHeartHalf } from "react-icons/io5";
-import { FaCommentMedical } from "react-icons/fa6";
-import { MdDeleteForever } from "react-icons/md";
+import { BiLoaderAlt } from "react-icons/bi";
 import { MdAddCircle } from "react-icons/md";
 import { FaImages } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import PostCard from '@/components/PostCard';
 import { CommentModal } from '@/components/CommentModal';
-import { CommentItem } from '@/components/CommentItem';
 import { Post, Comment, Profile } from '@/types/interfaces';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -758,10 +755,10 @@ const Content = ({ setToast }: ContentProps) => {
                 {/* Posts Section */}
                 {isLoadingPosts ? (
                     <div className='flex justify-center items-center py-20'>
-                        <div className='text-white text-xl animate-pulse flex items-center gap-3'>
-                            <div className='w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin'></div>
-                            Loading posts...
-                        </div>
+
+                            
+                            <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
+                    
                     </div>
                 ) : posts.length === 0 ? (
                     <div className='text-center text-gray-400 py-20'>

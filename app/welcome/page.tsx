@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState, useRef } from 'react'
 import NavBar from '@/components/NavBar'
-import { Gi3dGlasses } from "react-icons/gi";
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { RiHeart2Line } from "react-icons/ri";
 import Footer from '@/components/Footer';
@@ -91,6 +91,8 @@ const Page = () => {
     const [errorMessage, setErrorMessage] = useState<string>(''); // Add error message state
     const [isLoadingWorldChat, setIsLoadingWorldChat] = useState(true);
 
+    const router = useRouter();
+    
     // Consolidate data fetching into a single useEffect
     useEffect(() => {
         const address = localStorage.getItem('address');
@@ -190,6 +192,29 @@ const Page = () => {
         return () => unsubscribe();
     }, []);
 
+    // Add useEffect for world chat
+    useEffect(() => {
+        setIsLoadingWorldChat(true);
+        const database = getDatabase(app);
+        const worldChatRef = ref(database, 'worldChat');
+        const chatQuery = query(worldChatRef, orderByChild('timestamp'));
+
+        const unsubscribe = onValue(chatQuery, (snapshot) => {
+            const chatData = snapshot.val();
+            if (chatData) {
+                const chatArray = Object.entries(chatData).map(([id, data]: [string, any]) => ({
+                    id,
+                    ...data
+                }))
+                .sort((a, b) => b.timestamp - a.timestamp);
+                setChats(chatArray);
+            }
+            setIsLoadingWorldChat(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!message.trim()) return;
@@ -229,6 +254,10 @@ const Page = () => {
             console.error('Error sending message:', error);
             setErrorMessage('Failed to send message');
         }
+    };
+
+    const handleProfileClick = (address: string) => {
+        router.push(`/creators?highlight=${address}`);
     };
 
     const formatUserInfo = (username: string = 'Anonymous', country?: string) => {
@@ -273,16 +302,13 @@ const Page = () => {
         );
     };
 
+    // Update renderMessages to include click handler
     const renderMessages = () => (
         <div
             ref={chatRef}
             className='h-[400px] overflow-y-auto mb-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent'
         >
-            {isLoadingWorldChat ? (
-                <div className="flex justify-center items-center h-full">
-                    <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
-                </div>
-            ) : chats.length > 0 ? (
+            {chats.length > 0 ? (
                 chats.map((chat) => (
                     <div key={chat.id} className='flex items-start gap-3'>
                         <Image
@@ -290,7 +316,8 @@ const Page = () => {
                             alt='Profile'
                             width={35}
                             height={35}
-                            className='rounded-full object-cover w-[40px] h-[40px]'
+                            className='rounded-full object-cover w-[40px] h-[40px] cursor-pointer hover:opacity-80 transition-opacity'
+                            onClick={() => handleProfileClick(chat.address)}
                         />
                         <div>
                             <p className='text-purple-100 text-sm'>
