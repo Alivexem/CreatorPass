@@ -45,7 +45,7 @@ const App = () => {
                     Authentication Succesfull
                 </div>
             )}
-            <div className='flex flex-col items-center lg:items-start max-w-[600px] w-full'>
+            <div className='flex flex-col p-2 md:p-0 items-center lg:items-start max-w-[600px] w-full'>
                 <div style={{
                     backgroundImage: 'url(/gifimage.gif)',
                     backgroundSize: 'cover',
