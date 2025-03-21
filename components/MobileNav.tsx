@@ -154,7 +154,7 @@ const MobileNav = () => {
                         src={chat.profileImage}
                         className='rounded-full h-[45px] w-[45px] object-cover'
                       />
-                      <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1A1D1F]'></div>
+                      {/* <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1A1D1F]'></div> */}
                     </div>
                     <div className='flex-1 min-w-0'>
                       <div className='flex justify-between items-start'>
