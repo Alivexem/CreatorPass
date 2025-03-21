@@ -403,7 +403,7 @@ const FeedPage = () => {
             <div className='flex md:justify-start justify-center w-full'>
                 {/* Main Content */}
                 <AdsSidebar />
-                <div className='flex md:ml-[150px] flex-col space-y-10 items-center pb-[60px] w-full md:w-auto'>
+                <div className='flex md:ml-[450px] flex-col space-y-10 items-center pb-[60px] w-full md:w-auto'>
                     {posts.map((post) => (
                         <CreatorPost
                             key={post._id}
