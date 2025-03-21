@@ -128,7 +128,7 @@ const MobileNav = () => {
           <div
             ref={messagesRef}
             className='fixed bottom-[80px] left-0 right-0 mx-4 bg-[#1A1D1F] backdrop-blur-md rounded-tr-[12px] rounded-tl-[12px] text-white shadow-lg border-t border-l border-r border-purple-600 max-h-[70vh] flex flex-col'
-          >
+           >
             <div className='w-full flex justify-between items-center p-4'>
               <p className='text-[1.2rem] font-bold'>Messages</p>
               <span className='text-sm text-gray-400'>{personalChats.length} chats</span>

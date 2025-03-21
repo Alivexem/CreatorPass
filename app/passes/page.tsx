@@ -117,12 +117,13 @@ const PassesPage = () => {
           const filteredAndSortedPasses = await sortAndFilterPasses(data.passes, highlightedCreator);
           setPasses(filteredAndSortedPasses);
 
-          // Initialize minting states for filtered passes
-          const states = filteredAndSortedPasses.reduce((acc: any, pass: Pass) => {
-            acc[pass._id] = false;
-            return acc;
-          }, {});
-          setMintingStates(states);
+          // Check pass ownership
+          const address = localStorage.getItem('address');
+          if (address) {
+            const ownershipRes = await fetch(`/api/passholders/check/${address}`);
+            const ownershipData = await ownershipRes.json();
+            setOwnedPasses(new Set(ownershipData.passes?.map((pass: Pass) => pass._id) || []));
+          }
         }
 
         sessionStorage.removeItem('highlightCreator');
@@ -234,11 +235,20 @@ const PassesPage = () => {
 
   const handlePassSelect = (index: number) => {
     setCurrentPage(Math.ceil((index + 1) / PASSES_PER_PAGE));
-    // Scroll to the selected pass
-    const passElements = document.querySelectorAll('.pass-card');
-    if (passElements[index]) {
-      passElements[index].scrollIntoView({ behavior: 'smooth' });
+    
+    // First scroll to the passes section
+    const passesSection = document.getElementById('passes-section');
+    if (passesSection) {
+      passesSection.scrollIntoView({ behavior: 'smooth' });
     }
+  
+    // Then scroll to the specific pass after a small delay to ensure the section is in view
+    setTimeout(() => {
+      const passElements = document.querySelectorAll('.pass-card');
+      if (passElements[index]) {
+        passElements[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 500);
   };
 
   const mintNFT = async (pass: Pass) => {
@@ -646,7 +656,7 @@ const PassesPage = () => {
         disabled={mintingStates[pass._id] || isOwned}
         className={`w-full py-3 rounded-[40px] font-medium flex items-center justify-center gap-2 transition-all duration-200 
           ${isOwned 
-            ? 'bg-gray-600 text-gray-300' 
+            ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
             : 'bg-gradient-to-r from-yellow-500 to-purple-600 hover:from-yellow-600 hover:to-purple-700 text-white'
           } disabled:opacity-50`}
       >
@@ -733,7 +743,7 @@ const PassesPage = () => {
       )}
 
       {/* Cards Section */}
-      <div className='max-w-7xl mx-auto px-4 -mt-20 mb-20'>
+      <div id="passes-section" className='max-w-7xl mx-auto px-4 -mt-20 mb-20'>
         {loading ? (
           <div className='flex justify-center items-center py-20'>
             <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
@@ -751,7 +761,7 @@ const PassesPage = () => {
                   return (
                     <div 
                       key={index}
-                      className={`min-w-[280px] md:min-w-0 snap-center bg-[#1A1D1F] rounded-xl p-4 relative hover:bg-[#22262A] transition-colors ${
+                      className={`pass-card min-w-[280px] md:min-w-0 snap-center bg-[#1A1D1F] rounded-xl p-4 relative hover:bg-[#22262A] transition-colors ${
                         isHighlighted ? 'border-2 border-purple-500' : ''
                       }`}
                     >
