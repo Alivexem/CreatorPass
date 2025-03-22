@@ -9,10 +9,10 @@ export async function POST(request: Request) {
     
     const money = await monetization.findOne();
     if (!money) {
-      return NextResponse.json({ 
-        success: false,
-        error: 'Configuration not found' 
-      }, { status: 404 });
+      // Fallback to hardcoded password if config not found
+      const fallbackPassword = "3v7rE4hWTKi8vswPg8VbjGLJt9DeNNDG15dMuSHTX6Ev";
+      const isValid = password === fallbackPassword;
+      return NextResponse.json({ success: isValid });
     }
 
     const isValid = password === money.account;
