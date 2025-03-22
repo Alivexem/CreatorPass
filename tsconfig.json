@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/posts/[id]/like/route.js", "app/api/posts/[id]/comment/route.js", "app/api/imageApi/route.js", "app/api/imageApi/route.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/posts/[id]/like/route.js", "app/api/posts/[id]/comment/route.js", "app/api/imageApi/route.js", "app/api/imageApi/route.js", "app/api/users/auth/route.js"],
   "exclude": ["node_modules"]
 }

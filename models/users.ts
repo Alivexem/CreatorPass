@@ -6,8 +6,14 @@ const usersSchema = new mongoose.Schema({
         default: 0
     },
     addresses: [{
-        type: String,
-        unique: true
+        address: {
+            type: String,
+            unique: true
+        },
+        joinDate: {
+            type: Date,
+            default: Date.now
+        }
     }]
 });
 

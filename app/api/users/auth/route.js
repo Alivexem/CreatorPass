@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/libs/mongodb';
 import Users from '@/models/users';
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
     try {
         await connectDB();
         const { address } = await request.json();
@@ -21,11 +21,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if address already exists
-        const addressExists = usersDoc.addresses.includes(address);
+        const addressExists = usersDoc.addresses.some(entry => entry.address === address);
         
         if (!addressExists) {
-            // Add new address and increment count
-            usersDoc.addresses.push(address);
+            // Add new address with timestamp and increment count
+            usersDoc.addresses.push({
+                address: address,
+                joinDate: new Date()
+            });
             usersDoc.totalUsers += 1;
             await usersDoc.save();
         }
@@ -35,8 +38,26 @@ export async function POST(request: NextRequest) {
             totalUsers: usersDoc.totalUsers,
             isNewUser: !addressExists
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('User auth error:', error);
+        return NextResponse.json({ 
+            success: false, 
+            error: error.message 
+        }, { status: 500 });
+    }
+}
+
+export async function GET() {
+    try {
+        await connectDB();
+        const usersDoc = await Users.findOne({});
+        
+        return NextResponse.json({ 
+            success: true,
+            users: usersDoc?.addresses || []
+        });
+    } catch (error) {
+        console.error('User fetch error:', error);
         return NextResponse.json({ 
             success: false, 
             error: error.message 

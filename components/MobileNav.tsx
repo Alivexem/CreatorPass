@@ -102,7 +102,7 @@ const MobileNav = () => {
         </div>
       )}
 
-      <div className={`h-[80px] px-4 border-purple-600 border-t pt-3 pb-3 box-border flex items-center justify-between w-full bg-black fixed ${isKeyboardVisible ? 'bottom-auto top-[10px]' : 'bottom-0'} text-white md:hidden z-50`}>
+      <div className={`h-[80px] px-4 border-purple-600 border-t pt-3 pb-5 box-border flex items-center justify-between w-full bg-black fixed ${isKeyboardVisible ? 'bottom-auto top-[10px]' : 'bottom-0'} text-white md:hidden z-50`}>
         <Link href='/welcome'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <GoHomeFill className={pathname === '/welcome' ? 'text-purple-500' : ''} />
