@@ -20,40 +20,68 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const imageContainerRef = useRef<HTMLDivElement>(null);
 
     const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+        setImagePreview(URL.createObjectURL(file));
+        setIsUploading(true);
+        setUploadProgress(0);
 
-        reader.onloadend = async () => {
-            const base64data = reader.result;
-
-            try {
-                const res = await fetch("/api/imageApi", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ data: base64data }),
+        // Scroll to image preview after a short delay to ensure DOM is updated
+        setTimeout(() => {
+            if (imageContainerRef.current && scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTo({
+                    top: imageContainerRef.current.offsetTop - 20,
+                    behavior: 'smooth'
                 });
-
-                if (!res.ok) {
-                    throw new Error(`Upload failed: ${res.status}`);
-                }
-
-                const data = await res.json();
-                setSelectedImage(file);
-                setImagePreview(URL.createObjectURL(file));
-                setUploadedImageUrl(data.url); // Store the uploaded URL
-            } catch (error) {
-                console.error('Error uploading image:', error);
-                alert('Failed to upload image. Please try again.');
             }
-        };
+        }, 100);
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'ifndk7tr');
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://api.cloudinary.com/v1_1/dh5vxmfvp/auto/upload');
+
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const progress = Math.round((event.loaded / event.total) * 100);
+                    setUploadProgress(progress);
+                }
+            };
+
+            const uploadedUrl = await new Promise<string>((resolve, reject) => {
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response.secure_url);
+                    } else {
+                        reject(new Error('Upload failed'));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Upload failed'));
+                xhr.send(formData);
+            });
+
+            setUploadedImageUrl(uploadedUrl);
+            setSelectedImage(file);
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Failed to upload image. Please try again.');
+            setImagePreview(null);
+        } finally {
+            setIsUploading(false);
+            setUploadProgress(0);
+        }
     };
 
     const removeImage = () => {
@@ -104,27 +132,15 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                     </button>
                 </div>
 
-                <div className="h-[calc(75vh-180px)] overflow-y-auto p-4 space-y-4">
-                    
-
-                    {post.comments && post.comments.length > 0 ? (
-                        post.comments.map((comment) => (
-                            <CommentItem 
-                                key={comment._id}
-                                comment={comment}
-                                onLike={onLike}
-                                postId={post._id}
-                                userProfile={userProfile}
-                            />
-                        ))
-                    ) : (
-                        <div className="text-center text-gray-400 py-4">
-                            No comments yet. Be the first to comment!
-                        </div>
-                    )}
-
-{imagePreview && (
-                        <div className="relative w-full max-w-[200px] mb-3">
+                <div 
+                    ref={scrollContainerRef}
+                    className="h-[calc(75vh-180px)] overflow-y-auto p-4 space-y-4 scroll-smooth"
+                >
+                    {imagePreview && (
+                        <div 
+                            ref={imageContainerRef}
+                            className="relative w-full max-w-[200px] mb-3"
+                        >
                             <div className="relative w-[200px] h-[200px]">
                                 <Image
                                     src={imagePreview}
@@ -140,6 +156,31 @@ export const CommentModal: React.FC<CommentModalProps> = ({ post, onClose, onCom
                             >
                                 ×
                             </button>
+                        </div>
+                    )}
+
+                    {isUploading && (
+                        <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                            <div 
+                                className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                            />
+                        </div>
+                    )}
+
+                    {post.comments && post.comments.length > 0 ? (
+                        post.comments.map((comment) => (
+                            <CommentItem 
+                                key={comment._id}
+                                comment={comment}
+                                onLike={onLike}
+                                postId={post._id}
+                                userProfile={userProfile}
+                            />
+                        ))
+                    ) : (
+                        <div className="text-center text-gray-400 py-4">
+                            No comments yet. Be the first to comment!
                         </div>
                     )}
                 </div>
