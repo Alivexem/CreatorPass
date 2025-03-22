@@ -143,7 +143,7 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <motion.div layout className="grid mb-[120px] h-[40vh] w-full overflow-y-auto gap-4">
+            <motion.div layout className="grid pb-[120px] h-[40vh] md:h-[60vh] w-full overflow-y-auto gap-4">
               {filterUsers(users).map((user, index) => (
                 <motion.div
                   key={user.address}
