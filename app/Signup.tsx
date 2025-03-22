@@ -13,15 +13,34 @@ const App = () => {
     const { address, isConnected, caipAddress, status, embeddedWalletInfo } = useAppKitAccount();
     const { open } = useAppKit();
 
+    const trackUserAuth = async (userAddress: string) => {
+        try {
+            const response = await fetch('/api/users/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ address: userAddress }),
+            });
+            const data = await response.json();
+            if (data.success && data.isNewUser) {
+                console.log('New user authenticated');
+            }
+        } catch (error) {
+            console.error('Error tracking user:', error);
+        }
+    };
+
     useEffect(() => {
-        if (isConnected) {
+        if (isConnected && address) {
+            trackUserAuth(address);
             setShowToaster(true);
             const timer = setTimeout(() => {
                 setShowToaster(false);
             }, 3000);
             return () => clearTimeout(timer);
         }
-    }, [isConnected]);
+    }, [isConnected, address]);
 
     const openModal = async () => {
         try {

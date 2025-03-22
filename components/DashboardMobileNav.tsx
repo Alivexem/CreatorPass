@@ -7,6 +7,7 @@ import Link from "next/link";
 import { MdLogout } from "react-icons/md";
 import { useDisconnect } from '../utils/reown';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 interface DashboardMobileNavProps {
   onShowContent: () => void;
@@ -32,8 +33,21 @@ const DashboardMobileNav = ({
     }
   };
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const detectKeyboard = () => {
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const windowHeight = window.innerHeight;
+      setIsKeyboardVisible(viewportHeight < windowHeight * 0.85);
+    };
+
+    window.visualViewport?.addEventListener('resize', detectKeyboard);
+    return () => window.visualViewport?.removeEventListener('resize', detectKeyboard);
+  }, []);
+
   return (
-    <div className='h-[80px] px-4 border-purple-600 border-t pt-3 box-border flex items-center justify-between w-full bg-black pb-3 fixed bottom-0 text-white md:hidden z-50'>
+    <div className={`h-[80px] px-4 border-purple-600 border-t pt-3 box-border flex items-center justify-between w-full bg-black pb-3 fixed ${isKeyboardVisible ? 'bottom-auto top-[10px]' : 'bottom-0'} text-white md:hidden z-50`}>
       <Link href='/welcome'>
         <div className='flex flex-col cursor-pointer items-center space-y-2'>
           <GoHomeFill className="text-gray-300" />
@@ -64,4 +78,4 @@ const DashboardMobileNav = ({
   );
 };
 
-export default DashboardMobileNav; 
+export default DashboardMobileNav;

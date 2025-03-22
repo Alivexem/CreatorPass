@@ -275,61 +275,33 @@ const Content = ({ setToast }: ContentProps) => {
         const type = file.type.startsWith('video/') ? 'video' : 'image';
 
         try {
-            let uploadedUrl: string;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'ifndk7tr');
+            formData.append('resource_type', type);
 
-            if (type === 'video') {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', 'ifndk7tr');
-                formData.append('resource_type', 'video');
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://api.cloudinary.com/v1_1/dh5vxmfvp/auto/upload');
 
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://api.cloudinary.com/v1_1/dh5vxmfvp/video/upload');
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const progress = Math.round((event.loaded / event.total) * 100);
+                    setUploadProgress(progress);
+                }
+            };
 
-                xhr.upload.onprogress = (event) => {
-                    if (event.lengthComputable) {
-                        const progress = Math.round((event.loaded / event.total) * 100);
-                        setUploadProgress(progress);
+            const uploadedUrl = await new Promise<string>((resolve, reject) => {
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response.secure_url);
+                    } else {
+                        reject(new Error('Upload failed'));
                     }
                 };
-
-                uploadedUrl = await new Promise<string>((resolve, reject) => {
-                    xhr.onload = () => {
-                        if (xhr.status === 200) {
-                            const response = JSON.parse(xhr.responseText);
-                            resolve(response.secure_url);
-                        } else {
-                            reject(new Error('Upload failed'));
-                        }
-                    };
-                    xhr.onerror = () => reject(new Error('Upload failed'));
-                    xhr.send(formData);
-                });
-            } else {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-
-                uploadedUrl = await new Promise<string>((resolve, reject) => {
-                    reader.onloadend = async () => {
-                        try {
-                            const res = await fetch("/api/imageApi", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ 
-                                    data: reader.result,
-                                    mediaType: 'image'
-                                }),
-                            });
-
-                            if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-                            const data = await res.json();
-                            resolve(data.url);
-                        } catch (error) {
-                            reject(error);
-                        }
-                    };
-                });
-            }
+                xhr.onerror = () => reject(new Error('Upload failed'));
+                xhr.send(formData);
+            });
 
             setimage(uploadedUrl);
             setUploadProgress(100);

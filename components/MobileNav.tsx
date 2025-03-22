@@ -22,6 +22,7 @@ const MobileNav = () => {
   const [toast, setToast] = useState({ show: false, message: '' });
   const messagesRef = useRef<HTMLDivElement>(null);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -82,6 +83,17 @@ const MobileNav = () => {
     }
   }, [toast.show]);
 
+  useEffect(() => {
+    const detectKeyboard = () => {
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const windowHeight = window.innerHeight;
+      setIsKeyboardVisible(viewportHeight < windowHeight * 0.85);
+    };
+
+    window.visualViewport?.addEventListener('resize', detectKeyboard);
+    return () => window.visualViewport?.removeEventListener('resize', detectKeyboard);
+  }, []);
+
   return (
     <>
       {toast.show && (
@@ -90,7 +102,7 @@ const MobileNav = () => {
         </div>
       )}
 
-      <div className='h-[80px] px-4 border-purple-600 border-t pt-3 pb-3 box-border flex items-center justify-between w-full bg-black fixed bottom-0 text-white md:hidden z-50'>
+      <div className={`h-[80px] px-4 border-purple-600 border-t pt-3 pb-3 box-border flex items-center justify-between w-full bg-black fixed ${isKeyboardVisible ? 'bottom-auto top-[10px]' : 'bottom-0'} text-white md:hidden z-50`}>
         <Link href='/welcome'>
           <div className='flex flex-col cursor-pointer items-center space-y-2'>
             <GoHomeFill className={pathname === '/welcome' ? 'text-purple-500' : ''} />
@@ -127,7 +139,7 @@ const MobileNav = () => {
         {showMessages && (
           <div
             ref={messagesRef}
-            className='fixed bottom-[80px] left-0 right-0 mx-4 bg-[#1A1D1F] backdrop-blur-md rounded-tr-[12px] rounded-tl-[12px] text-white shadow-lg border-t border-l border-r border-purple-600 max-h-[70vh] flex flex-col'
+            className={`fixed ${isKeyboardVisible ? 'top-[90px]' : 'bottom-[80px]'} left-0 right-0 mx-4 bg-[#1A1D1F] backdrop-blur-md rounded-tr-[12px] rounded-tl-[12px] text-white shadow-lg border-t border-l border-r border-purple-600 max-h-[70vh] flex flex-col`}
            >
             <div className='w-full flex justify-between items-center p-4'>
               <p className='text-[1.2rem] font-bold'>Messages</p>

@@ -24,6 +24,7 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [usernameExists, setUsernameExists] = useState(false);
   const [usernameCheckLoading, setUsernameCheckLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -127,50 +128,52 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
+    // Preview image immediately
+    setSelectedImagePreview(URL.createObjectURL(file));
     setLoading(true);
+    setUploadProgress(0);
 
-    reader.onloadend = async () => {
-        const base64data = reader.result;
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'ifndk7tr');
 
-        try {
-            const res = await fetch("/api/imageApi", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ data: base64data }),
-            });
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.cloudinary.com/v1_1/dh5vxmfvp/auto/upload');
 
-            if (!res.ok) {
-                throw new Error(`Upload failed: ${res.status}`);
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+                const progress = Math.round((event.loaded / event.total) * 100);
+                setUploadProgress(progress);
             }
+        };
 
-            const data = await res.json();
-            setProfileImage(data.url);
-            setSelectedImagePreview(URL.createObjectURL(file));
-        } catch (error: any) {
-            console.error('Error uploading image:', error);
-            setToast({
-                show: true,
-                message: 'Failed to upload image. Please try again.',
-                type: 'error'
-            });
-            setSelectedImagePreview('');
-        } finally {
-            setLoading(false);
-        }
-    };
+        const uploadedUrl = await new Promise<string>((resolve, reject) => {
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    resolve(response.secure_url);
+                } else {
+                    reject(new Error('Upload failed'));
+                }
+            };
+            xhr.onerror = () => reject(new Error('Upload failed'));
+            xhr.send(formData);
+        });
 
-    reader.onerror = () => {
+        setProfileImage(uploadedUrl);
+    } catch (error) {
+        console.error('Error uploading image:', error);
         setToast({
             show: true,
-            message: 'Error reading file. Please try again.',
+            message: 'Failed to upload image. Please try again.',
             type: 'error'
         });
+        setSelectedImagePreview('');
+    } finally {
         setLoading(false);
-    };
+        setUploadProgress(0);
+    }
   };
 
   useEffect(() => {
@@ -235,6 +238,16 @@ const ProfileUpdate = ({ setToast }: ProfileUpdateProps) => {
                 accept="image/*"
                 className="hidden"
               />
+              {loading && (
+                <div className="mt-2">
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div 
+                            className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${uploadProgress}%` }}
+                        />
+                    </div>
+                </div>
+              )}
               {errors.image && <p className="text-red-400 text-sm mt-2">{errors.image}</p>}
             </div>
 
