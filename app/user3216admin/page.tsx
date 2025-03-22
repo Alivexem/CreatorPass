@@ -96,7 +96,7 @@ export default function AdminPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Loading...
+                    <p className='text-black'>Loading...</p>
                   </>
                 ) : 'Login'}
               </button>
@@ -111,18 +111,18 @@ export default function AdminPage() {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="text-center text-4xl mb-8"
+              className="text-center text-black text-4xl mb-8"
             >
               ✅ Authorized
             </motion.div>
             
-            <div className="flex gap-4 mb-6">
+            <div className="gap-4 mb-6 grid grid-cols-3 md:grid-cols-5">
               {['all', 'today', 'yesterday', 'week', 'month'].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`px-4 py-2 rounded ${
-                    filter === f ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                    filter === f ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
                   }`}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -133,12 +133,12 @@ export default function AdminPage() {
             <div className="bg-white p-4 rounded-lg shadow mb-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="text-gray-600">Total Users: </span>
-                  <span className="font-bold">{users.length}</span>
+                  <span className="text-black">Total Users: </span>
+                  <span className="font-bold text-black">{users.length}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Filtered Users: </span>
-                  <span className="font-bold">{filterUsers(users).length}</span>
+                  <span className="text-black">Filtered Users: </span>
+                  <span className="font-bold text-black">{filterUsers(users).length}</span>
                 </div>
               </div>
             </div>
@@ -150,10 +150,10 @@ export default function AdminPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white p-4 rounded-lg shadow"
+                  className="bg-white w-[85vw] md:w-[500px] p-4 rounded-lg shadow"
                 >
-                  <p className="font-mono">{user.address}</p>
-                  <p className="text-gray-500">
+                  <p className="font-mono text-[0.6rem] md:text-[1rem] text-black">{user.address}</p>
+                  <p className="text-gray-800">
                     {dayjs(user.joinDate).format('YYYY-MM-DD HH:mm:ss')}
                   </p>
                 </motion.div>
