@@ -143,14 +143,14 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <motion.div layout className="grid gap-4">
+            <motion.div layout className="grid mb-[120px] h-[40vh] w-full overflow-y-auto gap-4">
               {filterUsers(users).map((user, index) => (
                 <motion.div
                   key={user.address}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white w-[85vw] md:w-[500px] p-4 rounded-lg shadow"
+                  className="bg-white w-full md:w-[600px] p-4 rounded-lg shadow"
                 >
                   <p className="font-mono text-[0.6rem] md:text-[1rem] text-black">{user.address}</p>
                   <p className="text-gray-800">
