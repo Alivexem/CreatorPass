@@ -130,6 +130,19 @@ export default function AdminPage() {
               ))}
             </div>
 
+            <div className="bg-white p-4 rounded-lg shadow mb-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-gray-600">Total Users: </span>
+                  <span className="font-bold">{users.length}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Filtered Users: </span>
+                  <span className="font-bold">{filterUsers(users).length}</span>
+                </div>
+              </div>
+            </div>
+
             <motion.div layout className="grid gap-4">
               {filterUsers(users).map((user, index) => (
                 <motion.div
