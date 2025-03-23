@@ -138,7 +138,7 @@ const NavBar = () => {
             backdropFilter: 'blur(10px)', // This applies the blur effect to the background
           }}
           className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center md:w-[95%] w-full md:rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
-          <Link href='/welcome'>
+          
             <Image
               src='/ctrp.jpg'
               alt='logo'
@@ -146,8 +146,8 @@ const NavBar = () => {
               width={75}
               className='hidden md:block rounded-full object-cover md:h-[80px] -ml-4'
             />
-          </Link>
-          <Link href='/welcome'>
+         
+         
             <Image
               style={{ borderRadius: '50%' }}
               src='/ctrp.jpg'
@@ -156,7 +156,7 @@ const NavBar = () => {
               width={60}
               className='md:hidden rounded-[50%] block -ml-4'
             />
-            </Link>
+           
 
 
             <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
