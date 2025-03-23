@@ -772,6 +772,7 @@ const CreatorPage = ({ params }: PageProps) => {
                             copy: post.tier !== 'Free' && !userPermissions.downloadAccess,
                             gift: post.tier !== 'Free' && !userPermissions.giftAccess
                         }}
+                        hasProfile={!!userProfile} // Add this line
                     />
                 ))}
             </div>
