@@ -138,64 +138,68 @@ const NavBar = () => {
             backdropFilter: 'blur(10px)', // This applies the blur effect to the background
           }}
           className="p-3 z-50 flex shadow-[#682E9E] justify-between relative -mb-14 md:-mb-0 md:fixed top-4 md:top-0 items-center md:w-[95%] w-full md:rounded-[30px] px-[30px] shadow-sm bg-opacity-50">
-          <Image
-            src='/ctrp.jpg'
-            alt='logo'
-            height={75}
-            width={75}
-            className='hidden md:block rounded-full object-cover md:h-[80px] -ml-4'
-          />
-
-          <Image
-            style={{borderRadius: '50%'}}
-            src='/ctrp.jpg'
-            alt='logo'
-            height={60}
-            width={60}
-            className='md:hidden rounded-[50%] block -ml-4'
-          />
-
-          <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className='ml-3 bg-transparent text-black pr-5 h-full w-full outline-none border-none'
-              placeholder='Find a creator'
-              type='text'
+          <Link href='/welcome'>
+            <Image
+              src='/ctrp.jpg'
+              alt='logo'
+              height={75}
+              width={75}
+              className='hidden md:block rounded-full object-cover md:h-[80px] -ml-4'
             />
-            <button type="submit" className='h-[100%] lg:w-[15%] md:w-[30%] rounded-full bg-gray-900 hover:bg-gray-500 text-white flex justify-center items-center'>
-              <FiSearch />
-            </button>
-          </form>
-
-          <div className='flex items-center gap-x-2 md:gap-x-5 text-white text-[1rem]'>
-            <div className="hidden md:block">
-              <NotificationDropdown />
-            </div>
-
-            <Link href='/welcome' className='hidden md:block'>
-              <p className={`cursor-pointer  ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Home</p>
-            </Link>
-            <Link href='/creators' className='hidden md:block'>
-              <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Creators</p>
-            </Link>
-            <Link href='/dashboard' className='hidden md:block'>
-              <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Dashboard</p>
+          </Link>
+          <Link href='/welcome'>
+            <Image
+              style={{ borderRadius: '50%' }}
+              src='/ctrp.jpg'
+              alt='logo'
+              height={60}
+              width={60}
+              className='md:hidden rounded-[50%] block -ml-4'
+            />
             </Link>
 
-            <div className="flex items-center gap-2 md:gap-4">
-              <div className="md:hidden">
+
+            <form onSubmit={handleSearch} className='lg:h-14 hidden md:flex md:h-14 lg:w-[400px] md:w-[40%] p-2 bg-gray-200 rounded-[40px] items-center'>
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className='ml-3 bg-transparent text-black pr-5 h-full w-full outline-none border-none'
+                placeholder='Find a creator'
+                type='text'
+              />
+              <button type="submit" className='h-[100%] lg:w-[15%] md:w-[30%] rounded-full bg-gray-900 hover:bg-gray-500 text-white flex justify-center items-center'>
+                <FiSearch />
+              </button>
+            </form>
+
+            <div className='flex items-center gap-x-2 md:gap-x-5 text-white text-[1rem]'>
+              <div className="hidden md:block">
                 <NotificationDropdown />
               </div>
-              <div
-                className='bg-gray-200 -mr-3 md:-mr-0 h-[70%] md:h-8 px-4 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purlpe-300'
-                onClick={handleConnect}
-               >
-                <BiWallet className="text-black mr-2" />
-                <p className='text-black text-[1rem] whitespace-nowrap'>{connectValue}</p>
+
+              <Link href='/welcome' className='hidden md:block'>
+                <p className={`cursor-pointer  ${pathname === '/welcome' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Home</p>
+              </Link>
+              <Link href='/creators' className='hidden md:block'>
+                <p className={`cursor-pointer ${pathname === '/creators' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Creators</p>
+              </Link>
+              <Link href='/dashboard' className='hidden md:block'>
+                <p className={`cursor-pointer ${pathname === '/dashboard' ? 'bg-gray-800' : 'hover:text-purple-500'} rounded-lg p-2`}>Dashboard</p>
+              </Link>
+
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="md:hidden">
+                  <NotificationDropdown />
+                </div>
+                <div
+                  className='bg-gray-200 -mr-3 md:-mr-0 h-[70%] md:h-8 px-4 w-auto rounded-lg p-2 flex justify-center items-center cursor-pointer hover:bg-purlpe-300'
+                  onClick={handleConnect}
+                >
+                  <BiWallet className="text-black mr-2" />
+                  <p className='text-black text-[1rem] whitespace-nowrap'>{connectValue}</p>
+                </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Bottom Navigation */}

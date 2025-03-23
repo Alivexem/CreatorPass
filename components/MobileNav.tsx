@@ -12,6 +12,7 @@ import { ChatHistoryItem } from '@/types/chat'; // Add this type to your project
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { app } from '../utils/firebase'; // Make sure to import your Firebase app
 import { BiLoaderAlt } from "react-icons/bi"; // Add this import
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -94,6 +95,25 @@ const MobileNav = () => {
     return () => window.visualViewport?.removeEventListener('resize', detectKeyboard);
   }, []);
 
+  const messageVariants = {
+    hidden: {
+      y: '100%',
+      opacity: 0,
+      transition: {
+        duration: 0.2,
+        ease: 'easeInOut'
+      }
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.2,
+        ease: 'easeInOut'
+      }
+    }
+  };
+
   return (
     <>
       {toast.show && (
@@ -136,72 +156,78 @@ const MobileNav = () => {
           </div>
         </Link>
 
-        {showMessages && (
-          <div
-            ref={messagesRef}
-            className={`fixed ${isKeyboardVisible ? 'top-[90px]' : 'bottom-[80px]'} left-0 right-0 mx-4 bg-[#1A1D1F] backdrop-blur-md rounded-tr-[12px] rounded-tl-[12px] text-white shadow-lg border-t border-l border-r border-purple-600 max-h-[70vh] flex flex-col`}
-           >
-            <div className='w-full flex justify-between items-center p-4'>
-              <p className='text-[1.2rem] font-bold'>Messages</p>
-              <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
-            </div>
-            <div className='border-gray-500/30 border-t w-full flex flex-col space-y-2 overflow-auto max-h-[calc(70vh-80px)] p-4'>
-              {isLoadingMessages ? (
-                <div className="flex justify-center items-center py-8">
-                  <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
-                </div>
-              ) : personalChats.length > 0 ? (
-                personalChats.map((chat) => (
-                  <Link
-                    key={chat.id}
-                    href={`/creators?highlight=${chat.recipientAddress}`}
-                    className='flex items-center gap-x-3 cursor-pointer hover:bg-purple-900/20 p-3 rounded-lg transition-all'
-                    onClick={() => setShowMessages(false)}
-                  >
-                    <div className='relative'>
-                      <Image
-                        width={45}
-                        height={45}
-                        alt='profilePic'
-                        src={chat.profileImage}
-                        className='rounded-full h-[45px] w-[45px] object-cover'
-                      />
-                      {/* <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1A1D1F]'></div> */}
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='flex justify-between items-start'>
-                        <p className='font-semibold truncate'>{chat.username}</p>
-                        <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
-                          {new Date(chat.timestamp).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
+        <AnimatePresence>
+          {showMessages && (
+            <motion.div
+              ref={messagesRef}
+              className={`fixed ${isKeyboardVisible ? 'top-[90px]' : 'bottom-[80px]'} left-0 right-0 mx-4 bg-[#1A1D1F] backdrop-blur-md rounded-tr-[12px] rounded-tl-[12px] text-white shadow-lg border-t border-l border-r border-purple-600 max-h-[70vh] flex flex-col`}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={messageVariants}
+            >
+              <div className='w-full flex justify-between items-center p-4'>
+                <p className='text-[1.2rem] font-bold'>Messages</p>
+                <span className='text-sm text-gray-400'>{personalChats.length} chats</span>
+              </div>
+              <div className='border-gray-500/30 border-t w-full flex flex-col space-y-2 overflow-auto max-h-[calc(70vh-80px)] p-4'>
+                {isLoadingMessages ? (
+                  <div className="flex justify-center items-center py-8">
+                    <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />
+                  </div>
+                ) : personalChats.length > 0 ? (
+                  personalChats.map((chat) => (
+                    <Link
+                      key={chat.id}
+                      href={`/creators?highlight=${chat.recipientAddress}`}
+                      className='flex items-center gap-x-3 cursor-pointer hover:bg-purple-900/20 p-3 rounded-lg transition-all'
+                      onClick={() => setShowMessages(false)}
+                    >
+                      <div className='relative'>
+                        <Image
+                          width={45}
+                          height={45}
+                          alt='profilePic'
+                          src={chat.profileImage}
+                          className='rounded-full h-[45px] w-[45px] object-cover'
+                        />
+                        {/* <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1A1D1F]'></div> */}
                       </div>
-                      <p className='text-sm text-gray-400 truncate'>
-                        {chat.lastMessage}
-                      </p>
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full space-y-4 py-8">
-                  <p className='text-center text-gray-400'>No messages yet</p>
-                  <Link
-                    href="/creators"
-                    className="text-purple-500 hover:text-purple-400 text-sm flex items-center gap-2"
-                    onClick={() => setShowMessages(false)}
-                  >
-                    <span>Find creators to chat with</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+                      <div className='flex-1 min-w-0'>
+                        <div className='flex justify-between items-start'>
+                          <p className='font-semibold truncate'>{chat.username}</p>
+                          <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+                            {new Date(chat.timestamp).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <p className='text-sm text-gray-400 truncate'>
+                          {chat.lastMessage}
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full space-y-4 py-8">
+                    <p className='text-center text-gray-400'>No messages yet</p>
+                    <Link
+                      href="/creators"
+                      className="text-purple-500 hover:text-purple-400 text-sm flex items-center gap-2"
+                      onClick={() => setShowMessages(false)}
+                    >
+                      <span>Find creators to chat with</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );
