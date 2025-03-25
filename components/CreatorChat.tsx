@@ -188,13 +188,34 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
         // Reset chat container height
         if (chatContainerRef.current) {
-          chatContainerRef.current.style.height = 'auto';
+          chatContainerRef.current.style.height = 'calc(100vh - 140px)';
         }
       }
     };
 
+    const handleBlur = () => {
+      // Reset to initial state when input loses focus
+      setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
+      if (chatContainerRef.current) {
+        chatContainerRef.current.style.height = 'calc(100vh - 140px)';
+      }
+    };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    // Add blur event listeners to all input elements
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.addEventListener('blur', handleBlur);
+    });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      inputs.forEach(input => {
+        input.removeEventListener('blur', handleBlur);
+      });
+    };
   }, []);
 
   useEffect(() => {
@@ -705,6 +726,16 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
+              onBlur={() => {
+                // Additional blur handler for the message input
+                setTimeout(() => {
+                  if (chatContainerRef.current) {
+                    chatContainerRef.current.style.height = 'calc(100vh - 140px)';
+                  }
+                  setIsKeyboardVisible(false);
+                  setKeyboardHeight(0);
+                }, 100);
+              }}
               className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Type a message..."
             />
