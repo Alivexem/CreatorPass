@@ -99,6 +99,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [userProfiles, setUserProfiles] = useState<{[key: string]: Profile}>({});
   const [isGiftProcessing, setIsGiftProcessing] = useState(false);
+  const MOBILE_NAV_HEIGHT = 80; // Height of mobile nav in pixels
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -177,7 +178,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
       const currentHeight = window.innerHeight;
       if (initialHeight > currentHeight) {
         // Keyboard is shown
-        const difference = initialHeight - currentHeight;
+        const difference = initialHeight - currentHeight + MOBILE_NAV_HEIGHT;
         setKeyboardHeight(difference);
         setIsKeyboardVisible(true);
       } else {
@@ -653,13 +654,12 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           onSubmit={sendMessage} 
           className={`p-4 bg-[#232629] md:rounded-bl-xl w-full ${
             isKeyboardVisible 
-              ? 'fixed top-0 left-0 right-0 md:relative z-50 transform -translate-y-[80px]' 
+              ? 'fixed bottom-[80px] left-0 right-0 md:relative md:bottom-0' 
               : 'relative'
           }`}
           style={{
             position: isKeyboardVisible ? 'fixed' : 'relative',
-            bottom: isKeyboardVisible ? 'auto' : '0',
-            transform: isKeyboardVisible ? 'translateY(-80px)' : 'none', // Account for mobile nav height
+            bottom: isKeyboardVisible ? MOBILE_NAV_HEIGHT : 0,
             zIndex: 50,
           }}
         >
