@@ -276,11 +276,16 @@ const Mainbar = ({ showContent, showProfile, setToast }: MainbarProps) => {
                 <div className='flex gap-4'>
                   <button
                     onClick={handleCreatePassClick}
-                    disabled={!canCreateMorePasses()}
+                    disabled={!canCreateMorePasses() || !profile}
                     className='flex-1 mb-[30px] text-[1.1rem] md:mb-0 mt-5 bg-green-700 md:bg-purple-600 hover:bg-purple-700 h-[60px] transition-all py-3 px-4 rounded-lg md:rounded-md text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
                    >
                     <IoTicketSharp size={20} />
-                    {canCreateMorePasses() ? 'Create Pass' : 'Max Passes Created'}
+                    {!profile 
+                      ? 'Create Profile First'
+                      : canCreateMorePasses() 
+                        ? 'Create Pass' 
+                        : 'Max Passes Created'
+                    }
                   </button>
                 </div>
               </div>

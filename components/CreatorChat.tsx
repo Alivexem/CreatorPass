@@ -653,13 +653,14 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           onSubmit={sendMessage} 
           className={`p-4 bg-[#232629] md:rounded-bl-xl w-full ${
             isKeyboardVisible 
-              ? 'fixed bottom-0 left-0 right-0 md:relative z-50' 
+              ? 'fixed top-0 left-0 right-0 md:relative z-50 transform -translate-y-[80px]' 
               : 'relative'
           }`}
           style={{
             position: isKeyboardVisible ? 'fixed' : 'relative',
-            bottom: isKeyboardVisible ? `${keyboardHeight}px` : 'auto',
-            transform: 'translateZ(0)', // Force hardware acceleration
+            bottom: isKeyboardVisible ? 'auto' : '0',
+            transform: isKeyboardVisible ? 'translateY(-80px)' : 'none', // Account for mobile nav height
+            zIndex: 50,
           }}
         >
           <div className="flex gap-2 items-center max-w-[500px] mx-auto">
