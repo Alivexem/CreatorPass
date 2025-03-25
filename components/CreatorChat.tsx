@@ -185,6 +185,11 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         // Keyboard is hidden
         setKeyboardHeight(0);
         setIsKeyboardVisible(false);
+
+        // Reset chat container height
+        if (chatContainerRef.current) {
+          chatContainerRef.current.style.height = 'auto';
+        }
       }
     };
 
@@ -541,7 +546,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         exit={{ x: "100%" }}
         className="md:fixed md:rounded-bl-xl md:right-0 md:top-0 h-[89vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
         style={{
-          height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '89vh'
+          height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '89vh',
+          transition: 'height 0.3s ease-out'
         }}
       >
         {/* Header */}
@@ -569,7 +575,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           ref={chatContainerRef}
           className="flex-1 overflow-y-auto p-4 space-y-4"
           style={{
-            height: isKeyboardVisible ? `calc(100% - ${keyboardHeight}px)` : 'auto'
+            height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight + 140}px)` : 'auto',
+            transition: 'height 0.3s ease-out'
           }}
         >
           {messages.map((message) => (
@@ -661,6 +668,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             position: isKeyboardVisible ? 'fixed' : 'relative',
             bottom: isKeyboardVisible ? MOBILE_NAV_HEIGHT : 0,
             zIndex: 50,
+            transition: 'bottom 0.3s ease-out'
           }}
         >
           <div className="flex gap-2 items-center max-w-[500px] mx-auto">
