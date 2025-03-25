@@ -174,6 +174,14 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     // Detect keyboard visibility changes
     const initialHeight = window.innerHeight;
     
+    const resetChatContainer = () => {
+      setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
+      if (chatContainerRef.current) {
+        chatContainerRef.current.style.height = 'calc(100vh - 140px)';
+      }
+    };
+
     const handleResize = () => {
       const currentHeight = window.innerHeight;
       if (initialHeight > currentHeight) {
@@ -183,37 +191,35 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         setIsKeyboardVisible(true);
       } else {
         // Keyboard is hidden
-        setKeyboardHeight(0);
-        setIsKeyboardVisible(false);
+        resetChatContainer();
+      }
+    };
 
-        // Reset chat container height
-        if (chatContainerRef.current) {
-          chatContainerRef.current.style.height = 'calc(100vh - 140px)';
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // When app becomes visible again, check if keyboard is hidden
+        if (window.innerHeight >= initialHeight) {
+          resetChatContainer();
         }
       }
     };
 
-    const handleBlur = () => {
-      // Reset to initial state when input loses focus
-      setKeyboardHeight(0);
-      setIsKeyboardVisible(false);
-      if (chatContainerRef.current) {
-        chatContainerRef.current.style.height = 'calc(100vh - 140px)';
-      }
-    };
-
     window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
     
     // Add blur event listeners to all input elements
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
-      input.addEventListener('blur', handleBlur);
+      input.addEventListener('blur', resetChatContainer);
     });
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
       inputs.forEach(input => {
-        input.removeEventListener('blur', handleBlur);
+        input.removeEventListener('blur', resetChatContainer);
       });
     };
   }, []);
@@ -596,7 +602,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           ref={chatContainerRef}
           className="flex-1 overflow-y-auto p-4 space-y-4 md:auto"
           style={{
-            height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight + 140}px)` : `calc(100vh - 140px)`,
+            height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight})` : `calc(100vh - 140px)`,
             transition: 'height 0.3s ease-out'
           }}
         >
