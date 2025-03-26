@@ -684,6 +684,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               <FaGift size={20} />
             </button>
             
+            
+            
             <input
               type="text"
               value={newMessage}
