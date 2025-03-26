@@ -601,11 +601,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <div
           ref={chatContainerRef}
           className="flex-1 overflow-y-auto p-4 space-y-4 md:auto"
-          style={{
 
-            height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight + 140}px)` : '80vh',
-            transition: 'height 0.3s ease-out'
-          }}
         >
           
           {messages.map((message) => (
