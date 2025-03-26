@@ -82,9 +82,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     message: string;
     type: 'success' | 'error' | 'info' | 'warning';
   }>({ show: false, message: '', type: 'info' });
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [giftAmount, setGiftAmount] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -99,7 +97,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [userProfiles, setUserProfiles] = useState<{[key: string]: Profile}>({});
   const [isGiftProcessing, setIsGiftProcessing] = useState(false);
-  const MOBILE_NAV_HEIGHT = 80; // Height of mobile nav in pixels
+  const [viewportHeight, setViewportHeight] = useState<number>(0);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -171,30 +170,29 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   }, [messages]);
 
   useEffect(() => {
-    // Detect keyboard visibility changes
-    const initialHeight = window.innerHeight;
-    
-    const handleResize = () => {
-      const currentHeight = window.innerHeight;
-      if (initialHeight > currentHeight) {
-        // Keyboard is shown
-        const difference = initialHeight - currentHeight + MOBILE_NAV_HEIGHT;
-        setKeyboardHeight(difference);
-        setIsKeyboardVisible(true);
-      } else {
-        // Keyboard is hidden
-        setKeyboardHeight(0);
-        setIsKeyboardVisible(false);
+    // Set initial viewport height
+    setViewportHeight(window.visualViewport?.height || window.innerHeight);
 
-        // Reset chat container height
-        if (chatContainerRef.current) {
-          chatContainerRef.current.style.height = 'auto';
-        }
-      }
+    // Handle viewport changes (keyboard, zoom, etc)
+    const handleResize = () => {
+      if (!window.visualViewport) return;
+      
+      const newHeight = window.visualViewport.height;
+      setViewportHeight(newHeight);
+      
+      // Detect if keyboard is likely open (threshold of 25% height change)
+      const heightChange = window.innerHeight - newHeight;
+      const heightChangePercentage = (heightChange / window.innerHeight) * 100;
+      setKeyboardOpen(heightChangePercentage > 25);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('scroll', handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -544,14 +542,14 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
-        className="md:fixed md:rounded-bl-xl md:right-0 md:top-0 h-[89vh] w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
+        className="md:fixed md:rounded-bl-xl md:right-0 md:top-0 w-full md:w-[500px] bg-[#1A1D1F] shadow-xl flex flex-col z-50"
         style={{
-          height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '89vh',
-          transition: 'height 0.3s ease-out'
+          height: keyboardOpen ? `${viewportHeight}px` : '100dvh',
+          maxHeight: '100dvh'
         }}
       >
         {/* Header */}
-        <div className="md:bg-purple-900 bg-gray-800 p-4 mb-5 flex items-center justify-between">
+        <div className="md:bg-purple-900 bg-gray-800 p-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <Image
               src={creatorProfile.profileImage || '/empProfile.png'}
@@ -573,10 +571,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         {/* Messages */}
         <div
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto p-4 space-y-4 md:auto"
-          
+          className="flex-1 overflow-y-auto p-4 space-y-4"
         >
-          
           {messages.map((message) => (
             <div
               key={message.id}
@@ -657,17 +653,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <form 
           ref={formRef}
           onSubmit={sendMessage} 
-          className={`p-4 bg-[#232629] md:rounded-bl-xl w-full ${
-            isKeyboardVisible 
-              ? 'fixed bottom-[80px] left-0 right-0 md:relative md:bottom-0' 
-              : 'relative'
-          }`}
-          style={{
-            position: isKeyboardVisible ? 'fixed' : 'relative',
-            bottom: isKeyboardVisible ? MOBILE_NAV_HEIGHT : 0,
-            zIndex: 50,
-            transition: 'bottom 0.3s ease-out'
-          }}
+          className="p-4 bg-[#232629] md:rounded-bl-xl w-full shrink-0"
         >
           <div className="flex gap-2 items-center max-w-[500px] mx-auto">
             <button
@@ -718,9 +704,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             <div 
               ref={emojiRef} 
               className="absolute bottom-full right-4 mb-2"
-              style={{
-                transform: isKeyboardVisible ? `translateY(-${keyboardHeight}px)` : 'none'
-              }}
             >
               <Picker
                 data={data}
