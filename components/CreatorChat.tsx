@@ -653,7 +653,9 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <form 
           ref={formRef}
           onSubmit={sendMessage} 
-          className="p-4 bg-[#232629] md:rounded-bl-xl w-full shrink-0"
+          className={`p-4 bg-[#232629] w-full shrink-0 ${
+            keyboardOpen ? 'mb-[90px]' : 'mb-[80px]'
+          } md:mb-0`}
         >
           <div className="flex gap-2 items-center max-w-[500px] mx-auto">
             <button
