@@ -174,6 +174,14 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     // Detect keyboard visibility changes
     const initialHeight = window.innerHeight;
     
+    const resetChatContainer = () => {
+      setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
+      if (chatContainerRef.current) {
+        chatContainerRef.current.style.height = 'calc(100vh - 140px)';
+      }
+    };
+
     const handleResize = () => {
       const currentHeight = window.innerHeight;
       if (initialHeight > currentHeight) {
@@ -183,18 +191,37 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         setIsKeyboardVisible(true);
       } else {
         // Keyboard is hidden
-        setKeyboardHeight(0);
-        setIsKeyboardVisible(false);
+        resetChatContainer();
+      }
+    };
 
-        // Reset chat container height
-        if (chatContainerRef.current) {
-          chatContainerRef.current.style.height = 'auto';
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // When app becomes visible again, check if keyboard is hidden
+        if (window.innerHeight >= initialHeight) {
+          resetChatContainer();
         }
       }
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
+    
+    // Add blur event listeners to all input elements
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.addEventListener('blur', resetChatContainer);
+    });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+      inputs.forEach(input => {
+        input.removeEventListener('blur', resetChatContainer);
+      });
+    };
   }, []);
 
   useEffect(() => {
@@ -574,7 +601,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <div
           ref={chatContainerRef}
           className="flex-1 overflow-y-auto p-4 space-y-4 md:auto"
-          
+
         >
           
           {messages.map((message) => (
@@ -702,6 +729,16 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
+              onBlur={() => {
+                // Additional blur handler for the message input
+                setTimeout(() => {
+                  if (chatContainerRef.current) {
+                    chatContainerRef.current.style.height = 'calc(100vh - 140px)';
+                  }
+                  setIsKeyboardVisible(false);
+                  setKeyboardHeight(0);
+                }, 100);
+              }}
               className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Type a message..."
             />
