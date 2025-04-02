@@ -211,6 +211,7 @@ const CreatorPage = ({ params }: PageProps) => {
             try {
                 const postsRes = await fetch('/api');
                 const postsData = await postsRes.json();
+                const myAddress = localStorage.getItem('address') || '';
 
                 // Filter posts by creator username and map to include required fields
                 const creatorPosts = postsData.creator
@@ -230,29 +231,34 @@ const CreatorPage = ({ params }: PageProps) => {
                         __v: post.__v
                     }));
 
-                // Get user's access level based on passes
-                const userTiers = new Set(['Free', ...userPasses.map(pass => pass.type)]);
+                // Check if viewer is the post owner
+                const isOwner = id === myAddress;
 
-                // Filter posts based on user's access
-                const accessiblePosts = creatorPosts.filter((post: Post) => userTiers.has(post.tier));
+                // If owner, show all posts. Otherwise, filter by access
+                let accessiblePosts;
+                if (isOwner) {
+                    accessiblePosts = creatorPosts;
+                } else {
+                    const userTiers = new Set(['Free', ...userPasses.map(pass => pass.type)]);
+                    accessiblePosts = creatorPosts.filter((post: Post) => userTiers.has(post.tier));
 
-                // Handle access notification for inaccessible posts
-                const inaccessibleTiers = new Set<string>(
-                    creatorPosts
-                        .filter((post: Post) => !userTiers.has(post.tier))
-                        .map((post: Post) => post.tier)
-                );
+                    // Handle access notification for inaccessible tiers only for non-owners
+                    const inaccessibleTiers = new Set<string>(
+                        creatorPosts
+                            .filter((post: Post) => !userTiers.has(post.tier))
+                            .map((post: Post) => post.tier)
+                    );
 
-                if (inaccessibleTiers.size > 0) {
-                    setAccessNotification({
-                        show: true,
-                        message: `${profile?.username || 'Anonymous'} has ${Array.from(inaccessibleTiers).join(', ')} tier post(s), gain access here!`,
-                        availableTiers: Array.from(inaccessibleTiers) as string[]
-                    });
+                    if (inaccessibleTiers.size > 0) {
+                        setAccessNotification({
+                            show: true,
+                            message: `${profile?.username || 'Anonymous'} has ${Array.from(inaccessibleTiers).join(', ')} tier post(s), gain access here!`,
+                            availableTiers: Array.from(inaccessibleTiers) as string[]
+                        });
+                    }
                 }
 
                 // Initialize states for accessible posts
-                const myAddress = localStorage.getItem('address') || '';
                 const initialLikes: { [key: string]: number } = {};
                 const initialHasLiked: { [key: string]: boolean } = {};
 
