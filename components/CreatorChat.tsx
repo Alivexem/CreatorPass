@@ -99,6 +99,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
   const [isGiftProcessing, setIsGiftProcessing] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<number>(0);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -271,7 +272,6 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             participants: [userAddress, creatorAddress]
         };
 
-        // Update chat history for both participants
         await update(ref(database, `chatHistory/${chatId}`), {
             ...chatHistoryData,
             recipientAddress: creatorAddress,
@@ -280,6 +280,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         });
 
         setNewMessage('');
+        // Focus the input after sending message
+        inputRef.current?.focus();
     } catch (error) {
         console.error('Failed to send message:', error);
         setToast({
@@ -689,6 +691,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             
             
             <input
+              ref={inputRef}
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
@@ -707,7 +710,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           {showEmoji && (
             <div 
               ref={emojiRef} 
-              className="absolute bottom-full right-4 mb-2"
+              className="absolute bottom-[calc(100%+8px)] left-1/2 transform -translate-x-1/2"
+              style={{ zIndex: 1000 }}
             >
               <Picker
                 data={data}
