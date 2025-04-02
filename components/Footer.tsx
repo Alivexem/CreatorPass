@@ -9,7 +9,7 @@ const Footer = () => {
             <div className='max-w-6xl w-full grid grid-cols-1 md:grid-cols-3 gap-8'>
                 {/* Brand Section */}
                 <div className='flex flex-col items-center md:items-start gap-y-3'>
-                    <Image style={{borderRadius: '50%'}} className='rounded-[50%]' src='/ctrp.jpg' alt='logo' height={45} width={45} />
+                    <Image style={{borderRadius: '50%'}} className='rounded-[50%]' src='/clogo.jpg' alt='logo' height={45} width={45} />
                     <p className='text-gray-300 text-sm max-w-[250px] text-center md:text-left'>
                         A decentralized social platform connecting content creators to fans through blockchain technology
                     </p>
