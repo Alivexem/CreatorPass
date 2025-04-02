@@ -44,6 +44,17 @@ const CreatorFunChat = ({
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const formRef = useRef<HTMLFormElement>(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         // Set up realtime listener for fun chats
@@ -157,13 +168,17 @@ const CreatorFunChat = ({
             )}
 
             {/* Fun Chat Section */}
-            <div className={`fixed top-[44%] z-50 md:z-0 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[88vh] md:h-[65vh] md:w-[400px] w-full 
+            <div className={`fixed top-[44%] z-50 md:z-0 md:top-[55vh] transform -translate-y-1/2 left-0 md:left-10 h-[88vh] md:h-[70vh] md:w-[400px] w-full 
                 bg-gradient-to-b from-gray-600 to-gray-800
                 ${showFunChat ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'} 
                 transition-transform duration-300 z-30 shadow-xl md:rounded-r-lg`}
-                style={{
-                    height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '88vh'
-                }}
+                style={
+                    isMobile
+                        ? isKeyboardVisible
+                            ? { height: `calc(100vh - ${keyboardHeight}px)` }
+                            : undefined
+                        : undefined
+                }
             >
                 <div className="p-4 h-full flex flex-col bg-black/30 md:bg-transparent">
                     {/* Mobile Close Button */}
