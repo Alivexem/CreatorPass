@@ -69,6 +69,8 @@ const PassesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPasses, setFilteredPasses] = useState<Pass[]>([]);
   const [ownedPasses, setOwnedPasses] = useState<Set<string>>(new Set());
+  const creatorCardRef = useRef<HTMLDivElement>(null);
+  const passesSectionRef = useRef<HTMLDivElement>(null);
 
   const PASSES_PER_PAGE = 3;
 
@@ -116,6 +118,16 @@ const PassesPage = () => {
           // Filter and sort passes based on usage
           const filteredAndSortedPasses = await sortAndFilterPasses(data.passes, highlightedCreator);
           setPasses(filteredAndSortedPasses);
+
+          // If there's a highlighted creator, scroll to the passes section
+          if (highlightedCreator && passesSectionRef.current) {
+            setTimeout(() => {
+              passesSectionRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+              });
+            }, 500);
+          }
 
           // Check pass ownership
           const address = localStorage.getItem('address');
@@ -750,7 +762,7 @@ const PassesPage = () => {
       )}
 
       {/* Cards Section */}
-      <div id="passes-section" className='max-w-7xl mx-auto px-4 -mt-20 mb-20'>
+      <div id="passes-section" ref={passesSectionRef} className='max-w-7xl mx-auto px-4 -mt-20 mb-20'>
         {loading ? (
           <div className='flex justify-center items-center py-20'>
             <BiLoaderAlt className="w-8 h-8 text-purple-500 animate-spin" />

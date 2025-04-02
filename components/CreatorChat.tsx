@@ -221,6 +221,21 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
     });
   }, [messages]);
 
+  useEffect(() => {
+    // Focus input on mount
+    inputRef.current?.focus();
+
+    // Keep focus when keyboard changes
+    if (keyboardOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+
+    return () => {
+      // Clean up focus when component unmounts
+      inputRef.current?.blur();
+    };
+  }, [keyboardOpen]);
+
   const handleMouseEnter = (messageId: string) => {
     setHoveredMessage(messageId);
     if (hoverTimeoutRef.current) {
@@ -236,8 +251,13 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Prevent default focus loss
+    e.stopPropagation();
 
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim()) {
+      inputRef.current?.focus();
+      return;
+    }
 
     if (!userProfile?.username) {
         setToast({
@@ -280,8 +300,10 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         });
 
         setNewMessage('');
-        // Focus the input after sending message
-        inputRef.current?.focus();
+        // Ensure input stays focused after sending
+        requestAnimationFrame(() => {
+          inputRef.current?.focus();
+        });
     } catch (error) {
         console.error('Failed to send message:', error);
         setToast({
@@ -289,6 +311,8 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
             message: 'Failed to send message',
             type: 'error'
         });
+        // Keep focus even on error
+        inputRef.current?.focus();
     }
 };
 
@@ -655,7 +679,7 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
         <form 
           ref={formRef}
           onSubmit={sendMessage} 
-          className={`p-4 bg-[#232629] w-full shrink-0 ${
+          className={`relative p-4 bg-[#232629] w-full shrink-0 ${
             keyboardOpen ? 'mb-[90px]' : 'mb-[80px]'
           } md:mb-0`}
         >
@@ -697,6 +721,14 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
               onChange={(e) => setNewMessage(e.target.value)}
               className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Type a message..."
+              autoFocus // Add autoFocus
+              onBlur={(e) => {
+                // Prevent blur unless clicking outside the form
+                if (formRef.current?.contains(e.relatedTarget as Node)) {
+                  e.preventDefault();
+                  inputRef.current?.focus();
+                }
+              }}
             />
             
             <button
@@ -710,14 +742,16 @@ const CreatorChat = ({ creatorAddress, userAddress, creatorProfile, userProfile,
           {showEmoji && (
             <div 
               ref={emojiRef} 
-              className="absolute bottom-[calc(100%+8px)] left-1/2 transform -translate-x-1/2"
+              className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2"
               style={{ zIndex: 1000 }}
             >
-              <Picker
-                data={data}
-                onEmojiSelect={onEmojiSelect}
-                theme="dark"
-              />
+              <div className="bg-[#232629] rounded-lg shadow-lg">
+                <Picker
+                  data={data}
+                  onEmojiSelect={onEmojiSelect}
+                  theme="dark"
+                />
+              </div>
             </div>
           )}
         </form>

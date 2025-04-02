@@ -102,6 +102,14 @@ const CreatorsPage = () => {
               );
               setCurrentIndex(index >= 0 ? index : 0);
               setHighlightedCreator(highlightAddress);
+
+              // Add scroll behavior
+              setTimeout(() => {
+                creatorCardRef.current?.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center'
+                });
+              }, 500); // Wait for content to load
             }
           }
 
@@ -363,7 +371,7 @@ const CreatorsPage = () => {
                           className={`w-[78vw] md:w-[500px] rounded-2xl overflow-hidden shadow-2xl 
                             bg-gradient-to-r from-blue-500 to-purple-600 
                             transform hover:scale-105 transition-all duration-300
-                            ${isHighlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
+                            ${isHighlighted ? 'ring-4 ring-gray-400 animate-pulse' : ''}`}
                         >
                           <div className='bg-[#080e0e] p-6 space-y-4'>
                             <Image src='/whiteLogo.png' alt='logo' height={10} width={60} className='w-24 mx-auto' />
