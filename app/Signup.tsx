@@ -117,26 +117,26 @@ const App = () => {
                 <div className='md:hidden p-2 mt-[500px] bg-black'>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4'>
                         <div className='text-[2.5rem] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
-                            <p>CreatorPass</p>
+                            <p className='text-white text-center'>CreatorPass</p>
                         </div>
                         <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>
                             CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint NFT passes</p>
                     </div>
 
-                    <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
-                    <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                        {/* <FcLinux /> */}
+                    {/*<div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
+                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
+                    
                         <p className='leading-none'>For creators</p>
                     </div>
                         <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Monetize content, manage fans, and offer special experiences. </p>
                     </div>
                     <div className='flex flex-col justify-center items-center border border-purple-500 rounded-xl bg-transparent p-4 mt-7'>
                     <div className='text-[2.5rem] flex items-center gap-x-2 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-5 mt-5 pl-4'>
-                        {/* <FcLike /> */}
+                    
                         <p className='leading-none'>For fans</p>
                     </div>
                         <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>Get exclusive access to the content you love and connect deeper with creators. Gift creators directly and buy crypto effortlessly in-app to top-up balance.</p>
-                    </div>
+                    </div> */}
                 </div>
                 <div onClick={() => openModal()} style={{ backgroundColor: isConnected ? '#34c759' : '#7c3aed' }} className='w-full rounded-lg cursor-pointer p-2 md:p-0 md:ml-4 flex justify-center mb-14 md:mb-0 mt-6'>
                     <button className='w-full md:max-w-[250px] lg:max-w-[300px] flex items-center justify-center gap-x-2 h-[50px] text-white'>

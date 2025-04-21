@@ -5,9 +5,10 @@ const uploadsSchema = new mongoose.Schema({
     note: { type: String, required: true },
     image: { type: String },
     video: { type: String }, // Add video field
+    audio: { type: String }, // Added audio field to support audio uploads
     mediaType: { 
         type: String,
-        enum: ['image', 'video'],
+        enum: ['image', 'video', 'audio'], // Added 'audio' as a valid enum value
     },
     tier: { 
         type: String, 

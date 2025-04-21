@@ -222,7 +222,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         note: post.note,
                         image: post.image || '',
                         video: post.video || '',
-                        mediaType: post.video ? 'video' : (post.image ? 'image' : undefined),
+                        mediaType: post.video ? 'video' : (post.image ? 'image' : (post.audio ? 'audio' : undefined)), // Ensure audio mediaType is handled
                         tier: post.tier || 'Free',
                         comments: post.comments || [],
                         likes: post.likes || [],

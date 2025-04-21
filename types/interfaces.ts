@@ -16,7 +16,7 @@ export interface Post {
     note: string;
     image?: string;
     video?: string;
-    mediaType?: 'image' | 'video';
+    audio?: string; // Ensure audio field exists
     tier: string;
     createdAt: string;
     comments: Comment[];

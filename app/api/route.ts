@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
         const requestData = await request.json();
         console.log('Server - Received post data:', JSON.stringify(requestData, null, 2));
         
-        const { username, note, image, video, tier, mediaType, timestamp } = requestData;
+        const { username, note, image, video, audio, tier, mediaType, timestamp } = requestData; // Added 'audio' to destructuring
         console.log('Server - Destructured tier:', tier);
         
         if (!username || !note) {
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
             note,
             image: image || '',
             video: video || '',
+            audio: audio || '', 
             mediaType: mediaType || 'image',
             tier: tier || 'Free',
             createdAt: timestamp || new Date().toISOString(),

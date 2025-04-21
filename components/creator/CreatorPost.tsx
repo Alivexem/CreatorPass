@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { MdInsertComment } from "react-icons/md";
 interface CreatorPostProps {
     post: Post & {
-        mediaType?: 'image' | 'video';
+        mediaType?: 'image' | 'video' | 'audio'; // Add audio media type
         video?: string;
     };
     profile: Profile | null;
@@ -148,15 +148,10 @@ const CreatorPost = ({
             </div>
 
             {/* Media Content */}
-            {(post.image || post.video) && (
+            {(post.image || post.video || post.mediaType === 'audio') && (
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
-                        className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
-                        onClick={() => {
-                            if (post.image && !post.video) {
-                                onImageClick(post.image);
-                            }
-                        }}
+                        className='relative md:h-[350px] h-[300px] w-[95%] mt-7'
                     >
                         {post.video ? (
                             <video
@@ -166,15 +161,33 @@ const CreatorPost = ({
                                 autoPlay
                                 muted
                                 controlsList='nodownload'
-                                                            />
-                        ) : post.image && (
+                            />
+                        ) : post.image ? (
                             <Image
                                 src={post.image}
                                 fill
                                 style={{ objectFit: 'cover' }}
                                 className='rounded-lg shadow-md'
                                 alt='post media'
+                                onClick={() => onImageClick(post.image || '')}
                             />
+                        ) : post.mediaType === 'audio' && (
+                            <>
+                                <Image
+                                    src='/audio.jpg'
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    className='rounded-lg shadow-md'
+                                    alt='audio placeholder'
+                                />
+                                <audio
+                                    src={post.audio}
+                                    controls
+                                    className='w-full mt-[40%]'
+                                >
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </>
                         )}
                     </div>
                 </div>

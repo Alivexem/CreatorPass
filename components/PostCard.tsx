@@ -11,7 +11,7 @@ import { linkifyText } from '@/utils/linkify';
 
 interface PostCardProps {
     post: Post & {
-        mediaType?: 'image' | 'video';
+        mediaType?: 'image' | 'video' | 'audio';
         video?: string;
     };
     userProfile: Profile;
@@ -106,7 +106,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
             </div>
 
             {/* Media Content */}
-            {(post.image || post.video) && (
+            {(post.image || post.video || post.mediaType === 'audio') && (
                 <div className='flex justify-center w-[100%] items-center'>
                     <div 
                         className='relative md:h-[350px] h-[300px] w-[95%] mt-7 cursor-pointer hover:opacity-90 transition-opacity'
@@ -125,7 +125,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                                 muted
                                 controlsList='nodownload'
                             />
-                        ) : post.image && (
+                        ) : post.image ? (
                             <Image
                                 src={post.image}
                                 fill
@@ -133,6 +133,23 @@ const PostCard: React.FC<PostCardProps> = ({ post, ...props }) => {
                                 className='rounded-lg shadow-md'
                                 alt='post media'
                             />
+                        ) : post.audio && (
+                            <>
+                                <Image
+                                    src='/audio.jpg' // Placeholder image for audio files
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    className='rounded-lg shadow-md'
+                                    alt='audio placeholder'
+                                />
+                                <audio
+                                    src={post.audio}
+                                    controls
+                                    className='w-full mt-[40%]'
+                                >
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </>
                         )}
                     </div>
                 </div>

@@ -65,7 +65,7 @@ const Content = ({ setToast }: ContentProps) => {
     const [showEmoji, setShowEmoji] = useState(false);
     const emojiRef = useRef<HTMLDivElement>(null);
     const emojiButtonRef = useRef<HTMLButtonElement>(null);
-    const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
+    const [mediaType, setMediaType] = useState<'image' | 'video' | 'audio'>('image');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [imageUrl, setImageUrl] = useState<string>('');
 
@@ -262,7 +262,7 @@ const Content = ({ setToast }: ContentProps) => {
     
         // Set preview and media type
         setSelectedImage(URL.createObjectURL(file));
-        const type = file.type.startsWith('video/') ? 'video' : 'image';
+        const type = file.type.startsWith('video/') ? 'video' : file.type.startsWith('audio/') ? 'audio' : 'image';
         setMediaType(type);
     
         // Automatically start upload
@@ -272,7 +272,8 @@ const Content = ({ setToast }: ContentProps) => {
     const handleUploadMedia = async (file: File) => {
         setLoading(true);
         setUploadProgress(0);
-        const type = file.type.startsWith('video/') ? 'video' : 'image';
+        const type = file.type.startsWith('video/') ? 'video' : file.type.startsWith('audio/') ? 'audio' : 'image';
+        setMediaType(type);
 
         try {
             const formData = new FormData();
@@ -303,7 +304,17 @@ const Content = ({ setToast }: ContentProps) => {
                 xhr.send(formData);
             });
 
-            setimage(uploadedUrl);
+            // Set the URL to the appropriate state variable based on media type
+            if (type === 'video') {
+                setimage(''); // Clear other media
+                setimage(uploadedUrl);
+            } else if (type === 'audio') {
+                setimage(''); // Clear other media
+                setimage(uploadedUrl);
+            } else {
+                setimage(''); // Clear other media
+                setimage(uploadedUrl);
+            }
             setUploadProgress(100);
         } catch (error) {
             console.error('Error uploading media:', error);
@@ -357,12 +368,14 @@ const Content = ({ setToast }: ContentProps) => {
 
             console.log('Frontend - Selected tier before creating postData:', selectedTier);
 
+            // Create post data based on media type
             const postData = {
                 username: myAddress,
                 note: note.trim(),
                 image: mediaType === 'image' ? image : '',
-                video: mediaType === 'video' ? image : '', // Using separate field for video
-                tier: selectedTier, // Make sure tier is explicitly included
+                video: mediaType === 'video' ? image : '',
+                audio: mediaType === 'audio' ? image : '',
+                tier: selectedTier,
                 createdAt: new Date().toISOString(),
                 comments: [],
                 likes: [],
@@ -870,6 +883,12 @@ const Content = ({ setToast }: ContentProps) => {
                                                             className='w-full h-full object-contain bg-black'
                                                             controls
                                                         />
+                                                    ) : mediaType === 'audio' ? (
+                                                        <audio 
+                                                            src='/audio.jpg'
+                                                            className='w-full h-full object-contain bg-black'
+                                                            controls
+                                                        />
                                                     ) : (
                                                         <Image 
                                                             src={selectedImage}
@@ -907,7 +926,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 type="file"
                                                 id="media-upload"
                                                 className='hidden'
-                                                accept="image/*,video/*"
+                                                accept="image/*,video/*,audio/*"
                                                 onChange={handleMediaChange}
                                             />
                                             {selectedImage && !loading && (

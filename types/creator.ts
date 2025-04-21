@@ -17,7 +17,8 @@ export interface Post {
     note: string;
     image?: string;
     video?: string;
-    mediaType?: 'image' | 'video';
+    audio?: string; // Add audio field to support audio uploads
+    mediaType?: 'image' | 'video' | 'audio'; // Add mediaType field
     tier: string;
     comments: Comment[];
     likes: string[];
