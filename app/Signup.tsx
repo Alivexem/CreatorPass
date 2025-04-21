@@ -39,6 +39,7 @@ const App = () => {
         if (isConnected && address) {
             trackUserAuth(address);
             setShowToaster(true);
+            setShowVpnModal(false); // Ensure VPN modal is hidden after successful authentication
             const timer = setTimeout(() => {
                 setShowToaster(false);
             }, 3000);
@@ -47,7 +48,9 @@ const App = () => {
     }, [isConnected, address]);
 
     const handleConnectClick = () => {
-        setShowVpnModal(true);
+        if (!isConnected) { // Only show VPN modal if not connected
+            setShowVpnModal(true);
+        }
     };
 
     const handleProceed = async () => {
