@@ -167,7 +167,7 @@ const App = () => {
                 </div>
                 <div className='hidden md:block'>
                     <div className='text-[2.5rem] mt-[500px] md:mt-0 md:text-[30px] text-white font-bold w-full text-left lg:text-left mb-4 pl-4'>
-                        <p>CreatorPass</p>
+                        <p>CreatorPass Network</p>
                     </div>
                     <p className='text-left lg:text-left mb-5 pl-4 text-gray-300'>
                         CreatorPass connects creators and fans through unique NFT passes. Creators can easily mint digital passes to share premium content, while fans unlock exclusive videos, events, and more with their passes. Earn CRTP points that will later be converted into Tradable tokens when you engage with posts and mint NFT passes</p>

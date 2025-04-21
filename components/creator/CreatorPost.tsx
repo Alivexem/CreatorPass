@@ -7,10 +7,12 @@ import { IoMdDownload } from "react-icons/io";
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { MdInsertComment } from "react-icons/md";
+
 interface CreatorPostProps {
     post: Post & {
-        mediaType?: 'image' | 'video' | 'audio'; // Add audio media type
+        mediaType?: 'image' | 'video' | 'audio';
         video?: string;
+        audio?: string; // Add audio URL property
     };
     profile: Profile | null;
     hasLiked: boolean;
@@ -32,7 +34,7 @@ interface CreatorPostProps {
         gift: boolean;
     };
     onProfileClick?: () => void;
-    hasProfile?: boolean; // Add this prop
+    hasProfile?: boolean;
 }
 
 const CreatorPost = ({
@@ -100,7 +102,7 @@ const CreatorPost = ({
         
         return { __html: processedText };
     };
-
+    
     return (
         <div className='md:w-[50vw] w-[95%] flex flex-col rounded-xl bg-[#111315] shadow-lg'>
             {/* Header */}
@@ -171,8 +173,9 @@ const CreatorPost = ({
                                 alt='post media'
                                 onClick={() => onImageClick(post.image || '')}
                             />
-                        ) : post.mediaType === 'audio' && (
-                            <>
+                            
+                        ) : post.mediaType === 'audio' && post.audio && (
+                            <div className="relative w-full h-full">
                                 <Image
                                     src='/audio.jpg'
                                     fill
@@ -180,15 +183,22 @@ const CreatorPost = ({
                                     className='rounded-lg shadow-md'
                                     alt='audio placeholder'
                                 />
-                                <audio
-                                    src={post.audio}
-                                    controls
-                                    className='w-full mt-[40%]'
-                                >
-                                    Your browser does not support the audio element.
-                                </audio>
-                            </>
+                                
+                                
+                                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4">
+                                    <audio
+                                        src={post.audio}
+                                        controls
+                                        className='w-full'
+                                    >
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    
+                                </div>
+                                
+                            </div>
                         )}
+                        
                     </div>
                 </div>
             )}

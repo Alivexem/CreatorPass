@@ -138,6 +138,7 @@ const CreatorPage = ({ params }: PageProps) => {
             }, 3000);
         }
     };
+    
 
     const [isProfileFetched, setIsProfileFetched] = useState(false);
 
@@ -215,6 +216,7 @@ const CreatorPage = ({ params }: PageProps) => {
 
                 // Filter posts by creator username and map to include required fields
                 const creatorPosts = postsData.creator
+                
                     .filter((post: Post) => post.username === id)
                     .map((post: Post) => ({
                         _id: post._id,
@@ -222,6 +224,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         note: post.note,
                         image: post.image || '',
                         video: post.video || '',
+                        audio: post.audio || '', // Add this comma
                         mediaType: post.video ? 'video' : (post.image ? 'image' : (post.audio ? 'audio' : undefined)), // Ensure audio mediaType is handled
                         tier: post.tier || 'Free',
                         comments: post.comments || [],
@@ -230,6 +233,7 @@ const CreatorPage = ({ params }: PageProps) => {
                         createdAt: post.createdAt,
                         __v: post.__v
                     }));
+                    
 
                 // Check if viewer is the post owner
                 const isOwner = id === myAddress;
