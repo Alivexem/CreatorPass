@@ -905,7 +905,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 <label htmlFor="media-upload" className='block cursor-pointer'>
                                                     <div className='h-[200px] border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-colors'>
                                                         <FaImages className="text-4xl text-gray-400" />
-                                                        <p className='text-gray-400 text-center'>Click or drag image/video to upload</p>
+                                                        <p className='text-gray-400 text-center'>Click or drag image/video/audio to upload</p>
                                                         <p className='text-gray-500 text-sm'>Max size: 80MB</p>
                                                     </div>
                                                 </label>
