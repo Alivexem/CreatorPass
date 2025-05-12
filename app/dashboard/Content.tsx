@@ -909,7 +909,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                         <p className='text-gray-500 text-sm'>Max size: 80MB</p>
                                                     </div>
                                                 </label>
-                                            )}
+                                            )} 
                                         </div>
 
                                         {loading && (
@@ -930,7 +930,7 @@ const Content = ({ setToast }: ContentProps) => {
                                                 onChange={handleMediaChange}
                                             />
                                             {selectedImage && !loading && (
-                                                <>
+                    b                            <>
                                                     <button
                                                         type="button"
                                                         onClick={() => {

@@ -12,7 +12,7 @@ interface CreatorPostProps {
     post: Post & {
         mediaType?: 'image' | 'video' | 'audio';
         video?: string;
-        audio?: string; // Add audio URL property
+        audio?: string; 
     };
     profile: Profile | null;
     hasLiked: boolean;

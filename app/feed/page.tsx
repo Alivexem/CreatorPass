@@ -9,7 +9,8 @@ import { CommentModal } from '@/components/CommentModal';
 import Image from 'next/image';
 import { IoMdClose } from "react-icons/io";
 import GiftModal from '@/components/creator/GiftModal';
-import { useAppKit } from '@/utils/reown';
+import { useAppKit, useAppKitAccount, useAppKitProvider, PublicKey, Transaction, SystemProgram, Provider } from '@/utils/reown';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
 
 const FeedPage = () => {
     const router = useRouter();
@@ -32,6 +33,9 @@ const FeedPage = () => {
     const [showGiftModal, setShowGiftModal] = useState(false);
     const [selectedCreator, setSelectedCreator] = useState<{ id: string; profile: Profile | null }>({ id: '', profile: null });
     const { open } = useAppKit();
+    const { isConnected, address } = useAppKitAccount();
+    const { connection } = useAppKitConnection();
+    const { walletProvider } = useAppKitProvider<Provider>('solana');
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -318,8 +322,11 @@ const FeedPage = () => {
 
     const handleSendTx = async (amount: number, receiver: string) => {
         try {
-            const address = localStorage.getItem('address');
-            if (!address) {
+            const lamports = amount;
+            const latestBlockhash = connection ? await connection.getLatestBlockhash() : null;
+            const walletAddress = localStorage.getItem('address') || '';
+
+            if (!walletAddress || !connection || !walletProvider) {
                 setToast({
                     show: true,
                     message: 'Please connect your wallet first',
@@ -328,7 +335,20 @@ const FeedPage = () => {
                 return;
             }
 
-            // Rest of the transaction logic will be handled by the GiftModal component
+            const transaction = new Transaction({
+                feePayer: new PublicKey(walletAddress),
+                recentBlockhash: latestBlockhash?.blockhash,
+            }).add(
+                SystemProgram.transfer({
+                    fromPubkey: new PublicKey(walletAddress),
+                    toPubkey: new PublicKey(receiver),
+                    lamports: lamports,
+                })
+            );
+
+            const signature = await walletProvider.sendTransaction(transaction, connection);
+            console.log(signature);
+
             setToast({
                 show: true,
                 message: 'Gift sent successfully!',
