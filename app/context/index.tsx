@@ -16,7 +16,7 @@ const solanaAdapter = new SolanaAdapter({
 export const modal = createAppKit({
   adapters: [solanaAdapter],
   projectId,
-  networks: [solana, solanaTestnet],
+  networks: [solanaTestnet],
   metadata: {
     name: 'AppKit',
     description: 'AppKit Solana Example',
@@ -25,7 +25,7 @@ export const modal = createAppKit({
   },
   features: {
     email: true,
-    socials: ['google','x','github','discord','apple','facebook'],  // enable social logins :contentReference[oaicite:2]{index=2}
+    socials: ['google','x','github','discord','apple','facebook'], 
     emailShowWallets: false,
     swaps: true,
     onramp: true,
